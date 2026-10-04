@@ -73,6 +73,21 @@ anywhere. Only well-established packages (React, Vite, TypeScript).
   scale lock, chord memory, strum, tap tempo, MIDI clock in/out.
 - Suggested order: mixer + sidechain → Plaits/Rings-style → FM + supersaw → piano roll.
 
+## Pinned for later: off-rack gear brought into the rack
+Real instruments and studio gear rebuilt as patchable panels, modelled physically (no recordings).
+- **Played with the mouse**: turntable (scratch LOOP/SAMPLE, motor spin-up/down, pitch, crossfader),
+  theremin (pitch + volume antennas → CV), Stylophone, Omnichord (chord buttons + strum strip),
+  Kaossilator-style pad, music box (crank = tempo, editable punched strip).
+- **Guitar world**: pedalboard row (fuzz, wah, Space Echo-style tape echo, chorus, octave, looper pedal),
+  valve amp + speaker cabinet, talk box (vowel CV).
+- **Studio hardware**: Mellotron-style tape replay (mechanism modelled around synthesised tones),
+  reel-to-reel / 4-track (bounce, reverse, vari-speed), Auto-Tune-style pitch corrector, echo chamber
+  (place the speaker and mic).
+- **World & acoustic**: tanpura drone, handpan / steel pan / kalimba, gamelan gongs, bowed singing bowl.
+- **Performance boxes**: MPC-style chopper (16 pads, note repeat, swing), Pocket Operator-style unit with
+  parameter locks, DJ mixer (kill EQs, filter, crossfader), harp strum.
+- Suggested order: turntable → theremin + Omnichord → pedalboard → music box.
+
 ## Next
 
 ### Systems
