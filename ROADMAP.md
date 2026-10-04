@@ -14,7 +14,7 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (72)
+### Modules (75)
 - **Systems**: MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine).
 - **Polyphonic**: POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX.
 - **Sources**: VCO, COMPLEX (Buchla-style), WAVE (band-limited wavetable), SUB, NOISE.
@@ -29,9 +29,12 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - **Effects**: BBD, TAPE, SPRING, PLATE, PHASER, ENSEMBLE.
 - **Pedals** (stompboxes, click-free footswitch): FUZZ (germanium, bias sputter), WAH (draggable treadle,
   auto mode), OCTAVE (rectifier up + flip-flop down), CHORUS (BBD, stereo B out), TAPE ECHO (3 heads,
-  speed bends pitch, trails on bypass), LOOPER (one-switch rec/play/dub, kept with the patch).
+  speed bends pitch, trails on bypass), LOOPER (one-switch rec/play/dub, kept with the patch),
+  VALVE AMP (triode preamp, tone stack, sagging power amp, miked 1×12/4×12 cab), TALK BOX (drag the
+  mouth: vowel × jaw, formant tract + tube).
 - **Played instruments**: THEREMIN (hover to play, heterodyne tone, snap, CV outs), OMNICHORD (chord
-  buttons, strum plate, auto-bass, chord on a poly cable).
+  buttons, strum plate, auto-bass, chord on a poly cable), MUSIC BOX (crank or motor, punch your own
+  paper strip, steel-comb tines).
 - **Sampling**: LOOP (4 slots, overdub undo, ½× record), SAMPLE (record/load, slices), TURNTABLE
   (scratch the platter; flywheel motor + brake, 33/45, pitch, transformer CUT, strobe dots, cartridge
   output follows stylus velocity, crackle/rumble WEAR; cut your own record or load a file; factory

@@ -43,6 +43,9 @@ import { OctaveDsp } from './pedals/octave'
 import { ChorusDsp } from './pedals/chorus'
 import { EchoDsp } from './pedals/echo'
 import { LooperPedalDsp } from './pedals/looper'
+import { MusicBoxDsp } from './musicbox'
+import { AmpDsp } from './amp'
+import { TalkBoxDsp } from './talkbox'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -119,6 +122,9 @@ const CIRCUITS: Record<string, DspCtor> = {
   chorus: ChorusDsp,
   echo: EchoDsp,
   lpedal: LooperPedalDsp,
+  musicbox: MusicBoxDsp,
+  amp: AmpDsp,
+  talkbox: TalkBoxDsp,
 }
 
 export function createDsp(type: string, fs: number, seed: number): Dsp | null {

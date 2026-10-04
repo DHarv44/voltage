@@ -34,6 +34,9 @@ import { turntable } from './specs/turntable'
 import { theremin } from './specs/theremin'
 import { omnichord } from './specs/omnichord'
 import { chorus, echo, fuzz, lpedal, octave, wah } from './specs/pedals'
+import { musicbox } from './specs/musicbox'
+import { amp } from './specs/amp'
+import { talkbox } from './specs/talkbox'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -63,6 +66,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   vco,
   theremin,
   omnichord,
+  musicbox,
   complexOsc,
   wave,
   sub,
@@ -99,6 +103,8 @@ export const SPEC_LIST: ModuleSpec[] = [
   chorus,
   echo,
   lpedal,
+  amp,
+  talkbox,
   mixer,
   smix,
   mult,

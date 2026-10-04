@@ -15,4 +15,6 @@ export const PEDAL_PURPLE: PanelStyle = { bg: '#4b2a6b', fg: '#efe6fa', accent: 
 export const PEDAL_BLUE: PanelStyle = { bg: '#7fb3d6', fg: '#14222c', accent: '#ff3b2f' }
 export const PEDAL_GREEN: PanelStyle = { bg: '#2f5a3f', fg: '#ecf3e9', accent: '#7dff8a' }
 export const PEDAL_ORANGE: PanelStyle = { bg: '#e07b22', fg: '#24160a', accent: '#ff2a1a' }
+/** Amp head: black tolex with a gold faceplate print. */
+export const AMP: PanelStyle = { bg: '#1a1714', fg: '#e8d9a8', accent: '#d4af37' }
 export const SAND: PanelStyle = { bg: '#d8d0bd', fg: '#24211d', accent: '#c0392b' }
