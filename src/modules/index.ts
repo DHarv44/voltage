@@ -29,6 +29,7 @@ import { padsr, polycv, polymix, pvca, pvcf, pvco } from './specs/poly'
 import { monitor } from './specs/monitor'
 import { studio } from './specs/studio'
 import { vision } from './specs/vision'
+import { xy } from './specs/xy'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -68,6 +69,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   func,
   follow,
   lfo,
+  xy,
   sh,
   fold,
   ring,

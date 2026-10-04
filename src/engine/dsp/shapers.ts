@@ -67,7 +67,8 @@ export class SlewDsp extends Dsp {
   }
 }
 
-const SCALES: number[][] = [
+/** Semitones of each QUANT_SCALES entry. */
+export const SCALES: number[][] = [
   [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
   [0, 2, 4, 5, 7, 9, 11],
   [0, 2, 3, 5, 7, 8, 10],

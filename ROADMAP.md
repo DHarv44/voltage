@@ -14,13 +14,15 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (62)
+### Modules (63)
 - **Systems**: MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine).
 - **Polyphonic**: POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX.
 - **Sources**: VCO, COMPLEX (Buchla-style), WAVE (band-limited wavetable), SUB, NOISE.
 - **Filters**: LADDER, SVF, MS-12.
 - **Amplifiers**: VCA, VCA×4.
-- **Modulation**: ADSR, FUNC (Maths-style), FOLLOW, LFO, S&H.
+- **Modulation**: ADSR, FUNC (Maths-style), FOLLOW, LFO, S&H, XY (touch pad: X/Y/pressure/speed/
+  distance/angle/scale-pitch out; free, spring and fling modes; clock-synced gesture looper; four-corner
+  knob morphing).
 - **Shapers**: FOLD, RING, SLEW, QUANT.
 - **Drums**: KICK, SNARE, CLAP, HATS, TOM, PERC, PADS, TOUCH (plates).
 - **Sequencing**: CLOCK, DIV, SEQ-8, TR-16 (A–D + song chains), EUCLID, TURING, ARP, CHORD.
@@ -37,7 +39,7 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - Knobs: scroll wheel and middle-drag.
 - Cables: sag, recolour and remove via jack menu; Esc cancels a drag.
 - Undo/redo; named patch library; export/import; `?scratch` sandbox.
-- 14 factory presets (incl. Jellyfish Dream: the jelly plays the melody).
+- 13 factory presets; Jellyfish Dream (the jelly plays the melody) is the first-run rack.
 - Git history.
 
 ## Waiting on a decision
@@ -45,9 +47,7 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
   main output is patched (switched direct out), or require patching to OUT like everything else.
 
 ## Up next
-- **XY touch pad**: X, Y, gate, pressure, speed, distance/angle outputs; free, spring, physics (fling)
-  and scale modes; clock-synced gesture recorder with a fading trail; corner-snapshot morph; CV in moves
-  the dot; multi-touch → poly cables on tablets.
+- **XY pad extras**: multi-touch → poly cables on tablets; save the recorded gesture with the patch.
 - **More VISION scenes**: coral reef, fireflies, aurora, cymatics plate.
 
 ## Pinned for later: creative modules

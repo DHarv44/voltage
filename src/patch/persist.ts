@@ -1,6 +1,6 @@
 import { SPECS } from '../modules'
 import { defaultParams } from '../modules/params'
-import type { Cable, ModuleInst, Patch } from './types'
+import type { Cable, ModuleInst, MorphSnapshot, Patch } from './types'
 
 const KEY = 'voltage.patch.v1'
 let timer: number | undefined
@@ -30,6 +30,16 @@ export function loadSaved(): Patch | null {
   }
 }
 
+function sanitizeMorph(raw: unknown[]): (MorphSnapshot | null)[] {
+  return [0, 1, 2, 3].map((i) => {
+    const s = raw[i]
+    if (!s || typeof s !== 'object') return null
+    const out: MorphSnapshot = {}
+    for (const [k, v] of Object.entries(s)) if (typeof v === 'number' && Number.isFinite(v)) out[k] = v
+    return out
+  })
+}
+
 const num = (v: unknown, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d)
 
 /** Accepts anything (saved or imported JSON) and returns a valid patch or null. */
@@ -48,6 +58,7 @@ export function sanitize(raw: unknown): Patch | null {
       hp: Math.max(0, Math.round(num(m.hp))),
       seed: num(m.seed, 1),
       params: { ...defaultParams(SPECS[m.type]), ...(typeof m.params === 'object' ? m.params : {}) },
+      ...(Array.isArray(m.morph) ? { morph: sanitizeMorph(m.morph) } : {}),
     })
   }
   const byId = new Map(modules.map((m) => [m.id, m]))

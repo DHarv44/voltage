@@ -4,7 +4,6 @@ import { sanitize } from '../persist'
 import type { Patch } from '../types'
 import { ambient, classicMono, monoLead, westCoast } from './synths'
 import { acidHouse, drumKit, loopJam } from './rhythm'
-import { synthPop } from './pop'
 import { euclidPolyrhythm, jellyDream, polyStrings, studioBleeps, studioClassic, tapeAmbient } from './more'
 
 export interface Preset {
@@ -38,14 +37,6 @@ export const PRESETS: Preset[] = [
     description: 'GROOVE-1 beat clocking SEQ-8 into a squelchy MONO-1 bassline with echo.',
     howTo: 'Power on: it plays itself. Tweak MONO-1 CUTOFF and RESONANCE.',
     build: acidHouse,
-  },
-  {
-    id: 'harry-styles',
-    name: 'Harry Styles Synth-Pop',
-    description:
-      'Groove-first 173 BPM synth-pop: octave bass on MONO-1, a three-voice I–V–vi–IV pad, a ring-modulated steel-drum bell hook, punchy drums.',
-    howTo: 'Power on: it plays itself. Flip GROOVE-1 PATTERN to B for a snare fill.',
-    build: synthPop,
   },
   {
     id: 'drum-kit',

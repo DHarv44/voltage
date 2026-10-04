@@ -46,6 +46,8 @@ export type Control =
   | { kind: 'scope'; x: number; y: number; w: number; h: number }
   /** three.js creature tank, drawn from the module's LED-channel state. */
   | { kind: 'vision'; x: number; y: number; w: number; h: number }
+  /** XY touch surface with morph corners. */
+  | { kind: 'xypad'; x: number; y: number; w: number; h: number }
   /** Printed outline grouping a circuit section on system panels. */
   | { kind: 'section'; x: number; y: number; w: number; h: number; label: string }
   /** Velocity-sensitive rubber pad; glows from LED `led`. */

@@ -1,7 +1,7 @@
-import { classicMono } from './presets/synths'
+import { jellyDream } from './presets/more'
 import type { Patch } from './types'
 
-/** First-run rack: the classic two-oscillator voice, playable from the keyboard. */
+/** First-run rack: Jellyfish Dream, a VISION jellyfish playing its own melody. */
 export function defaultPatch(): Patch {
-  return classicMono()
+  return jellyDream()
 }

@@ -4,7 +4,7 @@ import { defaultPatch } from './defaultPatch'
 import { makeModule, uid } from './factory'
 import { findSlot, placeWithPush } from './layout'
 import { loadSaved, sanitize, save } from './persist'
-import type { Cable, JackRef, Patch } from './types'
+import type { Cable, JackRef, MorphSnapshot, Patch } from './types'
 
 type Listener = () => void
 
@@ -133,6 +133,33 @@ export const actions = {
       },
       `${id}:${param}`,
     )
+  },
+
+  /** Several params at once (XY morph), as one merged undo step per `key`. */
+  setParams(updates: [string, string, number][], key: string): void {
+    if (!updates.length) return
+    const byMod = new Map<string, Record<string, number>>()
+    for (const [id, param, v] of updates) byMod.set(id, { ...byMod.get(id), [param]: v })
+    set(
+      {
+        ...state,
+        modules: state.modules.map((m) => (byMod.has(m.id) ? { ...m, params: { ...m.params, ...byMod.get(m.id) } } : m)),
+      },
+      key,
+    )
+  },
+
+  /** Store (or clear, with null) one XY morph corner. */
+  setMorphCorner(id: string, corner: number, snap: MorphSnapshot | null): void {
+    set({
+      ...state,
+      modules: state.modules.map((m) => {
+        if (m.id !== id) return m
+        const morph = [...(m.morph ?? [null, null, null, null])]
+        morph[corner] = snap
+        return { ...m, morph }
+      }),
+    })
   },
 
   resetParams(id: string): void {

@@ -33,6 +33,7 @@ import { PolyAdsrDsp, PolyCvDsp, PolyLadderDsp, PolyMixDsp, PolyVcaDsp, PolyVcoD
 import { MonitorDsp } from './monitor'
 import { StudioDsp } from './studio'
 import { VisionDsp } from './vision'
+import { XyDsp } from './xy'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -99,6 +100,7 @@ const CIRCUITS: Record<string, DspCtor> = {
   monitor: MonitorDsp,
   studio: StudioDsp,
   vision: VisionDsp,
+  xy: XyDsp,
 }
 
 export function createDsp(type: string, fs: number, seed: number): Dsp | null {

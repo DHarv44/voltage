@@ -11,7 +11,12 @@ export interface ModuleInst {
   /** Fixes this unit's component tolerances and drift character for life. */
   seed: number
   params: Record<string, number>
+  /** XY pad morph corners (A top-left, B top-right, C bottom-left, D bottom-right):
+   *  knob snapshots keyed "moduleId/param". */
+  morph?: (MorphSnapshot | null)[]
 }
+
+export type MorphSnapshot = Record<string, number>
 
 export interface Cable {
   id: string
