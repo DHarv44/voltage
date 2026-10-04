@@ -12,10 +12,50 @@ let state: Patch = loadSaved() ?? defaultPatch()
 save(state) // persist a fresh rack immediately so module seeds (unit personalities) survive reloads
 const listeners = new Set<Listener>()
 
-function set(next: Patch): void {
+const HISTORY_LIMIT = 100
+const MERGE_MS = 800
+const past: Patch[] = []
+const future: Patch[] = []
+let mergeKey = ''
+let mergeAt = 0
+
+function emit(next: Patch): void {
   state = next
   listeners.forEach((l) => l())
   save(next)
+}
+
+/** Commit an edit. Edits sharing `key` within MERGE_MS of each other (a knob
+ *  being turned, a burst of live-recorded steps) collapse into one undo step. */
+function set(next: Patch, key = ''): void {
+  const now = Date.now()
+  if (!(key && key === mergeKey && now - mergeAt < MERGE_MS)) {
+    past.push(state)
+    if (past.length > HISTORY_LIMIT) past.shift()
+  }
+  mergeKey = key
+  mergeAt = now
+  future.length = 0
+  emit(next)
+}
+
+export const history = {
+  canUndo: (): boolean => past.length > 0,
+  canRedo: (): boolean => future.length > 0,
+  undo(): void {
+    const p = past.pop()
+    if (!p) return
+    future.push(state)
+    mergeKey = ''
+    emit(p)
+  },
+  redo(): void {
+    const f = future.pop()
+    if (!f) return
+    past.push(state)
+    mergeKey = ''
+    emit(f)
+  },
 }
 
 export const patchStore = {
@@ -86,10 +126,13 @@ export const actions = {
   },
 
   setParam(id: string, param: string, value: number): void {
-    set({
-      ...state,
-      modules: state.modules.map((m) => (m.id === id ? { ...m, params: { ...m.params, [param]: value } } : m)),
-    })
+    set(
+      {
+        ...state,
+        modules: state.modules.map((m) => (m.id === id ? { ...m, params: { ...m.params, [param]: value } } : m)),
+      },
+      `${id}:${param}`,
+    )
   },
 
   resetParams(id: string): void {

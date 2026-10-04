@@ -3,13 +3,14 @@ import { engine } from '../audio/engine'
 import { recorder, useRecorder } from '../audio/recorder'
 import { SCRATCH } from '../patch/persist'
 import { PresetMenu } from './PresetMenu'
+import { actions, history, patchStore } from '../patch/store'
+import { settings, useSettings } from './settings'
 
 const fmtTime = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
-import { actions, patchStore } from '../patch/store'
-import { settings, useSettings } from './settings'
 
 export function TopBar() {
   const st = useSyncExternalStore(engine.subscribe, engine.getStatus)
+  useSyncExternalStore(patchStore.subscribe, patchStore.get) // refresh undo/redo availability
   const s = useSettings()
   const rec = useRecorder()
   const fileRef = useRef<HTMLInputElement>(null)
@@ -90,9 +91,17 @@ export function TopBar() {
         />
       </label>
       <div className="btns">
+        <button className="history-btn" onClick={history.undo} disabled={!history.canUndo()} title="Undo (Ctrl+Z)">
+          ↶
+        </button>
+        <button className="history-btn" onClick={history.redo} disabled={!history.canRedo()} title="Redo (Ctrl+Shift+Z)">
+          ↷
+        </button>
         <button onClick={actions.addRow}>+ Row</button>
         <button onClick={actions.removeRow}>− Row</button>
-        <button onClick={() => confirm('Clear the rack?') && actions.clear()}>New</button>
+        <button onClick={actions.clear} title="Clear the rack (Ctrl+Z to undo)">
+          New
+        </button>
         <PresetMenu />
         <button onClick={exportPatch}>Export</button>
         <button onClick={() => fileRef.current?.click()}>Import</button>
