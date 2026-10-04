@@ -58,6 +58,21 @@ anywhere. Only well-established packages (React, Vite, TypeScript).
 - **Performance**: scene snapshots with morphing, macro knobs, "happy accident" randomiser.
 - **Character output**: cassette deck and vinyl-lathe export.
 
+## Pinned for later: industry-standard tools
+- **Mixing & master**: mixer console (channel strips, EQ, pan, mute/solo, 2 send/return buses), sidechain
+  compressor, 4-band parametric EQ with curve display, glue compressor, limiter, mid/side widener,
+  transient shaper, noise gate.
+- **Meters**: tuner, spectrum analyser, LUFS loudness meter, stereo correlation meter.
+- **Famous Eurorack modules**: Plaits-style macro oscillator, Rings-style resonator, Clouds-style granular,
+  Grids-style drum map, Marbles-style random, Metropolix-style sequencer, Disting-style multi-tool.
+- **Classic instruments**: 6-op FM (DX7-style), supersaw (JP-8000-style), tonewheel organ + rotary speaker,
+  electric piano model, 303-style acid voice, vocoder / talk box.
+- **Effects**: tempo-synced ping-pong delay, algorithmic hall/room, shimmer reverb, flanger, auto-filter,
+  tremolo/auto-pan, pitch shifter/harmoniser, bitcrusher, multiband distortion.
+- **DAW-style sequencing**: piano roll / clip launcher, MIDI file player, song arranger, swing templates,
+  scale lock, chord memory, strum, tap tempo, MIDI clock in/out.
+- Suggested order: mixer + sidechain → Plaits/Rings-style → FM + supersaw → piano roll.
+
 ## Next
 
 ### Systems
