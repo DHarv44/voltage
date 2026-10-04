@@ -2,7 +2,7 @@ import { memo, type MouseEvent, type PointerEvent } from 'react'
 import { SPECS } from '../../modules'
 import { HP_MM, PANEL_H_MM, type Control, type ModuleSpec } from '../../modules/types'
 import type { ModuleInst } from '../../patch/types'
-import { PX, moduleLeft, rowTop } from '../geometry'
+import { PX, SCREW_Y_MM, moduleLeft, rowTop, screwHoles } from '../geometry'
 import { Jack } from './Jack'
 import { Knob } from './Knob'
 import { Led } from './Led'
@@ -96,13 +96,13 @@ function SurfaceView({ name, ...props }: SurfaceProps & { name: string }) {
 
 function PanelFace({ spec, w }: { spec: ModuleSpec; w: number }) {
   const { bg, fg, accent } = spec.panel
-  const screwX = spec.hp <= 4 ? [w / 2] : [7.5, w - 7.5]
+  const screwX = screwHoles(spec.hp)
   return (
     <g pointerEvents="none">
       <rect x={0.15} y={0} width={w - 0.3} height={PANEL_H_MM} fill={bg} />
       <rect x={0.15} y={0} width={w - 0.3} height={PANEL_H_MM} fill="url(#panel-sheen)" />
       <rect x={0.15} y={0} width={w - 0.3} height={PANEL_H_MM} fill="none" stroke="#000" strokeOpacity={0.35} strokeWidth={0.3} />
-      {screwX.flatMap((x) => [3, PANEL_H_MM - 3].map((y) => <Screw key={`${x}-${y}`} x={x} y={y} />))}
+      {screwX.flatMap((x) => [SCREW_Y_MM, PANEL_H_MM - SCREW_Y_MM].map((y) => <Screw key={`${x}-${y}`} x={x} y={y} />))}
       <text className="silk title" x={w / 2} y={11} fill={fg} fontSize={spec.hp <= 4 ? 3.4 : 4.4}>
         {spec.title}
       </text>
