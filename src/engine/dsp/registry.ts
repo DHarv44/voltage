@@ -31,6 +31,7 @@ import { TouchDsp } from './touch'
 import { SampleDsp } from './sampler'
 import { PolyAdsrDsp, PolyCvDsp, PolyLadderDsp, PolyMixDsp, PolyVcaDsp, PolyVcoDsp } from './poly'
 import { MonitorDsp } from './monitor'
+import { StudioDsp } from './studio'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -95,6 +96,7 @@ const CIRCUITS: Record<string, DspCtor> = {
   pvca: PolyVcaDsp,
   polymix: PolyMixDsp,
   monitor: MonitorDsp,
+  studio: StudioDsp,
 }
 
 export function createDsp(type: string, fs: number, seed: number): Dsp | null {

@@ -12,7 +12,7 @@ const DISPERSION_A = -0.75
  *  first-order allpasses. Like a real spring, the line is dispersive: high
  *  frequencies arrive before low ones, so every round trip turns a click into
  *  the falling "drip" chirp, and recirculating builds the splashy tail. */
-class SpringLine {
+export class SpringLine {
   private readonly buf: Float32Array
   private w = 0
   private readonly apX = new Float64Array(DISPERSION_STAGES)

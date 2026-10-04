@@ -5,6 +5,7 @@ import type { Patch } from '../types'
 import { ambient, classicMono, monoLead, westCoast } from './synths'
 import { acidHouse, drumKit, loopJam } from './rhythm'
 import { synthPop } from './pop'
+import { euclidPolyrhythm, polyStrings, studioBleeps, studioClassic, tapeAmbient } from './more'
 
 export interface Preset {
   id: string
@@ -66,6 +67,41 @@ export const PRESETS: Preset[] = [
     description: 'Clocked S&H picks pentatonic notes over a drone; long BBD and deep spring.',
     howTo: 'Power on and let it play.',
     build: ambient,
+  },
+  {
+    id: 'poly-strings',
+    name: 'Poly Strings',
+    description: 'Six-voice poly synth on poly cables: P-VCO → P-LADDER → P-VCA, ensemble chorus, plate.',
+    howTo: 'Power on and play chords on keys A–K.',
+    build: polyStrings,
+  },
+  {
+    id: 'studio-classic',
+    name: 'STUDIO-3 Classic',
+    description: 'The 2600-style unit as a fat lead: cross-mod VCOs, resonant filter, spring.',
+    howTo: 'Power on and play keys A–K.',
+    build: studioClassic,
+  },
+  {
+    id: 'studio-bleeps',
+    name: 'STUDIO-3 S&H Bleeps',
+    description: 'Classic self-patch: LFO → GATE retriggers, S&H noise → PITCH for random computer bleeps.',
+    howTo: 'Power on: it plays itself. Try LFO RATE and the attenuator.',
+    build: studioBleeps,
+  },
+  {
+    id: 'euclid',
+    name: 'Euclidean Polyrhythm',
+    description: '16- and 12-step Euclidean cycles on analog drums, Turing machine melodic toms.',
+    howTo: 'Power on: it plays itself. Turn the HITS knobs.',
+    build: euclidPolyrhythm,
+  },
+  {
+    id: 'tape-ambient',
+    name: 'Tape-Loop Ambient',
+    description: 'Slow Turing melody in Dorian on a morphing wavetable, through worn tape echo and a plate.',
+    howTo: 'Power on and let it drift.',
+    build: tapeAmbient,
   },
   {
     id: 'west-coast',
