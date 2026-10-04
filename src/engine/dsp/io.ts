@@ -35,6 +35,7 @@ export class OutputDsp extends Dsp {
   private iL = this.ii('l')
   private iR = this.ii('r')
   private pVol = this.pi('vol')
+  private pCoupling = this.pi('coupling')
   private readonly left = new AudioOutCore(this.fs)
   private readonly right = new AudioOutCore(this.fs)
 
@@ -42,8 +43,9 @@ export class OutputDsp extends Dsp {
     const l = this.in[this.iL]
     const r = this.patched[this.iR] ? this.in[this.iR] : l
     const vol = this.p[this.pVol]
-    this.audioL = this.left.process(l, vol)
-    this.audioR = this.right.process(r, vol)
+    const dc = this.p[this.pCoupling] >= 0.5
+    this.audioL = this.left.process(l, vol, dc)
+    this.audioR = this.right.process(r, vol, dc)
     this.led[0] = this.left.peak * 1.5
     this.led[1] = this.right.peak * 1.5
   }

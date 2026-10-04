@@ -1,6 +1,7 @@
 import { Dsp } from './base'
 import { Drift } from './drift'
 import { C4 } from './util'
+import { power } from './power'
 
 const SIZE = 1024
 const MIPS = 8 // max harmonics per mip: 256, 128, … 2
@@ -63,7 +64,7 @@ export class WaveDsp extends Dsp {
   tick(): void {
     const i = this.in
     const p = this.p
-    const oct = i[this.iV] + p[this.pCoarse] + p[this.pFine] / 12 + i[this.iFm] * p[this.pFm] + this.drift.next(this.age)
+    const oct = i[this.iV] + p[this.pCoarse] + p[this.pFine] / 12 + i[this.iFm] * p[this.pFm] + this.drift.next(this.age) + power.pitchSag
     const f = Math.min(C4 * Math.pow(2, oct), this.fs * 0.45)
     const allowed = (0.45 * this.fs) / f // harmonics that fit below Nyquist
     const mip = Math.max(0, Math.min(MIPS - 1, Math.ceil(Math.log2(256 / Math.max(allowed, 1)))))

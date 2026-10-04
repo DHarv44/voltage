@@ -29,6 +29,8 @@ import { PercDsp, TomDsp } from './drums2'
 import { EuclidDsp, TuringDsp } from './generative'
 import { TouchDsp } from './touch'
 import { SampleDsp } from './sampler'
+import { PolyAdsrDsp, PolyCvDsp, PolyLadderDsp, PolyMixDsp, PolyVcaDsp, PolyVcoDsp } from './poly'
+import { MonitorDsp } from './monitor'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -86,6 +88,13 @@ const CIRCUITS: Record<string, DspCtor> = {
   turing: TuringDsp,
   touch: TouchDsp,
   sample: SampleDsp,
+  polycv: PolyCvDsp,
+  pvco: PolyVcoDsp,
+  pvcf: PolyLadderDsp,
+  padsr: PolyAdsrDsp,
+  pvca: PolyVcaDsp,
+  polymix: PolyMixDsp,
+  monitor: MonitorDsp,
 }
 
 export function createDsp(type: string, fs: number, seed: number): Dsp | null {

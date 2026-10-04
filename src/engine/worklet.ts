@@ -44,6 +44,9 @@ class VoltageRackProcessor extends AudioWorkletProcessor {
       case 'buffer':
         this.graph.loadBuffer(m.id, m.slot, m.rate, m.data)
         break
+      case 'options':
+        this.graph.setOptions(m.sag, m.crosstalk)
+        break
       case 'getBuffer': {
         const b = this.graph.dumpBuffer(m.id, m.slot)
         const data = b ? b.data : new Float32Array(0)

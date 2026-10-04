@@ -22,6 +22,8 @@ export interface ParamSpec {
 export interface JackSpec {
   id: string
   label: string
+  /** Output carries up to 8 voices (polyphonic cable). */
+  poly?: boolean
 }
 
 export type KnobSize = 'L' | 'M' | 'S'
@@ -80,6 +82,7 @@ export interface StepsControl {
 
 export type Category =
   | 'Systems'
+  | 'Polyphonic'
   | 'Sources'
   | 'Filters'
   | 'Amplifiers'

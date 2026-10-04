@@ -2,6 +2,7 @@ import type { Dsp } from './dsp/base'
 import { createDsp } from './dsp/registry'
 import type { MidiEvent, TelemetryMsg, ToEngine, UiEvent } from './protocol'
 import { Probe } from './probe'
+import { CROSSTALK, NOMINAL_RAIL, power } from './dsp/power'
 
 type PatchMsg = Extract<ToEngine, { type: 'patch' }>
 
@@ -12,6 +13,7 @@ export class Graph {
   private mods = new Map<string, Dsp>()
   private order: Dsp[] = []
   private probe: Probe | null = null
+  private sag = 0
   private readonly fs: number
 
   constructor(fs: number) {
@@ -66,6 +68,7 @@ export class Graph {
   process(n: number, L: Float32Array, R: Float32Array | null): void {
     const order = this.order
     const len = order.length
+    const xt = power.crosstalk
     for (let s = 0; s < n; s++) {
       let l = 0
       let r = 0
@@ -78,6 +81,7 @@ export class Graph {
           const sm = src[i]
           if (sm) inp[i] = sm.out[so[i]]
         }
+        if (xt) for (let i = 1; i < src.length; i++) if (src[i] && src[i - 1]) inp[i] += CROSSTALK * inp[i - 1]
         m.stepParams()
         m.tick()
         if (m.sink) {
@@ -91,6 +95,34 @@ export class Graph {
     }
     const dt = n / this.fs
     for (let k = 0; k < len; k++) order[k].age += dt
+    this.updatePower(n)
+  }
+
+  /** Supply sag: total output current (≈ Σ|V| across all outputs) drags the
+   *  rails down and the expo converters flat, with ~80 ms supply recovery. */
+  private updatePower(n: number): void {
+    if (!power.sagOn) {
+      power.rail = NOMINAL_RAIL
+      power.pitchSag = 0
+      this.sag = 0
+      return
+    }
+    let load = 0
+    let outs = 0
+    for (const m of this.order) {
+      const o = m.out
+      for (let k = 0; k < o.length; k++) load += o[k] < 0 ? -o[k] : o[k]
+      outs += o.length
+    }
+    const level = Math.min(1, load / (5 * Math.max(8, outs * 0.5)))
+    this.sag += (level - this.sag) * (1 - Math.exp(-n / (0.08 * this.fs)))
+    power.rail = NOMINAL_RAIL - 2 * this.sag
+    power.pitchSag = -0.004 * this.sag
+  }
+
+  setOptions(sag: boolean, crosstalk: boolean): void {
+    power.sagOn = sag
+    power.crosstalk = crosstalk
   }
 
   telemetry(): TelemetryMsg {

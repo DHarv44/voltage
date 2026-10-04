@@ -25,11 +25,19 @@ import { perc, tom } from './specs/drums2'
 import { euclid, turing } from './specs/generative'
 import { touch } from './specs/touch'
 import { sample } from './specs/sampler'
+import { padsr, polycv, polymix, pvca, pvcf, pvco } from './specs/poly'
+import { monitor } from './specs/monitor'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
   mono,
   groove,
+  polycv,
+  pvco,
+  pvcf,
+  padsr,
+  pvca,
+  polymix,
   kick,
   snare,
   clap,
@@ -81,6 +89,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   scope,
   midi,
   output,
+  monitor,
 ]
 
 export const SPECS: Record<string, ModuleSpec> = Object.fromEntries(SPEC_LIST.map((s) => [s.type, s]))

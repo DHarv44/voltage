@@ -185,10 +185,11 @@ export class AudioOutCore {
     this.decay = Math.exp(-1 / (0.15 * fs))
   }
 
-  process(v: number, vol: number): number {
+  /** `dc` = DC-coupled (no 5 Hz blocker): slow CV reaches the output too. */
+  process(v: number, vol: number, dc = false): number {
     this.y = v - this.x + this.R * this.y
     this.x = v
-    const s = limit(this.y * ((vol * vol) / 8))
+    const s = limit((dc ? v : this.y) * ((vol * vol) / 8))
     const a = s < 0 ? -s : s
     this.peak = a > this.peak ? a : this.peak * this.decay
     return s

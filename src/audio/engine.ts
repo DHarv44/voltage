@@ -6,6 +6,7 @@ import type { Patch } from '../patch/types'
 import { buildPatchMsg, topologyKey } from './patchMsg'
 import { initMidi } from './midi'
 import { telemetry } from './telemetry'
+import { settings } from '../ui/settings'
 
 export interface EngineStatus {
   power: boolean
@@ -92,6 +93,17 @@ class AudioEngine {
     this.node = node
     this.sync()
     patchStore.subscribe(this.sync)
+    // Analog-imperfection options follow the settings.
+    let last = ''
+    const sendOptions = () => {
+      const s = settings.get()
+      const key = `${s.psuSag}/${s.crosstalk}`
+      if (key === last) return
+      last = key
+      this.send({ type: 'options', sag: s.psuSag, crosstalk: s.crosstalk })
+    }
+    sendOptions()
+    settings.subscribe(sendOptions)
     void initMidi((ev) => this.midi(ev), (midi) => this.update({ midi }))
   }
 

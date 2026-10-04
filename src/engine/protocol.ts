@@ -47,6 +47,8 @@ export type ToEngine =
   | ({ type: 'buffer' } & BufferMsg)
   /** Ask for a copy of a module's buffer (for WAV export). */
   | { type: 'getBuffer'; id: string; slot: number }
+  /** Analog imperfections: power-supply sag, jack crosstalk. */
+  | { type: 'options'; sag: boolean; crosstalk: boolean }
 
 /** Audio held by a module (LOOP slots, SAMPLE). Empty data = slot cleared. */
 export interface BufferMsg {

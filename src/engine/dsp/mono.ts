@@ -3,6 +3,7 @@ import type { MidiEvent } from '../protocol'
 import { AudioOutCore, EnvCore, KeyboardCore, LadderCore, OscCore } from './cores'
 import { Drift } from './drift'
 import { C4, TAU, rails } from './util'
+import { power } from './power'
 
 /** MONO-1 semi-modular voice. The internal signal path is fixed, but every
  *  patch-bay input is a switched jack: patched, it replaces the internal signal.
@@ -61,7 +62,7 @@ export class MonoSystemDsp extends Dsp {
     // Oscillator
     let pw = p[P.pw] + (this.jack(I.pwm, lfoV) / 10) * p[P.pwm]
     pw = pw < 0.03 ? 0.03 : pw > 0.97 ? 0.97 : pw
-    const oct = this.jack(I.pitch, keyV) * this.track + p[P.tune] + i[I.fm] + this.drift.next(this.age)
+    const oct = this.jack(I.pitch, keyV) * this.track + p[P.tune] + i[I.fm] + this.drift.next(this.age) + power.pitchSag
     this.vco.step(Math.min((C4 * Math.pow(2, oct)) / this.fs, 0.45), pw)
     const wave = p[P.wave]
     const vcoV = 5 * ((1 - wave) * this.vco.saw + wave * this.vco.sqr)

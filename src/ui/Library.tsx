@@ -6,6 +6,7 @@ import { settings, useSettings } from './settings'
 
 const ORDER: Category[] = [
   'Systems',
+  'Polyphonic',
   'Sources',
   'Filters',
   'Amplifiers',

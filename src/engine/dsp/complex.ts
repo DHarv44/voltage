@@ -1,6 +1,7 @@
 import { Dsp } from './base'
 import { Drift } from './drift'
 import { C4, TAU } from './util'
+import { power } from './power'
 
 const HALF_PI = Math.PI / 2
 
@@ -33,7 +34,7 @@ export class ComplexDsp extends Dsp {
   tick(): void {
     const i = this.in
     const p = this.p
-    const v = i[this.iV] * this.track + this.drift.next(this.age)
+    const v = i[this.iV] * this.track + this.drift.next(this.age) + power.pitchSag
     const mf = p[this.pM] * Math.pow(2, i[this.iMv] + (p[this.pTrack] >= 0.5 ? v : 0))
     const pf = C4 * Math.pow(2, v + p[this.pP] + p[this.pFine] / 12)
     this.mPhase += Math.min(mf / this.fs, 0.45)

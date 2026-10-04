@@ -2,6 +2,7 @@ import { Dsp } from './base'
 import { OscCore } from './cores'
 import { Drift } from './drift'
 import { C4 } from './util'
+import { power } from './power'
 
 /** Sawtooth-core VCO. PolyBLEP keeps saw/pulse alias-free; the expo converter
  *  has a per-unit tracking error and the core drifts with temperature. */
@@ -40,7 +41,8 @@ export class VcoDsp extends Dsp {
       p[this.pCoarse] +
       p[this.pFine] / 12 +
       i[this.iFm] * p[this.pFm] +
-      this.drift.next(this.age)
+      this.drift.next(this.age) +
+      power.pitchSag
     const f = Math.min(C4 * Math.pow(2, oct), this.fs * 0.45)
 
     const s = i[this.iSync]

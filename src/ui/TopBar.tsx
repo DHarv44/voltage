@@ -90,6 +90,14 @@ export function TopBar() {
           onChange={(e) => settings.set({ cableOpacity: Number(e.target.value) })}
         />
       </label>
+      <label className="ctl" title="Heavy load droops the ±12 V rails: outputs clip earlier, oscillators go slightly flat">
+        <input type="checkbox" checked={s.psuSag} onChange={(e) => settings.set({ psuSag: e.target.checked })} />
+        PSU sag
+      </label>
+      <label className="ctl" title="Faint (−56 dB) bleed between neighbouring jacks">
+        <input type="checkbox" checked={s.crosstalk} onChange={(e) => settings.set({ crosstalk: e.target.checked })} />
+        Crosstalk
+      </label>
       <div className="btns">
         <button className="history-btn" onClick={history.undo} disabled={!history.canUndo()} title="Undo (Ctrl+Z)">
           ↶

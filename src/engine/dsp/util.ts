@@ -1,3 +1,5 @@
+import { power } from './power'
+
 /** 0 V on a 1V/oct input = middle C. */
 export const C4 = 261.6255653005986
 export const TAU = Math.PI * 2
@@ -44,8 +46,9 @@ export function fastTanh(x: number): number {
   return (x * (27 + x2)) / (27 + 9 * x2)
 }
 
-/** Op-amp output swing: linear until near the ±12 V rails, then a soft knee. */
-export function rails(v: number, limit = 11): number {
+/** Op-amp output swing: linear until near the ±12 V rails, then a soft knee.
+ *  The default ceiling follows the power supply (lower when it sags). */
+export function rails(v: number, limit = power.rail): number {
   const a = v < 0 ? -v : v
   const knee = limit - 2
   if (a <= knee) return v

@@ -2,6 +2,9 @@ import type { ModuleSpec } from '../../modules/types'
 import type { MidiEvent, UiEvent } from '../protocol'
 import { Rng } from './util'
 
+/** Maximum voices on a polyphonic cable. */
+export const MAX_VOICES = 8
+
 /** One module's circuit. The graph copies upstream output voltages into `in`
  *  each sample, calls tick(), and downstream modules read `out`.
  *  `patched[i]` mirrors a switched jack: modules use it for normalled inputs. */
@@ -28,6 +31,10 @@ export abstract class Dsp {
 
   /** Engine-originated param changes awaiting telemetry: flat [index, value, …]. */
   readonly paramWrites: number[] = []
+  /** Per-output voice arrays for polyphonic outputs (null = mono output). */
+  readonly polyOut: (Float64Array | null)[]
+  /** Active voice count per output (1 for mono). */
+  readonly chans: Int32Array
   /** Changed audio buffers awaiting persistence (LOOP slots, SAMPLE). */
   readonly bufferOut: { slot: number; rate: number; data: Float32Array }[] = []
 
@@ -44,6 +51,8 @@ export abstract class Dsp {
     this.in = new Float64Array(ni)
     this.out = new Float64Array(spec.outputs.length)
     this.outPatched = new Uint8Array(spec.outputs.length)
+    this.polyOut = spec.outputs.map((j) => (j.poly ? new Float64Array(MAX_VOICES) : null))
+    this.chans = new Int32Array(spec.outputs.length).fill(1)
     this.patched = new Uint8Array(ni)
     this.srcMod = new Array<Dsp | null>(ni).fill(null)
     this.srcOut = new Int32Array(ni)
@@ -64,6 +73,29 @@ export abstract class Dsp {
   }
   protected pi(id: string): number {
     return indexOf(this.spec.params, id, this.spec.type)
+  }
+
+  /** Voice count arriving at input i (1 if mono or unpatched). */
+  protected inChans(i: number): number {
+    const src = this.srcMod[i]
+    return src && src.polyOut[this.srcOut[i]] ? src.chans[this.srcOut[i]] : 1
+  }
+
+  /** Voltage of voice `ch` at input i. A mono source applies to every voice;
+   *  a poly source's missing voices read 0 V. */
+  protected pin(i: number, ch: number): number {
+    const src = this.srcMod[i]
+    if (!src) return this.in[i]
+    const k = this.srcOut[i]
+    const arr = src.polyOut[k]
+    if (!arr) return this.in[i]
+    return ch < src.chans[k] ? arr[ch] : 0
+  }
+
+  /** Write voice `ch` of output k (voice 0 is mirrored to the mono jack value). */
+  protected pout(k: number, ch: number, v: number): void {
+    this.polyOut[k]![ch] = v
+    if (ch === 0) this.out[k] = v
   }
 
   /** Component tolerance: a fixed multiplier drawn once per instance (spread = 1σ). */

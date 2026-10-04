@@ -6,10 +6,13 @@ export interface Settings {
   cableOpacity: number
   /** Library sections the user has open (by category name, plus 'help'). */
   libOpen: string[]
+  /** Analog imperfections (engine options). */
+  psuSag: boolean
+  crosstalk: boolean
 }
 
 const KEY = 'voltage.settings.v1'
-const DEFAULTS: Settings = { zoom: null, cableOpacity: 0.85, libOpen: ['Systems'] }
+const DEFAULTS: Settings = { zoom: null, cableOpacity: 0.85, libOpen: ['Systems'], psuSag: false, crosstalk: false }
 
 function load(): Settings {
   try {
