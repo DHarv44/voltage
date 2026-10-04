@@ -29,6 +29,7 @@ export class Graph {
       m.params.forEach((v, i) => d!.setParam(i, v, fresh))
       d.srcMod.fill(null)
       d.patched.fill(0)
+      d.outPatched.fill(0)
       d.in.fill(0)
       next.set(m.id, d)
     }
@@ -39,10 +40,15 @@ export class Graph {
       to.srcMod[c.toIn] = from
       to.srcOut[c.toIn] = c.fromOut
       to.patched[c.toIn] = 1
+      from.outPatched[c.fromOut] = 1
     }
     this.mods = next
     if (this.probe) this.setProbe(this.probe.id) // re-attach (or drop) after the rebuild
     this.order = topoOrder([...next.values()])
+  }
+
+  getModule(id: string): Dsp | undefined {
+    return this.mods.get(id)
   }
 
   setParam(id: string, index: number, value: number): void {

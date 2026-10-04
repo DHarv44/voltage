@@ -16,6 +16,8 @@ import { pads, tr16 } from './specs/rhythm'
 import { loop } from './specs/looper'
 import { groove } from './specs/groove'
 import { ring } from './specs/ring'
+import { smix, vcamix } from './specs/mixing'
+import { follow, func, logic } from './specs/control'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -34,7 +36,10 @@ export const SPEC_LIST: ModuleSpec[] = [
   svf,
   ms,
   vca,
+  vcamix,
   adsr,
+  func,
+  follow,
   lfo,
   sh,
   fold,
@@ -47,7 +52,9 @@ export const SPEC_LIST: ModuleSpec[] = [
   bbd,
   spring,
   mixer,
+  smix,
   mult,
+  logic,
   atten,
   scope,
   midi,

@@ -11,6 +11,8 @@ export abstract class Dsp {
   readonly in: Float64Array
   readonly out: Float64Array
   readonly patched: Uint8Array
+  /** 1 where an output has a cable plugged in (for outputs that break a normal, e.g. VCA mixer channels). */
+  readonly outPatched: Uint8Array
   readonly srcMod: (Dsp | null)[]
   readonly srcOut: Int32Array
   /** Smoothed parameter values, in spec order. */
@@ -39,6 +41,7 @@ export abstract class Dsp {
     const ni = spec.inputs.length
     this.in = new Float64Array(ni)
     this.out = new Float64Array(spec.outputs.length)
+    this.outPatched = new Uint8Array(spec.outputs.length)
     this.patched = new Uint8Array(ni)
     this.srcMod = new Array<Dsp | null>(ni).fill(null)
     this.srcOut = new Int32Array(ni)
