@@ -50,6 +50,8 @@ export type Control =
   | { kind: 'button'; name: string; x: number; y: number; label: string; led?: number; ledColor?: string }
   /** Touch plate (Buchla-style): drag on it; across = position, height = pressure. */
   | { kind: 'plate'; index: number; x: number; y: number; w: number; h: number; label?: string; led?: number }
+  /** Button that opens a file picker and loads an audio file into buffer `slot`. */
+  | { kind: 'file'; slot: number; x: number; y: number; label: string }
   /** Horizontal position bar driven by LED `led` (0..1). */
   | { kind: 'progress'; x: number; y: number; w: number; led: number }
   | StepsControl

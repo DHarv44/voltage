@@ -41,6 +41,23 @@ class VoltageRackProcessor extends AudioWorkletProcessor {
         else if (this.recording) this.flush(true)
         this.recording = m.on
         break
+      case 'buffer':
+        this.graph.loadBuffer(m.id, m.slot, m.rate, m.data)
+        break
+      case 'getBuffer': {
+        const b = this.graph.dumpBuffer(m.id, m.slot)
+        const data = b ? b.data : new Float32Array(0)
+        this.port.postMessage({ type: 'buffer', dump: true, id: m.id, slot: m.slot, rate: b?.rate ?? sampleRate, data }, [data.buffer])
+        break
+      }
+    }
+  }
+
+  /** Changed module buffers go to the main thread for persistence (copies, transferred). */
+  private sendBuffers(): void {
+    for (const b of this.graph.takeBuffers()) {
+      const data = b.data.slice()
+      this.port.postMessage({ type: 'buffer', dump: false, id: b.id, slot: b.slot, rate: b.rate, data }, [data.buffer])
     }
   }
 
@@ -72,6 +89,7 @@ class VoltageRackProcessor extends AudioWorkletProcessor {
     if (this.since >= sampleRate / TELEMETRY_HZ) {
       this.since = 0
       this.port.postMessage(this.graph.telemetry())
+      this.sendBuffers()
     }
     return true
   }

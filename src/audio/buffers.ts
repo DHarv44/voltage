@@ -1,0 +1,88 @@
+import type { BufferMsg } from '../engine/protocol'
+import { SCRATCH } from '../patch/persist'
+import type { Patch } from '../patch/types'
+import { bufferStore } from './bufferStore'
+import { engine } from './engine'
+import { encodeWav24 } from './wav'
+
+/** Module types that hold audio, and how many slots each has. */
+export const BUFFER_SLOTS: Record<string, number> = { loop: 4, sample: 1 }
+
+const MAX_FILE_SECONDS = 60
+
+/** Keeps module audio alive across reloads and undo: persists every change the
+ *  engine reports, and re-sends stored audio to any module instance that
+ *  (re)appears in the patch. Also handles sample-file loading and WAV export. */
+class BufferManager {
+  private present = new Set<string>()
+  private dumps = new Map<string, (b: BufferMsg) => void>()
+
+  constructor() {
+    engine.onBuffer = (m) => {
+      const key = `${m.id}/${m.slot}`
+      if (m.dump) {
+        this.dumps.get(key)?.(m)
+        this.dumps.delete(key)
+      } else if (!SCRATCH) {
+        if (m.data.length) void bufferStore.put(m.id, m.slot, { rate: m.rate, data: m.data })
+        else void bufferStore.remove(m.id, m.slot)
+      }
+    }
+    engine.afterPatch = (p) => this.hydrate(p)
+  }
+
+  /** Send stored audio to modules that just appeared (new session, undo, preset). */
+  private hydrate(p: Patch): void {
+    const now = new Set<string>()
+    for (const m of p.modules) {
+      const slots = BUFFER_SLOTS[m.type]
+      if (!slots) continue
+      now.add(m.id)
+      if (this.present.has(m.id) || SCRATCH) continue
+      for (let s = 0; s < slots; s++)
+        void bufferStore.get(m.id, s).then((b) => {
+          if (b?.data.length) engine.send({ type: 'buffer', id: m.id, slot: s, rate: b.rate, data: b.data })
+        })
+    }
+    this.present = now
+  }
+
+  /** Decode an audio file, mix to mono, and load it into a module slot. */
+  async loadFile(id: string, slot: number, file: File): Promise<string | null> {
+    try {
+      const rate = engine.getStatus().sampleRate || 48000
+      const ctx = new OfflineAudioContext(1, 1, rate)
+      const audio = await ctx.decodeAudioData(await file.arrayBuffer())
+      const n = Math.min(audio.length, Math.round(MAX_FILE_SECONDS * audio.sampleRate))
+      const data = new Float32Array(n)
+      for (let c = 0; c < audio.numberOfChannels; c++) {
+        const ch = audio.getChannelData(c)
+        for (let i = 0; i < n; i++) data[i] += ch[i] / audio.numberOfChannels
+      }
+      if (!SCRATCH) await bufferStore.put(id, slot, { rate: audio.sampleRate, data: data.slice() })
+      engine.send({ type: 'buffer', id, slot, rate: audio.sampleRate, data })
+      return null
+    } catch (err) {
+      return `Couldn't read that file (${String(err)})`
+    }
+  }
+
+  /** Copy a module's audio out of the engine and download it as a WAV. */
+  async exportWav(id: string, slot: number, name: string): Promise<boolean> {
+    if (!engine.getStatus().power) return false
+    const b = await new Promise<BufferMsg>((resolve) => {
+      this.dumps.set(`${id}/${slot}`, resolve)
+      engine.send({ type: 'getBuffer', id, slot })
+    })
+    if (!b.data.length) return false
+    const blob = encodeWav24([b.data], [b.data], b.rate)
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = `${name}.wav`
+    a.click()
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000)
+    return true
+  }
+}
+
+export const buffers = new BufferManager()

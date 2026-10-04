@@ -108,6 +108,25 @@ export class Graph {
     return { type: 'telemetry', leds, scopes, params, probe: this.probe?.take() }
   }
 
+  loadBuffer(id: string, slot: number, rate: number, data: Float32Array): void {
+    this.mods.get(id)?.loadBuffer?.(slot, rate, data)
+  }
+
+  dumpBuffer(id: string, slot: number): { rate: number; data: Float32Array } | null {
+    return this.mods.get(id)?.dumpBuffer?.(slot) ?? null
+  }
+
+  /** Buffers changed since the last call (to be persisted by the main thread). */
+  takeBuffers(): { id: string; slot: number; rate: number; data: Float32Array }[] {
+    const out: { id: string; slot: number; rate: number; data: Float32Array }[] = []
+    for (const [id, d] of this.mods) {
+      if (!d.bufferOut.length) continue
+      for (const b of d.bufferOut) out.push({ id, ...b })
+      d.bufferOut.length = 0
+    }
+    return out
+  }
+
   /** Start/stop watching one module's jack voltages for the hover readout. */
   setProbe(id: string | null): void {
     const d = id ? this.mods.get(id) : undefined

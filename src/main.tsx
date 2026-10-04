@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client'
 import { App } from './App'
 import { engine } from './audio/engine'
+import './audio/buffers' // persists and restores LOOP/SAMPLE audio
 import { initQwerty } from './audio/midi'
 import { telemetry } from './audio/telemetry'
 import { validateSpecs } from './modules'

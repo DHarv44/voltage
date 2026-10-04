@@ -28,6 +28,7 @@ import { PlateDsp } from './plate'
 import { PercDsp, TomDsp } from './drums2'
 import { EuclidDsp, TuringDsp } from './generative'
 import { TouchDsp } from './touch'
+import { SampleDsp } from './sampler'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -84,6 +85,7 @@ const CIRCUITS: Record<string, DspCtor> = {
   euclid: EuclidDsp,
   turing: TuringDsp,
   touch: TouchDsp,
+  sample: SampleDsp,
 }
 
 export function createDsp(type: string, fs: number, seed: number): Dsp | null {

@@ -1,0 +1,51 @@
+import type { ModuleSpec } from '../types'
+import { SAND } from './panels'
+
+export const sample: ModuleSpec = {
+  type: 'sample',
+  title: 'SAMPLE',
+  name: 'Sampler',
+  tagline: 'Record from a jack or load your own audio file; slice, pitch, reverse, loop',
+  category: 'Sampling',
+  hp: 12,
+  panel: SAND,
+  inputs: [
+    { id: 'in', label: 'IN' },
+    { id: 'trig', label: 'TRIG' },
+    { id: 'scv', label: 'SLICE' },
+    { id: 'voct', label: 'V/OCT' },
+    { id: 'rec', label: 'REC' },
+  ],
+  outputs: [
+    { id: 'out', label: 'OUT' },
+    { id: 'eos', label: 'EOS' },
+  ],
+  params: [
+    { id: 'slices', label: 'SLICES', min: 1, max: 16, def: 1, stepped: true },
+    { id: 'slice', label: 'SLICE', min: 0, max: 15, def: 0, stepped: true },
+    { id: 'pitch', label: 'PITCH', min: -2, max: 2, def: 0, unit: 'oct' },
+    { id: 'level', label: 'LEVEL', min: 0, max: 1.5, def: 1, unit: '%' },
+    { id: 'loop', label: 'LOOP', min: 0, max: 1, def: 0, stepped: true, options: ['ONE', 'LOOP'] },
+    { id: 'rev', label: 'DIRECTION', min: 0, max: 1, def: 0, stepped: true, options: ['FWD', 'REV'] },
+  ],
+  leds: 3,
+  controls: [
+    { kind: 'button', name: 'rec', x: 12, y: 25, label: 'REC', led: 0, ledColor: '#ff3b2f' },
+    { kind: 'file', slot: 0, x: 30.5, y: 25, label: 'LOAD' },
+    { kind: 'led', index: 1, x: 49, y: 22, color: '#3bff6b' },
+    { kind: 'progress', x: 6, y: 38, w: 49, led: 2 },
+    { kind: 'knob', param: 'slices', x: 12, y: 52 },
+    { kind: 'knob', param: 'slice', x: 30.5, y: 52 },
+    { kind: 'knob', param: 'pitch', x: 49, y: 52 },
+    { kind: 'knob', param: 'level', x: 12, y: 70, size: 'S' },
+    { kind: 'switch', param: 'loop', x: 30.5, y: 70 },
+    { kind: 'switch', param: 'rev', x: 49, y: 70 },
+    { kind: 'in', jack: 'in', x: 6, y: 89 },
+    { kind: 'in', jack: 'trig', x: 18.2, y: 89 },
+    { kind: 'in', jack: 'scv', x: 30.5, y: 89 },
+    { kind: 'in', jack: 'voct', x: 42.7, y: 89 },
+    { kind: 'in', jack: 'rec', x: 55, y: 89 },
+    { kind: 'out', jack: 'out', x: 20, y: 108 },
+    { kind: 'out', jack: 'eos', x: 41, y: 108 },
+  ],
+}

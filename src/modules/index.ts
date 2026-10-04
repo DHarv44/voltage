@@ -24,6 +24,7 @@ import { ensemble, phaser, plate, tape } from './specs/effects2'
 import { perc, tom } from './specs/drums2'
 import { euclid, turing } from './specs/generative'
 import { touch } from './specs/touch'
+import { sample } from './specs/sampler'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -41,6 +42,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   euclid,
   turing,
   loop,
+  sample,
   vco,
   complexOsc,
   wave,

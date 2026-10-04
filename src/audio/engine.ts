@@ -25,9 +25,12 @@ class AudioEngine {
   private lastPatch: Patch | null = null
   private status: EngineStatus = { power: false, booting: false, sampleRate: 0, latencyMs: 0, midi: '—', error: null }
   private subs = new Set<() => void>()
-  /** Hooks for the recorder (kept separate to avoid an import cycle). */
+  /** Hooks for the recorder and buffer manager (kept separate to avoid import cycles). */
   onAudio: ((m: AudioChunkMsg) => void) | null = null
   beforeSuspend: (() => Promise<void>) | null = null
+  onBuffer: ((m: Extract<FromEngine, { type: 'buffer' }>) => void) | null = null
+  /** Called after every topology change has been sent to the engine. */
+  afterPatch: ((p: Patch) => void) | null = null
 
   getStatus = (): EngineStatus => this.status
   subscribe = (fn: () => void): (() => void) => {
@@ -81,6 +84,7 @@ class AudioEngine {
         this.applyEngineParams(m.params)
         if (this.status.power) telemetry.ingest(m)
       } else if (m.type === 'audio') this.onAudio?.(m)
+      else if (m.type === 'buffer') this.onBuffer?.(m)
       else this.update({ error: m.message })
     }
     node.connect(ctx.destination)
@@ -126,6 +130,7 @@ class AudioEngine {
     if (key !== this.lastTopo) {
       this.send(buildPatchMsg(p))
       this.lastTopo = key
+      this.afterPatch?.(p)
     } else if (this.lastPatch) {
       const prev = new Map(this.lastPatch.modules.map((m) => [m.id, m]))
       for (const m of p.modules) {

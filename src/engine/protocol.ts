@@ -43,6 +43,18 @@ export type ToEngine =
   | { type: 'record'; on: boolean }
   /** Watch one module's jack voltages (null = stop). */
   | { type: 'probe'; id: string | null }
+  /** Load audio into a module's buffer slot (restored loop, loaded sample file). */
+  | ({ type: 'buffer' } & BufferMsg)
+  /** Ask for a copy of a module's buffer (for WAV export). */
+  | { type: 'getBuffer'; id: string; slot: number }
+
+/** Audio held by a module (LOOP slots, SAMPLE). Empty data = slot cleared. */
+export interface BufferMsg {
+  id: string
+  slot: number
+  rate: number
+  data: Float32Array
+}
 
 /** Recorded output audio, streamed in chunks; `final` marks the flush after stop. */
 export interface AudioChunkMsg {
@@ -69,4 +81,9 @@ export interface ProbeFrame {
   outs: [number, number][]
 }
 
-export type FromEngine = TelemetryMsg | AudioChunkMsg | { type: 'error'; message: string }
+export type FromEngine =
+  | TelemetryMsg
+  | AudioChunkMsg
+  | { type: 'error'; message: string }
+  /** A module's buffer changed (persist it), or `dump` = reply to getBuffer. */
+  | ({ type: 'buffer'; dump: boolean } & BufferMsg)

@@ -28,6 +28,8 @@ export abstract class Dsp {
 
   /** Engine-originated param changes awaiting telemetry: flat [index, value, …]. */
   readonly paramWrites: number[] = []
+  /** Changed audio buffers awaiting persistence (LOOP slots, SAMPLE). */
+  readonly bufferOut: { slot: number; rate: number; data: Float32Array }[] = []
 
   private readonly target: Float64Array
   private readonly smooth: Uint8Array
@@ -96,6 +98,9 @@ export abstract class Dsp {
   abstract tick(): void
   onMidi?(ev: MidiEvent): void
   onUi?(ev: UiEvent): void
+  /** Modules holding audio: accept a restored/loaded buffer, and copy one out. */
+  loadBuffer?(slot: number, rate: number, data: Float32Array): void
+  dumpBuffer?(slot: number): { rate: number; data: Float32Array } | null
   /** Scope-style modules hand a completed capture to telemetry, then re-arm. */
   takeFrame?(): Float32Array | null
 }
