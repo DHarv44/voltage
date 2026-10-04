@@ -75,8 +75,12 @@ export function useRackInteractions(toLocal: (e: ClientPt) => Pt) {
         }
         startCable({ mod, jack }, dir, nextColor(), e)
       },
+      // Right-click pulls the jack's cables; Shift+right-click (or an empty jack) opens the jack menu.
       jackContext(mod, jack, dir, e) {
-        setJackMenu({ mod, jack, dir, x: e.clientX, y: e.clientY })
+        const at = (r: { mod: string; jack: string }) => r.mod === mod && r.jack === jack
+        const plugged = patchStore.get().cables.some((c) => at(dir === 'in' ? c.to : c.from))
+        if (plugged && !e.shiftKey) actions.removeCablesAt(mod, jack)
+        else setJackMenu({ mod, jack, dir, x: e.clientX, y: e.clientY })
       },
       jackHover(mod, jack, dir, e) {
         jackHover.set(e ? { mod, jack, dir, x: e.clientX, y: e.clientY } : null)

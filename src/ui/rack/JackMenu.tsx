@@ -18,7 +18,7 @@ const jackName = (ref: JackRef, dir: 'in' | 'out') => {
   return `${spec.title} ${j?.label || ref.jack}`
 }
 
-/** Right-click on a jack: recolour or pull each cable plugged into it. */
+/** Shift+right-click on a jack: recolour or pull each cable plugged into it. */
 export function JackMenu({ menu, onClose }: { menu: JackMenuState; onClose: () => void }) {
   useEffect(() => {
     const t = window.setTimeout(() => window.addEventListener('pointerdown', onClose), 0)
