@@ -48,6 +48,8 @@ export type Control =
   | { kind: 'vision'; x: number; y: number; w: number; h: number }
   /** XY touch surface with morph corners. */
   | { kind: 'xypad'; x: number; y: number; w: number; h: number }
+  /** Stompbox footswitch toggling a 0/1 param, with its LED. */
+  | { kind: 'stomp'; param: string; x: number; y: number }
   /** A played instrument surface (platter, antennas, strings…) from the UI surface registry. */
   | { kind: 'surface'; name: string; x: number; y: number; w: number; h: number }
   /** Printed outline grouping a circuit section on system panels. */
@@ -97,6 +99,7 @@ export type Category =
   | 'Drums'
   | 'Sequencing'
   | 'Effects'
+  | 'Pedals'
   | 'Sampling'
   | 'Utilities'
   | 'Visuals'

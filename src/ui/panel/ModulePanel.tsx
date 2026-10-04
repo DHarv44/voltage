@@ -16,6 +16,7 @@ import { Plate } from './Plate'
 import { FileButton } from './FileButton'
 import { VisionScreen } from './VisionScreen'
 import { XyPad } from './XyPad'
+import { Stomp } from './Stomp'
 import { SURFACES } from '../surfaces'
 import type { SurfaceProps } from '../surfaces/common'
 
@@ -174,6 +175,8 @@ function ControlView({ c, spec, inst, handlers }: { c: Control; spec: ModuleSpec
       return (
         <Plate mod={inst.id} index={c.index} x={c.x} y={c.y} w={c.w} h={c.h} label={c.label} led={c.led} panel={spec.panel} />
       )
+    case 'stomp':
+      return <Stomp mod={inst.id} param={c.param} on={inst.params[c.param] >= 0.5} x={c.x} y={c.y} panel={spec.panel} />
     case 'file':
       return <FileButton mod={inst.id} slot={c.slot} x={c.x} y={c.y} label={c.label} panel={spec.panel} />
     case 'progress':

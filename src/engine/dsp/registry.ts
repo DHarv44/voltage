@@ -37,6 +37,12 @@ import { XyDsp } from './xy'
 import { TurntableDsp } from './turntable'
 import { ThereminDsp } from './theremin'
 import { OmnichordDsp } from './omnichord'
+import { FuzzDsp } from './pedals/fuzz'
+import { WahDsp } from './pedals/wah'
+import { OctaveDsp } from './pedals/octave'
+import { ChorusDsp } from './pedals/chorus'
+import { EchoDsp } from './pedals/echo'
+import { LooperPedalDsp } from './pedals/looper'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -107,6 +113,12 @@ const CIRCUITS: Record<string, DspCtor> = {
   turntable: TurntableDsp,
   theremin: ThereminDsp,
   omnichord: OmnichordDsp,
+  fuzz: FuzzDsp,
+  wah: WahDsp,
+  octave: OctaveDsp,
+  chorus: ChorusDsp,
+  echo: EchoDsp,
+  lpedal: LooperPedalDsp,
 }
 
 export function createDsp(type: string, fs: number, seed: number): Dsp | null {

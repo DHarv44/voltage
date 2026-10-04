@@ -33,6 +33,7 @@ import { xy } from './specs/xy'
 import { turntable } from './specs/turntable'
 import { theremin } from './specs/theremin'
 import { omnichord } from './specs/omnichord'
+import { chorus, echo, fuzz, lpedal, octave, wah } from './specs/pedals'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -92,6 +93,12 @@ export const SPEC_LIST: ModuleSpec[] = [
   plate,
   phaser,
   ensemble,
+  fuzz,
+  wah,
+  octave,
+  chorus,
+  echo,
+  lpedal,
   mixer,
   smix,
   mult,
@@ -115,7 +122,7 @@ export function validateSpecs(): string[] {
       if (new Set(ids).size !== ids.length) errors.push(`${s.type}: duplicate ids in ${ids.join(',')}`)
     }
     for (const c of s.controls) {
-      if ((c.kind === 'knob' || c.kind === 'switch') && !s.params.some((p) => p.id === c.param))
+      if ((c.kind === 'knob' || c.kind === 'switch' || c.kind === 'stomp') && !s.params.some((p) => p.id === c.param))
         errors.push(`${s.type}: control references unknown param ${c.param}`)
       if (c.kind === 'in' && !s.inputs.some((j) => j.id === c.jack)) errors.push(`${s.type}: unknown input ${c.jack}`)
       if (c.kind === 'out' && !s.outputs.some((j) => j.id === c.jack)) errors.push(`${s.type}: unknown output ${c.jack}`)
