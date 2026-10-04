@@ -22,6 +22,9 @@ import { FollowDsp, FuncDsp, LogicDsp } from './control'
 import { ComplexDsp } from './complex'
 import { WaveDsp } from './wavetable'
 import { ArpDsp, ChordDsp, SubDsp } from './pitch'
+import { TapeDsp } from './tape'
+import { EnsembleDsp, PhaserDsp } from './modfx'
+import { PlateDsp } from './plate'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -69,6 +72,10 @@ const CIRCUITS: Record<string, DspCtor> = {
   sub: SubDsp,
   arp: ArpDsp,
   chord: ChordDsp,
+  tape: TapeDsp,
+  phaser: PhaserDsp,
+  ensemble: EnsembleDsp,
+  plate: PlateDsp,
 }
 
 export function createDsp(type: string, fs: number, seed: number): Dsp | null {

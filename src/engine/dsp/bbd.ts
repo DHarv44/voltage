@@ -21,7 +21,7 @@ export class BbdDsp extends Dsp {
 
   private readonly buf = new Float32Array(Math.ceil(MAX_TIME * 1.05 * this.fs) + 8)
   private w = 0
-  private tSm = this.p[this.pTime]
+  private tSm = -1 // snaps to the TIME setting on the first sample, then glides
   /** ~60 ms clock glide: the audible "pitch bend" when you turn TIME. */
   private readonly kGlide = 1 - Math.exp(-1 / (0.06 * this.fs))
   private lp1 = 0
@@ -54,7 +54,7 @@ export class BbdDsp extends Dsp {
     const x = this.in[this.iIn]
     let target = p[this.pTime] * Math.pow(2, -this.in[this.iTime])
     target = target < 0.01 ? 0.01 : target > MAX_TIME ? MAX_TIME : target
-    this.tSm += (target - this.tSm) * this.kGlide
+    this.tSm = this.tSm < 0 ? target : this.tSm + (target - this.tSm) * this.kGlide
 
     this.lfo += this.lfoInc
     if (this.lfo >= 1) this.lfo -= 1

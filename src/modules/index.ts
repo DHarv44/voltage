@@ -20,6 +20,7 @@ import { smix, vcamix } from './specs/mixing'
 import { follow, func, logic } from './specs/control'
 import { complexOsc, sub, wave } from './specs/oscillators2'
 import { arp, chord } from './specs/pitch'
+import { ensemble, phaser, plate, tape } from './specs/effects2'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -57,7 +58,11 @@ export const SPEC_LIST: ModuleSpec[] = [
   arp,
   chord,
   bbd,
+  tape,
   spring,
+  plate,
+  phaser,
+  ensemble,
   mixer,
   smix,
   mult,
