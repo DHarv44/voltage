@@ -34,12 +34,29 @@ anywhere. Only well-established packages (React, Vite, TypeScript).
 - Knobs: scroll wheel and middle-drag.
 - Cables: sag, recolour and remove via jack menu; Esc cancels a drag.
 - Undo/redo; named patch library; export/import; `?scratch` sandbox.
-- 17 factory presets.
+- 13 factory presets.
 - Git history.
 
 ## Waiting on a decision
 - **System direct output**: keep MONO-1 / GROOVE-1 / STUDIO-3 feeding the speakers directly until their
   main output is patched (switched direct out), or require patching to OUT like everything else.
+
+## Up next
+- **Visuals module (three.js)**: procedural creatures that are patched like any module. CV in drives them
+  (gate → jellyfish pulse, envelope → glow, pitch → colour); CV/gates out (pulse-end gate, tentacle sway,
+  flower growth). One shared renderer drawing each panel by scissor viewport (browsers cap WebGL contexts).
+  Scenes: bioluminescent jellyfish, growing flower, then reef, fireflies, aurora, cymatics plate.
+
+## Pinned for later: creative modules
+- **Simulations as sequencers**: BOUNCE (balls in a box → gates), ORBIT (planets → polyrhythms),
+  LIFE (Game of Life sequencer), FLOCK (boids → CV), CHAOS (double pendulum / Lorenz LFO),
+  ECOSYSTEM (predator–prey CV).
+- **Musical brains**: GHOST (learns your playing, answers back), PROGRESSION (harmony-rule chord
+  generator), BANDMATE (invents fills on GROOVE-1).
+- **Real-world inputs**: webcam motion → CV, gamepad, mic pitch tracker, big XY pad.
+- **Visual outputs**: VECTOR (XY oscilloscope music), WATERFALL spectrogram, rack-wide light show.
+- **Performance**: scene snapshots with morphing, macro knobs, "happy accident" randomiser.
+- **Character output**: cassette deck and vinyl-lathe export.
 
 ## Next
 
