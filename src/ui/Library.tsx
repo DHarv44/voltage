@@ -78,7 +78,7 @@ export function Library() {
           <p>Drag a module onto the rack to place it; anything in the way slides aside on drop. Click to drop it in the first free slot.</p>
           <p>Drag a panel to move it. Drop below the last row for a new row. Right-click a panel for more.</p>
           <p>Drag from a jack to patch. Drag a patched input to unplug it. Right-click a jack to pull its cables.</p>
-          <p>Knobs: scroll wheel up/down, or middle-button drag (Shift = fine). Double-click to reset. Click a switch to flip it.</p>
+          <p>Knobs: scroll wheel up/down, or drag up/down with the left or middle button (Shift = fine). Double-click to reset. Click a switch to flip it.</p>
           <p>Keys A–K play notes (Z/X octave). Number keys 1–8 hit drum pads.</p>
         </div>
       </LibrarySection>

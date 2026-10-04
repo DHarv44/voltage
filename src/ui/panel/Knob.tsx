@@ -22,8 +22,8 @@ interface Props {
 const WHEEL_STEPS = 50
 const WHEEL_STEPS_FINE = 250
 
-/** Pot. Scroll wheel: up = clockwise, down = anticlockwise. Middle-button drag
- *  up/down also turns it (left button stays free for moving panels).
+/** Pot. Scroll wheel: up = clockwise, down = anticlockwise. Left- or
+ *  middle-button drag up/down also turns it (grab the panel elsewhere to move it).
  *  Shift = fine. Double-click = default. */
 export function Knob({ mod, ps, value, x, y, size = 'M', label, fg }: Props) {
   const r = RADIUS[size]
@@ -73,7 +73,7 @@ export function Knob({ mod, ps, value, x, y, size = 'M', label, fg }: Props) {
   }, [])
 
   const down = (e: PointerEvent<SVGGElement>) => {
-    if (e.button !== 1) return // left/right fall through to the panel
+    if (e.button !== 0 && e.button !== 1) return // right-click falls through to the panel menu
     e.stopPropagation()
     const d = { y: e.clientY, n, v: value }
     setActive(true)
