@@ -2,7 +2,7 @@
 
 Realism rule for everything here: model the circuit or the hardware behaviour, never fake it with
 samples or downloaded assets. Every module is a voltage-in/voltage-out panel that can be patched
-anywhere. Only well-established packages (React, Vite, TypeScript).
+anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 
 ## Done
 
@@ -14,7 +14,7 @@ anywhere. Only well-established packages (React, Vite, TypeScript).
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (61)
+### Modules (62)
 - **Systems**: MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine).
 - **Polyphonic**: POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX.
 - **Sources**: VCO, COMPLEX (Buchla-style), WAVE (band-limited wavetable), SUB, NOISE.
@@ -27,6 +27,9 @@ anywhere. Only well-established packages (React, Vite, TypeScript).
 - **Effects**: BBD, TAPE, SPRING, PLATE, PHASER, ENSEMBLE.
 - **Sampling**: LOOP (4 slots, overdub undo, ½× record), SAMPLE (record/load, slices).
 - **Utilities / I/O**: MIX, STEREO, MULT, ATTN, LOGIC, SCOPE, MIDI·CV (aftertouch, bend range), OUT, MONITOR.
+- **Visuals**: VISION (three.js tank: bioluminescent jellyfish, growing flower). The creature lives on the
+  engine clock: TRIG/FEED/GLOW/HUE/MOVE steer it, GATE/SWAY/GROW/LIGHT come back out. One shared
+  WebGL renderer for every tank; three.js loads only when a tank is on the rack.
 
 ### Rack & workflow
 - Drag anywhere, slide-aside on drop, library drag-in, new-row drop.
@@ -34,7 +37,7 @@ anywhere. Only well-established packages (React, Vite, TypeScript).
 - Knobs: scroll wheel and middle-drag.
 - Cables: sag, recolour and remove via jack menu; Esc cancels a drag.
 - Undo/redo; named patch library; export/import; `?scratch` sandbox.
-- 13 factory presets.
+- 14 factory presets (incl. Jellyfish Dream: the jelly plays the melody).
 - Git history.
 
 ## Waiting on a decision
@@ -42,10 +45,10 @@ anywhere. Only well-established packages (React, Vite, TypeScript).
   main output is patched (switched direct out), or require patching to OUT like everything else.
 
 ## Up next
-- **Visuals module (three.js)**: procedural creatures that are patched like any module. CV in drives them
-  (gate → jellyfish pulse, envelope → glow, pitch → colour); CV/gates out (pulse-end gate, tentacle sway,
-  flower growth). One shared renderer drawing each panel by scissor viewport (browsers cap WebGL contexts).
-  Scenes: bioluminescent jellyfish, growing flower, then reef, fireflies, aurora, cymatics plate.
+- **XY touch pad**: X, Y, gate, pressure, speed, distance/angle outputs; free, spring, physics (fling)
+  and scale modes; clock-synced gesture recorder with a fading trail; corner-snapshot morph; CV in moves
+  the dot; multi-touch → poly cables on tablets.
+- **More VISION scenes**: coral reef, fireflies, aurora, cymatics plate.
 
 ## Pinned for later: creative modules
 - **Simulations as sequencers**: BOUNCE (balls in a box → gates), ORBIT (planets → polyrhythms),

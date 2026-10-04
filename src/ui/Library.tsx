@@ -17,6 +17,7 @@ const ORDER: Category[] = [
   'Effects',
   'Sampling',
   'Utilities',
+  'Visuals',
   'I/O',
 ]
 const HELP = 'help'

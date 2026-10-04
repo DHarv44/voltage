@@ -44,6 +44,8 @@ export type Control =
   | { kind: 'led'; index: number; x: number; y: number; color?: string; bipolar?: boolean }
   | { kind: 'text'; text: string; x: number; y: number; size?: number }
   | { kind: 'scope'; x: number; y: number; w: number; h: number }
+  /** three.js creature tank, drawn from the module's LED-channel state. */
+  | { kind: 'vision'; x: number; y: number; w: number; h: number }
   /** Printed outline grouping a circuit section on system panels. */
   | { kind: 'section'; x: number; y: number; w: number; h: number; label: string }
   /** Velocity-sensitive rubber pad; glows from LED `led`. */
@@ -93,6 +95,7 @@ export type Category =
   | 'Effects'
   | 'Sampling'
   | 'Utilities'
+  | 'Visuals'
   | 'I/O'
 
 export interface PanelStyle {

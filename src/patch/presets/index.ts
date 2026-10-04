@@ -5,7 +5,7 @@ import type { Patch } from '../types'
 import { ambient, classicMono, monoLead, westCoast } from './synths'
 import { acidHouse, drumKit, loopJam } from './rhythm'
 import { synthPop } from './pop'
-import { euclidPolyrhythm, polyStrings, studioBleeps, studioClassic, tapeAmbient } from './more'
+import { euclidPolyrhythm, jellyDream, polyStrings, studioBleeps, studioClassic, tapeAmbient } from './more'
 
 export interface Preset {
   id: string
@@ -102,6 +102,13 @@ export const PRESETS: Preset[] = [
     description: 'Slow Turing melody in Dorian on a morphing wavetable, through worn tape echo and a plate.',
     howTo: 'Power on and let it drift.',
     build: tapeAmbient,
+  },
+  {
+    id: 'jelly-dream',
+    name: 'Jellyfish Dream',
+    description: 'A VISION jellyfish plays the melody: each bell stroke is a note, its tentacles morph the tone, the note colours the jelly.',
+    howTo: 'Power on and watch. Turn VISION RATE for a busier jelly.',
+    build: jellyDream,
   },
   {
     id: 'west-coast',

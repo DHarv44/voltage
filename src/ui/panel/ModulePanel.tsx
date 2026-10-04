@@ -14,6 +14,7 @@ import { Progress } from './Progress'
 import { StepGrid } from './StepGrid'
 import { Plate } from './Plate'
 import { FileButton } from './FileButton'
+import { VisionScreen } from './VisionScreen'
 
 export interface PanelHandlers {
   jackDown(mod: string, jack: string, dir: 'in' | 'out', e: PointerEvent): void
@@ -61,6 +62,8 @@ export const ModulePanel = memo(function ModulePanel({ inst, row, hp, lifted, ha
             vdiv2={inst.params.g2}
             time={inst.params.time}
           />
+        ) : c.kind === 'vision' ? (
+          <VisionScreen key={i} mod={inst.id} x={c.x} y={c.y} w={c.w} h={c.h} scene={inst.params.scene} />
         ) : null,
       )}
     </div>
@@ -132,6 +135,7 @@ function ControlView({ c, spec, inst, handlers }: { c: Control; spec: ModuleSpec
         </text>
       )
     case 'scope':
+    case 'vision':
       return <rect x={c.x - 1} y={c.y - 1} width={c.w + 2} height={c.h + 2} rx={1.5} fill="#0a0a0a" stroke="#444" strokeWidth={0.3} />
     case 'pad':
       return (

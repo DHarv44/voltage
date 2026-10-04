@@ -98,6 +98,33 @@ export function tapeAmbient(): Patch {
   return b.build()
 }
 
+/** The jellyfish plays the music: each bell stroke clocks a Turing melody and
+ *  swells a note, its tentacle sway morphs the wavetable, and the note's pitch
+ *  colours the jelly (one trip round the colour wheel per octave). */
+export function jellyDream(): Patch {
+  const b = new RackBuilder()
+  const tank = b.add('vision', 0, 0, { rate: 0.35, glow: 0.8 })
+  const tur = b.add('turing', 0, 20, { change: 0.15, len: 8, range: 1 })
+  const quant = b.add('quant', 0, 28, { scale: 3 })
+  const wave = b.add('wave', 0, 36, { wave: 0.6, wamt: 0.6 })
+  const func = b.add('func', 0, 46, { rise: 0.05, fall: 2.5 })
+  const vca = b.add('vca', 0, 54)
+  const plate = b.add('plate', 0, 60, { decay: 0.85, mix: 0.45 })
+  const out = b.add('output', 0, 70, { vol: 0.85 })
+  b.wire(tank, 'gate', tur, 'clk')
+  b.wire(tank, 'gate', func, 'trig')
+  b.wire(tur, 'cv', quant, 'in')
+  b.wire(quant, 'out', wave, 'voct')
+  b.wire(quant, 'out', tank, 'hue')
+  b.wire(tank, 'sway', wave, 'wcv')
+  b.wire(wave, 'out', vca, 'in')
+  b.wire(func, 'out', vca, 'cv')
+  b.wire(vca, 'out', plate, 'in')
+  b.wire(plate, 'l', out, 'l')
+  b.wire(plate, 'r', out, 'r')
+  return b.build()
+}
+
 /** STUDIO-3 as a classic lead: VCO2 gently FMs VCO1, VCO3 an octave down,
  *  envelope-swept resonant filter, a touch of S&H on the cutoff and spring. */
 export function studioClassic(): Patch {
