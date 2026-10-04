@@ -581,6 +581,13 @@ button {
   background: #01060a;
 }
 
+.surface-canvas {
+  position: absolute;
+  border-radius: 3px;
+  touch-action: none;
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.8);
+}
+
 .xy-pad {
   position: absolute;
   border-radius: 3px;

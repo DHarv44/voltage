@@ -21,6 +21,8 @@ export type UiEvent =
   | { kind: 'touch'; index: number; x: number; y: number; down: boolean }
   /** XY pad: position 0..1 (y up), pressure 0..1; sent continuously while held. */
   | { kind: 'xy'; x: number; y: number; p: number; down: boolean }
+  /** Instrument surfaces (platter, antennas, strings…): meaning of x/y is per module. */
+  | { kind: 'surface'; name: string; x: number; y: number; down: boolean }
 
 export interface PatchModuleMsg {
   id: string

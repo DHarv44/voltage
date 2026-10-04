@@ -34,6 +34,7 @@ import { MonitorDsp } from './monitor'
 import { StudioDsp } from './studio'
 import { VisionDsp } from './vision'
 import { XyDsp } from './xy'
+import { TurntableDsp } from './turntable'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -101,6 +102,7 @@ const CIRCUITS: Record<string, DspCtor> = {
   studio: StudioDsp,
   vision: VisionDsp,
   xy: XyDsp,
+  turntable: TurntableDsp,
 }
 
 export function createDsp(type: string, fs: number, seed: number): Dsp | null {

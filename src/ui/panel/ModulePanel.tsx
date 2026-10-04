@@ -16,6 +16,8 @@ import { Plate } from './Plate'
 import { FileButton } from './FileButton'
 import { VisionScreen } from './VisionScreen'
 import { XyPad } from './XyPad'
+import { SURFACES } from '../surfaces'
+import type { SurfaceProps } from '../surfaces/common'
 
 export interface PanelHandlers {
   jackDown(mod: string, jack: string, dir: 'in' | 'out', e: PointerEvent): void
@@ -78,11 +80,18 @@ export const ModulePanel = memo(function ModulePanel({ inst, row, hp, lifted, ha
             morph={inst.params.morph === 1}
             corners={inst.morph}
           />
+        ) : c.kind === 'surface' && SURFACES[c.name] ? (
+          <SurfaceView key={i} name={c.name} inst={inst} spec={spec} x={c.x} y={c.y} w={c.w} h={c.h} />
         ) : null,
       )}
     </div>
   )
 })
+
+function SurfaceView({ name, ...props }: SurfaceProps & { name: string }) {
+  const S = SURFACES[name]
+  return <S {...props} />
+}
 
 function PanelFace({ spec, w }: { spec: ModuleSpec; w: number }) {
   const { bg, fg, accent } = spec.panel
@@ -151,6 +160,7 @@ function ControlView({ c, spec, inst, handlers }: { c: Control; spec: ModuleSpec
     case 'scope':
     case 'vision':
     case 'xypad':
+    case 'surface':
       return <rect x={c.x - 1} y={c.y - 1} width={c.w + 2} height={c.h + 2} rx={1.5} fill="#0a0a0a" stroke="#444" strokeWidth={0.3} />
     case 'pad':
       return (

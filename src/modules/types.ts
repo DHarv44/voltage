@@ -48,6 +48,8 @@ export type Control =
   | { kind: 'vision'; x: number; y: number; w: number; h: number }
   /** XY touch surface with morph corners. */
   | { kind: 'xypad'; x: number; y: number; w: number; h: number }
+  /** A played instrument surface (platter, antennas, strings…) from the UI surface registry. */
+  | { kind: 'surface'; name: string; x: number; y: number; w: number; h: number }
   /** Printed outline grouping a circuit section on system panels. */
   | { kind: 'section'; x: number; y: number; w: number; h: number; label: string }
   /** Velocity-sensitive rubber pad; glows from LED `led`. */
