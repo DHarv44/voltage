@@ -14,7 +14,7 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (79)
+### Modules (83)
 - **Systems**: MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine).
 - **Polyphonic**: POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX.
 - **Sources**: VCO, COMPLEX (Buchla-style), WAVE (band-limited wavetable), SUB, NOISE.
@@ -38,7 +38,10 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
   mouth: vowel × jaw, formant tract + tube).
 - **Played instruments**: THEREMIN (hover to play, heterodyne tone, snap, CV outs), OMNICHORD (chord
   buttons, strum plate, auto-bass, chord on a poly cable), MUSIC BOX (crank or motor, punch your own
-  paper strip, steel-comb tines).
+  paper strip, steel-comb tines), STRIKE (handpan D Kurd, tenor steel pan in fifths, kalimba; tap the
+  face), TANPURA (waveguide strings over a jawari bridge, self-plucking cycle), GAMELAN (saron, bonang,
+  gong; slendro/pelog; paired-tuning ombak; gong pitch sag), SINGING BOWL (bow the rim with stick-slip
+  friction, chatter, split modes, water).
 - **Sampling**: LOOP (4 slots, overdub undo, ½× record), SAMPLE (record/load, slices), TURNTABLE
   (scratch the platter; flywheel motor + brake, 33/45, pitch, transformer CUT, strobe dots, cartridge
   output follows stylus velocity, crackle/rumble WEAR; cut your own record or load a file; factory

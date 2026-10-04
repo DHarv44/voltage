@@ -41,6 +41,10 @@ import { tapekeys } from './specs/tapekeys'
 import { fourtrack } from './specs/fourtrack'
 import { tune } from './specs/tune'
 import { chamber } from './specs/chamber'
+import { strike } from './specs/strike'
+import { tanpura } from './specs/tanpura'
+import { gamelan } from './specs/gamelan'
+import { bowl } from './specs/bowl'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -73,6 +77,10 @@ export const SPEC_LIST: ModuleSpec[] = [
   theremin,
   omnichord,
   musicbox,
+  strike,
+  tanpura,
+  gamelan,
+  bowl,
   complexOsc,
   wave,
   sub,

@@ -50,6 +50,10 @@ import { TapeKeysDsp } from './tapekeys'
 import { FourTrackDsp } from './fourtrack'
 import { TuneDsp } from './tune'
 import { ChamberDsp } from './chamber'
+import { StrikeDsp } from './strike'
+import { TanpuraDsp } from './tanpura'
+import { GamelanDsp } from './gamelan'
+import { BowlDsp } from './bowl'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -133,6 +137,10 @@ const CIRCUITS: Record<string, DspCtor> = {
   fourtrack: FourTrackDsp,
   tune: TuneDsp,
   chamber: ChamberDsp,
+  strike: StrikeDsp,
+  tanpura: TanpuraDsp,
+  gamelan: GamelanDsp,
+  bowl: BowlDsp,
 }
 
 export function createDsp(type: string, fs: number, seed: number): Dsp | null {
