@@ -1,0 +1,53 @@
+import type { ModuleSpec } from '../types'
+import { BLACK } from './panels'
+
+export const loop: ModuleSpec = {
+  type: 'loop',
+  title: 'LOOP',
+  name: 'Tape Looper',
+  tagline: 'Record, overdub, reverse, varispeed; clock-synced; tape loss and wow',
+  category: 'Sampling',
+  hp: 12,
+  panel: BLACK,
+  inputs: [
+    { id: 'in', label: 'IN' },
+    { id: 'rec', label: 'REC' },
+    { id: 'play', label: 'PLAY' },
+    { id: 'clear', label: 'CLR' },
+    { id: 'clk', label: 'CLK' },
+    { id: 'speed', label: 'SPD' },
+  ],
+  outputs: [
+    { id: 'out', label: 'OUT' },
+    { id: 'wet', label: 'LOOP' },
+    { id: 'eol', label: 'EOL' },
+  ],
+  params: [
+    { id: 'level', label: 'LOOP LVL', min: 0, max: 1.5, def: 1, unit: '%' },
+    { id: 'speed', label: 'SPEED', min: 0.25, max: 2, def: 1, curve: 'exp', unit: 'x' },
+    { id: 'fb', label: 'OVERDUB', min: 0, max: 1, def: 0.92, unit: '%' },
+    { id: 'wow', label: 'WOW', min: 0, max: 1, def: 0.2, unit: '%' },
+    { id: 'dir', label: 'DIRECTION', min: 0, max: 1, def: 0, stepped: true, options: ['FWD', 'REV'] },
+  ],
+  leds: 3,
+  controls: [
+    { kind: 'button', name: 'rec', x: 12, y: 26, label: 'REC', led: 0, ledColor: '#ff3b2f' },
+    { kind: 'button', name: 'play', x: 30.5, y: 26, label: 'PLAY', led: 1, ledColor: '#3bff6b' },
+    { kind: 'button', name: 'clear', x: 49, y: 26, label: 'CLEAR' },
+    { kind: 'progress', x: 6, y: 39, w: 49, led: 2 },
+    { kind: 'knob', param: 'level', x: 12, y: 53 },
+    { kind: 'knob', param: 'speed', x: 30.5, y: 53 },
+    { kind: 'knob', param: 'fb', x: 49, y: 53 },
+    { kind: 'knob', param: 'wow', x: 12, y: 70, size: 'S' },
+    { kind: 'switch', param: 'dir', x: 30.5, y: 70 },
+    { kind: 'in', jack: 'in', x: 6, y: 89 },
+    { kind: 'in', jack: 'rec', x: 15.8, y: 89 },
+    { kind: 'in', jack: 'play', x: 25.6, y: 89 },
+    { kind: 'in', jack: 'clear', x: 35.4, y: 89 },
+    { kind: 'in', jack: 'clk', x: 45.2, y: 89 },
+    { kind: 'in', jack: 'speed', x: 55, y: 89 },
+    { kind: 'out', jack: 'out', x: 15, y: 108 },
+    { kind: 'out', jack: 'wet', x: 30.5, y: 108 },
+    { kind: 'out', jack: 'eol', x: 46, y: 108 },
+  ],
+}
