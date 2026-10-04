@@ -17,6 +17,8 @@ export const DRUM_CHANNEL = 10
 export type UiEvent =
   | { kind: 'pad'; index: number; vel: number; down: boolean }
   | { kind: 'button'; name: string; down: boolean }
+  /** Touch plate: x = position across (0..1), y = pressure (0..1); sent continuously while held. */
+  | { kind: 'touch'; index: number; x: number; y: number; down: boolean }
 
 export interface PatchModuleMsg {
   id: string

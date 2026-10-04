@@ -41,7 +41,8 @@ export function StepGrid({ mod, c, params, panel }: Props) {
   )
 
   const sel = c.pattern ? Math.round(params[c.pattern] ?? 0) : 0
-  const editB = sel === 1 || (sel === 2 && playing === 1)
+  const mapped = c.patternMap ? (c.patternMap[sel] ?? 0) : sel
+  const edit = mapped >= 0 ? mapped : playing // chains edit whatever is playing
   const len = c.length ? Math.round(params[c.length] ?? c.cols) : c.cols
   const bw = c.dx * 0.76
   const bh = c.dy * 0.7
@@ -85,11 +86,11 @@ export function StepGrid({ mod, c, params, panel }: Props) {
       />
       {c.pattern && (
         <text className="silk" x={c.x - c.dx * 1.05} y={c.y - c.dy * 0.85} fill={panel.accent} fontSize={1.9}>
-          {editB ? 'B' : 'A'}
+          {'ABCD'[edit] ?? '?'}
         </text>
       )}
       {c.rows.map((row, r) => {
-        const param = editB && row.b ? row.b : row.a
+        const param = row.p[edit] ?? row.p[0]
         const mask = params[param] ?? 0
         const y = c.y + r * c.dy
         return (

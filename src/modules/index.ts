@@ -21,6 +21,9 @@ import { follow, func, logic } from './specs/control'
 import { complexOsc, sub, wave } from './specs/oscillators2'
 import { arp, chord } from './specs/pitch'
 import { ensemble, phaser, plate, tape } from './specs/effects2'
+import { perc, tom } from './specs/drums2'
+import { euclid, turing } from './specs/generative'
+import { touch } from './specs/touch'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -30,8 +33,13 @@ export const SPEC_LIST: ModuleSpec[] = [
   snare,
   clap,
   hats,
+  tom,
+  perc,
   pads,
+  touch,
   tr16,
+  euclid,
+  turing,
   loop,
   vco,
   complexOsc,
@@ -91,7 +99,7 @@ export function validateSpecs(): string[] {
       if (c.kind === 'led' && c.index >= (s.leds ?? 0)) errors.push(`${s.type}: led ${c.index} out of range`)
       if (c.kind === 'steps')
         for (const r of c.rows)
-          for (const id of [r.a, r.b, c.pattern, c.length])
+          for (const id of [...r.p, c.pattern, c.length])
             if (id && !s.params.some((p) => p.id === id)) errors.push(`${s.type}: steps references unknown param ${id}`)
     }
   }

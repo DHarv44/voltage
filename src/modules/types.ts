@@ -48,6 +48,8 @@ export type Control =
   | { kind: 'pad'; index: number; x: number; y: number; size: number; label?: string; sub?: string; led?: number }
   /** Momentary push button sending a UI event `name`; optional LED. */
   | { kind: 'button'; name: string; x: number; y: number; label: string; led?: number; ledColor?: string }
+  /** Touch plate (Buchla-style): drag on it; across = position, height = pressure. */
+  | { kind: 'plate'; index: number; x: number; y: number; w: number; h: number; label?: string; led?: number }
   /** Horizontal position bar driven by LED `led` (0..1). */
   | { kind: 'progress'; x: number; y: number; w: number; led: number }
   | StepsControl
@@ -60,9 +62,12 @@ export interface StepsControl {
   dx: number
   dy: number
   cols: number
-  rows: { label: string; a: string; b?: string }[]
-  /** Pattern selector param: 0 = A, 1 = B, 2 = chain (edits the playing one). */
+  /** One mask param per pattern (A, B, C, D…) for each row. */
+  rows: { label: string; p: string[] }[]
+  /** Pattern selector param. */
   pattern?: string
+  /** Selector position → pattern index it edits; −1 = a chain (edit the playing one). */
+  patternMap?: number[]
   /** Optional length param: steps beyond it are dimmed. */
   length?: string
   /** LED index carrying the current step (−1 = stopped). */

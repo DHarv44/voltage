@@ -51,11 +51,18 @@ const GX = 17
 const GDX = 7.6
 const recX = (i: number) => 38 + i * 11
 
+/** Pattern selector positions. The A→B chain keeps value 2 so older patches load unchanged. */
+export const TR_PATTERNS = ['A', 'B', 'A→B', 'C', 'D', 'A→D', 'AAAB']
+/** Selector position → pattern it edits (−1 = chain: edit the playing one). */
+export const TR_PATTERN_MAP = [0, 1, -1, 2, 3, -1, -1]
+/** Selector position → chain order. */
+export const TR_CHAINS: Record<number, number[]> = { 2: [0, 1], 5: [0, 1, 2, 3], 6: [0, 0, 0, 1] }
+
 export const tr16: ModuleSpec = {
   type: 'tr16',
   title: 'TR-16',
   name: 'Drum Sequencer',
-  tagline: '8 tracks × 16 steps + accent, swing, A/B/chain, live record from triggers',
+  tagline: '8 tracks × 16 steps + accent, swing, patterns A–D with song chains, live record',
   category: 'Sequencing',
   hp: 32,
   panel: DRUM,
@@ -71,9 +78,11 @@ export const tr16: ModuleSpec = {
   params: [
     ...maskParams('a', DEFAULT_A),
     ...maskParams('b', []),
+    ...maskParams('c', []),
+    ...maskParams('d', []),
     { id: 'len', label: 'LENGTH', min: 1, max: STEPS, def: STEPS, stepped: true },
     { id: 'swing', label: 'SWING', min: 0, max: 0.9, def: 0, unit: '%' },
-    { id: 'pat', label: 'PATTERN', min: 0, max: 2, def: 0, stepped: true, options: ['A', 'B', 'A→B'] },
+    { id: 'pat', label: 'PATTERN', min: 0, max: TR_PATTERNS.length - 1, def: 0, stepped: true, options: TR_PATTERNS },
     { id: 'rec', label: 'MODE', min: 0, max: 1, def: 0, stepped: true, options: ['PLAY', 'REC'] },
   ],
   leds: 3,
@@ -87,17 +96,17 @@ export const tr16: ModuleSpec = {
       cols: STEPS,
       rows: Array.from({ length: TRACKS + 1 }, (_, t) => ({
         label: t < TRACKS ? String(t + 1) : 'AC',
-        a: `a${t}`,
-        b: `b${t}`,
+        p: ['a', 'b', 'c', 'd'].map((x) => `${x}${t}`),
       })),
       pattern: 'pat',
+      patternMap: TR_PATTERN_MAP,
       length: 'len',
       stepLed: 0,
       patternLed: 1,
     },
     { kind: 'knob', param: 'len', x: 149, y: 25 },
     { kind: 'knob', param: 'swing', x: 149, y: 44 },
-    { kind: 'switch', param: 'pat', x: 143, y: 66 },
+    { kind: 'knob', param: 'pat', x: 143, y: 64, size: 'S' },
     { kind: 'switch', param: 'rec', x: 155, y: 66 },
     { kind: 'led', index: 2, x: 155, y: 77, color: '#ff3b2f' },
     { kind: 'in', jack: 'clk', x: 10, y: 95 },

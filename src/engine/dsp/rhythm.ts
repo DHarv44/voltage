@@ -3,6 +3,7 @@ import { Schmitt } from './cores'
 import { DRUM_CHANNEL, type MidiEvent, type UiEvent } from '../protocol'
 import { padForNote } from '../drumMap'
 import { StepSeqCore, hasStep } from './stepSeq'
+import { TR_CHAINS, TR_PATTERN_MAP } from '../../modules/specs/rhythm'
 
 const PADS = 8
 const LED_DECAY = 0.9995
@@ -64,8 +65,8 @@ export class Tr16Dsp extends Dsp {
   private iRec = Array.from({ length: TRACKS }, (_, t) => this.ii(`r${t + 1}`))
   private oAcc = this.oi('acc')
   private oTrk = Array.from({ length: TRACKS }, (_, t) => this.oi(`t${t + 1}`))
-  private pA = Array.from({ length: TRACKS + 1 }, (_, t) => this.pi(`a${t}`))
-  private pB = Array.from({ length: TRACKS + 1 }, (_, t) => this.pi(`b${t}`))
+  /** Mask param indices per pattern A–D (8 tracks + accent each). */
+  private banks = ['a', 'b', 'c', 'd'].map((x) => Array.from({ length: TRACKS + 1 }, (_, t) => this.pi(`${x}${t}`)))
   private pLen = this.pi('len')
   private pSwing = this.pi('swing')
   private pPat = this.pi('pat')
@@ -79,17 +80,22 @@ export class Tr16Dsp extends Dsp {
   private readonly skip = new Int32Array(TRACKS).fill(-1)
   private readonly trigLen = Math.round(TRIG_MS * this.fs)
   private playing = 0
+  private chainPos = 0
   private lastFired = -1
 
   private masks(pattern: number): number[] {
-    return pattern === 1 ? this.pB : this.pA
+    return this.banks[pattern] ?? this.banks[0]
+  }
+
+  /** Pattern being edited/cleared: the selected one, or the playing one in a chain. */
+  private editPattern(): number {
+    const m = TR_PATTERN_MAP[Math.round(this.p[this.pPat])] ?? 0
+    return m >= 0 ? m : this.playing
   }
 
   onUi(ev: UiEvent): void {
-    if (ev.kind === 'button' && ev.name === 'clear' && ev.down) {
-      const edit = this.p[this.pPat] >= 2 ? this.playing : Math.round(this.p[this.pPat])
-      for (const idx of this.masks(edit)) this.writeParam(idx, 0)
-    }
+    if (ev.kind === 'button' && ev.name === 'clear' && ev.down)
+      for (const idx of this.masks(this.editPattern())) this.writeParam(idx, 0)
   }
 
   tick(): void {
@@ -97,16 +103,22 @@ export class Tr16Dsp extends Dsp {
     const p = this.p
     const len = Math.max(1, Math.round(p[this.pLen]))
     const pat = Math.round(p[this.pPat])
-    if (pat < 2) this.playing = pat
+    const chain = TR_CHAINS[pat]
+    if (!chain) this.playing = TR_PATTERN_MAP[pat] ?? 0
 
     if (this.rst.rise(i[this.iRst])) {
       this.seq.reset()
       this.lastFired = -1
-      if (pat === 2) this.playing = 0
+      this.chainPos = 0
+      if (chain) this.playing = chain[0]
     }
     const fire = this.seq.tick(this.clk.rise(i[this.iClk]), len, p[this.pSwing])
     if (fire >= 0) {
-      if (pat === 2 && fire === 0 && this.lastFired >= 0) this.playing ^= 1 // chain: swap at each wrap
+      if (chain && fire === 0 && this.lastFired >= 0) {
+        // Song mode: move to the next pattern in the chain at each bar.
+        this.chainPos = (this.chainPos + 1) % chain.length
+        this.playing = chain[this.chainPos]
+      } else if (chain && this.lastFired < 0) this.playing = chain[this.chainPos % chain.length]
       this.lastFired = fire
       const m = this.masks(this.playing)
       for (let t = 0; t < TRACKS; t++) {

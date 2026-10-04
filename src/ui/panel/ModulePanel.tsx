@@ -12,6 +12,7 @@ import { Pad } from './Pad'
 import { PushButton } from './PushButton'
 import { Progress } from './Progress'
 import { StepGrid } from './StepGrid'
+import { Plate } from './Plate'
 
 export interface PanelHandlers {
   jackDown(mod: string, jack: string, dir: 'in' | 'out', e: PointerEvent): void
@@ -138,6 +139,10 @@ function ControlView({ c, spec, inst, handlers }: { c: Control; spec: ModuleSpec
     case 'button':
       return (
         <PushButton mod={inst.id} name={c.name} x={c.x} y={c.y} label={c.label} led={c.led} ledColor={c.ledColor} panel={spec.panel} />
+      )
+    case 'plate':
+      return (
+        <Plate mod={inst.id} index={c.index} x={c.x} y={c.y} w={c.w} h={c.h} label={c.label} led={c.led} panel={spec.panel} />
       )
     case 'progress':
       return <Progress mod={inst.id} x={c.x} y={c.y} w={c.w} led={c.led} panel={spec.panel} />

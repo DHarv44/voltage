@@ -25,6 +25,9 @@ import { ArpDsp, ChordDsp, SubDsp } from './pitch'
 import { TapeDsp } from './tape'
 import { EnsembleDsp, PhaserDsp } from './modfx'
 import { PlateDsp } from './plate'
+import { PercDsp, TomDsp } from './drums2'
+import { EuclidDsp, TuringDsp } from './generative'
+import { TouchDsp } from './touch'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -76,6 +79,11 @@ const CIRCUITS: Record<string, DspCtor> = {
   phaser: PhaserDsp,
   ensemble: EnsembleDsp,
   plate: PlateDsp,
+  tom: TomDsp,
+  perc: PercDsp,
+  euclid: EuclidDsp,
+  turing: TuringDsp,
+  touch: TouchDsp,
 }
 
 export function createDsp(type: string, fs: number, seed: number): Dsp | null {

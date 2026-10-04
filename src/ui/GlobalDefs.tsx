@@ -26,6 +26,11 @@ export function GlobalDefs() {
           <stop offset="0%" stopColor="#f4f4f4" />
           <stop offset="100%" stopColor="#8b8e92" />
         </radialGradient>
+        <linearGradient id="plate-brass" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#e9c46a" />
+          <stop offset="45%" stopColor="#b88a2c" />
+          <stop offset="100%" stopColor="#d9ac4f" />
+        </linearGradient>
         <radialGradient id="pad-rubber" cx="45%" cy="40%" r="80%">
           <stop offset="0%" stopColor="#56524d" />
           <stop offset="100%" stopColor="#2c2a28" />
