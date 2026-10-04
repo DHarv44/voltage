@@ -4,7 +4,7 @@ import { defaultPatch } from './defaultPatch'
 import { makeModule, uid } from './factory'
 import { findSlot, placeWithPush } from './layout'
 import { loadSaved, sanitize, save } from './persist'
-import type { JackRef, Patch } from './types'
+import type { Cable, JackRef, Patch } from './types'
 
 type Listener = () => void
 
@@ -151,6 +151,16 @@ export const actions = {
     const cables = state.cables.filter((c) => !(c.to.mod === to.mod && c.to.jack === to.jack))
     cables.push({ id: uid('c'), from: { mod: from.mod, jack: from.jack }, to: { mod: to.mod, jack: to.jack }, color })
     set({ ...state, cables })
+  },
+
+  recolorCable(id: string, color: string): void {
+    set({ ...state, cables: state.cables.map((c) => (c.id === id ? { ...c, color } : c)) })
+  },
+
+  /** Re-insert a cable exactly as it was (cancelled drag). */
+  restoreCable(cable: Cable): void {
+    if (state.cables.some((c) => c.to.mod === cable.to.mod && c.to.jack === cable.to.jack)) return
+    set({ ...state, cables: [...state.cables, cable] })
   },
 
   removeCable(id: string): void {

@@ -14,10 +14,11 @@ interface Props {
   panel: PanelStyle
   onDown: (e: PointerEvent) => void
   onContext: (e: MouseEvent) => void
+  onHover: (e: PointerEvent | null) => void
 }
 
 /** 3.5 mm jack with hex nut. Outputs sit on an inverted plate, as on most hardware. */
-export function Jack({ x, y, label, out, panel, onDown, onContext }: Props) {
+export function Jack({ x, y, label, out, panel, onDown, onContext, onHover }: Props) {
   return (
     <g
       className="jack"
@@ -31,6 +32,9 @@ export function Jack({ x, y, label, out, panel, onDown, onContext }: Props) {
         e.stopPropagation()
         onContext(e)
       }}
+      onPointerEnter={onHover}
+      onPointerMove={onHover}
+      onPointerLeave={() => onHover(null)}
     >
       {out && (
         <rect

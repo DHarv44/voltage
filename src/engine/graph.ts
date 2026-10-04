@@ -1,6 +1,7 @@
 import type { Dsp } from './dsp/base'
 import { createDsp } from './dsp/registry'
 import type { MidiEvent, TelemetryMsg, ToEngine, UiEvent } from './protocol'
+import { Probe } from './probe'
 
 type PatchMsg = Extract<ToEngine, { type: 'patch' }>
 
@@ -10,6 +11,7 @@ type PatchMsg = Extract<ToEngine, { type: 'patch' }>
 export class Graph {
   private mods = new Map<string, Dsp>()
   private order: Dsp[] = []
+  private probe: Probe | null = null
   private readonly fs: number
 
   constructor(fs: number) {
@@ -39,6 +41,7 @@ export class Graph {
       to.patched[c.toIn] = 1
     }
     this.mods = next
+    if (this.probe) this.setProbe(this.probe.id) // re-attach (or drop) after the rebuild
     this.order = topoOrder([...next.values()])
   }
 
@@ -78,6 +81,7 @@ export class Graph {
       }
       L[s] = l
       if (R) R[s] = r
+      this.probe?.sample()
     }
     const dt = n / this.fs
     for (let k = 0; k < len; k++) order[k].age += dt
@@ -95,7 +99,13 @@ export class Graph {
       for (let i = 0; i < w.length; i += 2) params.push([id, w[i], w[i + 1]])
       w.length = 0
     }
-    return { type: 'telemetry', leds, scopes, params }
+    return { type: 'telemetry', leds, scopes, params, probe: this.probe?.take() }
+  }
+
+  /** Start/stop watching one module's jack voltages for the hover readout. */
+  setProbe(id: string | null): void {
+    const d = id ? this.mods.get(id) : undefined
+    this.probe = id && d ? new Probe(id, d) : null
   }
 }
 

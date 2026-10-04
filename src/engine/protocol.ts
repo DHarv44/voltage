@@ -7,6 +7,8 @@ export type MidiEvent =
   | { kind: 'off'; note: number; ch?: number }
   | { kind: 'cc'; cc: number; value: number }
   | { kind: 'bend'; value: number }
+  /** Channel or polyphonic aftertouch, 0..127. */
+  | { kind: 'pressure'; value: number }
   | { kind: 'panic' }
 
 export const DRUM_CHANNEL = 10
@@ -37,6 +39,8 @@ export type ToEngine =
   | { type: 'midi'; ev: MidiEvent }
   | { type: 'ui'; id: string; ev: UiEvent }
   | { type: 'record'; on: boolean }
+  /** Watch one module's jack voltages (null = stop). */
+  | { type: 'probe'; id: string | null }
 
 /** Recorded output audio, streamed in chunks; `final` marks the flush after stop. */
 export interface AudioChunkMsg {
@@ -52,6 +56,15 @@ export interface TelemetryMsg {
   scopes: Record<string, Float32Array>
   /** Parameter values the engine itself changed (e.g. live-recorded steps): [module id, index, value]. */
   params: [string, number, number][]
+  /** Min/max of every jack on the probed module since the last telemetry frame. */
+  probe?: ProbeFrame
+}
+
+export interface ProbeFrame {
+  id: string
+  /** [min, max] per input, then per output. */
+  ins: [number, number][]
+  outs: [number, number][]
 }
 
 export type FromEngine = TelemetryMsg | AudioChunkMsg | { type: 'error'; message: string }

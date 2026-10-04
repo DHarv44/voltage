@@ -95,6 +95,11 @@ class AudioEngine {
     if (this.status.power) this.send({ type: 'midi', ev })
   }
 
+  /** Watch one module's jack voltages (hover readout). */
+  probe(id: string | null): void {
+    this.send({ type: 'probe', id })
+  }
+
   /** A pad hit or button press on a module's panel. */
   ui(id: string, ev: UiEvent): void {
     if (this.status.power) this.send({ type: 'ui', id, ev })

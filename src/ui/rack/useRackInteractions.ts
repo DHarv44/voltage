@@ -1,7 +1,9 @@
 import { useMemo, useRef, useState } from 'react'
 import { nextColor } from '../../patch/factory'
 import { actions, patchStore } from '../../patch/store'
-import type { JackRef } from '../../patch/types'
+import type { Cable, JackRef } from '../../patch/types'
+import type { JackMenuState } from './JackMenu'
+import { jackHover } from './jackHover'
 import { moduleLeft, nearestJack, rowTop, type Pt } from '../geometry'
 import type { PanelHandlers } from '../panel/ModulePanel'
 import { track } from '../pointer'
@@ -28,23 +30,36 @@ export function useRackInteractions(toLocal: (e: ClientPt) => Pt) {
   const [cable, setCable] = useState<CableDrag | null>(null)
   const [move, setMove] = useState<DragPreview | null>(null)
   const [menu, setMenu] = useState<MenuState | null>(null)
+  const [jackMenu, setJackMenu] = useState<JackMenuState | null>(null)
   const local = useRef(toLocal)
   local.current = toLocal
 
   const handlers = useMemo<PanelHandlers>(() => {
-    const startCable = (anchor: JackRef, anchorDir: 'in' | 'out', color: string, e: ClientPt) => {
+    /** `picked` = the cable lifted out of an input, restored if the drag is cancelled. */
+    const startCable = (anchor: JackRef, anchorDir: 'in' | 'out', color: string, e: ClientPt, picked?: Cable) => {
       setCable({ anchor, anchorDir, color, ...local.current(e) })
-      track(
+      const stopEsc = () => window.removeEventListener('keydown', onKey)
+      const detach = track(
         (ev) => {
           const pt = local.current(ev)
           setCable((c) => c && { ...c, ...pt })
         },
         (ev) => {
+          stopEsc()
           const hit = nearestJack(patchStore.get(), local.current(ev), 16)
           if (hit && hit.dir !== anchorDir) actions.connect({ ...anchor, dir: anchorDir }, hit, color)
           setCable(null)
         },
       )
+      // Esc cancels the drag; a cable lifted from an input goes back where it was.
+      const onKey = (ev: KeyboardEvent) => {
+        if (ev.key !== 'Escape') return
+        detach()
+        stopEsc()
+        if (picked) actions.restoreCable(picked)
+        setCable(null)
+      }
+      window.addEventListener('keydown', onKey)
     }
 
     return {
@@ -54,14 +69,17 @@ export function useRackInteractions(toLocal: (e: ClientPt) => Pt) {
           const c = patchStore.get().cables.find((c) => c.to.mod === mod && c.to.jack === jack)
           if (c) {
             actions.removeCable(c.id)
-            startCable(c.from, 'out', c.color, e)
+            startCable(c.from, 'out', c.color, e, c)
             return
           }
         }
         startCable({ mod, jack }, dir, nextColor(), e)
       },
-      jackContext(mod, jack) {
-        actions.removeCablesAt(mod, jack)
+      jackContext(mod, jack, dir, e) {
+        setJackMenu({ mod, jack, dir, x: e.clientX, y: e.clientY })
+      },
+      jackHover(mod, jack, dir, e) {
+        jackHover.set(e ? { mod, jack, dir, x: e.clientX, y: e.clientY } : null)
       },
       panelDown(id, e) {
         if (e.button !== 0) return
@@ -100,5 +118,5 @@ export function useRackInteractions(toLocal: (e: ClientPt) => Pt) {
     }
   }, [])
 
-  return { cable, move, menu, setMenu, handlers }
+  return { cable, move, menu, setMenu, jackMenu, setJackMenu, handlers }
 }

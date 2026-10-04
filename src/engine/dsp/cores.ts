@@ -126,6 +126,7 @@ export class KeyboardCore {
   vel = 0
   mod = 0
   bend = 0
+  pressure = 0
   trig = 0
 
   get gate(): boolean {
@@ -153,8 +154,12 @@ export class KeyboardCore {
       case 'bend':
         this.bend = ev.value
         break
+      case 'pressure':
+        this.pressure = ev.value
+        break
       case 'panic':
         this.stack = []
+        this.pressure = 0
         break
     }
   }

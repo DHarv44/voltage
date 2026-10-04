@@ -1,16 +1,21 @@
 /** Window-level pointer tracking, attached synchronously so even a very fast
  *  press-drag-release never loses its pointerup, and drags keep working when
- *  the cursor leaves the element they started on. */
-export function track(onMove: (e: PointerEvent) => void, onUp: (e: PointerEvent) => void): void {
-  const up = (e: PointerEvent) => {
+ *  the cursor leaves the element they started on. Returns a cancel function
+ *  (removes the listeners without calling onUp). */
+export function track(onMove: (e: PointerEvent) => void, onUp: (e: PointerEvent) => void): () => void {
+  const detach = () => {
     window.removeEventListener('pointermove', onMove)
     window.removeEventListener('pointerup', up)
     window.removeEventListener('pointercancel', up)
+  }
+  const up = (e: PointerEvent) => {
+    detach()
     onUp(e)
   }
   window.addEventListener('pointermove', onMove)
   window.addEventListener('pointerup', up)
   window.addEventListener('pointercancel', up)
+  return detach
 }
 
 /** Middle-button presses over the rack turn knobs, so the browser's

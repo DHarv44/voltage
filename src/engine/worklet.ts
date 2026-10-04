@@ -33,6 +33,9 @@ class VoltageRackProcessor extends AudioWorkletProcessor {
       case 'ui':
         this.graph.ui(m.id, m.ev)
         break
+      case 'probe':
+        this.graph.setProbe(m.id)
+        break
       case 'record':
         if (m.on) this.recN = 0
         else if (this.recording) this.flush(true)

@@ -1,4 +1,4 @@
-import type { TelemetryMsg } from '../engine/protocol'
+import type { ProbeFrame, TelemetryMsg } from '../engine/protocol'
 
 type Fn = () => void
 const subs = new Set<Fn>()
@@ -8,6 +8,7 @@ const subs = new Set<Fn>()
 export const telemetry = {
   leds: {} as Record<string, number[]>,
   scopes: {} as Record<string, Float32Array>,
+  probe: null as ProbeFrame | null,
   frames: 0,
 
   subscribe(fn: Fn): () => void {
@@ -19,6 +20,7 @@ export const telemetry = {
 
   ingest(m: TelemetryMsg): void {
     telemetry.leds = m.leds
+    telemetry.probe = m.probe ?? null
     for (const [id, f] of Object.entries(m.scopes)) telemetry.scopes[id] = f
     telemetry.frames++
     subs.forEach((f) => f())

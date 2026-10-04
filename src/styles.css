@@ -620,3 +620,74 @@ button {
 .ctx-menu button.danger {
   color: #ff8a7e;
 }
+.jack-menu {
+  min-width: 230px;
+}
+.jm-empty {
+  padding: 6px 10px 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.jm-cable {
+  padding: 4px 6px 6px;
+  border-bottom: 1px solid #2a2c31;
+}
+.jm-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+}
+.jm-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.ctx-menu .jm-x {
+  width: auto;
+  margin-left: auto;
+  padding: 2px 6px;
+  color: var(--muted);
+}
+.jm-swatches {
+  display: flex;
+  gap: 5px;
+  padding: 5px 0 0 17px;
+}
+.ctx-menu .jm-swatch {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+}
+.ctx-menu .jm-swatch.on {
+  border-color: #fff;
+}
+.jack-readout {
+  position: fixed;
+  z-index: 180;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 5px 9px;
+  border-radius: 5px;
+  background: rgba(16, 17, 19, 0.94);
+  border: 1px solid #3a3c41;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.jr-name {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+.jr-name em {
+  font-style: normal;
+  opacity: 0.7;
+}
+.jr-value {
+  font-size: 14px;
+  color: #9dff9a;
+  font-variant-numeric: tabular-nums;
+}

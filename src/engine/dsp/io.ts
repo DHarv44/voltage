@@ -6,6 +6,7 @@ import { AudioOutCore, KeyboardCore } from './cores'
 export class MidiCvDsp extends Dsp {
   private pGlide = this.pi('glide')
   private pOct = this.pi('oct')
+  private pBend = this.pi('bendRange')
   private readonly kb = new KeyboardCore()
 
   onMidi(ev: MidiEvent): void {
@@ -16,12 +17,13 @@ export class MidiCvDsp extends Dsp {
     const kb = this.kb
     kb.step(this.p[this.pGlide], this.fs)
     const o = this.out
-    o[0] = kb.pitch + this.p[this.pOct] + (kb.bend * 2) / 12
+    o[0] = kb.pitch + this.p[this.pOct] + (kb.bend * this.p[this.pBend]) / 12
     o[1] = kb.gate ? 10 : 0
     o[2] = (kb.vel / 127) * 10
     o[3] = (kb.mod / 127) * 10
     o[4] = kb.trig > 0 ? 10 : 0
     o[5] = kb.bend * 5
+    o[6] = (kb.pressure / 127) * 10
     this.led[0] = kb.gate ? 1 : 0
   }
 }

@@ -15,7 +15,9 @@ import { StepGrid } from './StepGrid'
 
 export interface PanelHandlers {
   jackDown(mod: string, jack: string, dir: 'in' | 'out', e: PointerEvent): void
-  jackContext(mod: string, jack: string): void
+  jackContext(mod: string, jack: string, dir: 'in' | 'out', e: MouseEvent): void
+  /** Pointer over a jack (null = left it): drives the voltage readout. */
+  jackHover(mod: string, jack: string, dir: 'in' | 'out', e: PointerEvent | null): void
   panelDown(mod: string, e: PointerEvent): void
   panelContext(mod: string, e: MouseEvent): void
 }
@@ -114,7 +116,8 @@ function ControlView({ c, spec, inst, handlers }: { c: Control; spec: ModuleSpec
           label={c.label ?? js.label}
           panel={spec.panel}
           onDown={(e) => handlers.jackDown(inst.id, c.jack, c.kind, e)}
-          onContext={() => handlers.jackContext(inst.id, c.jack)}
+          onContext={(e) => handlers.jackContext(inst.id, c.jack, c.kind, e)}
+          onHover={(e) => handlers.jackHover(inst.id, c.jack, c.kind, e)}
         />
       )
     }

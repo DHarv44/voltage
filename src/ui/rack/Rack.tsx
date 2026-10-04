@@ -8,6 +8,8 @@ import { ModulePanel } from '../panel/ModulePanel'
 import { useSettings } from '../settings'
 import { CableLayer } from './CableLayer'
 import { ContextMenu } from './ContextMenu'
+import { JackMenu } from './JackMenu'
+import { JackReadout } from './JackReadout'
 import { libraryPreview, placementOf } from './dragPreview'
 import { libraryDrag } from './libraryDrag'
 import { useRackInteractions } from './useRackInteractions'
@@ -28,7 +30,8 @@ export function Rack() {
     },
     [zoom],
   )
-  const { cable, move, menu, setMenu, handlers } = useRackInteractions(toLocal)
+  const { cable, move, menu, setMenu, jackMenu, setJackMenu, handlers } = useRackInteractions(toLocal)
+  const closeJackMenu = useCallback(() => setJackMenu(null), [setJackMenu])
 
   const libPreview = useMemo(
     () => (lib ? libraryPreview(lib.type, toLocal(lib), patch) : null),
@@ -93,6 +96,8 @@ export function Rack() {
         </div>
       )}
       {menu && <ContextMenu menu={menu} onClose={() => setMenu(null)} />}
+      {jackMenu && <JackMenu menu={jackMenu} onClose={closeJackMenu} />}
+      {!cable && !move && <JackReadout />}
     </div>
   )
 }

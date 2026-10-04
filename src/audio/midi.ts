@@ -33,6 +33,8 @@ function parse(d: Uint8Array | null, send: Send): void {
   if (type === 0x90 && d[2] > 0) send({ kind: 'on', note: d[1], vel: d[2], ch })
   else if (type === 0x80 || type === 0x90) send({ kind: 'off', note: d[1], ch })
   else if (type === 0xb0) send({ kind: 'cc', cc: d[1], value: d[2] })
+  else if (type === 0xd0) send({ kind: 'pressure', value: d[1] }) // channel aftertouch
+  else if (type === 0xa0 && d.length > 2) send({ kind: 'pressure', value: d[2] }) // poly aftertouch (mono: last wins)
   else if (type === 0xe0) send({ kind: 'bend', value: (((d[2] << 7) | d[1]) - 8192) / 8192 })
 }
 
