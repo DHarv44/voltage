@@ -37,6 +37,10 @@ import { chorus, echo, fuzz, lpedal, octave, wah } from './specs/pedals'
 import { musicbox } from './specs/musicbox'
 import { amp } from './specs/amp'
 import { talkbox } from './specs/talkbox'
+import { tapekeys } from './specs/tapekeys'
+import { fourtrack } from './specs/fourtrack'
+import { tune } from './specs/tune'
+import { chamber } from './specs/chamber'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -49,6 +53,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   padsr,
   pvca,
   polymix,
+  tapekeys,
   kick,
   snare,
   clap,
@@ -63,6 +68,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   loop,
   sample,
   turntable,
+  fourtrack,
   vco,
   theremin,
   omnichord,
@@ -97,6 +103,8 @@ export const SPEC_LIST: ModuleSpec[] = [
   plate,
   phaser,
   ensemble,
+  tune,
+  chamber,
   fuzz,
   wah,
   octave,

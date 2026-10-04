@@ -6,6 +6,9 @@ import { Turntable } from './Turntable'
 import { Treadle } from './Treadle'
 import { MusicBox } from './MusicBox'
 import { Mouth } from './Mouth'
+import { Reels } from './Reels'
+import { Tuner } from './Tuner'
+import { Room } from './Room'
 
 /** Played instrument surfaces, by the `name` a spec's surface control uses. */
 export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
@@ -15,4 +18,7 @@ export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
   treadle: Treadle,
   musicbox: MusicBox,
   mouth: Mouth,
+  reels: Reels,
+  tuner: Tuner,
+  room: Room,
 }

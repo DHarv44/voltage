@@ -46,6 +46,10 @@ import { LooperPedalDsp } from './pedals/looper'
 import { MusicBoxDsp } from './musicbox'
 import { AmpDsp } from './amp'
 import { TalkBoxDsp } from './talkbox'
+import { TapeKeysDsp } from './tapekeys'
+import { FourTrackDsp } from './fourtrack'
+import { TuneDsp } from './tune'
+import { ChamberDsp } from './chamber'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -125,6 +129,10 @@ const CIRCUITS: Record<string, DspCtor> = {
   musicbox: MusicBoxDsp,
   amp: AmpDsp,
   talkbox: TalkBoxDsp,
+  tapekeys: TapeKeysDsp,
+  fourtrack: FourTrackDsp,
+  tune: TuneDsp,
+  chamber: ChamberDsp,
 }
 
 export function createDsp(type: string, fs: number, seed: number): Dsp | null {

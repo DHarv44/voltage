@@ -14,7 +14,7 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (75)
+### Modules (79)
 - **Systems**: MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine).
 - **Polyphonic**: POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX.
 - **Sources**: VCO, COMPLEX (Buchla-style), WAVE (band-limited wavetable), SUB, NOISE.
@@ -26,7 +26,11 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - **Shapers**: FOLD, RING, SLEW, QUANT.
 - **Drums**: KICK, SNARE, CLAP, HATS, TOM, PERC, PADS, TOUCH (plates).
 - **Sequencing**: CLOCK, DIV, SEQ-8, TR-16 (A–D + song chains), EUCLID, TURING, ARP, CHORD.
-- **Effects**: BBD, TAPE, SPRING, PLATE, PHASER, ENSEMBLE.
+- **Effects**: BBD, TAPE, SPRING, PLATE, PHASER, ENSEMBLE, TUNE (YIN pitch detection + delay-line
+  shifter, key/scale or V/OCT target, hard-tune at SPEED 0), ECHO CHAMBER (drag speaker + mics;
+  image-source reflections, Sabine-sized FDN tail, Doppler when moving).
+- **Studio tape**: TAPE KEYS (Mellotron-style: a strip per key, runs out at 8 s, spring rewind; synthesised
+  strings/flute/choir), 4-TRACK (30 s × 4, punch in/out, bounce, varispeed, reverse, loop, reels).
 - **Pedals** (stompboxes, click-free footswitch): FUZZ (germanium, bias sputter), WAH (draggable treadle,
   auto mode), OCTAVE (rectifier up + flip-flop down), CHORUS (BBD, stereo B out), TAPE ECHO (3 heads,
   speed bends pitch, trails on bypass), LOOPER (one-switch rec/play/dub, kept with the patch),
