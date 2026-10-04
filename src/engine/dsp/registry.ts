@@ -19,6 +19,9 @@ import { GrooveDsp } from './groove'
 import { RingDsp } from './ring'
 import { StereoMixDsp, VcaMixDsp } from './mixing'
 import { FollowDsp, FuncDsp, LogicDsp } from './control'
+import { ComplexDsp } from './complex'
+import { WaveDsp } from './wavetable'
+import { ArpDsp, ChordDsp, SubDsp } from './pitch'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -61,6 +64,11 @@ const CIRCUITS: Record<string, DspCtor> = {
   follow: FollowDsp,
   logic: LogicDsp,
   func: FuncDsp,
+  complex: ComplexDsp,
+  wave: WaveDsp,
+  sub: SubDsp,
+  arp: ArpDsp,
+  chord: ChordDsp,
 }
 
 export function createDsp(type: string, fs: number, seed: number): Dsp | null {

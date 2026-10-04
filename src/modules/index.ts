@@ -18,6 +18,8 @@ import { groove } from './specs/groove'
 import { ring } from './specs/ring'
 import { smix, vcamix } from './specs/mixing'
 import { follow, func, logic } from './specs/control'
+import { complexOsc, sub, wave } from './specs/oscillators2'
+import { arp, chord } from './specs/pitch'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -31,6 +33,9 @@ export const SPEC_LIST: ModuleSpec[] = [
   tr16,
   loop,
   vco,
+  complexOsc,
+  wave,
+  sub,
   noise,
   vcf,
   svf,
@@ -49,6 +54,8 @@ export const SPEC_LIST: ModuleSpec[] = [
   clock,
   div,
   seq8,
+  arp,
+  chord,
   bbd,
   spring,
   mixer,
