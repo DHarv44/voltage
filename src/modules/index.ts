@@ -31,6 +31,8 @@ import { studio } from './specs/studio'
 import { vision } from './specs/vision'
 import { xy } from './specs/xy'
 import { turntable } from './specs/turntable'
+import { theremin } from './specs/theremin'
+import { omnichord } from './specs/omnichord'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -58,6 +60,8 @@ export const SPEC_LIST: ModuleSpec[] = [
   sample,
   turntable,
   vco,
+  theremin,
+  omnichord,
   complexOsc,
   wave,
   sub,
