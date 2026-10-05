@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react'
 import type { SurfaceProps } from './common'
 import { Omnichord } from './Omnichord'
+import { ChordWheel } from './ChordWheel'
 import { Theremin } from './Theremin'
 import { Turntable } from './Turntable'
 import { Treadle } from './Treadle'
@@ -35,6 +36,7 @@ export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
   turntable: Turntable,
   theremin: Theremin,
   omnichord: Omnichord,
+  chordwheel: ChordWheel,
   treadle: Treadle,
   musicbox: MusicBox,
   mouth: Mouth,

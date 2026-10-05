@@ -37,6 +37,7 @@ import { XyDsp } from './xy'
 import { TurntableDsp } from './turntable'
 import { ThereminDsp } from './theremin'
 import { OmnichordDsp } from './omnichord'
+import { ChordWheelDsp } from './chordwheel'
 import { FuzzDsp } from './pedals/fuzz'
 import { WahDsp } from './pedals/wah'
 import { OctaveDsp } from './pedals/octave'
@@ -141,6 +142,7 @@ const CIRCUITS: Record<string, DspCtor> = {
   turntable: TurntableDsp,
   theremin: ThereminDsp,
   omnichord: OmnichordDsp,
+  chordwheel: ChordWheelDsp,
   fuzz: FuzzDsp,
   wah: WahDsp,
   octave: OctaveDsp,

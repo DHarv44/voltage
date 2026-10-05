@@ -14,7 +14,7 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (106)
+### Modules (107)
 - **Systems**: MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine).
 - **Polyphonic**: POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX.
 - **Sources**: VCO, COMPLEX (Buchla-style), WAVE (band-limited wavetable), SUB, NOISE.
@@ -44,7 +44,9 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
   VALVE AMP (triode preamp, tone stack, sagging power amp, miked 1×12/4×12 cab), TALK BOX (drag the
   mouth: vowel × jaw, formant tract + tube).
 - **Played instruments**: THEREMIN (hover to play, heterodyne tone, snap, CV outs), OMNICHORD (chord
-  buttons, strum plate, auto-bass, chord on a poly cable), MUSIC BOX (crank or motor, punch your own
+  buttons, strum plate, auto-bass, chord on a poly cable), CHORD WHEEL (circle of fifths: majors,
+  relative minors and diminished rings, the key's wedge lit with roman numerals, slide between chords,
+  7TH hub, soft pad + poly NOTES/ROOT/BASS/GATE/TRIG), MUSIC BOX (crank or motor, punch your own
   paper strip, steel-comb tines), STRIKE (handpan D Kurd, tenor steel pan in fifths, kalimba; tap the
   face), TANPURA (waveguide strings over a jawari bridge, self-plucking cycle), GAMELAN (saron, bonang,
   gong; slendro/pelog; paired-tuning ombak; gong pitch sag), SINGING BOWL (bow the rim with stick-slip

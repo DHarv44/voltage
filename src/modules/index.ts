@@ -33,6 +33,7 @@ import { xy } from './specs/xy'
 import { turntable } from './specs/turntable'
 import { theremin } from './specs/theremin'
 import { omnichord } from './specs/omnichord'
+import { chordwheel } from './specs/chordwheel'
 import { chorus, echo, fuzz, lpedal, octave, wah } from './specs/pedals'
 import { musicbox } from './specs/musicbox'
 import { amp } from './specs/amp'
@@ -101,6 +102,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   vco,
   theremin,
   omnichord,
+  chordwheel,
   musicbox,
   strike,
   tanpura,
