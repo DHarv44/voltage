@@ -12,7 +12,7 @@ export const filters: Lesson = {
     {
       text: 'Picking up where lesson 1 left off: the VCO goes through the MULT to your speakers and the scope. Every wave but the sine is full of harmonics. A filter takes some of them away.',
     },
-    powerStep('Switch on to hear where we left off.', 'The thin, nasal pulse from the end of lesson 1.'),
+    powerStep('Switch on to hear where we left off.', 'The soft sine from the end of lesson 1.'),
     {
       text: 'The LADDER is a low-pass filter: it lets low frequencies through and takes the highs away. It’s in FILTERS.',
       task: 'Add “Ladder Filter” from FILTERS.',
@@ -21,7 +21,7 @@ export const filters: Lesson = {
     {
       text: 'Filters show off best on low notes.',
       task: 'Turn the VCO’s FREQ down to −1.',
-      listen: 'The pulse drops an octave.',
+      listen: 'The sine drops an octave.',
       target: { mod: 'vco', param: 'coarse' },
       action: { kind: 'set', mod: 'vco', param: 'coarse', value: -1 },
     },

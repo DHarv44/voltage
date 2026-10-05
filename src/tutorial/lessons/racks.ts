@@ -50,13 +50,13 @@ const done = (s: Stage): Rack => ({ patch: s.patch, mods: s.mods })
 /** Lesson 1's end: VCO → MULT → OUT and SCOPE. */
 const firstSound = () =>
   new Stage()
-    .add('vco', 'vco', { pw: 0.15 })
+    .add('vco', 'vco')
     .add('out', 'output', { vol: 0.3 })
     .add('scope', 'scope')
     .add('mult', 'mult')
     .wire(['mult', 'a1'], ['out', 'l'])
     .wire(['mult', 'a2'], ['scope', 'ch1'])
-    .wire(['vco', 'sqr'], ['mult', 'a'])
+    .wire(['vco', 'sin'], ['mult', 'a'])
 
 /** Lesson 2's end: the saw through a resonant low-pass. */
 const filters = () =>
