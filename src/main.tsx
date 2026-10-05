@@ -10,6 +10,7 @@ import { disableRackAutoscroll } from './ui/pointer'
 import { initShortcuts } from './ui/shortcuts'
 import { validatePresets } from './patch/presets'
 import { tutorial } from './tutorial/runner'
+import { bootShared } from './ui/share/sharedState'
 import './styles.css'
 
 if (import.meta.env.DEV) {
@@ -18,10 +19,14 @@ if (import.meta.env.DEV) {
   Object.assign(window, { __voltage: { patchStore, actions, history, engine, telemetry } })
 }
 
-initQwerty((ev) => engine.midi(ev))
-tutorial.boot() // opens a lesson if the URL names one (lessons run in a scratch rack)
-disableRackAutoscroll()
-initShortcuts()
+// A shared link (#p=…) opens in a scratch rack; if this page isn't one, it
+// reloads as one and nothing else here needs to start.
+if (!bootShared()) {
+  initQwerty((ev) => engine.midi(ev))
+  tutorial.boot() // opens a lesson if the URL names one (lessons run in a scratch rack)
+  disableRackAutoscroll()
+  initShortcuts()
 
-// No StrictMode: the audio engine is a singleton and must not double-boot.
-createRoot(document.getElementById('root')!).render(<App />)
+  // No StrictMode: the audio engine is a singleton and must not double-boot.
+  createRoot(document.getElementById('root')!).render(<App />)
+}

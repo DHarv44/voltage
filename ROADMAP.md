@@ -92,6 +92,11 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
   moves on by itself when you do the step and asks you to play notes ("Show me" if stuck). Lessons run in a
   scratch rack; Finish keeps what you built. Lessons are data (steps with text, target, action).
 - Undo/redo; named patch library; export/import; `?scratch` sandbox.
+- **Share links**: Share → a link with the whole patch packed after `#` (compressed, defaults left out,
+  ~0.4–1.4k characters for the presets); nothing is uploaded. It opens in a scratch rack with the
+  title/note banner, "Keep this rack" (into the friend's Patches) and "Back to my rack". Recordings
+  don't travel (the banner says so).
+- Resizable screens: right-click VISION / VISION VIEW → Size 12 / 20 / 28 / 40 HP.
 - 17 factory presets (incl. four POCKET grooveboxes: boom bap, electro, lo-fi, + bassline); Jellyfish
   Dream (the jelly plays the melody) is the first-run rack.
 - Git history.

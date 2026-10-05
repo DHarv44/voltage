@@ -3,6 +3,7 @@ import { Library } from './ui/Library'
 import { Rack } from './ui/rack/Rack'
 import { TopBar } from './ui/TopBar'
 import { TutorialCard } from './ui/tutorial/TutorialCard'
+import { SharedBanner } from './ui/share/SharedBanner'
 import { TutorialBubble } from './ui/tutorial/TutorialBubble'
 
 export function App() {
@@ -10,6 +11,7 @@ export function App() {
     <div className="app">
       <GlobalDefs />
       <TopBar />
+      <SharedBanner />
       <TutorialCard />
       <div className="main">
         <Library />

@@ -222,6 +222,80 @@ button {
   gap: 3px;
 }
 /* lesson strip under the top bar */
+.share-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px;
+  background: #0f2230;
+  border-bottom: 1px solid #5ef2ff44;
+  color: var(--text);
+  font-size: 13px;
+}
+.share-banner.bad {
+  background: #2c1414;
+  border-bottom-color: #ff8a7e55;
+}
+.share-banner .spacer {
+  flex: 1;
+}
+.share-tag {
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: #5ef2ff;
+  color: #062028;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+.share-note {
+  color: #cfe6f2;
+  font-style: italic;
+}
+.share-hint,
+.share-fine {
+  color: var(--muted);
+  font-size: 12px;
+}
+.share-warn {
+  color: #ffcf7a;
+  font-size: 12px;
+}
+.share-ok,
+.share-saved {
+  color: #8df0a8;
+  font-size: 12px;
+}
+.share-panel {
+  width: 300px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.share-panel label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.share-panel input,
+.share-panel textarea {
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid #3a3d44;
+  background: #15171b;
+  color: var(--text);
+  resize: vertical;
+}
+.share-panel p {
+  margin: 0;
+}
+
 .tut-strip {
   display: flex;
   align-items: center;
