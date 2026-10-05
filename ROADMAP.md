@@ -14,7 +14,7 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (94)
+### Modules (97)
 - **Systems**: MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine).
 - **Polyphonic**: POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX.
 - **Sources**: VCO, COMPLEX (Buchla-style), WAVE (band-limited wavetable), SUB, NOISE.
@@ -26,6 +26,9 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - **Shapers**: FOLD, RING, SLEW, QUANT.
 - **Drums**: KICK, SNARE, CLAP, HATS, TOM, PERC, PADS, TOUCH (plates).
 - **Sequencing**: CLOCK, DIV, SEQ-8, TR-16 (A–D + song chains), EUCLID, TURING, ARP, CHORD.
+- **Musical brains**: GHOST (learns your intervals, rhythm and key as you play, answers when you pause),
+  PROGRESSION (functional-harmony chord generator, borrowed chords, voice-led poly out), BANDMATE (a
+  drummer: style groove maps, energy, humanised timing, fills at phrase ends, lays back when you're loud).
 - **Simulations**: BOUNCE (balls under gravity, accelerating bounces, throw them), ORBIT (Kepler orbits →
   polyrhythms, eccentric swing, conjunction gate), LIFE (Conway scanned as a sequencer), FLOCK (24 boids →
   centre/spread/speed/heading CV), CHAOS (double pendulum or Lorenz; flip/wing gates), ECOSYSTEM
@@ -79,8 +82,6 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - **More VISION scenes**: coral reef, fireflies, aurora, cymatics plate.
 
 ## Pinned for later: creative modules
-- **Musical brains**: GHOST (learns your playing, answers back), PROGRESSION (harmony-rule chord
-  generator), BANDMATE (invents fills on GROOVE-1).
 - **Real-world inputs**: webcam motion → CV, gamepad, mic pitch tracker, big XY pad.
 - **Visual outputs**: VECTOR (XY oscilloscope music), WATERFALL spectrogram, rack-wide light show.
 - **Performance**: scene snapshots with morphing, macro knobs, "happy accident" randomiser.

@@ -65,6 +65,9 @@ import { LifeDsp } from './life'
 import { FlockDsp } from './flock'
 import { ChaosDsp } from './chaos'
 import { EcosystemDsp } from './ecosystem'
+import { GhostDsp } from './ghost'
+import { ProgressionDsp } from './progression'
+import { BandmateDsp } from './bandmate'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -163,6 +166,9 @@ const CIRCUITS: Record<string, DspCtor> = {
   flock: FlockDsp,
   chaos: ChaosDsp,
   ecosystem: EcosystemDsp,
+  ghost: GhostDsp,
+  progression: ProgressionDsp,
+  bandmate: BandmateDsp,
 }
 
 export function createDsp(type: string, fs: number, seed: number): Dsp | null {

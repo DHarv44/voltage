@@ -56,6 +56,9 @@ import { life } from './specs/life'
 import { flock } from './specs/flock'
 import { chaos } from './specs/chaos'
 import { ecosystem } from './specs/ecosystem'
+import { ghost } from './specs/ghost'
+import { progression } from './specs/progression'
+import { bandmate } from './specs/bandmate'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -126,6 +129,9 @@ export const SPEC_LIST: ModuleSpec[] = [
   seq8,
   arp,
   chord,
+  ghost,
+  progression,
+  bandmate,
   bbd,
   tape,
   spring,

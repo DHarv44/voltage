@@ -23,6 +23,9 @@ import { Life } from './Life'
 import { Flock } from './Flock'
 import { Chaos } from './Chaos'
 import { Ecosystem } from './Ecosystem'
+import { Ghost } from './Ghost'
+import { Progression } from './Progression'
+import { Bandmate } from './Bandmate'
 
 /** Played instrument surfaces, by the `name` a spec's surface control uses. */
 export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
@@ -49,4 +52,7 @@ export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
   flock: Flock,
   chaos: Chaos,
   ecosystem: Ecosystem,
+  ghost: Ghost,
+  progression: Progression,
+  bandmate: Bandmate,
 }
