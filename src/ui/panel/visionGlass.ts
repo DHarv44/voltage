@@ -1,13 +1,8 @@
 import { engine } from '../../audio/engine'
+import type { ScreenSource } from '../vision/types'
 
-/** What a piece of glass shows: a tank (module id), which scene, which
- *  camera, and where that scene's state starts on the LED channel. */
-export interface GlassSource {
-  mod: string
-  scene: () => number
-  cam: () => number
-  base: () => number
-}
+/** What a piece of glass shows (see ScreenSource). */
+export type GlassSource = ScreenSource
 
 type Renderer = typeof import('../vision/renderer')
 let renderer: Renderer | null = null
@@ -60,7 +55,7 @@ export async function fillWindow(win: Window, host: HTMLElement, src: GlassSourc
     canvas.width = Math.round(win.innerWidth * scale)
     canvas.height = Math.round(win.innerHeight * scale)
     detach()
-    detach = r.attachScreen(canvas, src.mod, src.scene, src.cam, src.base, true)
+    detach = r.attachScreen(canvas, src, true)
   }
   fit()
   let t = 0

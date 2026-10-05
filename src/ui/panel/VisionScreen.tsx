@@ -32,11 +32,15 @@ export function VisionScreen({ mod, x, y, w, h, scene, cam = 0, ledBase = 0 }: P
   const W = Math.round(w * PX * RES)
   const H = Math.round(h * PX * RES)
   // the same source for the panel, full screen and pop-out: they follow the knobs
+  const tank = useRef(mod)
+  tank.current = mod
   const src = useRef<GlassSource>({
     mod,
     scene: () => live.current.scene,
     cam: () => live.current.cam,
     base: () => live.current.ledBase,
+    // COUNT belongs to the tank (this screen may be a VIEW of it)
+    count: (): number => patchStore.get().modules.find((m) => m.id === tank.current)?.params.count ?? 0.5,
   })
   src.current.mod = mod
 
@@ -44,8 +48,7 @@ export function VisionScreen({ mod, x, y, w, h, scene, cam = 0, ledBase = 0 }: P
     let detach: (() => void) | null = null
     let dead = false
     void loadRenderer().then((r) => {
-      const s = src.current
-      if (!dead && ref.current) detach = r.attachScreen(ref.current, mod, s.scene, s.cam, s.base)
+      if (!dead && ref.current) detach = r.attachScreen(ref.current, src.current)
     })
     return () => {
       dead = true

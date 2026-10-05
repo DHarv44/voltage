@@ -9,10 +9,11 @@ export const VS_EXTRA = 10
 /** Every scene lives at once. The LED channel is blocks of LED_BLOCK values:
  *  block 0 mirrors the selected scene, block k + 1 is scene k (so a VISION VIEW
  *  can watch any scene, whatever the tank's SCENE knob drives). */
-export const LED_BLOCK = 40
+export const LED_BLOCK = 64
 export const sceneBlock = (scene: number) => (scene + 1) * LED_BLOCK
-/** Garden: plants and the values each one publishes (x, growth, open, wilt, visibility). */
-export const GARDEN_PLANTS = 5
+/** Garden: up to this many plants (COUNT picks how many live), and the values
+ *  each one publishes (x, growth, open, wilt, visibility). */
+export const GARDEN_PLANTS = 10
 export const PLANT_VALUES = 5
 /** Jelly: depth in the tank (0 back wall … 1 front glass) and the bell's
  *  lean toward/away from the glass (radians). */
@@ -20,8 +21,22 @@ export const JELLY_Z = VS_EXTRA
 export const JELLY_PITCH = VS_EXTRA + 1
 /** Cymatics: mode m, n, index, a knock's decaying jolt, the plate's tilt. */
 export const CYM = { m: VS_EXTRA, n: VS_EXTRA + 1, mode: VS_EXTRA + 2, knock: VS_EXTRA + 3, tilt: VS_EXTRA + 4 } as const
-/** Fireflies: how many, each publishing its brightness. */
-export const FIREFLIES = 24
+/** Fireflies: up to this many (COUNT picks how many fly), each publishing its
+ *  brightness (−1 = not flying). */
+export const FIREFLIES = 48
+
+/** COUNT (0..1, default ½ = each scene's classic look) → how many of each
+ *  scene's things there are. Shared by the engine and the renderer. */
+export const countOf = {
+  /** Jellies: one up to halfway, then up to six (a smack). */
+  jellies: (c: number) => (c <= 0.5 ? 1 : 1 + Math.round((c - 0.5) * 10)),
+  /** Marine snow: thins out below halfway. */
+  snow: (c: number) => Math.round(220 * Math.min(1, 0.15 + c * 1.7)),
+  plants: (c: number) => Math.max(1, Math.min(GARDEN_PLANTS, Math.round(c * 10))),
+  fireflies: (c: number) => Math.max(4, Math.min(FIREFLIES, Math.round(c * 48))),
+  curtains: (c: number) => Math.max(1, Math.min(6, Math.round(c * 6))),
+  grains: (c: number) => Math.max(300, Math.round(c * 5000)),
+}
 
 /** Creature state the engine publishes on the LED channel (~30 Hz); the renderer
  *  reads these, so both sides agree on the layout. */
@@ -84,6 +99,8 @@ export const VISION_PARAMS: ModuleSpec['params'] = [
   { id: 'rate', label: 'RATE', min: 0.05, max: 2, def: 0.4, curve: 'exp', unit: 'Hz' },
   { id: 'hue', label: 'HUE', min: 0, max: 1, def: 0.55, unit: '%' },
   { id: 'glow', label: 'GLOW', min: 0, max: 1, def: 0.7, unit: '%' },
+  /** How many things the scene has (see countOf); halfway = its classic look. */
+  { id: 'count', label: 'COUNT', min: 0, max: 1, def: 0.5, unit: '%' },
 ]
 
 /** Widths (HP) the screen modules come in: right-click → Size. */
@@ -101,13 +118,15 @@ export const columns = (w: number, n: number, gap: number) => {
 function visionLayout(hp: number): Control[] {
   const w = hp * HP_MM
   const c = columns(w, 5, 19.5)
+  const k = columns(w, 6, 16.5)
   return [
     { kind: 'vision', x: 3, y: 5.5, w: w - 6, h: 71 },
-    { kind: 'knob', param: 'scene', x: c[0], y: 84, size: 'S' },
-    { kind: 'knob', param: 'rate', x: c[1], y: 84, size: 'S' },
-    { kind: 'knob', param: 'hue', x: c[2], y: 84, size: 'S' },
-    { kind: 'knob', param: 'glow', x: c[3], y: 84, size: 'S' },
-    { kind: 'led', index: VS.gate, x: c[4], y: 84, color: '#5ef2ff' },
+    { kind: 'knob', param: 'scene', x: k[0], y: 84, size: 'S' },
+    { kind: 'knob', param: 'rate', x: k[1], y: 84, size: 'S' },
+    { kind: 'knob', param: 'hue', x: k[2], y: 84, size: 'S' },
+    { kind: 'knob', param: 'glow', x: k[3], y: 84, size: 'S' },
+    { kind: 'knob', param: 'count', x: k[4], y: 84, size: 'S' },
+    { kind: 'led', index: VS.gate, x: k[5], y: 84, color: '#5ef2ff' },
     { kind: 'in', jack: 'trig', x: c[0], y: 100 },
     { kind: 'in', jack: 'feed', x: c[1], y: 100 },
     { kind: 'in', jack: 'glow', x: c[2], y: 100 },

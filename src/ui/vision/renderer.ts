@@ -7,7 +7,7 @@ import { jellyScene } from './jellyScene'
 import { auroraScene } from './auroraScene'
 import { cymaticsScene } from './cymaticsScene'
 import { firefliesScene } from './firefliesScene'
-import type { CreatureView, SceneFactory, VisionScene } from './types'
+import type { CreatureView, SceneFactory, ScreenSource, VisionScene } from './types'
 
 /** In SCENE knob order (VISION_SCENES). */
 const SCENES: SceneFactory[] = [jellyScene, flowerScene, firefliesScene, auroraScene, cymaticsScene]
@@ -15,11 +15,7 @@ const SCENES: SceneFactory[] = [jellyScene, flowerScene, firefliesScene, auroraS
 interface Screen {
   canvas: HTMLCanvasElement
   ctx: CanvasRenderingContext2D
-  mod: string
-  scene: () => number
-  cam: () => number
-  /** Where this screen's scene starts on the LED channel (see sceneBlock). */
-  base: () => number
+  src: ScreenSource
   /** A full-screen or pop-out glass: always drawn (it isn't on the rack page). */
   always: boolean
   host: VisionScene | null
@@ -46,7 +42,7 @@ function gl(): THREE.WebGLRenderer {
   return renderer
 }
 
-const blankView = (): CreatureView => ({ action: 0, x: 0.5, y: 0.45, tilt: 0, glow: 0.3, hue: 0.55, grow: 0.3, sway: 0, wilt: 0 })
+const blankView = (): CreatureView => ({ count: 0.5, action: 0, x: 0.5, y: 0.45, tilt: 0, glow: 0.3, hue: 0.55, grow: 0.3, sway: 0, wilt: 0 })
 
 /** Ease the 30 Hz engine state toward a smooth 60 fps view. */
 function follow(v: CreatureView, led: number[] | undefined, dt: number): void {
@@ -86,19 +82,21 @@ function frame(now: number): void {
     }
     const W = s.canvas.width
     const H = s.canvas.height
-    const idx = Math.min(SCENES.length - 1, Math.max(0, Math.round(s.scene())))
+    const src = s.src
+    const idx = Math.min(SCENES.length - 1, Math.max(0, Math.round(src.scene())))
     if (!s.host || s.hostIdx !== idx) {
       s.host?.dispose()
-      s.host = SCENES[idx](W / H, hashSeed(s.mod))
+      s.host = SCENES[idx](W / H, hashSeed(src.mod))
       s.hostIdx = idx
     }
     s.t += dt
-    const raw = telemetry.leds[s.mod]
-    const base = s.base()
+    const raw = telemetry.leds[src.mod]
+    const base = src.base()
     const led = raw && base ? raw.slice(base, base + LED_BLOCK) : raw
     follow(s.view, led, dt)
+    s.view.count = src.count()
     s.host.update(s.view, dt, s.t, H, led)
-    s.host.aim(Math.round(s.cam()), dt)
+    s.host.aim(Math.round(src.cam()), dt)
     r.setViewport(0, 0, W, H)
     r.setScissor(0, 0, W, H)
     r.render(s.host.scene, s.host.camera)
@@ -114,17 +112,10 @@ export function pickAt(canvas: HTMLCanvasElement, u: number, v: number): { x: nu
 }
 
 /** Start drawing a tank into `canvas`; returns the detach function. */
-export function attachScreen(
-  canvas: HTMLCanvasElement,
-  mod: string,
-  scene: () => number,
-  cam: () => number = () => 0,
-  base: () => number = () => 0,
-  always = false,
-): () => void {
+export function attachScreen(canvas: HTMLCanvasElement, src: ScreenSource, always = false): () => void {
   const ctx = canvas.getContext('2d')
   if (!ctx) return () => {}
-  const s: Screen = { canvas, ctx, mod, scene, cam, base, always, host: null, hostIdx: -1, view: blankView(), t: 0 }
+  const s: Screen = { canvas, ctx, src, always, host: null, hostIdx: -1, view: blankView(), t: 0 }
   screens.add(s)
   if (!raf) {
     last = 0

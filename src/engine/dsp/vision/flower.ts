@@ -1,4 +1,4 @@
-import { FLOWER_STAGES, GARDEN_PLANTS, PLANT_VALUES, VS, VS_EXTRA } from '../../../modules/specs/vision'
+import { countOf, FLOWER_STAGES, GARDEN_PLANTS, PLANT_VALUES, VS, VS_EXTRA } from '../../../modules/specs/vision'
 import type { Rng } from '../util'
 import { hueOf, smoothstep, Spring2, Wander, type Creature, type CreatureInput, type CreatureOutput } from './creature'
 
@@ -38,6 +38,7 @@ class Plant {
       }
     }
     this.x = best
+    this.called = false
     this.phase = SEED
     this.timer = delay
     this.g = 0
@@ -47,10 +48,15 @@ class Plant {
     this.stage = 0
   }
 
+  /** Called up early (by hand, or as the next generation): it comes up even
+   *  if it's beyond COUNT, then lives a normal life. */
+  called = false
+
   /** A seed pressed into the soil by hand at x: it comes up almost at once. */
   plantAt(x: number): void {
     this.x = Math.min(0.92, Math.max(0.08, x))
     this.timer = 0.4
+    this.called = true
   }
 
   /** Returns true when the plant reached a new stage (for the GATE). */
@@ -134,7 +140,7 @@ export class Garden implements Creature {
     this.wind = new Wander(rng, 0.3, 0.35)
     this.plants = Array.from({ length: GARDEN_PLANTS }, () => new Plant(rng))
     // the first one is already up; the rest are seeds waiting their turn
-    this.plants.forEach((p, k) => p.sow(this.plants, k === 0 ? 0 : 3 + k * 5 + rng.next() * 4))
+    this.plants.forEach((p, k) => p.sow(this.plants, k === 0 ? 0 : 3 + (k % 5) * 5 + rng.next() * 4))
   }
 
   step(i: CreatureInput, o: CreatureOutput, led: Float32Array): void {
@@ -145,10 +151,27 @@ export class Garden implements Creature {
     let life = 0
     let open = 0
     let wilt = 0
+    // COUNT sets how many plants the bed holds; extra seeds wait in the soil
+    // (a plant already up still lives out its life when you turn it down)
+    const n = countOf.plants(i.count)
+    let growing = 0
+    let wilting = 0
+    let nextSeed: Plant | null = null
+    let nextActive = false
+    let calledUp = false
     for (let k = 0; k < this.plants.length; k++) {
       const p = this.plants[k]
-      if (p.step(dt, speed, this.health)) this.trigT = TRIG_LEN
+      const active = k < n
+      if (active || p.phase !== SEED || p.called) if (p.step(dt, speed, this.health)) this.trigT = TRIG_LEN
       if (p.phase === DEAD && p.timer <= 0) p.sow(this.plants, 2 + this.rng.next() * 8)
+      if (p.phase === GROWING) growing++
+      if (p.phase === WILTING) wilting++
+      if (p.phase === SEED && p.called) calledUp = true // a successor is already on its way
+      // the next generation: a waiting seed, preferring one inside COUNT
+      if (p.phase === SEED && !p.called && (!nextSeed || (active && !nextActive) || (active === nextActive && p.timer < nextSeed.timer))) {
+        nextSeed = p
+        nextActive = active
+      }
       life += p.g * (1 - p.wilt) * p.fade
       open = Math.max(open, p.open)
       wilt = Math.max(wilt, p.wilt * p.fade)
@@ -159,13 +182,23 @@ export class Garden implements Creature {
       led[b + 3] = p.wilt
       led[b + 4] = p.phase === SEED ? 0 : p.fade
     }
+    // Succession: as a flower wilts, the next one must already be on its way
+    // up, so the bed is never bare. If nothing is growing, the soonest seed
+    // comes up now, even one beyond COUNT: generations overlap for a while.
+    if (wilting > 0 && growing === 0 && !calledUp && nextSeed) {
+      if (nextActive) nextSeed.timer = Math.min(nextSeed.timer, 1)
+      else nextSeed.plantAt(nextSeed.x) // borrowed: sprouts almost at once
+    }
     // Touch: press the soil to plant a seed there (if one is waiting its turn);
     // touch the air to shake the flowers' pollen loose.
     const tc = i.touch
     if (tc.tap) {
       if (tc.y < 0.04) {
         let waiting: Plant | null = null
-        for (const p of this.plants) if (p.phase === SEED && (!waiting || p.timer > waiting.timer)) waiting = p
+        for (let k = 0; k < n; k++) {
+          const p = this.plants[k]
+          if (p.phase === SEED && (!waiting || p.timer > waiting.timer)) waiting = p
+        }
         waiting?.plantAt(tc.x)
       } else this.flick = 1
     }

@@ -71,7 +71,10 @@ export const firefliesScene: SceneFactory = (aspect, seed) => {
         const y = -VIEW_H * 0.6 + p.y * VIEW_H * 1.1 + Math.sin(t * p.fy * 2 + p.ph) * 0.12
         const z = p.z + Math.sin(t * p.fz + p.ph * 1.3) * 0.25
         if (k === 0) followed.set(x, y, z)
-        const b = (led?.[VS_EXTRA + k] ?? 0) * 1.6
+        // −1: not flying tonight (COUNT); hidden entirely
+        const raw = led?.[VS_EXTRA + k] ?? (k < 24 ? 0 : -1)
+        const b = raw < 0 ? 0 : raw * 1.6
+        const base = raw < 0 ? 0 : 0.02
         for (const [pos, tint, gain] of [
           [cp, ct, 1],
           [hp, ht, 0.35],
@@ -79,8 +82,8 @@ export const firefliesScene: SceneFactory = (aspect, seed) => {
           pos[k * 3] = x
           pos[k * 3 + 1] = y
           pos[k * 3 + 2] = z
-          tint[k * 3] = col.r * b * gain + 0.02
-          tint[k * 3 + 1] = col.g * b * gain + 0.02
+          tint[k * 3] = col.r * b * gain + base
+          tint[k * 3 + 1] = col.g * b * gain + base
           tint[k * 3 + 2] = col.b * b * gain
         }
       }

@@ -1,9 +1,10 @@
 import * as THREE from 'three'
-import { CYM } from '../../modules/specs/vision'
+import { countOf, CYM } from '../../modules/specs/vision'
 import { CameraRig, disposeScene, glowPoints, rand, standardCamera, touchPoint, VIEW_H } from './common'
 import type { SceneFactory } from './types'
 
-const GRAINS = 2500
+/** Sand grains allocated; COUNT pours on how many (2500 is the classic plate). */
+const GRAINS = 5000
 
 /** A Chladni plate: sand shaken off the moving parts collects on the still
  *  lines of the current mode. A knock throws it up; a tilt slides it downhill. */
@@ -68,7 +69,9 @@ export const cymaticsScene: SceneFactory = (aspect, seed) => {
       const tint = sand.geometry.attributes.tint.array as Float32Array
       sandCol.setHSL(s.hue, 0.25, 0.75)
       const e = 0.004
-      for (let i = 0; i < GRAINS; i++) {
+      const count = Math.min(GRAINS, countOf.grains(s.count))
+      sand.geometry.setDrawRange(0, count)
+      for (let i = 0; i < count; i++) {
         const a = amp(u[i], v[i])
         // bounce where the plate moves (a knock throws everything up)...
         const shake = Math.abs(a) * drive * 0.02 + knock * 0.03

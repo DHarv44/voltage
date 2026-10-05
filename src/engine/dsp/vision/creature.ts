@@ -22,6 +22,8 @@ export interface CreatureInput {
   rate: number
   hue: number
   glow: number
+  /** COUNT knob 0..1 (see countOf): how many things the scene has. */
+  count: number
 }
 
 /** What a creature drives: its four output voltages. State goes to `led`. */

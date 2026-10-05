@@ -1,16 +1,19 @@
 import * as THREE from 'three'
-import { JELLY_PITCH, JELLY_Z } from '../../modules/specs/vision'
+import { countOf, JELLY_PITCH, JELLY_Z } from '../../modules/specs/vision'
 import { backdrop, CameraRig, disposeScene, glowPoints, rand, standardCamera, touchPoint, VIEW_H } from './common'
-import { makeBell, makeHalo, marginPoint } from './jellyBell'
-import { Tentacles } from './jellyTentacles'
+import { JellyBody, type JellyPose } from './jellyBody'
 import type { SceneFactory } from './types'
 
+/** Marine snow allocated; COUNT thins it below halfway. */
 const SNOW = 220
-const DOTS = 32
+/** Jellies allocated: the engine's one, plus up to five companions (COUNT). */
+const JELLIES = 6
 /** The tank's depth in world units: back wall … front glass (camera at z = 3). */
 const Z_BACK = -1.0
 const Z_FRONT = 0.6
 const CAM_Z = 3
+/** Seconds of the lead jelly's pulse remembered (companions echo it late). */
+const ECHO = 2
 
 const WATER = `
   uniform float uT; varying vec2 vUv;
@@ -27,9 +30,23 @@ const WATER = `
     gl_FragColor = vec4(col, 1.0);
   }`
 
+/** A companion's own drift through the tank (a slow 3D Lissajous), its size,
+ *  colour offset and how late it echoes the lead jelly's pulse. */
+interface Companion {
+  fx: number
+  fy: number
+  fz: number
+  ph: number
+  size: number
+  hue: number
+  delay: number
+}
+
 /** Bioluminescent jellyfish in a dark tank, drifting in marine snow. It roams
  *  the tank's depth too: perspective shrinks it toward the back wall, the water
- *  dims it, and it passes in front of and behind the snow. */
+ *  dims it, and it passes in front of and behind the snow. COUNT above halfway
+ *  adds companions (a smack) that drift on their own and pulse in loose
+ *  sympathy with the lead one, which is the jelly the engine and jacks follow. */
 export const jellyScene: SceneFactory = (aspect, seed) => {
   const rnd = rand(seed)
   const scene = new THREE.Scene()
@@ -47,33 +64,28 @@ export const jellyScene: SceneFactory = (aspect, seed) => {
   for (let i = 0; i < SNOW; i++) {
     sp[i * 3] = (rnd() * 2 - 1) * VIEW_H * aspect
     sp[i * 3 + 1] = (rnd() * 2 - 1) * VIEW_H
-    sp[i * 3 + 2] = -1.8 + rnd() * 2.8 // deep enough to fill the SIDE camera too
+    sp[i * 3 + 2] = -1.8 + rnd() * 2.8 // deep enough to fill the ANGLE camera too
   }
   scene.add(snow)
 
-  const body = new THREE.Group()
-  const bell = makeBell()
-  bell.renderOrder = 3
-  body.add(bell)
-  scene.add(body)
+  const jellies = Array.from({ length: JELLIES }, () => new JellyBody(scene, rnd))
+  const mates: Companion[] = Array.from({ length: JELLIES - 1 }, () => ({
+    fx: 0.03 + rnd() * 0.04,
+    fy: 0.04 + rnd() * 0.05,
+    fz: 0.02 + rnd() * 0.04,
+    ph: rnd() * 20,
+    size: 0.65 + rnd() * 0.45,
+    hue: (rnd() - 0.5) * 0.12,
+    delay: 0.2 + rnd() * 1.4,
+  }))
+  // the lead jelly's recent contraction, so companions can echo it late
+  const echo = new Float32Array(120)
+  let echoAt = 0
+  let echoT = 0
 
-  const halo = makeHalo()
-  halo.renderOrder = 4
-  scene.add(halo)
-
-  const dots = glowPoints(DOTS, 0.02)
-  dots.renderOrder = 5
-  scene.add(dots)
-
-  const count = 14 + Math.floor(rnd() * 6)
-  const tent = new Tentacles(count)
-  tent.lines.renderOrder = 1
-  tent.arms.renderOrder = 2
-  scene.add(tent.lines, tent.arms)
-
-  const color = new THREE.Color()
-  const v = new THREE.Vector3()
-  const anchors = new Float32Array((count + 4) * 3)
+  const pose: JellyPose = { pos: new THREE.Vector3(), pitch: 0, tilt: 0, yaw: 0, R: 0.15, action: 0, glow: 0, color: new THREE.Color(), sway: 0 }
+  const lead = new THREE.Vector3()
+  const leadColor = new THREE.Color()
   const phase = rnd() * 10
   let depth = 0.5
   let pitch = 0
@@ -82,17 +94,24 @@ export const jellyScene: SceneFactory = (aspect, seed) => {
   const zMid = (Z_BACK + Z_FRONT) / 2
   const hit = new THREE.Vector3()
 
+  /** A spot in the tank (0..1 across, up, deep) → world, inside the glass. */
+  const place = (x: number, y: number, d: number, out: THREE.Vector3) => {
+    const z = Z_BACK + d * (Z_FRONT - Z_BACK)
+    const r = (CAM_Z - z) / CAM_Z
+    return out.set((x - 0.5) * 2 * halfW * r, (y - 0.5) * 2 * halfH * r, z)
+  }
+
   return {
     scene,
     camera,
     aim(cam, dt) {
-      const p = body.position
+      const p = lead
       if (cam === 1) {
         // ANGLE: through the tank's end wall; depth runs across the screen
         rig.pos.set(3.2, 0, zMid)
         rig.at.set(0, 0, zMid)
       } else if (cam === 2) {
-        // CLOSE: just in front of the jelly, following it
+        // CLOSE: just in front of the (lead) jelly, following it
         rig.pos.set(p.x * 0.85, p.y * 0.85 + 0.05, Math.min(CAM_Z - 0.1, p.z + 1.3))
         rig.at.copy(p)
       } else {
@@ -102,86 +121,79 @@ export const jellyScene: SceneFactory = (aspect, seed) => {
       rig.apply(cam, dt)
     },
     pick(u, v) {
-      // on the plane facing the camera through the jelly, in tank units
-      if (!touchPoint(camera, u, v, body.position, hit)) return { x: -1, y: -1 }
+      // on the plane facing the camera through the lead jelly, in tank units
+      if (!touchPoint(camera, u, v, lead, hit)) return { x: -1, y: -1 }
       return { x: 0.5 + hit.x / (2 * halfW * reach), y: 0.5 + hit.y / (2 * halfH * reach) }
     },
     update(s, dt, t, px, led) {
       bg.material.uniforms.uT.value = t
-      color.setHSL(s.hue, 0.85, 0.6)
       const k = 1 - Math.exp(-dt / 0.05)
       depth += ((led?.[JELLY_Z] ?? 0.5) - depth) * k
       pitch += ((led?.[JELLY_PITCH] ?? 0) - pitch) * k
-      // Far back the water swallows its light; up at the glass it's brightest.
-      const glow = Math.min(1.5, s.glow) * (0.45 + 0.55 * depth)
-      const R = 0.15 * (0.55 + 0.9 * s.grow)
 
-      // Body: the bell's origin is its margin centre. Its x/y span the tank's
-      // walls at its own depth, so it stays inside the glass wherever it swims.
-      const z = Z_BACK + depth * (Z_FRONT - Z_BACK)
-      reach = (CAM_Z - z) / CAM_Z
-      body.position.set((s.x - 0.5) * 2 * halfW * reach, (s.y - 0.5) * 2 * halfH * reach, z)
-      body.rotation.x = pitch
-      body.rotation.z = -s.tilt
-      body.rotation.y = Math.sin(t * 0.15 + phase) * 0.4
-      body.scale.setScalar(R)
-      body.updateMatrixWorld()
-      const u = bell.material.uniforms
-      u.uC.value = s.action
-      u.uT.value = t
-      u.uGlow.value = glow
-      u.uColor.value.copy(color)
+      // The lead jelly: the engine's creature. Its x/y span the tank's walls at
+      // its own depth, so it stays inside the glass wherever it swims; far back
+      // the water swallows its light.
+      place(s.x, s.y, depth, lead)
+      reach = (CAM_Z - lead.z) / CAM_Z
+      const glow = Math.min(1.5, s.glow)
+      pose.pos.copy(lead)
+      pose.pitch = pitch
+      pose.tilt = s.tilt
+      pose.yaw = Math.sin(t * 0.15 + phase) * 0.4
+      pose.R = 0.15 * (0.55 + 0.9 * s.grow)
+      pose.action = s.action
+      pose.glow = glow * (0.45 + 0.55 * depth)
+      pose.color.setHSL(s.hue, 0.85, 0.6)
+      pose.sway = s.sway
+      jellies[0].draw(pose, dt, t, px)
+      leadColor.copy(pose.color)
 
-      v.set(0, 0.25, 0)
-      body.localToWorld(v)
-      halo.position.set(v.x, v.y, v.z - 0.05)
-      halo.scale.setScalar(R * 9)
-      halo.material.uniforms.uGlow.value = glow
-      halo.material.uniforms.uColor.value.copy(color)
-
-      // Margin: lights around the rim, tentacle roots between them.
-      const dp = dots.geometry.attributes.position.array as Float32Array
-      const dc = dots.geometry.attributes.tint.array as Float32Array
-      for (let i = 0; i < DOTS; i++) {
-        marginPoint((i / DOTS) * Math.PI * 2, s.action, v)
-        body.localToWorld(v)
-        dp.set([v.x, v.y, v.z], i * 3)
-        const twinkle = 0.5 + 0.5 * Math.sin(t * 3 + i * 1.7)
-        const b = glow * (0.4 + 0.6 * twinkle)
-        dc.set([color.r * b + 0.2 * b, color.g * b + 0.2 * b, color.b * b + 0.2 * b], i * 3)
+      // Companions (COUNT above halfway): their own drift, the lead's pulse late.
+      echoT += dt
+      while (echoT >= ECHO / echo.length) {
+        echoT -= ECHO / echo.length
+        echo[echoAt++ % echo.length] = s.action
       }
-      dots.geometry.attributes.position.needsUpdate = true
-      dots.geometry.attributes.tint.needsUpdate = true
-      dots.material.uniforms.uPx.value = px
-      dots.material.uniforms.uSize.value = 0.02 * (0.6 + s.grow)
-
-      for (let i = 0; i < count; i++) {
-        marginPoint(((i + 0.5) / count) * Math.PI * 2, s.action, v)
-        v.multiplyScalar(0.97)
-        body.localToWorld(v)
-        anchors.set([v.x, v.y, v.z], i * 3)
+      const n = countOf.jellies(s.count)
+      for (let j = 1; j < JELLIES; j++) {
+        const body = jellies[j]
+        body.visible = j < n
+        if (j >= n) continue
+        const m = mates[j - 1]
+        const cx = 0.5 + 0.34 * Math.sin(t * m.fx * 6.28 + m.ph)
+        const cy = 0.45 + 0.24 * Math.sin(t * m.fy * 6.28 + m.ph * 1.7)
+        const cd = 0.5 + 0.42 * Math.sin(t * m.fz * 6.28 + m.ph * 0.6)
+        place(cx, cy, cd, pose.pos)
+        const back = Math.round(m.delay / (ECHO / echo.length))
+        pose.action = echo[(echoAt - back + echo.length * 4) % echo.length]
+        pose.pitch = Math.cos(t * m.fz * 6.28 + m.ph * 0.6) * 0.35
+        pose.tilt = -Math.cos(t * m.fx * 6.28 + m.ph) * 0.3
+        pose.yaw = Math.sin(t * 0.13 + m.ph) * 0.4
+        pose.R = 0.15 * m.size * (0.55 + 0.9 * s.grow)
+        pose.glow = glow * (0.45 + 0.55 * cd) * 0.85
+        pose.color.setHSL((s.hue + m.hue + 1) % 1, 0.85, 0.6)
+        pose.sway = s.sway * 0.6
+        body.draw(pose, dt, t, px)
       }
-      for (let i = 0; i < 4; i++) {
-        const a = (i / 4) * Math.PI * 2 + 0.4
-        v.set(Math.cos(a) * 0.14, 0.1, Math.sin(a) * 0.14)
-        body.localToWorld(v)
-        anchors.set([v.x, v.y, v.z], (count + i) * 3)
-      }
-      tent.update(anchors, R * 5.5, Math.min(dt, 1 / 30), -s.sway * 0.25, color, glow, t)
 
-      // Snow drifts up slowly and wraps; it catches the jelly's light nearby.
-      for (let i = 0; i < SNOW; i++) {
-        const k = i * 3
-        sp[k] += (Math.sin(t * 0.2 + i) * 0.004 - s.sway * 0.01) * dt
-        sp[k + 1] += 0.012 * dt
-        if (sp[k + 1] > VIEW_H) sp[k + 1] = -VIEW_H
-        if (sp[k] > VIEW_H * aspect) sp[k] = -VIEW_H * aspect
-        if (sp[k] < -VIEW_H * aspect) sp[k] = VIEW_H * aspect
-        const d = Math.hypot(sp[k] - body.position.x, sp[k + 1] - body.position.y, sp[k + 2] - body.position.z)
-        const lit = 0.22 + glow * 0.7 * Math.exp(-d * d * 6)
-        st[k] = 0.55 * lit + color.r * lit * 0.4
-        st[k + 1] = 0.65 * lit + color.g * lit * 0.4
-        st[k + 2] = 0.75 * lit + color.b * lit * 0.4
+      // Snow drifts up slowly and wraps; it catches the lead jelly's light nearby.
+      // COUNT below halfway thins it out.
+      const flakes = Math.min(SNOW, countOf.snow(s.count))
+      snow.geometry.setDrawRange(0, flakes)
+      const leadGlow = glow * (0.45 + 0.55 * depth)
+      for (let i = 0; i < flakes; i++) {
+        const q = i * 3
+        sp[q] += (Math.sin(t * 0.2 + i) * 0.004 - s.sway * 0.01) * dt
+        sp[q + 1] += 0.012 * dt
+        if (sp[q + 1] > VIEW_H) sp[q + 1] = -VIEW_H
+        if (sp[q] > VIEW_H * aspect) sp[q] = -VIEW_H * aspect
+        if (sp[q] < -VIEW_H * aspect) sp[q] = VIEW_H * aspect
+        const d = Math.hypot(sp[q] - lead.x, sp[q + 1] - lead.y, sp[q + 2] - lead.z)
+        const lit = 0.22 + leadGlow * 0.7 * Math.exp(-d * d * 6)
+        st[q] = 0.55 * lit + leadColor.r * lit * 0.4
+        st[q + 1] = 0.65 * lit + leadColor.g * lit * 0.4
+        st[q + 2] = 0.75 * lit + leadColor.b * lit * 0.4
       }
       snow.geometry.attributes.position.needsUpdate = true
       snow.geometry.attributes.tint.needsUpdate = true

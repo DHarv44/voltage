@@ -1,4 +1,4 @@
-import { FIREFLIES, VS, VS_EXTRA } from '../../../modules/specs/vision'
+import { countOf, FIREFLIES, VS, VS_EXTRA } from '../../../modules/specs/vision'
 import type { Rng } from '../util'
 import { hueOf, Wander, type Creature, type CreatureInput, type CreatureOutput } from './creature'
 
@@ -33,24 +33,27 @@ export class Fireflies implements Creature {
 
   step(i: CreatureInput, o: CreatureOutput, led: Float32Array): void {
     const dt = i.dt
-    if (i.trig) for (let k = 0; k < FIREFLIES; k++) this.ph[k] = this.rng.next()
+    // COUNT: how many are flying tonight (the rest publish −1: not drawn)
+    const n = countOf.fireflies(i.count)
+    if (i.trig) for (let k = 0; k < n; k++) this.ph[k] = this.rng.next()
     // Touch: a torch flash. Each fly that sees it jumps its clock toward its
     // own flash (phase advance), so a few taps in time pull them together.
     const tc = i.touch
-    if (tc.tap) for (let k = 0; k < FIREFLIES; k++) this.ph[k] += (1 - this.ph[k]) * 0.6
+    if (tc.tap) for (let k = 0; k < n; k++) this.ph[k] += (1 - this.ph[k]) * 0.6
     this.herd += ((tc.touching ? Math.max(-1, Math.min(1, (tc.dx / dt) * 0.5)) : 0) - this.herd) * (1 - Math.exp(-dt / 0.8))
     const K = i.feedPatched ? Math.min(2, i.feed / 4) : DEFAULT_COUPLING
     // order parameter: the meadow's mean phase and how tightly they agree
     let sx = 0
     let sy = 0
-    for (let k = 0; k < FIREFLIES; k++) {
+    for (let k = 0; k < n; k++) {
       sx += Math.cos(TAU * this.ph[k])
       sy += Math.sin(TAU * this.ph[k])
     }
-    const r = Math.hypot(sx, sy) / FIREFLIES
+    const r = Math.hypot(sx, sy) / n
     const mean = Math.atan2(sy, sx) / TAU
     let light = 0
-    for (let k = 0; k < FIREFLIES; k++) {
+    for (let k = n; k < FIREFLIES; k++) led[VS_EXTRA + k] = -1
+    for (let k = 0; k < n; k++) {
       const pull = K * r * Math.sin(TAU * (mean - this.ph[k]))
       this.ph[k] = (this.ph[k] + dt * (i.rate * 1.5 * this.freq[k] + pull) + 1) % 1
       // a flash right after each reset, swelling and fading over a few tenths of a
@@ -64,7 +67,7 @@ export class Fireflies implements Creature {
     this.lastMean = m
     this.gate = Math.max(0, this.gate - dt)
 
-    const glow = Math.max(0, Math.min(1.5, i.glow * Math.min(1, (light / FIREFLIES) * 3) + i.glowCv / 10))
+    const glow = Math.max(0, Math.min(1.5, i.glow * Math.min(1, (light / n) * 3) + i.glowCv / 10))
     o.gate = this.gate > 0 ? 10 : 0
     o.grow = r * 10
     o.sway = Math.max(-5, Math.min(5, (this.drift.step(dt) + this.herd) * 5 + i.move * 0.2))

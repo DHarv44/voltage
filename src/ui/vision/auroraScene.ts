@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { countOf } from '../../modules/specs/vision'
 import { backdrop, CameraRig, disposeScene, rand, standardCamera, VIEW_H } from './common'
 import { ARCTIC_SKY } from './flowerParts'
 import type { SceneFactory } from './types'
@@ -25,7 +26,9 @@ export const auroraScene: SceneFactory = (aspect, seed) => {
   const camera = standardCamera(aspect)
   const sky = backdrop(aspect, ARCTIC_SKY)
   scene.add(sky)
-  const curtains = [0, 1, 2].map((k) => {
+  // up to six curtains; COUNT shows how many (three is the classic sky)
+  const meshes: THREE.Mesh[] = []
+  const curtains = [0, 1, 2, 3, 4, 5].map((k) => {
     const geo = new THREE.PlaneGeometry(VIEW_H * aspect * 2.2, 1, 90, 1)
     const mat = new THREE.ShaderMaterial({
       uniforms: { uT: { value: 0 }, uAct: { value: 0 }, uSway: { value: 0 }, uSeed: { value: rnd() * 10 }, uColor: { value: new THREE.Color() } },
@@ -47,8 +50,10 @@ export const auroraScene: SceneFactory = (aspect, seed) => {
       side: THREE.DoubleSide,
     })
     const mesh = new THREE.Mesh(geo, mat)
-    mesh.position.set((k - 1) * 0.3, 0.25 + k * 0.08, -0.4 - k * 0.3)
+    // the first three as they always were; extras further back and higher
+    mesh.position.set(k < 3 ? (k - 1) * 0.3 : (k - 4) * 0.45 + 0.15, 0.25 + k * 0.08, -0.4 - k * 0.3)
     scene.add(mesh)
+    meshes.push(mesh)
     return mat
   })
   const rig = new CameraRig(camera, sky)
@@ -76,10 +81,12 @@ export const auroraScene: SceneFactory = (aspect, seed) => {
     },
     update(s, _dt, t) {
       sky.material.uniforms.uT.value = t
+      const n = countOf.curtains(s.count)
+      meshes.forEach((m, k) => (m.visible = k < n))
       curtains.forEach((m, k) => {
         m.uniforms.uT.value = t * (1 + k * 0.15)
-        m.uniforms.uAct.value = s.action * (1 - k * 0.2) * (0.5 + s.glow * 0.6)
-        m.uniforms.uSway.value = s.sway * (1 - k * 0.3)
+        m.uniforms.uAct.value = s.action * Math.max(0.25, 1 - k * 0.2) * (0.5 + s.glow * 0.6)
+        m.uniforms.uSway.value = s.sway * Math.max(0.1, 1 - k * 0.3)
         m.uniforms.uColor.value.setHSL((0.36 + (s.hue - 0.55) * 0.6 + k * 0.03 + 1) % 1, 0.85, 0.55)
       })
     },

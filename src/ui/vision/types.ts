@@ -1,7 +1,19 @@
 import type * as THREE from 'three'
 
+/** What a piece of glass shows: a tank (module id), which scene and camera,
+ *  where that scene's state starts on the LED channel, and the tank's COUNT. */
+export interface ScreenSource {
+  mod: string
+  scene: () => number
+  cam: () => number
+  base: () => number
+  count: () => number
+}
+
 /** Smoothed creature state, read from the engine's LED channel (see VS). */
 export interface CreatureView {
+  /** The tank's COUNT knob (0..1, see countOf). */
+  count: number
   action: number
   x: number
   y: number

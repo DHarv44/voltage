@@ -37,6 +37,7 @@ export class VisionDsp extends Dsp {
   private readonly pRate = this.pi('rate')
   private readonly pHue = this.pi('hue')
   private readonly pGlow = this.pi('glow')
+  private readonly pCount = this.pi('count')
   private readonly iTrig = this.ii('trig')
   private readonly iFeed = this.ii('feed')
   private readonly iGlow = this.ii('glow')
@@ -65,7 +66,7 @@ export class VisionDsp extends Dsp {
     this.blocks = this.creatures.map((_, k) => this.led.subarray(sceneBlock(k), sceneBlock(k) + LED_BLOCK))
     this.fingers = this.creatures.map(() => new Finger())
     this.ci = {
-      dt: BLOCK / fs, trig: false, trigPatched: false, held: false, feed: 0, feedPatched: false, glowCv: 0, hueV: 0, move: 0, rate: 0, hue: 0, glow: 0,
+      dt: BLOCK / fs, trig: false, trigPatched: false, held: false, feed: 0, feedPatched: false, glowCv: 0, hueV: 0, move: 0, rate: 0, hue: 0, glow: 0, count: 0.5,
       touch: { tap: false, touching: false, x: 0.5, y: 0.5, dx: 0, dy: 0 },
     }
     this.envUp = 1 - Math.exp(-1 / (0.01 * fs))
@@ -110,6 +111,7 @@ export class VisionDsp extends Dsp {
       ci.rate = this.p[this.pRate]
       ci.hue = this.p[this.pHue]
       ci.glow = this.p[this.pGlow]
+      ci.count = this.p[this.pCount]
       this.edge = false
       // Every scene lives all the time (views may watch any of them); the
       // SCENE knob picks which one drives the jacks and the main glass.
