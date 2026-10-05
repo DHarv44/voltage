@@ -9,6 +9,10 @@ export const VS_EXTRA = 10
 /** Garden: plants and the values each one publishes (x, growth, open, wilt, visibility). */
 export const GARDEN_PLANTS = 5
 export const PLANT_VALUES = 5
+/** Jelly: depth in the tank (0 back wall … 1 front glass) and the bell's
+ *  lean toward/away from the glass (radians). */
+export const JELLY_Z = VS_EXTRA
+export const JELLY_PITCH = VS_EXTRA + 1
 /** Fireflies: how many, each publishing its brightness. */
 export const FIREFLIES = 24
 

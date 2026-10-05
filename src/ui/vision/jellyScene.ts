@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { JELLY_PITCH, JELLY_Z } from '../../modules/specs/vision'
 import { backdrop, disposeScene, glowPoints, rand, standardCamera, VIEW_H } from './common'
 import { makeBell, makeHalo, marginPoint } from './jellyBell'
 import { Tentacles } from './jellyTentacles'
@@ -6,6 +7,10 @@ import type { SceneFactory } from './types'
 
 const SNOW = 220
 const DOTS = 32
+/** The tank's depth in world units: back wall … front glass (camera at z = 3). */
+const Z_BACK = -1.0
+const Z_FRONT = 0.6
+const CAM_Z = 3
 
 const WATER = `
   uniform float uT; varying vec2 vUv;
@@ -22,7 +27,9 @@ const WATER = `
     gl_FragColor = vec4(col, 1.0);
   }`
 
-/** Bioluminescent jellyfish in a dark tank, drifting in marine snow. */
+/** Bioluminescent jellyfish in a dark tank, drifting in marine snow. It roams
+ *  the tank's depth too: perspective shrinks it toward the back wall, the water
+ *  dims it, and it passes in front of and behind the snow. */
 export const jellyScene: SceneFactory = (aspect, seed) => {
   const rnd = rand(seed)
   const scene = new THREE.Scene()
@@ -68,18 +75,28 @@ export const jellyScene: SceneFactory = (aspect, seed) => {
   const v = new THREE.Vector3()
   const anchors = new Float32Array((count + 4) * 3)
   const phase = rnd() * 10
+  let depth = 0.5
+  let pitch = 0
 
   return {
     scene,
     camera,
-    update(s, dt, t, px) {
+    update(s, dt, t, px, led) {
       bg.material.uniforms.uT.value = t
       color.setHSL(s.hue, 0.85, 0.6)
-      const glow = Math.min(1.5, s.glow)
+      const k = 1 - Math.exp(-dt / 0.05)
+      depth += ((led?.[JELLY_Z] ?? 0.5) - depth) * k
+      pitch += ((led?.[JELLY_PITCH] ?? 0) - pitch) * k
+      // Far back the water swallows its light; up at the glass it's brightest.
+      const glow = Math.min(1.5, s.glow) * (0.45 + 0.55 * depth)
       const R = 0.15 * (0.55 + 0.9 * s.grow)
 
-      // Body: the bell's origin is its margin centre.
-      body.position.set((s.x - 0.5) * 2 * halfW, (s.y - 0.5) * 2 * halfH, 0)
+      // Body: the bell's origin is its margin centre. Its x/y span the tank's
+      // walls at its own depth, so it stays inside the glass wherever it swims.
+      const z = Z_BACK + depth * (Z_FRONT - Z_BACK)
+      const reach = (CAM_Z - z) / CAM_Z
+      body.position.set((s.x - 0.5) * 2 * halfW * reach, (s.y - 0.5) * 2 * halfH * reach, z)
+      body.rotation.x = pitch
       body.rotation.z = -s.tilt
       body.rotation.y = Math.sin(t * 0.15 + phase) * 0.4
       body.scale.setScalar(R)
@@ -92,7 +109,7 @@ export const jellyScene: SceneFactory = (aspect, seed) => {
 
       v.set(0, 0.25, 0)
       body.localToWorld(v)
-      halo.position.set(v.x, v.y, -0.05)
+      halo.position.set(v.x, v.y, v.z - 0.05)
       halo.scale.setScalar(R * 9)
       halo.material.uniforms.uGlow.value = glow
       halo.material.uniforms.uColor.value.copy(color)
@@ -135,7 +152,7 @@ export const jellyScene: SceneFactory = (aspect, seed) => {
         if (sp[k + 1] > VIEW_H) sp[k + 1] = -VIEW_H
         if (sp[k] > VIEW_H * aspect) sp[k] = -VIEW_H * aspect
         if (sp[k] < -VIEW_H * aspect) sp[k] = VIEW_H * aspect
-        const d = Math.hypot(sp[k] - body.position.x, sp[k + 1] - body.position.y)
+        const d = Math.hypot(sp[k] - body.position.x, sp[k + 1] - body.position.y, sp[k + 2] - body.position.z)
         const lit = 0.22 + glow * 0.7 * Math.exp(-d * d * 6)
         st[k] = 0.55 * lit + color.r * lit * 0.4
         st[k + 1] = 0.65 * lit + color.g * lit * 0.4
