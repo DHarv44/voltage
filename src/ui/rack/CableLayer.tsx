@@ -40,12 +40,17 @@ export function CableLayer({ patch, place, drag, opacity, width, height }: Props
   )
 }
 
-/** Poly cables are drawn thicker with a dark core stripe, like a ribbon of voices. */
-function Cable({ a, b, color, poly = false }: { a: Pt; b: Pt; color: string; poly?: boolean }) {
+/** The SVG path a cable from a to b hangs along (sag grows with length). */
+export function cablePath(a: Pt, b: Pt): string {
   const dx = b.x - a.x
   const dy = b.y - a.y
   const sag = Math.min(24 + Math.hypot(dx, dy) * 0.3, 280)
-  const d = `M ${a.x} ${a.y} C ${a.x + dx / 3} ${a.y + dy / 3 + sag} ${a.x + (2 * dx) / 3} ${a.y + (2 * dy) / 3 + sag} ${b.x} ${b.y}`
+  return `M ${a.x} ${a.y} C ${a.x + dx / 3} ${a.y + dy / 3 + sag} ${a.x + (2 * dx) / 3} ${a.y + (2 * dy) / 3 + sag} ${b.x} ${b.y}`
+}
+
+/** Poly cables are drawn thicker with a dark core stripe, like a ribbon of voices. */
+function Cable({ a, b, color, poly = false }: { a: Pt; b: Pt; color: string; poly?: boolean }) {
+  const d = cablePath(a, b)
   return (
     <g>
       <path d={d} stroke="rgba(0,0,0,0.35)" strokeWidth={poly ? 11 : 7} fill="none" strokeLinecap="round" transform="translate(2 5)" />

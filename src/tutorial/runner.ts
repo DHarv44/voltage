@@ -3,7 +3,8 @@ import { SPECS } from '../modules'
 import { fromNorm, toNorm } from '../modules/params'
 import { actions, patchStore } from '../patch/store'
 import { FUNDAMENTALS } from './lessons/fundamentals'
-import type { Action, Lesson, Step, TutorialMode } from './types'
+import type { Patch } from '../patch/types'
+import type { Action, Lesson, Step, Target, TutorialMode } from './types'
 
 export const LESSONS: Lesson[] = [...FUNDAMENTALS]
 
@@ -19,7 +20,6 @@ export interface TutorialState {
 
 type Fn = () => void
 const URL_KEY = 'learn'
-const AUTO_ADVANCE_MS = 1400
 
 /** Runs a lesson. Lessons live in a `?scratch` rack, so your own patch is never
  *  touched: start() reloads the page into the lesson, exit() reloads back. */
@@ -28,7 +28,6 @@ class TutorialRunner {
   private subs = new Set<Fn>()
   /** Where a "set" step's knob started (to tell which way you're turning it). */
   private from = 0
-  private advanceTimer = 0
   private playTimers: number[] = []
 
   subscribe(fn: Fn): () => void {
@@ -76,7 +75,7 @@ class TutorialRunner {
     return this.state.lesson?.steps[this.state.index] ?? null
   }
 
-  private id(name: string): string {
+  id(name: string): string {
     return this.state.mods[name] ?? name
   }
 
@@ -84,8 +83,50 @@ class TutorialRunner {
     return patchStore.get().modules.find((m) => m.id === this.id(name))
   }
 
+  /** The rack as it was when this step began (for "Redo this step"). */
+  private snapshot: Patch | null = null
+
+  /** Every control a step points at. A connect step points at both ends,
+   *  numbered 1 (drag from) and 2 (drop on). */
+  targets(step: Step | null): { target: Target; label?: string }[] {
+    if (!step) return []
+    const a = step.action
+    if (a?.kind === 'connect')
+      return [
+        { target: { mod: a.from[0], jack: a.from[1], dir: 'out' }, label: '1' },
+        { target: { mod: a.to[0], jack: a.to[1], dir: 'in' }, label: '2' },
+      ]
+    return step.target ? [{ target: step.target }] : []
+  }
+
+  /** Back to the lesson's starting rack, step one. */
+  restart(): void {
+    const lesson = this.state.lesson
+    if (!lesson) return
+    this.stopPlaying()
+    const { patch, mods } = lesson.build()
+    actions.load(patch)
+    this.state.mods = mods
+    this.state.index = 0
+    this.begin()
+  }
+
+  /** Put the rack back to how it was when this step started. */
+  redoStep(): void {
+    if (!this.snapshot) return
+    this.stopPlaying()
+    actions.load(structuredClone(this.snapshot))
+    this.begin()
+  }
+
+  private stopPlaying(): void {
+    this.playTimers.forEach((t) => window.clearTimeout(t))
+    this.playTimers = []
+    engine.midi({ kind: 'panic' })
+  }
+
   private begin(): void {
-    window.clearTimeout(this.advanceTimer)
+    this.snapshot = structuredClone(patchStore.get())
     const a = this.step?.action
     if (a?.kind === 'set') this.from = this.module(a.mod)?.params[a.param] ?? 0
     this.played = false
@@ -125,8 +166,8 @@ class TutorialRunner {
     if (this.satisfied(a)) {
       this.state.done = true
       this.emit()
+      // No auto-advance: you get time to listen; Next pulses when you're ready.
       void this.runThen()
-      if (this.state.mode === 'guided') this.advanceTimer = window.setTimeout(() => this.next(), AUTO_ADVANCE_MS)
     }
   }
 

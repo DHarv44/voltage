@@ -91,7 +91,7 @@ export function Rack() {
             </div>
           )}
           <CableLayer patch={patch} place={place} drag={cable} opacity={cableOpacity} width={W} height={H} />
-          <TutorialHighlight />
+          <TutorialHighlight width={W} height={H} />
         </div>
       </div>
       {lib && (

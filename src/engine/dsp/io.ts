@@ -38,11 +38,19 @@ export class OutputDsp extends Dsp {
   private pCoupling = this.pi('coupling')
   private readonly left = new AudioOutCore(this.fs)
   private readonly right = new AudioOutCore(this.fs)
+  /** Plugging a cable in eases the sound up over ~0.5 s instead of snapping on. */
+  private ease = 0
+  private wasPatched = false
+  private readonly easeK = 1 - Math.exp(-1 / (0.15 * this.fs))
 
   tick(): void {
+    const patched = this.patched[this.iL] === 1 || this.patched[this.iR] === 1
+    if (patched && !this.wasPatched) this.ease = 0
+    this.wasPatched = patched
+    this.ease += (1 - this.ease) * this.easeK
     const l = this.in[this.iL]
     const r = this.patched[this.iR] ? this.in[this.iR] : l
-    const vol = this.p[this.pVol]
+    const vol = this.p[this.pVol] * this.ease
     const dc = this.p[this.pCoupling] >= 0.5
     this.audioL = this.left.process(l, vol, dc)
     this.audioR = this.right.process(r, vol, dc)

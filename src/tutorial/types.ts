@@ -27,6 +27,9 @@ export interface Step {
   /** Done automatically once the step's action is complete (in both modes),
    *  e.g. moving the scope to follow, or playing a note to hear the change. */
   then?: Action[]
+  /** Said on the card whenever `then` changes something (the tutorial never
+   *  changes the rack without telling you). */
+  thenNote?: string
 }
 
 export interface Lesson {

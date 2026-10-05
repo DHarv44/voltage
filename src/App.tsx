@@ -3,6 +3,7 @@ import { Library } from './ui/Library'
 import { Rack } from './ui/rack/Rack'
 import { TopBar } from './ui/TopBar'
 import { TutorialCard } from './ui/tutorial/TutorialCard'
+import { TutorialBubble } from './ui/tutorial/TutorialBubble'
 
 export function App() {
   return (
@@ -14,6 +15,7 @@ export function App() {
         <Rack />
       </div>
       <TutorialCard />
+      <TutorialBubble />
     </div>
   )
 }

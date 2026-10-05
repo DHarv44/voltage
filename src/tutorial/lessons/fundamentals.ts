@@ -10,71 +10,65 @@ const firstSound: Lesson = {
   summary: 'Oscillators: pitch, octaves and wave shapes (timbre).',
   build() {
     const b = new RackBuilder()
-    const vco = b.add('vco', 0, 0)
-    const scope = b.add('scope', 0, 14, { time: 0.01 })
-    const out = b.add('output', 0, 32, { vol: 0.35 })
-    return { patch: b.build(1), mods: { vco, scope, out } }
+    const vco = b.add('vco', 0, 0, { coarse: -1 })
+    const mult = b.add('mult', 0, 13)
+    const scope = b.add('scope', 0, 18, { time: 0.02 })
+    const out = b.add('output', 0, 36, { vol: 0.3 })
+    // the MULT splits one signal: one copy to the speakers, one to the scope
+    b.wire(mult, 'a1', out, 'l')
+    b.wire(mult, 'a2', scope, 'ch1')
+    return { patch: b.build(1), mods: { vco, mult, scope, out } }
   },
   steps: [
     {
-      text: 'Every synth sound starts with an oscillator: a circuit that vibrates back and forth hundreds of times a second. Send those vibrations to a speaker and your ears hear a tone. Let’s make one.',
+      text: 'Every synth sound starts with an oscillator (the VCO): a circuit that vibrates back and forth hundreds of times a second. Send those vibrations to a speaker and your ears hear a tone.',
+    },
+    {
+      text: 'The small MULT is a splitter: whatever goes into its A input comes out of all its jacks. It’s already wired to your speakers (OUT) and to the SCOPE, a screen that draws a voltage over time — so you’ll hear and see the same thing.',
     },
     { text: 'First, switch the rack on.', task: 'Press POWER ON at the top left.', target: POWER, action: { kind: 'power' } },
     {
-      text: 'Patch cables carry the vibration from one module to another. Outputs are the jacks on dark plates; inputs are plain.',
-      task: 'Drag a cable from the VCO’s SAW output to the OUT module’s L input.',
-      listen: 'A bright, buzzy tone in your left speaker: a sawtooth wave. The scope shows its ramp shape.',
-      target: { mod: 'vco', jack: 'saw', dir: 'out' },
-      action: { kind: 'connect', from: ['vco', 'saw'], to: ['out', 'l'] },
-      then: [{ kind: 'connect', from: ['vco', 'saw'], to: ['scope', 'ch1'] }],
+      text: 'Patch cables carry the vibration between modules. Outputs are the jacks on dark plates; inputs are plain. We’ll start with the gentlest wave there is: the sine.',
+      task: 'Patch the VCO’s SIN output into the MULT’s A input.',
+      listen: 'A soft, pure hum, and a smooth wave on the scope: the voltage rising and falling. (OUT plays its L input in both speakers while R is empty.)',
+      action: { kind: 'connect', from: ['vco', 'sin'], to: ['mult', 'a'] },
     },
     {
-      text: 'One output can feed several inputs (each cable is like splitting the signal).',
-      task: 'Patch SAW to OUT’s R input too.',
-      listen: 'Now it’s in both speakers.',
-      target: { mod: 'out', jack: 'r', dir: 'in' },
-      action: { kind: 'connect', from: ['vco', 'saw'], to: ['out', 'r'] },
-    },
-    {
-      text: 'FREQ sets how fast it vibrates — the pitch. Up one octave means twice as many vibrations per second.',
-      task: 'Turn FREQ up to +1 octave (scroll up over the knob, or drag it upward).',
-      listen: 'The same tone, an octave higher. The waves on the scope get closer together.',
+      text: 'FREQ sets how fast it vibrates — the pitch. One octave up is exactly twice as many vibrations per second.',
+      task: 'Turn FREQ up to 0 (scroll up over the knob, or drag it upward).',
+      listen: 'The same tone, an octave higher. The waves on the scope squeeze closer together.',
       target: { mod: 'vco', param: 'coarse' },
-      action: { kind: 'set', mod: 'vco', param: 'coarse', value: 1 },
+      action: { kind: 'set', mod: 'vco', param: 'coarse', value: 0 },
     },
     {
-      text: 'And down: half as many vibrations, an octave lower.',
-      task: 'Turn FREQ down to −1 octave.',
+      text: 'And back down: half as many vibrations, an octave lower.',
+      task: 'Turn FREQ back down to −1.',
       listen: 'Lower and rounder; the waves spread out.',
       target: { mod: 'vco', param: 'coarse' },
       action: { kind: 'set', mod: 'vco', param: 'coarse', value: -1 },
     },
     {
-      text: 'The shape of the wave is its timbre — what makes a flute and a violin sound different on the same note. A sine wave is the purest shape there is.',
-      task: 'Patch the VCO’s SIN output into OUT L (it replaces the saw there).',
-      listen: 'Soft and pure. A sine has no harmonics — just one single frequency. Compare it with the saw still in your right ear.',
-      target: { mod: 'vco', jack: 'sin', dir: 'out' },
-      action: { kind: 'connect', from: ['vco', 'sin'], to: ['out', 'l'] },
-      then: [
-        { kind: 'connect', from: ['vco', 'sin'], to: ['out', 'r'] },
-        { kind: 'connect', from: ['vco', 'sin'], to: ['scope', 'ch1'] },
-      ],
+      text: 'The shape of the wave is its timbre — why a flute and a violin sound different on the same note. A sine is a single pure frequency. A triangle adds a few quiet harmonics (extra tones at 3×, 5×, 7× the pitch).',
+      task: 'Patch TRI into the MULT’s A input (a new cable replaces the old one).',
+      listen: 'A little brighter and reedier than the sine; the scope shows straight slopes.',
+      action: { kind: 'connect', from: ['vco', 'tri'], to: ['mult', 'a'] },
     },
     {
-      text: 'The saw was bright because it contains every harmonic (multiples of the pitch). A pulse wave has only the odd ones.',
-      task: 'Patch PULSE into OUT L.',
-      listen: 'Hollow and woody, like a clarinet.',
-      target: { mod: 'vco', jack: 'sqr', dir: 'out' },
-      action: { kind: 'connect', from: ['vco', 'sqr'], to: ['out', 'l'] },
-      then: [
-        { kind: 'connect', from: ['vco', 'sqr'], to: ['out', 'r'] },
-        { kind: 'connect', from: ['vco', 'sqr'], to: ['scope', 'ch1'] },
-      ],
+      text: 'The sawtooth has every harmonic, loud — the brightest, buzziest wave. It’s the raw material of most synth sounds (filters then tame it; that’s the next lesson). It’s loud: you may want your volume down a little.',
+      task: 'Patch SAW into the MULT’s A input.',
+      listen: 'Bright and buzzy, like a brass section. The scope shows a ramp.',
+      action: { kind: 'connect', from: ['vco', 'saw'], to: ['mult', 'a'] },
+    },
+    {
+      text: 'A pulse wave has only the odd harmonics.',
+      task: 'Patch PULSE into the MULT’s A input.',
+      listen: 'Hollow and woody, like a clarinet. The scope shows a square.',
+      action: { kind: 'connect', from: ['vco', 'sqr'], to: ['mult', 'a'] },
     },
     {
       text: 'WIDTH changes how long the pulse stays up versus down.',
       task: 'Turn WIDTH down toward 15 %.',
-      listen: 'Thinner and more nasal as the pulse narrows.',
+      listen: 'Thinner and more nasal as the pulse narrows; the scope shows short spikes.',
       target: { mod: 'vco', param: 'pw' },
       action: { kind: 'set', mod: 'vco', param: 'pw', value: 0.15 },
     },
@@ -194,6 +188,7 @@ const envelopes: Lesson = {
       target: { mod: 'adsr', param: 'a' },
       action: { kind: 'set', mod: 'adsr', param: 'a', value: 1.2 },
       then: [{ kind: 'play', notes: [0], hold: 2 }],
+      thenNote: 'I played a note for you so you can hear the slow attack.',
     },
     {
       text: 'RELEASE is how long it takes to fade after you let go.',
@@ -202,6 +197,7 @@ const envelopes: Lesson = {
       target: { mod: 'adsr', param: 'r' },
       action: { kind: 'set', mod: 'adsr', param: 'r', value: 2 },
       then: [{ kind: 'play', notes: [7], hold: 1 }],
+      thenNote: 'I played a note for you so you can hear it fade out.',
     },
     {
       text: 'A pluck is the opposite: an instant attack, then a quick fall to nothing. First, the instant attack.',
@@ -216,6 +212,7 @@ const envelopes: Lesson = {
       target: { mod: 'adsr', param: 's' },
       action: { kind: 'set', mod: 'adsr', param: 's', value: 0 },
       then: [{ kind: 'play', notes: [0, 7, 12, 7], spacing: 0.3, hold: 0.25 }],
+      thenNote: 'I played a few notes for you so you can hear the pluck.',
     },
     {
       text: 'Attack, Decay, Sustain, Release: ADSR. Gate in, shape out — and that shape can open a VCA or, just as well, sweep a filter. Next: modulation.',

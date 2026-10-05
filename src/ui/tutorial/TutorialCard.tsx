@@ -44,7 +44,17 @@ export function TutorialCard() {
         </p>
       )}
       {step.listen && st.done && <p className="tut-listen">🎧 {step.listen}</p>}
+      {step.thenNote && st.done && <p className="tut-then">↪ {step.thenNote}</p>}
       <div className="tut-buttons">
+        <button onClick={() => tutorial.restart()} disabled={busy} title="Start this lesson again from the beginning">
+          ↺ Start over
+        </button>
+        {step.action && (
+          <button onClick={() => tutorial.redoStep()} disabled={busy} title="Put the rack back to how it was at the start of this step">
+            Redo step
+          </button>
+        )}
+        <span className="tut-gap" />
         <button onClick={() => tutorial.back()} disabled={st.index === 0 || busy}>
           Back
         </button>
@@ -58,7 +68,11 @@ export function TutorialCard() {
             Finish
           </button>
         ) : (
-          <button className="primary" onClick={() => void run(() => tutorial.next())} disabled={busy || waiting}>
+          <button
+            className={guided && st.done && step.action ? 'primary tut-ready' : 'primary'}
+            onClick={() => void run(() => tutorial.next())}
+            disabled={busy || waiting}
+          >
             {waiting ? 'Your turn…' : 'Next'}
           </button>
         )}

@@ -218,7 +218,7 @@ button {
   right: 18px;
   bottom: 18px;
   z-index: 300;
-  width: min(380px, calc(100vw - 32px));
+  width: min(420px, calc(100vw - 32px));
   padding: 14px 16px;
   border-radius: 10px;
   background: #1c1d21f2;
@@ -299,6 +299,106 @@ button {
   background: #ffd25a;
   color: #1c1d21;
   font-weight: 700;
+}
+.tut-then {
+  margin: 6px 0;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.tut-gap {
+  flex: 1;
+}
+.tut-buttons button {
+  white-space: nowrap;
+}
+/* ghost of the cable to patch: dotted, same hang as a real one, marching 1 → 2 */
+.tut-ghost {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 39;
+  pointer-events: none;
+}
+.tut-ghost path {
+  fill: none;
+  stroke: #ffd25a;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 2 12;
+  opacity: 0.85;
+  filter: drop-shadow(0 0 3px #ffd25a);
+  animation: tut-march 0.8s linear infinite;
+}
+@keyframes tut-march {
+  to {
+    stroke-dashoffset: -14;
+  }
+}
+.tut-ring-label {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #ffd25a;
+  color: #1c1d21;
+  font: 700 16px/26px Bahnschrift, 'Arial Narrow', sans-serif;
+  text-align: center;
+}
+.tut-bubble {
+  position: fixed;
+  z-index: 310;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: #ffd25a;
+  color: #1c1d21;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+}
+.tut-bubble-hint {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  opacity: 0.75;
+}
+/* the arrow pointing at the control */
+.tut-bubble::before {
+  content: '';
+  position: absolute;
+  border: 8px solid transparent;
+}
+.tut-bubble.right::before {
+  left: -16px;
+  top: 50%;
+  margin-top: -8px;
+  border-right-color: #ffd25a;
+}
+.tut-bubble.left::before {
+  right: -16px;
+  top: 50%;
+  margin-top: -8px;
+  border-left-color: #ffd25a;
+}
+.tut-bubble.above::before {
+  bottom: -16px;
+  left: 50%;
+  margin-left: -8px;
+  border-top-color: #ffd25a;
+}
+.tut-bubble.below::before {
+  top: -16px;
+  left: 50%;
+  margin-left: -8px;
+  border-bottom-color: #ffd25a;
+}
+.tut-buttons .tut-ready {
+  animation: tut-pulse 1.2s ease-in-out infinite;
+  box-shadow: 0 0 14px #ffd25a;
 }
 .tut-ring {
   position: absolute;
