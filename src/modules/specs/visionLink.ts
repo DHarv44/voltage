@@ -69,13 +69,14 @@ export const visionview: ModuleSpec = {
   layout: viewLayout,
 }
 
-/** VISION VIEW's panel at any width: all glass, with three controls below. */
+/** VISION VIEW's panel at any width: nearly all glass (edge to edge, over the
+ *  title), with its three controls in one slim row along the bottom. */
 function viewLayout(hp: number): Control[] {
   const c = columns(hp * HP_MM, 3, 30)
   return [
-    { kind: 'vision', x: 5, y: 14, w: hp * HP_MM - 10, h: 82, linked: true },
-    { kind: 'knob', param: 'scene', x: c[0], y: 109, size: 'S' },
-    { kind: 'knob', param: 'cam', x: c[1], y: 109, size: 'S' },
-    { kind: 'in', jack: 'link', x: c[2], y: 109 },
+    { kind: 'vision', x: 3, y: 5.5, w: hp * HP_MM - 6, h: 107, linked: true },
+    { kind: 'knob', param: 'scene', x: c[0], y: 119.5, size: 'S' },
+    { kind: 'knob', param: 'cam', x: c[1], y: 119.5, size: 'S' },
+    { kind: 'in', jack: 'link', x: c[2], y: 119.5 },
   ]
 }

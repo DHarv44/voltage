@@ -20,6 +20,8 @@ interface Screen {
   cam: () => number
   /** Where this screen's scene starts on the LED channel (see sceneBlock). */
   base: () => number
+  /** A full-screen or pop-out glass: always drawn (it isn't on the rack page). */
+  always: boolean
   host: VisionScene | null
   hostIdx: number
   view: CreatureView
@@ -78,8 +80,10 @@ function frame(now: number): void {
   if (needW !== size.x || needH !== size.y) r.setSize(needW, needH, false)
 
   for (const s of screens) {
-    const box = s.canvas.getBoundingClientRect()
-    if (box.bottom < 0 || box.right < 0 || box.top > innerHeight || box.left > innerWidth || box.width === 0) continue
+    if (!s.always) {
+      const box = s.canvas.getBoundingClientRect()
+      if (box.bottom < 0 || box.right < 0 || box.top > innerHeight || box.left > innerWidth || box.width === 0) continue
+    }
     const W = s.canvas.width
     const H = s.canvas.height
     const idx = Math.min(SCENES.length - 1, Math.max(0, Math.round(s.scene())))
@@ -116,10 +120,11 @@ export function attachScreen(
   scene: () => number,
   cam: () => number = () => 0,
   base: () => number = () => 0,
+  always = false,
 ): () => void {
   const ctx = canvas.getContext('2d')
   if (!ctx) return () => {}
-  const s: Screen = { canvas, ctx, mod, scene, cam, base, host: null, hostIdx: -1, view: blankView(), t: 0 }
+  const s: Screen = { canvas, ctx, mod, scene, cam, base, always, host: null, hostIdx: -1, view: blankView(), t: 0 }
   screens.add(s)
   if (!raf) {
     last = 0

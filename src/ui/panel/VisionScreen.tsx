@@ -1,10 +1,9 @@
-import type React from 'react'
-import { useEffect, useRef, useSyncExternalStore } from 'react'
-import { engine } from '../../audio/engine'
-import { sceneBlock } from '../../modules/specs/vision'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { createPortal } from 'react-dom'
+import { sceneBlock, VISION_SCENES } from '../../modules/specs/vision'
 import { patchStore } from '../../patch/store'
 import { PX } from '../geometry'
-import { track } from '../pointer'
+import { fillWindow, loadRenderer, popOut, touchGlass, type GlassSource } from './visionGlass'
 
 interface Props {
   mod: string
@@ -13,41 +12,40 @@ interface Props {
   w: number
   h: number
   scene: number
-  /** Camera angle (VIEW_CAMS); scenes that aren't 3D ignore it. */
+  /** Camera angle (VIEW_CAMS: WIDE, ANGLE, CLOSE). */
   cam?: number
   /** Where the scene's state starts on the LED channel (0 = the tank's own scene). */
   ledBase?: number
 }
 
-const RES = 2
+/** Canvas pixels per panel pixel: sharp on high-DPI screens and when zoomed. */
+const RES = Math.min(3, Math.max(2, Math.ceil((window.devicePixelRatio || 1) * 1.5)))
 
-/** The VISION tank's glass. three.js loads only once a tank is on the rack. */
+/** The VISION tank's glass, a touch screen. Hover for FULL SCREEN and POP OUT
+ *  (its own window: a second monitor or a projector). three.js loads only once
+ *  a tank is on the rack. */
 export function VisionScreen({ mod, x, y, w, h, scene, cam = 0, ledBase = 0 }: Props) {
   const ref = useRef<HTMLCanvasElement>(null)
-  const sceneRef = useRef(scene)
-  sceneRef.current = scene
-  const camRef = useRef(cam)
-  camRef.current = cam
-  const baseRef = useRef(ledBase)
-  baseRef.current = ledBase
+  const live = useRef({ scene, cam, ledBase })
+  live.current = { scene, cam, ledBase }
+  const [full, setFull] = useState(false)
   const W = Math.round(w * PX * RES)
   const H = Math.round(h * PX * RES)
-
-  const pick = useRef<((c: HTMLCanvasElement, u: number, v: number) => { x: number; y: number }) | null>(null)
+  // the same source for the panel, full screen and pop-out: they follow the knobs
+  const src = useRef<GlassSource>({
+    mod,
+    scene: () => live.current.scene,
+    cam: () => live.current.cam,
+    base: () => live.current.ledBase,
+  })
+  src.current.mod = mod
 
   useEffect(() => {
     let detach: (() => void) | null = null
     let dead = false
-    void import('../vision/renderer').then(({ attachScreen, pickAt }) => {
-      pick.current = pickAt
-      if (!dead && ref.current)
-        detach = attachScreen(
-          ref.current,
-          mod,
-          () => sceneRef.current,
-          () => camRef.current,
-          () => baseRef.current,
-        )
+    void loadRenderer().then((r) => {
+      const s = src.current
+      if (!dead && ref.current) detach = r.attachScreen(ref.current, mod, s.scene, s.cam, s.base)
     })
     return () => {
       dead = true
@@ -55,35 +53,62 @@ export function VisionScreen({ mod, x, y, w, h, scene, cam = 0, ledBase = 0 }: P
     }
   }, [mod, W, H])
 
-  // The glass is a touch screen: each touch goes, through this screen's
-  // camera, to the scene it shows (in the module that runs the tank).
-  const down = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (e.button !== 0 || !pick.current) return
-    e.stopPropagation()
-    e.preventDefault()
-    const canvas = e.currentTarget
-    const name = `touch${Math.round(sceneRef.current)}`
-    const send = (cx: number, cy: number, isDown: boolean) => {
-      const r = canvas.getBoundingClientRect()
-      const p = pick.current!(canvas, (cx - r.left) / r.width, (cy - r.top) / r.height)
-      engine.ui(mod, { kind: 'surface', name, x: p.x, y: p.y, down: isDown })
-    }
-    send(e.clientX, e.clientY, true)
-    track(
-      (ev) => send(ev.clientX, ev.clientY, true),
-      (ev) => send(ev.clientX, ev.clientY, false),
-    )
-  }
-
+  const sceneName = VISION_SCENES[Math.round(scene)] ?? 'VISION'
   return (
-    <canvas
-      ref={ref}
-      className="vision-screen"
-      width={W}
-      height={H}
-      style={{ left: x * PX, top: y * PX, width: w * PX, height: h * PX }}
-      onPointerDown={down}
-    />
+    <div className="vision-glass" style={{ left: x * PX, top: y * PX, width: w * PX, height: h * PX }}>
+      <canvas
+        ref={ref}
+        className="vision-screen"
+        width={W}
+        height={H}
+        onPointerDown={(e) => ref.current && touchGlass(e.nativeEvent, ref.current, src.current)}
+      />
+      <div className="vision-tools" onPointerDown={(e) => e.stopPropagation()}>
+        <button onClick={() => setFull(true)} title="Full screen (Esc to leave)">
+          ⛶
+        </button>
+        <button onClick={() => void popOut(src.current, sceneName)} title="Pop out into its own window: drag it to another screen or a projector">
+          ⧉
+        </button>
+      </div>
+      {full && <FullScreenGlass src={src.current} onClose={() => setFull(false)} />}
+    </div>
+  )
+}
+
+/** The tank filling the whole display. Touch still works; Esc (or ✕) leaves. */
+function FullScreenGlass({ src, onClose: closeProp }: { src: GlassSource; onClose: () => void }) {
+  const host = useRef<HTMLDivElement>(null)
+  // knobs re-render the panel; full screen must not restart when they do
+  const closeRef = useRef(closeProp)
+  closeRef.current = closeProp
+  useEffect(() => {
+    const onClose = () => closeRef.current()
+    const el = host.current
+    if (!el) return
+    let close = () => {}
+    let dead = false
+    void fillWindow(window, el, src).then((c) => (dead ? c() : (close = c)))
+    void el.requestFullscreen?.().catch(() => {}) // falls back to a full-window overlay
+    const left = () => !document.fullscreenElement && onClose()
+    const esc = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    document.addEventListener('fullscreenchange', left)
+    window.addEventListener('keydown', esc)
+    return () => {
+      dead = true
+      close()
+      document.removeEventListener('fullscreenchange', left)
+      window.removeEventListener('keydown', esc)
+      if (document.fullscreenElement) void document.exitFullscreen().catch(() => {})
+    }
+  }, [src])
+  return createPortal(
+    <div className="vision-full" ref={host}>
+      <button className="vision-full-x" onClick={() => closeRef.current()} title="Leave full screen (Esc)">
+        ✕
+      </button>
+    </div>,
+    document.body,
   )
 }
 

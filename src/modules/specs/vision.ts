@@ -95,27 +95,29 @@ export const columns = (w: number, n: number, gap: number) => {
   return Array.from({ length: n }, (_, i) => w / 2 + (i - (n - 1) / 2) * s)
 }
 
-/** VISION's panel at any width: the glass fills it; knobs and jacks stay centred. */
+/** VISION's panel at any width: the glass takes everything above the controls
+ *  (edge to edge, over the title: the picture is the point); knobs and jacks
+ *  stay centred in three tight rows. */
 function visionLayout(hp: number): Control[] {
   const w = hp * HP_MM
   const c = columns(w, 5, 19.5)
   return [
-    { kind: 'vision', x: 5, y: 16, w: w - 10, h: 56 },
-    { kind: 'knob', param: 'scene', x: c[0], y: 80, size: 'S' },
-    { kind: 'knob', param: 'rate', x: c[1], y: 80, size: 'S' },
-    { kind: 'knob', param: 'hue', x: c[2], y: 80, size: 'S' },
-    { kind: 'knob', param: 'glow', x: c[3], y: 80, size: 'S' },
-    { kind: 'led', index: VS.gate, x: c[4], y: 80, color: '#5ef2ff' },
-    { kind: 'in', jack: 'trig', x: c[0], y: 97 },
-    { kind: 'in', jack: 'feed', x: c[1], y: 97 },
-    { kind: 'in', jack: 'glow', x: c[2], y: 97 },
-    { kind: 'in', jack: 'hue', x: c[3], y: 97 },
-    { kind: 'in', jack: 'move', x: c[4], y: 97 },
-    { kind: 'out', jack: 'gate', x: c[0], y: 113.5 },
-    { kind: 'out', jack: 'sway', x: c[1], y: 113.5 },
-    { kind: 'out', jack: 'grow', x: c[2], y: 113.5 },
-    { kind: 'out', jack: 'light', x: c[3], y: 113.5 },
-    { kind: 'out', jack: 'link', x: c[4], y: 113.5 },
+    { kind: 'vision', x: 3, y: 5.5, w: w - 6, h: 71 },
+    { kind: 'knob', param: 'scene', x: c[0], y: 84, size: 'S' },
+    { kind: 'knob', param: 'rate', x: c[1], y: 84, size: 'S' },
+    { kind: 'knob', param: 'hue', x: c[2], y: 84, size: 'S' },
+    { kind: 'knob', param: 'glow', x: c[3], y: 84, size: 'S' },
+    { kind: 'led', index: VS.gate, x: c[4], y: 84, color: '#5ef2ff' },
+    { kind: 'in', jack: 'trig', x: c[0], y: 100 },
+    { kind: 'in', jack: 'feed', x: c[1], y: 100 },
+    { kind: 'in', jack: 'glow', x: c[2], y: 100 },
+    { kind: 'in', jack: 'hue', x: c[3], y: 100 },
+    { kind: 'in', jack: 'move', x: c[4], y: 100 },
+    { kind: 'out', jack: 'gate', x: c[0], y: 115 },
+    { kind: 'out', jack: 'sway', x: c[1], y: 115 },
+    { kind: 'out', jack: 'grow', x: c[2], y: 115 },
+    { kind: 'out', jack: 'light', x: c[3], y: 115 },
+    { kind: 'out', jack: 'link', x: c[4], y: 115 },
   ]
 }
 
