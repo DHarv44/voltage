@@ -59,6 +59,8 @@ import { DjMixDsp } from './djmix'
 import { HarpDsp } from './harp'
 import { ChopDsp } from './chop'
 import { PocketDsp } from './pocket'
+import { PocketBassDsp } from './pocketBass'
+import { PocketMelodyDsp } from './pocketMelody'
 import { StylophoneDsp } from './stylophone'
 import { BounceDsp } from './bounce'
 import { OrbitDsp } from './orbit'
@@ -166,6 +168,8 @@ const CIRCUITS: Record<string, DspCtor> = {
   harp: HarpDsp,
   chop: ChopDsp,
   pocket: PocketDsp,
+  pocketbass: PocketBassDsp,
+  pocketmelody: PocketMelodyDsp,
   stylophone: StylophoneDsp,
   bounce: BounceDsp,
   orbit: OrbitDsp,

@@ -6,7 +6,7 @@ import type { Patch } from '../types'
 import { ambient, classicMono, monoLead, westCoast } from './synths'
 import { acidHouse, drumKit, loopJam } from './rhythm'
 import { euclidPolyrhythm, jellyDream, polyStrings, studioBleeps, studioClassic, tapeAmbient } from './more'
-import { pocketBass, pocketBoomBap, pocketElectro, pocketLofi } from './pocket'
+import { pocketBand, pocketBass, pocketBoomBap, pocketElectro, pocketLofi } from './pocket'
 
 export interface Preset {
   id: string
@@ -130,6 +130,13 @@ export const PRESETS: Preset[] = [
     description: 'POCKET at 78 with deep swing: soft kick, rim snare, a slow pentatonic BLIP melody, warbly tape and a dark plate.',
     howTo: 'Power on and let it loop. Try TAPE AGE and WOW.',
     build: pocketLofi,
+  },
+  {
+    id: 'pocket-band',
+    name: 'Pocket Band',
+    description: 'The POCKET family together: drums keep time; POCKET BASS (acid, with a slide) and POCKET MELODY (bells, an arpeggio and a closing chord) follow its CLK. C minor.',
+    howTo: 'Power on: it plays itself. On BASS or MELODY, drag a step up/down to change its note, right-click it for slide/accent or chord/arp.',
+    build: pocketBand,
   },
   {
     id: 'pocket-bass',

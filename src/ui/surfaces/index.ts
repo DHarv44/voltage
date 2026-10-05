@@ -17,6 +17,7 @@ import { Bowl } from './Bowl'
 import { DjFaders } from './DjFaders'
 import { Harp } from './Harp'
 import { Pocket } from './Pocket'
+import { PocketKeys } from './PocketKeys'
 import { Stylophone } from './Stylophone'
 import { Bounce } from './Bounce'
 import { Orbit } from './Orbit'
@@ -50,6 +51,7 @@ export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
   djfaders: DjFaders,
   harp: Harp,
   pocket: Pocket,
+  pocketkeys: PocketKeys,
   stylophone: Stylophone,
   bounce: Bounce,
   orbit: Orbit,

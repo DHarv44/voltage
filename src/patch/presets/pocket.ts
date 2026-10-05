@@ -103,6 +103,36 @@ export function pocketLofi(): Patch {
   return b.build()
 }
 
+/** The POCKET family as a band: the drum POCKET keeps time and its CLK out
+ *  drives POCKET BASS and POCKET MELODY (they follow its tempo and swing),
+ *  all three into a mixer and a plate. Bass and melody are both in C minor. */
+export function pocketBand(): Patch {
+  const b = new RackBuilder()
+  const drums = b.add('pocket', 0, 0, {
+    run: 1, tempo: 104, swing: 0.12, vol: 0.85,
+    [`m${KICK}`]: steps(1, 7, 9, 11), a0: 0.25, b0: 0.6,
+    [`m${SNARE}`]: steps(5, 13), a1: 0.35, b1: 0.45,
+    [`m${CLAP}`]: 0,
+    [`m${HAT}`]: EIGHTHS, a3: 0.5, b3: 0.15,
+    [`m${OPEN}`]: steps(15), b4: 0.3,
+    [`m${BLIP}`]: 0,
+  })
+  const bass = b.add('pocketbass', 0, 16, { run: 1, voice: 2, a: 0.4, b: 0.35, vol: 0.75 })
+  const melody = b.add('pocketmelody', 0, 32, { run: 1, voice: 0, scale: 1, root: 0, oct: 0, a: 0.35, b: 0.45, vol: 0.6 })
+  const mix = b.add('mixer', 0, 56, { l1: 0.8, l2: 0.75, l3: 0.55, l4: 0, master: 0.8 })
+  const plate = b.add('plate', 0, 64, { decay: 0.6, damp: 0.5, pre: 0.02, mix: 0.18 })
+  const out = b.add('output', 0, 74, { vol: 0.85 })
+  b.wire(drums, 'clko', bass, 'clk')
+  b.wire(drums, 'clko', melody, 'clk')
+  b.wire(drums, 'out', mix, 'in1')
+  b.wire(bass, 'out', mix, 'in2')
+  b.wire(melody, 'out', mix, 'in3')
+  b.wire(mix, 'out', plate, 'in')
+  b.wire(plate, 'l', out, 'l')
+  b.wire(plate, 'r', out, 'r')
+  return b.build()
+}
+
 /** The Pocket as the band's clock: its CLK out steps SEQ-8 through a
  *  bassline on MONO-1, mixed with the beat. A VISION jellyfish swims to it:
  *  ÷8 of the clock pulses the bell every two beats (half-time: a real bell

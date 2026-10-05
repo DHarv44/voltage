@@ -51,6 +51,7 @@ import { djmix } from './specs/djmix'
 import { harp } from './specs/harp'
 import { chop } from './specs/chop'
 import { pocket } from './specs/pocket'
+import { pocketbass, pocketmelody } from './specs/pocketSynth'
 import { stylophone } from './specs/stylophone'
 import { bounce } from './specs/bounce'
 import { orbit } from './specs/orbit'
@@ -85,6 +86,8 @@ export const SPEC_LIST: ModuleSpec[] = [
   perc,
   pads,
   pocket,
+  pocketbass,
+  pocketmelody,
   touch,
   tr16,
   euclid,

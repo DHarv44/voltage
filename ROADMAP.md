@@ -14,7 +14,10 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (109)
+### Modules (111)
+- **POCKET family**: POCKET (drums), POCKET BASS (16 note steps, slide/accent, SUB/SQUARE/ACID), POCKET
+  MELODY (scale degrees, per-step NOTE/CHORD/ARP, BELL/PLUCK/LEAD, poly NOTES). Drag a step to set its
+  note, right-click for its flag; off WRITE the buttons are a keyboard. They follow each other's CLK.
 - **Systems**: MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine).
 - **Polyphonic**: POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX.
 - **Sources**: VCO, COMPLEX (Buchla-style), WAVE (band-limited wavetable), SUB, NOISE.
@@ -99,7 +102,7 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - Resizable screens: right-click VISION / VISION VIEW → Size 12 / 20 / 28 / 40 HP.
 - Rail width: 84 / 104 / 126 / 168 HP cases (top bar); can't shrink past a module; saved and shared
   with the patch.
-- 17 factory presets (incl. four POCKET grooveboxes: boom bap, electro, lo-fi, + bassline); Jellyfish
+- 18 factory presets (incl. five POCKET racks: boom bap, electro, lo-fi, + bassline, the Pocket Band); Jellyfish
   Dream (the jelly plays the melody) is the first-run rack.
 - Git history.
 
@@ -113,8 +116,7 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - **XY pad extras**: multi-touch → poly cables on tablets; save the recorded gesture with the patch.
 - **POCKET family** (calculator-sized grooveboxes that clock each other over CLK; our own names, look and
   sounds; no third-party trademarks, artwork, LCD characters or samples):
-  - POCKET BASS: mono bass, 16 note steps, slide + accent, a few voices (sub, square, acid).
-  - POCKET MELODY: lead with a scale built in, pitch locks per step, chord and arpeggio modes.
+  - ~~POCKET BASS~~ and ~~POCKET MELODY~~: done (see Modules).
   - POCKET SAMPLER: record from IN into 8 slots, chop across the buttons, sequence them (reuses the
     SAMPLE/LOOP buffers).
   - POCKET ARCADE: chiptune: pulse + triangle, arpeggiated chords, a noise channel.
