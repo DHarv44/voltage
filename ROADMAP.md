@@ -104,7 +104,21 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - **Tutorial suite**: lessons for every module family (sequencing, drums, effects, systems, poly, the
   played instruments), plus "how this preset works" tours of the factory presets.
 - **XY pad extras**: multi-touch → poly cables on tablets; save the recorded gesture with the patch.
-- **More VISION scenes**: coral reef, rain on a pond, starling murmuration.
+- **POCKET family** (calculator-sized grooveboxes that clock each other over CLK; our own names, look and
+  sounds; no third-party trademarks, artwork, LCD characters or samples):
+  - POCKET BASS: mono bass, 16 note steps, slide + accent, a few voices (sub, square, acid).
+  - POCKET MELODY: lead with a scale built in, pitch locks per step, chord and arpeggio modes.
+  - POCKET SAMPLER: record from IN into 8 slots, chop across the buttons, sequence them (reuses the
+    SAMPLE/LOOP buffers).
+  - POCKET ARCADE: chiptune: pulse + triangle, arpeggiated chords, a noise channel.
+  - POCKET ROBOT: live lead played on the buttons, glide and effects, records into steps.
+  - POCKET SPEAK: syllables per step with pitch locks (formant voice from the talk box).
+  - POCKET OFFICE: a noise-and-click drum kit (typewriter, glitch hats).
+  - Shared upgrades: 16 hold-to-play punch-in effects (stutter, loop, filter sweep, crush, retrigger,
+    reverse), several patterns per pocket chained into a song, a family LCD with its own animated mascot.
+- **VISION extras**: TOUCH X / Y / GATE outputs (the glass as a performance pad), a DEPTH output for the
+  jelly, more CLOSE options (slow orbit, distance), and the new scenes (coral reef, rain on a pond,
+  starling murmuration) built in 3D so every camera has something to see.
 
 ## Pinned for later: creative modules
 - **Character output**: cassette deck and vinyl-lathe export.

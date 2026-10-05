@@ -16,7 +16,7 @@ const LOCKS: ParamSpec[] = Array.from({ length: n * POCKET_STEPS * 2 }, (_, k) =
   return { id: `l${ab}${s}_${i}`, label: `LOCK ${ab.toUpperCase()} ${s + 1}.${i + 1}`, min: -1, max: 1, def: -1, stepped: true }
 })
 
-/** Pocket groovebox (Pocket Operator-style): eight sounds, 16 steps, and
+/** Pocket groovebox (a calculator-sized drum machine): eight sounds, 16 steps, and
  *  parameter locks. WRITE on: the 16 buttons toggle steps of the selected
  *  sound. WRITE off: buttons 1–8 play and select sounds. Knobs A (pitch) and
  *  B (decay) set the selected sound; right-click a step (in WRITE) to lock A/B
