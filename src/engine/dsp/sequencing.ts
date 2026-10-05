@@ -49,7 +49,10 @@ export class DividerDsp extends Dsp {
   tick(): void {
     if (this.reset.rise(this.in[this.iReset])) this.count = 0
     if (this.clk.rise(this.in[this.iClk])) this.count++
-    for (let k = 0; k < DIVS.length; k++) this.out[k] = this.count % DIVS[k] < DIVS[k] / 2 ? 10 : 0
+    // Each output goes high on the FIRST clock of its group (low until the
+    // first clock arrives), so ÷4 of a 16th clock lands on the beat.
+    const c = this.count - 1
+    for (let k = 0; k < DIVS.length; k++) this.out[k] = c >= 0 && c % DIVS[k] < DIVS[k] / 2 ? 10 : 0
   }
 }
 

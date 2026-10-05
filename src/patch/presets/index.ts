@@ -133,8 +133,8 @@ export const PRESETS: Preset[] = [
   {
     id: 'pocket-bass',
     name: 'Pocket + Bassline',
-    description: 'POCKET is the clock: its CLK out steps SEQ-8 through a MONO-1 bassline, mixed with the beat.',
-    howTo: 'Power on: it plays itself. Change POCKET BPM and the bass follows.',
+    description: 'POCKET clocks a MONO-1 bassline; a VISION jelly pulses every two beats, takes its colour from the bass notes, and each glowing stroke opens the filter.',
+    howTo: 'Power on: it plays itself. Change POCKET BPM and the bass and jelly follow; turn ATTN for more or less "wow".',
     build: pocketBass,
   },
 ]

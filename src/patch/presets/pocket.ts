@@ -104,7 +104,10 @@ export function pocketLofi(): Patch {
 }
 
 /** The Pocket as the band's clock: its CLK out steps SEQ-8 through a
- *  bassline on MONO-1, mixed with the beat. */
+ *  bassline on MONO-1, mixed with the beat. A VISION jellyfish swims to it:
+ *  ÷8 of the clock pulses the bell every two beats (half-time: a real bell
+ *  can't pump at 118 bpm), the bass notes colour it, and each stroke's flash
+ *  of LIGHT opens MONO-1's filter, a "wow" that fades as the glow does. */
 export function pocketBass(): Patch {
   const b = new RackBuilder()
   const pocket = b.add('pocket', 0, 0, {
@@ -117,7 +120,8 @@ export function pocketBass(): Patch {
     [`m${BLIP}`]: 0,
   })
   const mono = b.add('mono', 0, 16, {
-    tune: -2, wave: 0.6, cutoff: 450, res: 0.55, envamt: 0.45, drive: 1.8, a: 0.002, d: 0.16, s: 0, r: 0.08, pwm: 0, vol: 0.55,
+    // cutoff sits low: the jelly's LIGHT (via ATTN) lifts it several octaves
+    tune: -2, wave: 0.6, cutoff: 90, res: 0.55, envamt: 0.45, drive: 1.8, a: 0.002, d: 0.16, s: 0, r: 0.08, pwm: 0, vol: 0.55,
   })
   const notes = [0, 0, 7, 0, 10, 0, 12, 7]
   const gates = [1, 0, 1, 1, 1, 0, 1, 1]
@@ -137,5 +141,14 @@ export function pocketBass(): Patch {
   b.wire(mono, 'vca', mix, 'in2')
   b.wire(mix, 'out', out, 'l')
   b.wire(mono, 'vcf', scope, 'ch1')
+
+  const tank = b.add('vision', 1, 0, { scene: 0, glow: 0.8 })
+  const div = b.add('div', 1, 20)
+  const att = b.add('atten', 1, 26, { a: 0.6 })
+  b.wire(pocket, 'clko', div, 'clk')
+  b.wire(div, 'd8', tank, 'trig')
+  b.wire(seq, 'cv', tank, 'hue')
+  b.wire(tank, 'light', att, 'a')
+  b.wire(att, 'a', mono, 'cutoff')
   return b.build()
 }
