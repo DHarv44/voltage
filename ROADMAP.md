@@ -2,7 +2,9 @@
 
 Realism rule for everything here: model the circuit or the hardware behaviour, never fake it with
 samples or downloaded assets. Every module is a voltage-in/voltage-out panel that can be patched
-anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
+anywhere. Only well-established packages (React, Vite, TypeScript, three.js). Modules inspired by
+real products get our own names, panels and sounds. See the [README](README.md) for how to use and
+extend VOLTAGE.
 
 ## Done
 
@@ -56,8 +58,8 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
   friction, chatter, split modes, water), HARP (36 waveguide strings, glissando, key pedals), STYLUS
   (stylus organ: relaxation oscillator, tiny speaker, vibrato).
 - **Performance boxes**: CHOP (MPC-style: 16 pads chopped at transients, note repeat + swing, 12-bit
-  vintage), POCKET (Pocket Operator-style: 8 sounds, 16 steps, per-step parameter locks), DJ MIXER (kill
-  EQ isolator, one-knob filter, faders, crossfader with scratch curve).
+  vintage), DJ MIXER (kill EQ isolator, one-knob filter, faders, crossfader with scratch curve). The
+  drum POCKET (8 sounds, 16 steps, per-step parameter locks) is listed with its family above.
 - **Sampling**: LOOP (4 slots, overdub undo, ½× record), SAMPLE (record/load, slices), TURNTABLE
   (scratch the platter; flywheel motor + brake, 33/45, pitch, transformer CUT, strobe dots, cartridge
   output follows stylus velocity, crackle/rumble WEAR; cut your own record or load a file; factory
@@ -68,19 +70,22 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - **Real-world inputs** (only on when you click ENABLE; nothing leaves the machine): AUDIO IN (mic/line
   into the rack: audio, envelope, gate, YIN pitch), CAMERA (webcam motion amount/position/brightness),
   GAMEPAD (sticks, triggers, buttons).
-- **Visuals**: VISION (three.js tank: bioluminescent jellyfish; a flower garden where plants sprout, bloom,
-  wilt, die and reseed; fireflies that synchronise (Kuramoto); aurora with substorms; a Chladni plate
-  whose sand finds the mode the pitch picks). The creature lives on the
-  engine clock: TRIG/FEED/GLOW/PITCH/MOVE steer it, GATE/MOTION/STATE/LIGHT come back out (generic
-  names; each scene reads them its own way, and every one is used in every scene). The jelly swims in 3D
-  (depth + pitch) and a held TRIG (sustained note) jets it further. VISION CORE (the engine with no
-  screen) + any number of VISION VIEWs patched from LINK; each view picks its own scene and camera
-  (WIDE, ANGLE, CLOSE) in every scene. All scenes live at once. The glass is a touch screen: poke the
-  jelly, plant seeds, flash a torch at the fireflies, set off a substorm, knock/bend the Chladni plate.
-  One shared
-  WebGL renderer for every tank; three.js loads only when a tank is on the rack. VECTOR (XY-mode CRT,
-  phosphor persistence, beam dims with speed), WATERFALL (log-frequency spectrogram), LIGHTS (the music
-  lights the whole rack: bass red, mids green, treble blue).
+- **Visuals**:
+  - **VISION**: a three.js tank whose creatures live on the engine clock. Five scenes: a
+    bioluminescent jellyfish (swims in 3D, depth + pitch; a held TRIG jets it further), a garden (plants
+    sprout, bloom, wilt and reseed, with overlapping generations), fireflies that synchronise
+    (Kuramoto), aurora with substorms, a Chladni plate whose sand finds the mode the pitch picks.
+  - Generic jacks every scene uses its own way: TRIG / FEED / GLOW / PITCH / MOVE in, GATE / MOTION /
+    STATE / LIGHT out (the table is in `specs/vision.ts`). COUNT sets how many things a scene has
+    (up to 6 jellies, 10 plants, 48 fireflies, 6 curtains, 5000 grains).
+  - VISION CORE (the engine, no screen) + any number of VISION VIEWs patched from LINK, each with its
+    own scene and camera (WIDE / ANGLE / CLOSE) in every scene. All scenes live at once.
+  - The glass is a touch screen (poke the jelly, plant seeds, flash a torch at the fireflies, set off a
+    substorm, knock/bend the plate). Sizes 12 / 20 / 28 / 40 HP with the controls packed so the glass
+    gets the space; full screen and pop-out on hover.
+  - One shared WebGL renderer for every screen; three.js loads only when a tank is on the rack.
+  - **VECTOR** (XY-mode CRT, phosphor persistence, beam dims with speed), **WATERFALL** (log-frequency
+    spectrogram), **LIGHTS** (the music lights the whole rack: bass red, mids green, treble blue).
 
 ### Rack & workflow
 - Drag anywhere, slide-aside on drop, library drag-in, new-row drop.
@@ -102,9 +107,9 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - Resizable screens: right-click VISION / VISION VIEW → Size 12 / 20 / 28 / 40 HP.
 - Rail width: 84 / 104 / 126 / 168 HP cases (top bar); can't shrink past a module; saved and shared
   with the patch.
-- 18 factory presets (incl. five POCKET racks: boom bap, electro, lo-fi, + bassline, the Pocket Band); Jellyfish
-  Dream (the jelly plays the melody) is the first-run rack.
-- Git history.
+- 18 factory presets (incl. five POCKET racks: boom bap, electro, lo-fi, + bassline, the Pocket Band);
+  Jellyfish Dream (the jelly plays the melody) is the first-run rack.
+- README with a user guide, architecture and a how-to for adding modules.
 
 ## Waiting on a decision
 - **System direct output**: keep MONO-1 / GROOVE-1 / STUDIO-3 feeding the speakers directly until their
@@ -129,6 +134,31 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
   jelly, more CLOSE options (slow orbit, distance), and the new scenes (coral reef, rain on a pond,
   starling murmuration) built in 3D so every camera has something to see.
 
+## Pinned for later: cloud saving, short links and a public gallery
+Goal: short links anyone can open; public patches browsable on the site; private patches only their
+owner can load. Today everything is in the browser (autosave, Patches, Export/Import, in-the-link
+sharing), which stays as the no-account option.
+
+- **Plan**:
+  - A small Node server on Railway replaces the static hosting. It serves the app plus an API (save,
+    load, list mine, browse public, delete).
+  - Visibility per patch: **private** (owner only), **unlisted** (anyone with the short link `/p/k3x9`),
+    **public** (in a **Browse** gallery with search and newest / most-loaded).
+  - In the app: Sign in, Save to cloud (title, note, visibility), My patches, Browse, short links from
+    Share.
+  - Size and rate limits, a Report button on public patches, an admin page to remove things, and
+    sessions in httpOnly cookies.
+  - Railway setup (walkthrough when we pick this up): add Postgres, add a session secret, switch the
+    service to the server.
+- **Open decisions**:
+  1. Sign-in: username + password (simplest, no email reset), email magic link (needs an email
+     provider), or "Sign in with GitHub".
+  2. Whether cloud saves carry LOOP/SAMPLE recordings (bigger storage; cap ~20 MB per patch).
+  3. Moderation: Report + admin delete enough?
+  4. Database: Railway Postgres (managed, backups) or SQLite on a volume (cheaper, no backups).
+- Before it: version history of the autosaved rack and a full-copy `.voltage` file with recordings
+  bundled in (local, no server).
+
 ## Pinned for later: creative modules
 - **Character output**: cassette deck and vinyl-lathe export.
 
@@ -137,7 +167,7 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
   compressor, 4-band parametric EQ with curve display, glue compressor, limiter, mid/side widener,
   transient shaper, noise gate.
 - **Meters**: tuner, spectrum analyser, LUFS loudness meter, stereo correlation meter.
-- **Famous Eurorack modules**: Plaits-style macro oscillator, Rings-style resonator, Clouds-style granular,
+- **Modules inspired by famous Eurorack designs** (our own names, panels and sounds): Plaits-style macro oscillator, Rings-style resonator, Clouds-style granular,
   Grids-style drum map, Marbles-style random, Metropolix-style sequencer, Disting-style multi-tool.
 - **Classic instruments**: 6-op FM (DX7-style), supersaw (JP-8000-style), tonewheel organ + rotary speaker,
   electric piano model, 303-style acid voice, vocoder / talk box.
@@ -161,7 +191,7 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - **Spectral**: Bode frequency shifter, pitch shifter, comb filter, resonator bank.
 - **Dynamics & dirt**: bus compressor with sidechain, limiter, diode/transistor fuzz, bitcrusher/decimator.
 - **Sequencing**:
-  - Acid sequencer with per-step slide and accent (303-style).
+  - Full-size acid sequencer with per-step slide and accent (POCKET BASS covers the basics).
   - Cartesian (René-style) sequencer.
   - TR-16 step probability, ratchets and micro-timing.
 
