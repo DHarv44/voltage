@@ -30,9 +30,9 @@ export function loadSaved(): Patch | null {
   }
 }
 
+/** Stored knob snapshots (XY corners, scenes, macro ranges): up to 16. */
 function sanitizeMorph(raw: unknown[]): (MorphSnapshot | null)[] {
-  return [0, 1, 2, 3].map((i) => {
-    const s = raw[i]
+  return raw.slice(0, 16).map((s) => {
     if (!s || typeof s !== 'object') return null
     const out: MorphSnapshot = {}
     for (const [k, v] of Object.entries(s)) if (typeof v === 'number' && Number.isFinite(v)) out[k] = v

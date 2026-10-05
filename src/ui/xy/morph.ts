@@ -3,15 +3,42 @@ import { fromNorm, toNorm } from '../../modules/params'
 import type { ParamSpec } from '../../modules/types'
 import type { MorphSnapshot, Patch } from '../../patch/types'
 
-/** Every continuous knob in the rack except XY pads themselves (switches and
- *  step patterns are left alone: morphing them would just flip-flop). */
+/** Modules that move other modules' knobs: never captured (no feedback loops). */
+export const CONTROLLERS = new Set(['xy', 'scenes', 'macro', 'accident'])
+
+/** Every continuous knob in the rack except the controller modules (switches
+ *  and step patterns are left alone: morphing them would just flip-flop). */
 export function captureSnapshot(p: Patch): MorphSnapshot {
   const snap: MorphSnapshot = {}
   for (const m of p.modules) {
-    if (m.type === 'xy') continue
+    if (CONTROLLERS.has(m.type)) continue
     for (const ps of SPECS[m.type].params) if (!ps.stepped) snap[`${m.id}/${ps.id}`] = m.params[ps.id]
   }
   return snap
+}
+
+/** Look up a "moduleId/param" key's spec and current module. */
+export function keyInfo(p: Patch, key: string) {
+  const slash = key.lastIndexOf('/')
+  const id = key.slice(0, slash)
+  const param = key.slice(slash + 1)
+  const m = p.modules.find((x) => x.id === id)
+  const ps = m ? SPECS[m.type].params.find((q) => q.id === param) : undefined
+  return m && ps ? { id, param, ps, m } : null
+}
+
+/** Interpolate between two snapshots in knob-travel space (t = 0 → a, 1 → b);
+ *  keys only in one of them are left alone. */
+export function lerpSnapshots(p: Patch, a: MorphSnapshot, b: MorphSnapshot, t: number): [string, string, number][] {
+  const out: [string, string, number][] = []
+  for (const key of Object.keys(b)) {
+    if (a[key] === undefined) continue
+    const info = keyInfo(p, key)
+    if (!info) continue
+    const v = fromNorm(info.ps, toNorm(info.ps, a[key]) + (toNorm(info.ps, b[key]) - toNorm(info.ps, a[key])) * t)
+    if (Math.abs(v - info.m.params[info.param]) > 1e-9) out.push([info.id, info.param, v])
+  }
+  return out
 }
 
 /** Bilinear corner weights: A top-left, B top-right, C bottom-left, D bottom-right. */

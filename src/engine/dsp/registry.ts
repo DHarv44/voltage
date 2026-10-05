@@ -70,6 +70,7 @@ import { ProgressionDsp } from './progression'
 import { BandmateDsp } from './bandmate'
 import { AudioInDsp, CameraDsp, GamepadDsp } from './inputs'
 import { LightShowDsp, VectorDsp, WaterfallDsp } from './visualOut'
+import { AccidentDsp, MacroDsp, ScenesDsp } from './perform'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -177,6 +178,9 @@ const CIRCUITS: Record<string, DspCtor> = {
   vector: VectorDsp,
   waterfall: WaterfallDsp,
   lightshow: LightShowDsp,
+  scenes: ScenesDsp,
+  macro: MacroDsp,
+  accident: AccidentDsp,
 }
 
 export function createDsp(type: string, fs: number, seed: number): Dsp | null {
