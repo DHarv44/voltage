@@ -69,6 +69,9 @@ class TutorialRunner {
       if (ev.kind === 'on') this.played = true
       this.check()
     })
+    window.addEventListener('pointerdown', () => (this.pointerDown = true), true)
+    window.addEventListener('pointerup', () => (this.pointerDown = false), true)
+    window.addEventListener('pointercancel', () => (this.pointerDown = false), true)
     this.begin()
   }
 
@@ -86,8 +89,8 @@ class TutorialRunner {
     return patchStore.get().modules.find((m) => m.id === this.id(name))
   }
 
-  /** The rack as it was when this step began (for "Redo this step"). */
-  private snapshot: Patch | null = null
+  /** The rack as it was when each step began (for Redo step and Back). */
+  private snapshots: Patch[] = []
 
   /** Every control a step points at. A connect step points at both ends,
    *  numbered 1 (drag from) and 2 (drop on). */
@@ -117,13 +120,20 @@ class TutorialRunner {
 
   /** Put the rack back to how it was when this step started. */
   redoStep(): void {
-    if (!this.snapshot) return
+    const snap = this.snapshots[this.state.index]
+    if (!snap) return
     this.stopPlaying()
-    actions.load(structuredClone(this.snapshot))
+    this.restore(snap)
+    void this.enter()
+  }
+
+  private restore(snap: Patch): void {
+    actions.load(structuredClone(snap))
     // forget names of modules that aren't in the restored rack
     const ids = new Set(patchStore.get().modules.map((m) => m.id))
-    for (const [name, id] of Object.entries(this.state.mods)) if (!ids.has(id)) delete this.state.mods[name]
-    this.begin()
+    const mods = { ...this.state.mods }
+    for (const [name, id] of Object.entries(mods)) if (!ids.has(id)) delete mods[name]
+    this.state.mods = mods
   }
 
   private stopPlaying(): void {
@@ -133,7 +143,7 @@ class TutorialRunner {
   }
 
   private begin(): void {
-    this.snapshot = structuredClone(patchStore.get())
+    this.snapshots[this.state.index] = structuredClone(patchStore.get())
     const a = this.step?.action
     if (a?.kind === 'set') this.from = this.module(a.mod)?.params[a.param] ?? 0
     this.played = false
@@ -175,21 +185,28 @@ class TutorialRunner {
     }
   }
 
-  /** In guided mode, watch for the step being done; then celebrate and move on. */
+  /** Watch for the step being done. Guided mode then moves straight on (the
+   *  prompt already said what to listen for), once your hand is off the knob. */
   private check(): void {
     const a = this.step?.action
     if (!a || this.state.done) return
     if (this.satisfied(a)) {
       this.state.done = true
       this.emit()
-      // No auto-advance: you get time to listen; Next pulses when you're ready.
-      void this.runThen()
+      void this.afterDone()
     }
   }
 
-  private async runThen(): Promise<void> {
+  private async afterDone(): Promise<void> {
+    const index = this.state.index
     for (const t of this.step?.then ?? []) await this.perform(t)
+    if (this.state.mode !== 'guided') return
+    while (this.pointerDown) await wait(50)
+    await wait(450)
+    if (this.state.index === index && this.state.done) await this.next()
   }
+
+  private pointerDown = false
 
   /** Do an action for the user (walkthrough, or guided "Show me"). Knob moves
    *  glide so you hear them happen. */
@@ -255,18 +272,30 @@ class TutorialRunner {
     const lesson = this.state.lesson
     if (!lesson || this.state.index >= lesson.steps.length - 1) return
     this.state.index++
+    await this.enter()
+  }
+
+  /** Back a step, with the rack as it was then, so the step can happen again. */
+  async back(): Promise<void> {
+    if (this.state.index <= 0) return
+    this.stopPlaying()
+    this.state.index--
+    const snap = this.snapshots[this.state.index]
+    if (snap) this.restore(snap)
+    await this.enter()
+  }
+
+  /** Arrive at a step. Walkthrough does it for you right away (inside the
+   *  click, so POWER ON is allowed to start audio); guided waits for you. */
+  private async enter(): Promise<void> {
     this.begin()
     const a = this.step?.action
     if (this.state.mode === 'walkthrough' && a && !this.state.done) {
-      await this.perform(a) // inside the click, so POWER ON is allowed to start audio
+      await this.perform(a)
       this.check()
+    } else if (a && this.state.done) {
+      void this.afterDone() // already done (guided has no Next to press)
     }
-  }
-
-  back(): void {
-    if (this.state.index <= 0) return
-    this.state.index--
-    this.begin()
   }
 
   /** Guided "Show me": do the current task for them. */

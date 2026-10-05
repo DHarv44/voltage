@@ -136,17 +136,20 @@ export function TutorialBubble() {
     >
       <p className="tut-text">{step.text}</p>
       {step.task && (
+        // Guided: your instruction (moves on by itself once you've done it).
+        // Walkthrough: what the tutorial is doing for you right now.
         <p className={st.done ? 'tut-task done' : 'tut-task'}>
-          {st.done ? '✓ ' : ''}
-          {connect && !st.done && <span className="tut-hint">Drag from ① to ②</span>}
-          {spot?.hint && !st.done && <span className="tut-hint">{spot.hint}</span>}
+          {st.done ? '✓ ' : guided ? '' : '▶ '}
+          {guided && connect && !st.done && <span className="tut-hint">Drag from ① to ②</span>}
+          {guided && spot?.hint && !st.done && <span className="tut-hint">{spot.hint}</span>}
           {step.task}
         </p>
       )}
-      {step.listen && st.done && <p className="tut-listen">🎧 {step.listen}</p>}
+      {/* guided says up front what to listen for, so there's no "success" stop */}
+      {step.listen && (st.done || (guided && step.action)) && <p className="tut-listen">🎧 {step.listen}</p>}
       {step.thenNote && st.done && <p className="tut-then">↪ {step.thenNote}</p>}
       <div className="tut-buttons">
-        <button onClick={() => tutorial.back()} disabled={st.index === 0 || busy}>
+        <button onClick={() => void run(() => tutorial.back())} disabled={st.index === 0 || busy}>
           Back
         </button>
         {waiting && (
@@ -159,13 +162,11 @@ export function TutorialBubble() {
             Finish
           </button>
         ) : (
-          <button
-            className={guided && st.done && step.action ? 'primary tut-ready' : 'primary'}
-            onClick={() => void run(() => tutorial.next())}
-            disabled={busy || waiting}
-          >
-            {waiting ? 'Your turn…' : 'Next'}
-          </button>
+          !(guided && step.action) && (
+            <button className="primary" onClick={() => void run(() => tutorial.next())} disabled={busy}>
+              Next
+            </button>
+          )
         )}
       </div>
     </div>
