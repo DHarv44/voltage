@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { railHp } from '../../patch/layout'
 import { patchStore } from '../../patch/store'
 import { tutorial } from '../../tutorial/runner'
 import { rackWidth, rowTop } from '../geometry'
@@ -64,7 +65,7 @@ export function TutorialBubble() {
         next = { left, top: b.bottom + GAP, side: 'below', arrow: b.left + b.width / 2 - left }
       } else if (t && rack) {
         const rr = rack.getBoundingClientRect()
-        const zoom = rr.width / rackWidth()
+        const zoom = rr.width / rackWidth(railHp(patchStore.get()))
         const a = targetPoint(patchStore.get(), t)
         if (!a) return
         const ax = rr.left + a.x * zoom

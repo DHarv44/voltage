@@ -3,9 +3,17 @@ import type { Patch } from './types'
 
 /** A standard 104 HP Eurorack row. */
 export const ROW_HP = 104
+/** The rail widths real cases come in (right-click a rail, or the top bar). */
+export const RAIL_SIZES = [84, 104, 126, 168]
+
+/** This rack's rail width in HP. */
+export const railHp = (p: Pick<Patch, 'rail'>): number => p.rail ?? ROW_HP
+
+/** The narrowest rail every module still fits on (its rightmost panel edge). */
+export const usedHp = (p: Patch): number => p.modules.reduce((m, x) => Math.max(m, x.hp + hpOf(x)), 0)
 
 export function fits(p: Patch, row: number, hp: number, width: number, ignoreId?: string): boolean {
-  if (row < 0 || row >= p.rows || hp < 0 || hp + width > ROW_HP) return false
+  if (row < 0 || row >= p.rows || hp < 0 || hp + width > railHp(p)) return false
   return p.modules.every((m) => {
     if (m.id === ignoreId || m.row !== row) return true
     const w = hpOf(m)
@@ -15,7 +23,7 @@ export function fits(p: Patch, row: number, hp: number, width: number, ignoreId?
 
 export function findSlot(p: Patch, width: number): { row: number; hp: number } | null {
   for (let row = 0; row < p.rows; row++)
-    for (let hp = 0; hp + width <= ROW_HP; hp++) if (fits(p, row, hp, width)) return { row, hp }
+    for (let hp = 0; hp + width <= railHp(p); hp++) if (fits(p, row, hp, width)) return { row, hp }
   return null
 }
 
@@ -35,7 +43,8 @@ export function placeWithPush(p: Patch, row: number, hp: number, width: number, 
     .filter((m) => m.row === row && m.id !== ignoreId)
     .map((m) => ({ id: m.id, hp: m.hp, w: hpOf(m) }))
     .sort((a, b) => a.hp - b.hp)
-  if (others.reduce((s, m) => s + m.w, width) > ROW_HP) return null
+  const rail = railHp(p)
+  if (others.reduce((s, m) => s + m.w, width) > rail) return null
 
   const target = Math.round(hp)
   let best: PushPlacement | null = null
@@ -46,7 +55,7 @@ export function placeWithPush(p: Patch, row: number, hp: number, width: number, 
     const leftW = left.reduce((s, m) => s + m.w, 0)
     const rightW = right.reduce((s, m) => s + m.w, 0)
     // Each group must still fit between the panel and its wall.
-    const x = Math.max(leftW, Math.min(ROW_HP - width - rightW, target))
+    const x = Math.max(leftW, Math.min(rail - width - rightW, target))
     const moves: Record<string, number> = {}
     let shove = 0
     let cur = x + width

@@ -31,6 +31,8 @@ export interface Cable {
 
 export interface Patch {
   rows: number
+  /** Rail width in HP (every row of the case); default 104 (RAIL_SIZES). */
+  rail?: number
   modules: ModuleInst[]
   cables: Cable[]
 }

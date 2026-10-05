@@ -1,5 +1,6 @@
 import { SPECS } from '../modules'
 import { defaultParams } from '../modules/params'
+import { RAIL_SIZES, ROW_HP, usedHp } from './layout'
 import type { Cable, ModuleInst, MorphSnapshot, Patch } from './types'
 
 const KEY = 'voltage.patch.v1'
@@ -45,7 +46,7 @@ const num = (v: unknown, d = 0) => (typeof v === 'number' && Number.isFinite(v) 
 /** Accepts anything (saved or imported JSON) and returns a valid patch or null. */
 export function sanitize(raw: unknown): Patch | null {
   if (!raw || typeof raw !== 'object') return null
-  const r = raw as { rows?: unknown; modules?: unknown; cables?: unknown }
+  const r = raw as { rows?: unknown; modules?: unknown; cables?: unknown; rail?: unknown }
   if (!Array.isArray(r.modules) || !Array.isArray(r.cables)) return null
 
   const modules: ModuleInst[] = []
@@ -75,5 +76,9 @@ export function sanitize(raw: unknown): Patch | null {
     )
   })
   const rows = Math.max(1, Math.round(num(r.rows, 1)), ...modules.map((m) => m.row + 1))
-  return { rows, modules, cables }
+  // the rail must hold every module; otherwise the narrowest standard one that does
+  const need = usedHp({ rows, modules, cables })
+  const asked = typeof r.rail === 'number' && RAIL_SIZES.includes(r.rail) ? r.rail : ROW_HP
+  const rail = asked >= need ? asked : (RAIL_SIZES.find((s) => s >= need) ?? RAIL_SIZES[RAIL_SIZES.length - 1])
+  return { rows, ...(rail !== ROW_HP ? { rail } : {}), modules, cables }
 }

@@ -3,7 +3,7 @@ import { defaultParams } from '../modules/params'
 import { hpOf } from '../modules/size'
 import { defaultPatch } from './defaultPatch'
 import { makeModule, uid } from './factory'
-import { findSlot, placeWithPush } from './layout'
+import { findSlot, placeWithPush, RAIL_SIZES, ROW_HP, usedHp } from './layout'
 import { loadSaved, sanitize, save } from './persist'
 import type { Cable, JackRef, MorphSnapshot, Patch } from './types'
 
@@ -116,6 +116,14 @@ export const actions = {
       modules: [...state.modules.map((x) => (x.row === row && x.id in pl.moves ? { ...x, hp: pl.moves[x.id] } : x)), m],
     })
     return m.id
+  },
+
+  /** Change the case's rail width (RAIL_SIZES). It can't shrink past a
+   *  module: returns false if one would hang off the end. */
+  setRail(rail: number): boolean {
+    if (!RAIL_SIZES.includes(rail) || rail < usedHp(state)) return false
+    set({ ...state, rail: rail === ROW_HP ? undefined : rail })
+    return true
   },
 
   /** Resize a resizable panel (spec.sizes), sliding neighbours aside to make

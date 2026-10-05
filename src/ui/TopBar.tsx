@@ -2,6 +2,7 @@ import { useRef, useSyncExternalStore } from 'react'
 import { engine } from '../audio/engine'
 import { recorder, useRecorder } from '../audio/recorder'
 import { SCRATCH } from '../patch/persist'
+import { RAIL_SIZES, railHp, usedHp } from '../patch/layout'
 import { PresetMenu } from './PresetMenu'
 import { LearnMenu } from './tutorial/LearnMenu'
 import { ShareMenu } from './share/ShareMenu'
@@ -12,7 +13,7 @@ const fmtTime = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60
 
 export function TopBar() {
   const st = useSyncExternalStore(engine.subscribe, engine.getStatus)
-  useSyncExternalStore(patchStore.subscribe, patchStore.get) // refresh undo/redo availability
+  const patch = useSyncExternalStore(patchStore.subscribe, patchStore.get) // undo/redo availability, rail width
   const s = useSettings()
   const rec = useRecorder()
   const fileRef = useRef<HTMLInputElement>(null)
@@ -112,6 +113,20 @@ export function TopBar() {
         </button>
         <button onClick={actions.addRow}>+ Row</button>
         <button onClick={actions.removeRow}>− Row</button>
+        <select
+          className="rail-select"
+          value={railHp(patch)}
+          title="Rail width: how many HP each row of the case holds"
+          onChange={(e) => {
+            if (!actions.setRail(Number(e.target.value))) alert('Modules sit beyond that width: move them in first.')
+          }}
+        >
+          {RAIL_SIZES.map((hp) => (
+            <option key={hp} value={hp} disabled={hp < usedHp(patch)}>
+              {hp} HP rails
+            </option>
+          ))}
+        </select>
         <button onClick={actions.clear} title="Clear the rack (Ctrl+Z to undo)">
           New
         </button>

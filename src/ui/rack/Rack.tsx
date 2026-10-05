@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { SPECS } from '../../modules'
-import { ROW_HP } from '../../patch/layout'
+import { railHp } from '../../patch/layout'
 import { actions, patchStore } from '../../patch/store'
 import type { ModuleInst } from '../../patch/types'
 import { HP_PX, ROW_PX, SIDE, moduleLeft, rackHeight, rackWidth, rowTop } from '../geometry'
@@ -22,7 +22,8 @@ export function Rack() {
   const { zoom: zoomSetting, cableOpacity } = useSettings()
   const scrollRef = useRef<HTMLDivElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
-  const fitZoom = useFitZoom(scrollRef)
+  const rail = railHp(patch)
+  const fitZoom = useFitZoom(scrollRef, rail)
   const zoom = zoomSetting ?? fitZoom
   useLightShow(innerRef)
 
@@ -56,7 +57,7 @@ export function Rack() {
 
   const dragging = !!move || !!lib
   const rows = patch.rows + (dragging ? 1 : 0) // a spare row to drop into
-  const W = rackWidth()
+  const W = rackWidth(rail)
   const H = rackHeight(rows)
   return (
     <div className="rack-scroll" ref={scrollRef}>
@@ -66,7 +67,7 @@ export function Rack() {
             <div
               key={r}
               className={r >= patch.rows ? 'case-row new' : 'case-row'}
-              style={{ left: SIDE, top: rowTop(r), width: ROW_HP * HP_PX, height: ROW_PX }}
+              style={{ left: SIDE, top: rowTop(r), width: rail * HP_PX, height: ROW_PX }}
             >
               <div className="rail top" />
               <div className="rail bottom" />
@@ -106,17 +107,17 @@ export function Rack() {
   )
 }
 
-/** Zoom that fits the full 104 HP row width into the visible area. */
-function useFitZoom(ref: React.RefObject<HTMLDivElement | null>): number {
+/** Zoom that fits the full rail width into the visible area. */
+function useFitZoom(ref: React.RefObject<HTMLDivElement | null>, rail: number): number {
   const [z, setZ] = useState(0.8)
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    const update = () => setZ(Math.max(0.3, Math.min(1.5, (el.clientWidth - 24) / rackWidth())))
+    const update = () => setZ(Math.max(0.2, Math.min(1.5, (el.clientWidth - 24) / rackWidth(rail))))
     update()
     const ro = new ResizeObserver(update)
     ro.observe(el)
     return () => ro.disconnect()
-  }, [ref])
+  }, [ref, rail])
   return z
 }

@@ -30,7 +30,8 @@ export function screwHoles(hp: number): number[] {
 
 export const moduleLeft = (hp: number) => SIDE + hp * HP_PX
 export const rowTop = (row: number) => GAP + row * (ROW_PX + GAP)
-export const rackWidth = () => SIDE * 2 + ROW_HP * HP_PX
+/** The case's width in px for a rail of `rail` HP. */
+export const rackWidth = (rail = ROW_HP) => SIDE * 2 + rail * HP_PX
 export const rackHeight = (rows: number) => rowTop(rows)
 
 export interface Pt {

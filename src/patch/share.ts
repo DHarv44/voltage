@@ -22,6 +22,7 @@ const VERSION = 1
 function compact(p: Patch) {
   return {
     rows: p.rows,
+    rail: p.rail,
     modules: p.modules.map((m) => {
       const spec = SPECS[m.type]
       const params: Record<string, number> = {}

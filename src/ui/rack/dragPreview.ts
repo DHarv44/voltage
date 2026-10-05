@@ -1,6 +1,6 @@
 import { SPECS } from '../../modules'
 import { hpOf } from '../../modules/size'
-import { placeWithPush } from '../../patch/layout'
+import { placeWithPush, railHp } from '../../patch/layout'
 import type { ModuleInst, Patch } from '../../patch/types'
 import { GAP, HP_PX, ROW_PX, SIDE, rackHeight, rackWidth, type Placement, type Pt } from '../geometry'
 
@@ -34,7 +34,7 @@ export function resolve(base: Patch, id: string | null, type: string, row: numbe
 
 /** Preview for a library drag: the panel is held by its centre. Null when off-rack. */
 export function libraryPreview(type: string, pt: Pt, base: Patch): DragPreview | null {
-  if (pt.x < 0 || pt.y < 0 || pt.x > rackWidth() || pt.y > rackHeight(base.rows + 1)) return null
+  if (pt.x < 0 || pt.y < 0 || pt.x > rackWidth(railHp(base)) || pt.y > rackHeight(base.rows + 1)) return null
   const w = SPECS[type].hp * HP_PX
   const { row, hp } = slotAt(pt, w / 2, ROW_PX / 2, base.rows)
   return resolve(base, null, type, row, hp)

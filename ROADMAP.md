@@ -97,6 +97,8 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
   title/note banner, "Keep this rack" (into the friend's Patches) and "Back to my rack". Recordings
   don't travel (the banner says so).
 - Resizable screens: right-click VISION / VISION VIEW → Size 12 / 20 / 28 / 40 HP.
+- Rail width: 84 / 104 / 126 / 168 HP cases (top bar); can't shrink past a module; saved and shared
+  with the patch.
 - 17 factory presets (incl. four POCKET grooveboxes: boom bap, electro, lo-fi, + bassline); Jellyfish
   Dream (the jelly plays the melody) is the first-run rack.
 - Git history.
