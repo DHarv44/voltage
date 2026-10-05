@@ -10,6 +10,10 @@ const GROWING = 1
 const BLOOMING = 2
 const WILTING = 3
 const DEAD = 4
+/** After it dies: the stem topples to the soil over FALL, then lies there and
+ *  fades over ROT (both at RATE 0.4 Hz). */
+const FALL = 7
+const ROT = 6
 
 /** One plant's life: seed → sprout and grow → bloom → wilt → die → a new seed
  *  elsewhere. Times scale with RATE (they're for RATE 0.4 Hz). */
@@ -19,6 +23,8 @@ class Plant {
   g = 0
   open = 0
   wilt = 0
+  /** 0..1: how far a dead stem has fallen to the ground. */
+  fall = 0
   fade = 0
   timer = 0
   stage = 0
@@ -44,6 +50,7 @@ class Plant {
     this.g = 0
     this.open = 0
     this.wilt = 0
+    this.fall = 0
     this.fade = 0
     this.stage = 0
   }
@@ -98,13 +105,14 @@ class Plant {
         this.wilt = Math.min(1, this.wilt + (dt * speed) / 9)
         if (this.wilt >= 1) {
           this.phase = DEAD
-          this.timer = 4
+          this.timer = FALL + ROT
           event = true
         }
         break
       case DEAD:
         this.timer -= dt * speed
-        this.fade = Math.max(0, this.timer / 4)
+        this.fall = Math.min(1, (FALL + ROT - this.timer) / FALL)
+        this.fade = Math.max(0, Math.min(1, this.timer / ROT))
         break
     }
     const blooming = this.phase === BLOOMING || this.phase === WILTING
@@ -179,7 +187,7 @@ export class Garden implements Creature {
       led[b] = p.x
       led[b + 1] = p.g
       led[b + 2] = p.open
-      led[b + 3] = p.wilt
+      led[b + 3] = p.wilt + p.fall // 0..1 wilting, 1..2 falling to the ground
       led[b + 4] = p.phase === SEED ? 0 : p.fade
     }
     // Succession: as a flower wilts, the next one must already be on its way

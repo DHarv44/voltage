@@ -72,8 +72,9 @@ extend VOLTAGE.
   GAMEPAD (sticks, triggers, buttons).
 - **Visuals**:
   - **VISION**: a three.js tank whose creatures live on the engine clock. Five scenes: a
-    bioluminescent jellyfish (swims in 3D, depth + pitch; a held TRIG jets it further), a garden (plants
-    sprout, bloom, wilt and reseed, with overlapping generations), fireflies that synchronise
+    bioluminescent jellyfish (swims in 3D, depth + pitch; a held TRIG jets it further), a garden (a dusk
+    meadow of swaying grass with sun shadows and haze; plants face their own ways, sprout, bloom, wilt,
+    drop petals that flutter down, topple into the grass and rot away, with overlapping generations), fireflies that synchronise
     (Kuramoto), aurora with substorms, a Chladni plate whose sand finds the mode the pitch picks.
   - Generic jacks every scene uses its own way: TRIG / FEED / GLOW / PITCH / MOVE in, GATE / MOTION /
     STATE / LIGHT out (the table is in `specs/vision.ts`). COUNT sets how many things a scene has

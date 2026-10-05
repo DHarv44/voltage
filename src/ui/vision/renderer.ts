@@ -39,6 +39,9 @@ function gl(): THREE.WebGLRenderer {
   renderer.outputColorSpace = THREE.LinearSRGBColorSpace
   renderer.setPixelRatio(1)
   renderer.setScissorTest(true)
+  // soft shadows for scenes whose lights cast them (the garden's low sun)
+  renderer.shadowMap.enabled = true
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap
   return renderer
 }
 

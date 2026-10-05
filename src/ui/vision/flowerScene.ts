@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { GARDEN_PLANTS, PLANT_VALUES, VS_EXTRA } from '../../modules/specs/vision'
 import { backdrop, CameraRig, disposeScene, glowPoints, rand, standardCamera, touchPoint, VIEW_H } from './common'
+import { gardenGround } from './flowerGround'
 import { DUSK_SKY, leafGeometry, petalGeometry } from './flowerParts'
 import { Plant, type PlantState } from './flowerPlant'
 import type { SceneFactory } from './types'
@@ -20,22 +21,13 @@ export const flowerScene: SceneFactory = (aspect, seed) => {
   const camera = standardCamera(aspect)
   const sky = backdrop(aspect, DUSK_SKY)
   scene.add(sky)
-  scene.add(new THREE.HemisphereLight(0xc9c0ff, 0x3a2a1a, 1.7))
-  const sun = new THREE.DirectionalLight(0xffd9b0, 1.6)
-  sun.position.set(-2, 1.2, 2)
-  scene.add(sun)
 
-  // A real bed on the ground: soil with lawn around it. Seen straight on it's
-  // the strip along the bottom; from the ANGLE camera it's a plot you crouch by.
+  // A patch of meadow: grass all round the flowers, a low sun casting shadows.
+  // From the front you look across it; ANGLE crouches in it.
   const ground = -VIEW_H + 0.16
-  const bed = new THREE.Mesh(new THREE.PlaneGeometry(VIEW_H * aspect * 2.2, 1.6), new THREE.MeshStandardMaterial({ color: 0x3b2716, roughness: 1 }))
-  bed.rotation.x = -Math.PI / 2
-  bed.position.set(0, ground, 0.2)
-  scene.add(bed)
-  const lawn = new THREE.Mesh(new THREE.PlaneGeometry(VIEW_H * aspect * 5, 3), new THREE.MeshStandardMaterial({ color: 0x3f6a2a, roughness: 1 }))
-  lawn.rotation.x = -Math.PI / 2
-  lawn.position.set(0, ground - 0.005, 0.1)
-  scene.add(lawn)
+  const width = VIEW_H * aspect * 1.7
+  const land = gardenGround(scene, ground, width, rnd)
+  const floor = () => ground
 
   const geo = {
     seg: new THREE.CylinderGeometry(1, 1, 1, 8, 1, true).translate(0, 0.5, 0),
@@ -45,7 +37,7 @@ export const flowerScene: SceneFactory = (aspect, seed) => {
   }
   const plants = Array.from({ length: GARDEN_PLANTS }, (_, k) => {
     const p = new Plant(rnd, geo, (k * 0.17 + rnd() * 0.05) % 1 - 0.35, 0.75 + rnd() * 0.4, rnd() < 0.5 ? -1 : 1)
-    scene.add(p.root)
+    scene.add(p.root, p.litter.group)
     return p
   })
   const state: PlantState = { x: 0, g: 0, open: 0, wilt: 0, fade: 0 }
@@ -58,7 +50,6 @@ export const flowerScene: SceneFactory = (aspect, seed) => {
   let emit = 0
   let next = 0
   const baseY = ground
-  const width = VIEW_H * aspect * 1.7
   const rig = new CameraRig(camera, sky)
   const hit = new THREE.Vector3()
   /** The plant CLOSE follows: the most open flower, else the tallest. */
@@ -99,8 +90,11 @@ export const flowerScene: SceneFactory = (aspect, seed) => {
         rig.pos.set(focus.x + Math.sin(swing) * 1.2, focus.y + 0.03 + Math.sin(clock * 0.13) * 0.04, focus.z + Math.cos(swing) * 1.2)
         rig.at.set(focus.x, focus.y - 0.12, focus.z)
       } else {
-        rig.pos.set(0, 0, 3)
-        rig.at.set(0, 0, 0)
+        // FRONT: a little above the flowers looking down across the bed, and
+        // drifting slowly side to side so the depth (parallax) reads
+        clock += dt
+        rig.pos.set(Math.sin(clock * 0.05) * 0.3, 0.3, 3)
+        rig.at.set(0, -0.2, 0)
       }
       lastCam = cam
       rig.apply(cam, dt)
@@ -112,6 +106,7 @@ export const flowerScene: SceneFactory = (aspect, seed) => {
     },
     update(s, dt, t, px, led) {
       sky.material.uniforms.uT.value = t
+      land.sway(s.sway, t)
       const pp = pollen.geometry.attributes.position.array as Float32Array
       const pt = pollen.geometry.attributes.tint.array as Float32Array
       plants.forEach((p, k) => {
@@ -121,7 +116,7 @@ export const flowerScene: SceneFactory = (aspect, seed) => {
         state.open = led?.[b + 2] ?? 0
         state.wilt = led?.[b + 3] ?? 0
         state.fade = led?.[b + 4] ?? (k === 0 ? 1 : 0)
-        p.update(state, baseY, width, s.sway, s.glow, s.hue, t)
+        p.update(state, floor, width, s.sway, s.glow, s.hue, t, dt)
         score[k] = state.fade * (state.open * 2 + state.g)
         // pollen from every open flower, a burst on TRIG
         if (state.fade > 0.5 && state.open > 0.2) {
