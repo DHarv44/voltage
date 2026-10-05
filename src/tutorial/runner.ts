@@ -66,7 +66,10 @@ class TutorialRunner {
     patchStore.subscribe(() => this.check())
     engine.subscribe(() => this.check())
     engine.midiListeners.add((ev) => {
-      if (ev.kind === 'on') this.played = true
+      if (ev.kind === 'on') {
+        this.played = true
+        this.lastNote = performance.now()
+      }
       this.check()
     })
     window.addEventListener('pointerdown', () => (this.pointerDown = true), true)
@@ -202,11 +205,14 @@ class TutorialRunner {
     for (const t of this.step?.then ?? []) await this.perform(t)
     if (this.state.mode !== 'guided') return
     while (this.pointerDown) await wait(50)
+    // a "play" step: let them (or Show me) finish playing first
+    if (this.step?.action?.kind === 'play') while (performance.now() - this.lastNote < 1500) await wait(100)
     await wait(450)
     if (this.state.index === index && this.state.done) await this.next()
   }
 
   private pointerDown = false
+  private lastNote = 0
 
   /** Do an action for the user (walkthrough, or guided "Show me"). Knob moves
    *  glide so you hear them happen. */
