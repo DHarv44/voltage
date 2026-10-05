@@ -1,4 +1,5 @@
-import type { Control, ModuleSpec, ParamSpec } from '../types'
+import { spread } from '../panelMetrics'
+import { HP_MM, type Control, type ModuleSpec, type ParamSpec } from '../types'
 import { BLACK, SAND } from './panels'
 
 export const clock: ModuleSpec = {
@@ -63,7 +64,10 @@ export const div: ModuleSpec = {
 }
 
 const STEPS = 8
-const stepX = (i: number) => 9.5 + i * 10.35
+/** Step columns across the full 18 HP, far enough apart that the step knobs'
+ *  tick rings clear each other. */
+const STEP_X = spread(18 * HP_MM, STEPS, 12)
+const stepX = (i: number) => STEP_X[i]
 
 export const seq8: ModuleSpec = {
   type: 'seq8',
@@ -106,12 +110,12 @@ export const seq8: ModuleSpec = {
   leds: STEPS,
   controls: [
     ...Array.from({ length: STEPS }, (_, i): Control[] => [
-      { kind: 'knob', param: `s${i + 1}`, x: stepX(i), y: 28, label: String(i + 1) },
+      { kind: 'knob', param: `s${i + 1}`, x: stepX(i), y: 28, size: 'S', label: String(i + 1) },
       { kind: 'led', index: i, x: stepX(i), y: 40, color: '#ff3b2f' },
       { kind: 'switch', param: `g${i + 1}`, x: stepX(i), y: 53 },
     ]).flat(),
     { kind: 'knob', param: 'len', x: 13, y: 82 },
-    { kind: 'switch', param: 'quant', x: 29, y: 82 },
+    { kind: 'switch', param: 'quant', x: STEP_X[2], y: 82 },
     { kind: 'in', jack: 'clk', x: 48, y: 82 },
     { kind: 'in', jack: 'reset', x: 60, y: 82 },
     { kind: 'out', jack: 'cv', x: 48, y: 106 },

@@ -1,6 +1,7 @@
+import { packRows } from '../panelMetrics'
 import { HP_MM, type Control, type ModuleSpec } from '../types'
 import { BLACK } from './panels'
-import { columns, SCREEN_SIZES, VISION_INPUTS, VISION_LEDS, VISION_OUTPUTS, VISION_PARAMS, VISION_SCENES, VS } from './vision'
+import { GLASS_GAP, GLASS_TOP, SCREEN_SIZES, VISION_INPUTS, VISION_LEDS, VISION_OUTPUTS, VISION_PARAMS, VISION_SCENES, VS } from './vision'
 
 /** Camera angles a VISION VIEW can take, in every scene: WIDE (the whole
  *  scene, straight on), ANGLE (another side of it: the jelly's tank end, the
@@ -48,6 +49,12 @@ export const visioncore: ModuleSpec = {
 /** What a VISION VIEW shows: the linked tank's own scene, or any other. */
 export const VIEW_SCENES = ['LINKED', ...VISION_SCENES] as const
 
+const VIEW_INPUTS: ModuleSpec['inputs'] = [{ id: 'link', label: 'LINK' }]
+const VIEW_PARAMS: ModuleSpec['params'] = [
+  { id: 'scene', label: 'SCENE', min: 0, max: VIEW_SCENES.length - 1, def: 0, stepped: true, options: [...VIEW_SCENES] },
+  { id: 'cam', label: 'CAMERA', min: 0, max: VIEW_CAMS.length - 1, def: 0, stepped: true, options: [...VIEW_CAMS] },
+]
+
 /** A screen for a VISION or VISION CORE: patch its LINK into this LINK. Add
  *  as many as you like; each picks its own scene (LINKED follows the tank's
  *  SCENE knob) and its own camera on the 3D tank. */
@@ -59,25 +66,23 @@ export const visionview: ModuleSpec = {
   category: 'Visuals',
   hp: 20,
   panel: BLACK,
-  inputs: [{ id: 'link', label: 'LINK' }],
+  inputs: VIEW_INPUTS,
   outputs: [],
-  params: [
-    { id: 'scene', label: 'SCENE', min: 0, max: VIEW_SCENES.length - 1, def: 0, stepped: true, options: [...VIEW_SCENES] },
-    { id: 'cam', label: 'CAMERA', min: 0, max: VIEW_CAMS.length - 1, def: 0, stepped: true, options: [...VIEW_CAMS] },
-  ],
+  params: VIEW_PARAMS,
   controls: viewLayout(20),
   sizes: SCREEN_SIZES,
   layout: viewLayout,
 }
 
 /** VISION VIEW's panel at any width: nearly all glass (edge to edge, over the
- *  title), with its three controls in one slim row along the bottom. */
+ *  title), with its three controls in one slim row packed along the bottom. */
 function viewLayout(hp: number): Control[] {
-  const c = columns(hp * HP_MM, 3, 30)
-  return [
-    { kind: 'vision', x: 3, y: 5.5, w: hp * HP_MM - 6, h: 107, linked: true },
-    { kind: 'knob', param: 'scene', x: c[0], y: 119.5, size: 'S' },
-    { kind: 'knob', param: 'cam', x: c[1], y: 119.5, size: 'S' },
-    { kind: 'in', jack: 'link', x: c[2], y: 119.5 },
+  const w = hp * HP_MM
+  const row: Control[] = [
+    { kind: 'knob', param: 'scene', x: 0, y: 0, size: 'S' },
+    { kind: 'knob', param: 'cam', x: 0, y: 0, size: 'S' },
+    { kind: 'in', jack: 'link', x: 0, y: 0 },
   ]
+  const { controls, top } = packRows([row], { params: VIEW_PARAMS, inputs: VIEW_INPUTS, outputs: [] }, w, { maxPitch: 30 })
+  return [{ kind: 'vision', x: 2.5, y: GLASS_TOP, w: w - 5, h: top - GLASS_GAP - GLASS_TOP, linked: true }, ...controls]
 }

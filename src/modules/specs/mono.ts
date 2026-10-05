@@ -2,8 +2,9 @@ import type { Control, ModuleSpec } from '../types'
 import { SAND } from './panels'
 
 const PATCH_X = [163.5, 174.5, 185.5, 196.5]
-const IN_ROWS = [32, 50]
-const OUT_ROWS = [80, 98]
+// patch-bay rows line up with the knob rows beside them (31 envelope, 99 VCA)
+const IN_ROWS = [31, 49]
+const OUT_ROWS = [81, 99]
 
 const inputs = [
   { id: 'pitch', label: 'PITCH' },
@@ -88,7 +89,7 @@ export const mono: ModuleSpec = {
 
     { kind: 'section', x: 103, y: 84, w: 50, h: 28, label: 'VCA' },
     { kind: 'switch', param: 'mode', x: 115, y: 99 },
-    { kind: 'knob', param: 'vol', x: 141, y: 97 },
+    { kind: 'knob', param: 'vol', x: 141, y: 99 },
 
     { kind: 'section', x: 156, y: 16, w: 45.5, h: 96, label: 'PATCH BAY' },
     { kind: 'text', text: 'INPUTS', x: 178.5, y: 22.5, size: 1.8 },

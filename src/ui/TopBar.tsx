@@ -52,7 +52,7 @@ export function TopBar() {
         className={st.power ? 'power on' : 'power'}
         onClick={() => engine.setPower(!st.power)}
         disabled={st.booting}
-        title="Rack power"
+        title={st.power ? 'Switch the rack off' : 'Switch the rack on (browsers need a click before audio can start)'}
       >
         <span className="power-led" />
         {st.booting ? 'BOOTING' : st.power ? 'POWER ON' : 'POWER OFF'}

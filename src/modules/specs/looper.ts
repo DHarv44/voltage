@@ -51,8 +51,8 @@ export const loop: ModuleSpec = {
     { kind: 'in', jack: 'clear', x: 35.4, y: 89 },
     { kind: 'in', jack: 'clk', x: 45.2, y: 89 },
     { kind: 'in', jack: 'speed', x: 55, y: 89 },
-    { kind: 'out', jack: 'out', x: 15, y: 108 },
+    { kind: 'out', jack: 'out', x: 15.8, y: 108 },
     { kind: 'out', jack: 'wet', x: 30.5, y: 108 },
-    { kind: 'out', jack: 'eol', x: 46, y: 108 },
+    { kind: 'out', jack: 'eol', x: 45.2, y: 108 },
   ],
 }

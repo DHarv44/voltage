@@ -26,8 +26,8 @@ export const follow: ModuleSpec = {
   leds: 1,
   controls: [
     { kind: 'knob', param: 'gain', x: 15.24, y: 24 },
-    { kind: 'knob', param: 'att', x: 9, y: 41, size: 'S' },
-    { kind: 'knob', param: 'rel', x: 21.5, y: 41, size: 'S' },
+    { kind: 'knob', param: 'att', x: 8.5, y: 41, size: 'S' },
+    { kind: 'knob', param: 'rel', x: 22, y: 41, size: 'S' },
     { kind: 'knob', param: 'thr', x: 11, y: 57, size: 'S' },
     { kind: 'led', index: 0, x: 22, y: 57, color: '#3bff6b' },
     { kind: 'in', jack: 'in', x: 8.5, y: 80 },

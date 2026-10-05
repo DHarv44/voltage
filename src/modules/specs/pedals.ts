@@ -86,7 +86,7 @@ export const wah = pedal({
   knobs: [null, null, 'q', 'sens'],
   inputs: [{ id: 'cv', label: 'CV' }],
   extra: [
-    { kind: 'surface', name: 'treadle', x: 5, y: 15, w: 40.8, h: 22 },
+    { kind: 'surface', name: 'treadle', x: 5, y: 15, w: 40.8, h: 20.8 },
     { kind: 'switch', param: 'mode', x: 25.4, y: 45 },
   ],
 })

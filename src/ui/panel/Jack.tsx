@@ -1,9 +1,10 @@
 import type { MouseEvent, PointerEvent } from 'react'
 import type { PanelStyle } from '../../modules/types'
+import { JACK, jackLabelSize } from '../../modules/panelMetrics'
 
 const HEX = Array.from({ length: 6 }, (_, i) => {
   const a = (Math.PI / 3) * i + Math.PI / 6
-  return `${(Math.cos(a) * 3.4).toFixed(3)},${(Math.sin(a) * 3.4).toFixed(3)}`
+  return `${(Math.cos(a) * JACK.nut).toFixed(3)},${(Math.sin(a) * JACK.nut).toFixed(3)}`
 }).join(' ')
 
 interface Props {
@@ -17,8 +18,10 @@ interface Props {
   onHover: (e: PointerEvent | null) => void
 }
 
-/** 3.5 mm jack with hex nut. Outputs sit on an inverted plate, as on most hardware. */
+/** 3.5 mm jack with hex nut. Outputs sit on an inverted plate, as on most
+ *  hardware. Hovering shows the live voltage (the rack's jack readout). */
 export function Jack({ x, y, label, out, panel, onDown, onContext, onHover }: Props) {
+  const p = JACK.plate
   return (
     <g
       className="jack"
@@ -38,16 +41,16 @@ export function Jack({ x, y, label, out, panel, onDown, onContext, onHover }: Pr
     >
       {out && (
         <rect
-          x={-4.7}
-          y={label ? -9.9 : -4.7}
-          width={9.4}
-          height={label ? 14.6 : 9.4}
+          x={-p.half}
+          y={label ? p.topLabelled : p.top}
+          width={p.half * 2}
+          height={p.bottom - (label ? p.topLabelled : p.top)}
           rx={1.1}
           fill={panel.fg}
         />
       )}
       {label && (
-        <text className="silk" y={-5.4} fill={out ? panel.bg : panel.fg} fontSize={2.2}>
+        <text className="silk" y={JACK.labelY} fill={out ? panel.bg : panel.fg} fontSize={jackLabelSize(label, out)}>
           {label}
         </text>
       )}

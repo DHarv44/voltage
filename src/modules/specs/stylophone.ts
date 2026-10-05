@@ -33,8 +33,8 @@ export const stylophone: ModuleSpec = {
   controls: [
     { kind: 'surface', name: 'stylophone', x: 4, y: 16, w: 73.3, h: 48 },
     { kind: 'knob', param: 'tune', x: 12, y: 77, size: 'S' },
-    { kind: 'switch', param: 'octave', x: 30, y: 78 },
-    { kind: 'switch', param: 'vib', x: 50, y: 78 },
+    { kind: 'switch', param: 'octave', x: 30, y: 77 },
+    { kind: 'switch', param: 'vib', x: 50, y: 77 },
     { kind: 'knob', param: 'level', x: 68, y: 77, size: 'S' },
     { kind: 'out', jack: 'pitch', x: 40, y: 113.5 },
     { kind: 'out', jack: 'gate', x: 54, y: 113.5 },

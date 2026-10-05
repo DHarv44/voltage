@@ -111,7 +111,7 @@ export const groove: ModuleSpec = {
 
     { kind: 'section', x: 156, y: 16, w: 45.5, h: 96, label: 'PATCH BAY' },
     { kind: 'text', text: 'INPUTS', x: 178.5, y: 22.5, size: 1.8 },
-    ...inputs.map((j, i): Control => ({ kind: 'in', jack: j.id, x: PATCH_X[i % 4], y: [32, 50][Math.floor(i / 4)] })),
+    ...inputs.map((j, i): Control => ({ kind: 'in', jack: j.id, x: PATCH_X[i % 4], y: [31, 49][Math.floor(i / 4)] })),
     { kind: 'text', text: 'OUTPUTS', x: 178.5, y: 64, size: 1.8 },
     ...outputs.map((j, i): Control => ({ kind: 'out', jack: j.id, x: PATCH_X[i % 4], y: [80, 98][Math.floor(i / 4)] })),
     { kind: 'text', text: 'TRIGGER INPUTS OVERRIDE THE SEQUENCER', x: 178.5, y: 109, size: 1.4 },

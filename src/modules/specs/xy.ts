@@ -57,7 +57,7 @@ export const xy: ModuleSpec = {
   ],
   leds: 7,
   controls: [
-    { kind: 'xypad', x: 5, y: 15.5, w: 91.6, h: 56 },
+    { kind: 'xypad', x: 5, y: 15.5, w: 91.6, h: 54.8 },
     { kind: 'switch', param: 'mode', x: 9, y: 80 },
     { kind: 'knob', param: 'scale', x: 27, y: 80, size: 'S' },
     { kind: 'knob', param: 'range', x: 38, y: 80, size: 'S' },

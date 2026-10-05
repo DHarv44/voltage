@@ -238,8 +238,20 @@ src/
    Register it in `src/engine/dsp/registry.ts`.
 3. **Surface** (only if it needs a custom face): add a component to `src/ui/surfaces` and register it
    in `src/ui/surfaces/index.ts`.
-4. Run the dev server: specs and factory racks are validated on startup (errors appear in the
-   browser console). Test it headless with the bench (below), then in a `?scratch` rack.
+4. Run the dev server: specs, factory racks and panel layouts are checked on startup (problems
+   appear in the browser console). Test it headless with the bench (below), then in a `?scratch` rack.
+
+**Rules for panels** (so every module looks and behaves the same):
+- Every size and gap comes from `src/modules/panelMetrics.ts` (knob radii, jack plates, label
+  sizes, title, screws). Change a look there once and every module follows.
+- Lay out rows with `packRows()` and spacing with `spread()` instead of hand-placing coordinates
+  where you can. Both work from the real footprints, so nothing overlaps.
+- Line controls up: things in the same column share an exact `x`, and things in the same row share
+  an exact `y`. The linter flags anything 0.2–1.5 mm off.
+- A stepped knob gets one tick per position automatically (`knobTicks()` in `src/ui/panel/knobModel.ts`).
+- A knob drawn on a canvas surface uses `useCanvasKnobs()` from `src/ui/surfaces/canvasKnob.ts`,
+  so it turns, scrolls, resets and shows tooltips exactly like a panel knob. Canvas text on a
+  button goes through `fitFont()` so it never overruns.
 
 **Rules for DSP code** (it runs 48 000 times a second per module):
 - No allocations on the audio thread: no closures, spreads, `forEach` or new arrays inside `tick()`.
@@ -268,6 +280,9 @@ src/
   It also has `peak`, `rms`, `rises` (gate edges) and more.
 - **Validators**: `validateSpecs()` and `validatePresets()` run on dev startup and catch bad ranges,
   overlapping panels, unknown params and broken cables.
+- **Panel linter** (`src/ui/panel/lint.ts`): `lintPanels()` lays out every module at every size it
+  comes in and reports controls or labels that collide, cover a screw or the title, run off the
+  panel, sit just out of line, or have labels too long for their plate. It runs on dev startup.
 
 ---
 

@@ -35,7 +35,7 @@ export const chaos: ModuleSpec = {
   leds: 3,
   controls: [
     { kind: 'surface', name: 'chaos', x: 5, y: 15, w: 51, h: 44 },
-    { kind: 'switch', param: 'mode', x: 14, y: 70 },
+    { kind: 'switch', param: 'mode', x: 14, y: 69 },
     { kind: 'knob', param: 'rate', x: 32, y: 69, size: 'S' },
     { kind: 'knob', param: 'energy', x: 48, y: 69, size: 'S' },
     { kind: 'knob', param: 'damp', x: 48, y: 85, size: 'S' },

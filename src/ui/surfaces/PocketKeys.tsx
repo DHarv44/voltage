@@ -4,6 +4,7 @@ import { BASS_NOTES, BASS_VOICES, MELODY_MODES, MELODY_NOTES, MELODY_VOICES, PSL
 import { actions, patchStore } from '../../patch/store'
 import { PX } from '../geometry'
 import { track } from '../pointer'
+import { drawCanvasKnob, useCanvasKnobs, type CanvasKnob } from './canvasKnob'
 import { RES, sendSurface, useFrame, type SurfaceProps } from './common'
 
 /** Regions as fractions of the surface (the same face as the drum POCKET). */
@@ -21,7 +22,7 @@ const INK = '#26301e'
  *  drag it up/down (or scroll) to set its note, right-click for its flag
  *  (bass: slide / accent; melody: note / chord / arp). WRITE off: the
  *  buttons are a keyboard. The LCD is a little piano roll of the pattern. */
-export function PocketKeys({ inst, x, y, w, h }: SurfaceProps) {
+export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
   const mod = inst.id
   const bass = inst.type === 'pocketbass'
   const maxNote = bass ? BASS_NOTES : MELODY_NOTES
@@ -39,6 +40,20 @@ export function PocketKeys({ inst, x, y, w, h }: SurfaceProps) {
     const semi = steps[n % steps.length] + Math.round(p.root)
     return ROOTS[semi % 12] + (n >= steps.length ? '′' : '')
   }
+
+  // Knobs A (TONE) and B (DECAY): real params, so they turn like panel knobs.
+  const knobs = (): CanvasKnob[] =>
+    (['a', 'b'] as const).map((id, k) => ({
+      fx: KNOBS[k],
+      fy: KNOB_Y,
+      fr: 0.075,
+      ps: spec.params.find((s) => s.id === id)!,
+      // live from the store: gestures can arrive faster than React re-renders
+      value: (patchStore.get().modules.find((m) => m.id === mod)?.params ?? params.current)[id] ?? 0.5,
+      set: (v: number) => actions.setParam(mod, id, v),
+      label: k === 0 ? 'A · TONE' : 'B · DECAY',
+    }))
+  const pressKnob = useCanvasKnobs(ref, knobs)
 
   useFrame(ref, () => {
     const ctx = ref.current?.getContext('2d')
@@ -130,27 +145,13 @@ export function PocketKeys({ inst, x, y, w, h }: SurfaceProps) {
     }
 
     // Knobs A (TONE) and B (DECAY).
-    KNOBS.forEach((kx, k) => {
-      const v = (k === 0 ? p.a : p.b) ?? 0.5
-      const cx = kx * W
-      const cy = KNOB_Y * H
-      const r = H * 0.075
-      ctx.fillStyle = '#2a2a2a'
-      ctx.beginPath()
-      ctx.arc(cx, cy, r, 0, Math.PI * 2)
-      ctx.fill()
-      const a = (-135 + 270 * v) * (Math.PI / 180) - Math.PI / 2
-      ctx.strokeStyle = '#eee'
-      ctx.lineWidth = 3
-      ctx.beginPath()
-      ctx.moveTo(cx, cy)
-      ctx.lineTo(cx + Math.cos(a) * r * 0.8, cy + Math.sin(a) * r * 0.8)
-      ctx.stroke()
+    for (const knob of knobs()) {
+      drawCanvasKnob(ctx, knob, W, H, { body: '#2a2a2a', pointer: '#eee', ticks: '#4a4540' })
       ctx.fillStyle = '#2a2520'
       ctx.textAlign = 'center'
       ctx.font = `${Math.round(H * 0.035)}px Bahnschrift, 'Arial Narrow', sans-serif`
-      ctx.fillText(k === 0 ? 'A · TONE' : 'B · DECAY', cx, cy + r + H * 0.04)
-    })
+      ctx.fillText(knob.label ?? '', knob.fx * W, (knob.fy + knob.fr) * H + H * 0.05)
+    }
     FN.forEach((f, k) => {
       const on = k === 0 ? p.run >= 0.5 : write
       ctx.fillStyle = on ? (bass ? '#2d6cdf' : '#8a3fc2') : '#4a4540'
@@ -213,6 +214,7 @@ export function PocketKeys({ inst, x, y, w, h }: SurfaceProps) {
   }
 
   const down = (e: PointerEvent<HTMLCanvasElement>) => {
+    if (pressKnob(e)) return // A/B knobs: left or middle drag
     if (e.button !== 0) return
     e.stopPropagation()
     e.preventDefault()
@@ -251,16 +253,7 @@ export function PocketKeys({ inst, x, y, w, h }: SurfaceProps) {
       if (fnHit >= 0) {
         const id = fnHit === 0 ? 'run' : 'write'
         actions.setParam(mod, id, p[id] >= 0.5 ? 0 : 1)
-        return
       }
-      const k = KNOBS.findIndex((kx) => Math.abs(fx - kx) < 0.1)
-      if (k < 0) return
-      const id = k === 0 ? 'a' : 'b'
-      const start = { y: e.clientY, v: p[id] ?? 0.5 }
-      track(
-        (ev) => actions.setParam(mod, id, Math.min(1, Math.max(0, start.v + (start.y - ev.clientY) / (r.height * 0.6)))),
-        () => {},
-      )
     }
   }
 

@@ -3,6 +3,7 @@ import { engine } from '../../audio/engine'
 import { telemetry } from '../../audio/telemetry'
 import type { PanelStyle } from '../../modules/types'
 import { track } from '../pointer'
+import { PLATE } from '../../modules/panelMetrics'
 
 interface Props {
   mod: string
@@ -56,11 +57,12 @@ export function Plate({ mod, index, x, y, w, h, label, led, panel }: Props) {
 
   return (
     <g className="plate" transform={`translate(${x} ${y})`} onPointerDown={down}>
+      <title>{`${label ?? 'Touch plate'}: press and slide (across = position, up = pressure)`}</title>
       <rect width={w} height={h} rx={1} fill="url(#plate-brass)" stroke="#5a4210" strokeWidth={0.25} />
       <rect ref={glow} width={w} height={h} rx={1} fill={panel.accent} style={{ opacity: 0 }} pointerEvents="none" />
       {touch && <circle cx={touch.x * w} cy={(1 - touch.y) * h} r={1.6} fill="#fff" opacity={0.85} pointerEvents="none" />}
       {label && (
-        <text className="silk" x={w / 2} y={h + 3.4} fill={panel.fg} fontSize={2}>
+        <text className="silk" x={w / 2} y={h + PLATE.labelGap} fill={panel.fg} fontSize={PLATE.labelSize}>
           {label}
         </text>
       )}

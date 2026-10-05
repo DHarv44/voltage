@@ -52,7 +52,7 @@ export const chordwheel: ModuleSpec = {
   ],
   leds: 5,
   controls: [
-    { kind: 'surface', name: 'chordwheel', x: 5, y: 14, w: 92, h: 92, bare: true },
+    { kind: 'surface', name: 'chordwheel', x: 6, y: 14, w: 90, h: 90, bare: true },
     // knobs in a column beside the wheel: KEY + OCTAVE, VOICING + PAD, TONE
     ...['key', 'oct', 'voicing', 'level', 'tone'].map((param, i) => ({
       kind: 'knob' as const,

@@ -3,6 +3,7 @@ import { engine } from '../../audio/engine'
 import { telemetry } from '../../audio/telemetry'
 import type { PanelStyle } from '../../modules/types'
 import { track } from '../pointer'
+import { BUTTON } from '../../modules/panelMetrics'
 
 interface Props {
   mod: string
@@ -45,16 +46,17 @@ export function PushButton({ mod, name, x, y, label, led, ledColor = '#ff3b2f', 
 
   return (
     <g className="pushbutton" transform={`translate(${x} ${y})`} onPointerDown={down}>
+      <title>{`${label}: press (held while you hold it)`}</title>
       {led !== undefined && (
-        <g transform="translate(0 -6.2)" pointerEvents="none">
-          <circle r={1.5} fill="#141414" />
-          <circle ref={lamp} r={1.15} fill={ledColor} style={{ opacity: 0, filter: `drop-shadow(0 0 0.8px ${ledColor})` }} />
+        <g transform={`translate(0 ${BUTTON.ledY})`} pointerEvents="none">
+          <circle r={BUTTON.ledR} fill="#141414" />
+          <circle ref={lamp} r={BUTTON.ledR - 0.35} fill={ledColor} style={{ opacity: 0, filter: `drop-shadow(0 0 0.8px ${ledColor})` }} />
         </g>
       )}
-      <circle r={3.9} fill="url(#jack-nut)" stroke="#5a5d61" strokeWidth={0.15} />
+      <circle r={BUTTON.r} fill="url(#jack-nut)" stroke="#5a5d61" strokeWidth={0.15} />
       <circle r={3} fill={pressed ? '#2a2a2a' : '#3c3c3c'} stroke="#000" strokeWidth={0.2} />
       <circle r={2.2} cy={pressed ? 0.15 : -0.15} fill="url(#knob-cap)" opacity={pressed ? 0.6 : 1} />
-      <text className="silk" y={7.2} fill={panel.fg} fontSize={2}>
+      <text className="silk" y={BUTTON.labelY} fill={panel.fg} fontSize={BUTTON.labelSize}>
         {label}
       </text>
     </g>

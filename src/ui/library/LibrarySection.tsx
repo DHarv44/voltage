@@ -33,7 +33,7 @@ export function LibraryItem({ spec }: { spec: ModuleSpec }) {
       data-lib-type={spec.type}
       onPointerDown={(e) => startItemDrag(spec.type, e)}
       onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && actions.addModule(spec.type)}
-      title={`${spec.name} (${spec.hp} HP)\n${spec.tagline}\n\nDrag onto the rack, or click to add.`}
+      title={`${spec.name} (${spec.sizes ? `${spec.sizes[0]}–${spec.sizes[spec.sizes.length - 1]} HP, right-click to resize` : `${spec.hp} HP`})\n${spec.tagline}\n\nDrag onto the rack, or click to add.`}
     >
       <span className="swatch" style={{ background: spec.panel.bg, borderColor: spec.panel.accent }} />
       <span className="lib-text">

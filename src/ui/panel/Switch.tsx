@@ -1,5 +1,6 @@
 import type { ParamSpec } from '../../modules/types'
 import { actions } from '../../patch/store'
+import { SWITCH } from '../../modules/panelMetrics'
 
 interface Props {
   mod: string
@@ -10,13 +11,15 @@ interface Props {
   fg: string
 }
 
-/** Bat-handle toggle. Click steps through positions. options[0] is the down position. */
+/** Bat-handle toggle. Click steps through positions. options[0] is the down
+ *  position (labelled below), the last is up (above), a third sits beside. */
 export function Switch({ mod, ps, value, x, y, fg }: Props) {
   const steps = ps.max - ps.min + 1
   const pos = Math.round(value - ps.min)
   const up = steps === 1 ? 0 : pos / (steps - 1)
   const tip = 3.6 - up * 7.2
   const opts = ps.options ?? []
+  const next = opts[(pos + 1) % steps]
   return (
     <g
       className="switch"
@@ -27,20 +30,20 @@ export function Switch({ mod, ps, value, x, y, fg }: Props) {
         actions.setParam(mod, ps.id, ps.min + ((pos + 1) % steps))
       }}
     >
-      <title>{`${ps.label}: ${opts[pos] ?? value}`}</title>
-      <rect x={-3.2} y={-5} width={6.4} height={10} fill="transparent" />
+      <title>{`${ps.label}: ${opts[pos] ?? value}${next ? `\nClick for ${next}` : ''}`}</title>
+      <rect x={-SWITCH.half} y={-SWITCH.halfH} width={SWITCH.half * 2} height={SWITCH.halfH * 2} fill="transparent" />
       {opts[steps - 1] && (
-        <text className="silk" y={-6.3} fill={fg} fontSize={2}>
+        <text className="silk" y={SWITCH.labelTop} fill={fg} fontSize={SWITCH.labelSize}>
           {opts[steps - 1]}
         </text>
       )}
       {steps === 3 && opts[1] && (
-        <text className="silk" x={3.6} y={0.7} fill={fg} fontSize={2} textAnchor="start">
+        <text className="silk" x={SWITCH.labelSide} y={0.7} fill={fg} fontSize={SWITCH.labelSize} textAnchor="start">
           {opts[1]}
         </text>
       )}
       {opts[0] && (
-        <text className="silk" y={8.2} fill={fg} fontSize={2}>
+        <text className="silk" y={SWITCH.labelBottom} fill={fg} fontSize={SWITCH.labelSize}>
           {opts[0]}
         </text>
       )}

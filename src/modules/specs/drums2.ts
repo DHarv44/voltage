@@ -27,7 +27,7 @@ export const tom: ModuleSpec = {
   controls: [
     { kind: 'knob', param: 'tune', x: 15.24, y: 24 },
     { kind: 'knob', param: 'decay', x: 15.24, y: 42 },
-    { kind: 'knob', param: 'sweep', x: 9, y: 59, size: 'S' },
+    { kind: 'knob', param: 'sweep', x: 8.5, y: 59, size: 'S' },
     { kind: 'switch', param: 'mode', x: 22, y: 59 },
     { kind: 'led', index: 0, x: 15.24, y: 72, color: LED },
     { kind: 'in', jack: 'trig', x: 8.5, y: 86 },

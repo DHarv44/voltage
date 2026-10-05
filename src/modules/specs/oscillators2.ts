@@ -77,7 +77,7 @@ export const wave: ModuleSpec = {
     { kind: 'knob', param: 'fine', x: 38, y: 27 },
     { kind: 'knob', param: 'wave', x: 25.4, y: 52, size: 'L' },
     { kind: 'knob', param: 'wamt', x: 10, y: 66, size: 'S' },
-    { kind: 'knob', param: 'fmamt', x: 41, y: 66, size: 'S' },
+    { kind: 'knob', param: 'fmamt', x: 40.8, y: 66, size: 'S' },
     { kind: 'in', jack: 'voct', x: 10, y: 86 },
     { kind: 'in', jack: 'wcv', x: 25.4, y: 86 },
     { kind: 'in', jack: 'fm', x: 40.8, y: 86 },

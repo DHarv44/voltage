@@ -1,6 +1,7 @@
 import { memo, type MouseEvent, type PointerEvent } from 'react'
 import { SPECS } from '../../modules'
 import { controlsOf, hpOf } from '../../modules/size'
+import { makerClear, PANEL, titleSize } from '../../modules/panelMetrics'
 import { HP_MM, PANEL_H_MM, type Control, type ModuleSpec } from '../../modules/types'
 import type { ModuleInst } from '../../patch/types'
 import { PX, SCREW_Y_MM, moduleLeft, rowTop, screwHoles } from '../geometry'
@@ -51,7 +52,7 @@ export const ModulePanel = memo(function ModulePanel({ inst, row, hp, lifted, ha
       onContextMenu={(e) => handlers.panelContext(inst.id, e)}
     >
       <svg viewBox={`0 0 ${w} ${PANEL_H_MM}`} width="100%" height="100%">
-        <PanelFace spec={spec} w={w} hp={panelHp} />
+        <PanelFace spec={spec} w={w} hp={panelHp} maker={makerClear(spec, controls, w)} />
         {controls.map((c, i) => (
           <ControlView key={i} c={c} spec={spec} inst={inst} handlers={handlers} />
         ))}
@@ -110,7 +111,7 @@ function SurfaceView({ name, ...props }: SurfaceProps & { name: string }) {
   return <S {...props} />
 }
 
-function PanelFace({ spec, w, hp }: { spec: ModuleSpec; w: number; hp: number }) {
+function PanelFace({ spec, w, hp, maker }: { spec: ModuleSpec; w: number; hp: number; maker: boolean }) {
   const { bg, fg, accent } = spec.panel
   const screwX = screwHoles(hp)
   return (
@@ -119,13 +120,15 @@ function PanelFace({ spec, w, hp }: { spec: ModuleSpec; w: number; hp: number })
       <rect x={0.15} y={0} width={w - 0.3} height={PANEL_H_MM} fill="url(#panel-sheen)" />
       <rect x={0.15} y={0} width={w - 0.3} height={PANEL_H_MM} fill="none" stroke="#000" strokeOpacity={0.35} strokeWidth={0.3} />
       {screwX.flatMap((x) => [SCREW_Y_MM, PANEL_H_MM - SCREW_Y_MM].map((y) => <Screw key={`${x}-${y}`} x={x} y={y} />))}
-      <text className="silk title" x={w / 2} y={11} fill={fg} fontSize={hp <= 4 ? 3.4 : hp <= 12 && spec.title.length > 8 ? 3.6 : 4.4}>
+      <text className="silk title" x={w / 2} y={PANEL.titleY} fill={fg} fontSize={titleSize(hp, spec.title)}>
         {spec.title}
       </text>
       <rect x={w / 2 - Math.min(8, w / 3)} y={12.6} width={Math.min(16, (w * 2) / 3)} height={0.5} fill={accent} />
-      <text className="silk maker" x={w / 2} y={PANEL_H_MM - 7.4} fill={fg} fontSize={1.8} opacity={0.75}>
-        VOLTAGE
-      </text>
+      {maker && (
+        <text className="silk maker" x={w / 2} y={PANEL_H_MM - PANEL.makerYFromBottom} fill={fg} fontSize={PANEL.makerSize} opacity={0.75}>
+          VOLTAGE
+        </text>
+      )}
     </g>
   )
 }

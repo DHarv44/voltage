@@ -58,8 +58,8 @@ export const mixer: ModuleSpec = {
     { kind: 'knob', param: 'l3', x: 28.5, y: 56, label: '' },
     { kind: 'knob', param: 'l4', x: 28.5, y: 72, label: '' },
     { kind: 'knob', param: 'master', x: 20.3, y: 86 },
-    { kind: 'out', jack: 'out', x: 11, y: 108 },
-    { kind: 'out', jack: 'inv', x: 29.6, y: 108 },
+    { kind: 'out', jack: 'out', x: 10, y: 108 },
+    { kind: 'out', jack: 'inv', x: 28.5, y: 108 },
   ],
 }
 

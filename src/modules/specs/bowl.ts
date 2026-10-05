@@ -38,7 +38,8 @@ export const bowl: ModuleSpec = {
   leds: 3,
   controls: [
     { kind: 'surface', name: 'bowl', x: 5, y: 15, w: 61, h: 54 },
-    ...['pitch', 'water', 'decay', 'level'].map((param, i) => ({ kind: 'knob' as const, param, x: 13 + i * 15, y: 80, size: 'S' as const })),
+    // knobs share the jacks' columns (12 / 26 / 44 / 58)
+    ...['pitch', 'water', 'decay', 'level'].map((param, i) => ({ kind: 'knob' as const, param, x: [12, 26, 44, 58][i], y: 80, size: 'S' as const })),
     { kind: 'in', jack: 'strike', x: 12, y: 104 },
     { kind: 'in', jack: 'rub', x: 26, y: 104 },
     { kind: 'out', jack: 'env', x: 44, y: 113.5 },

@@ -27,8 +27,8 @@ export const kick: ModuleSpec = {
   controls: [
     { kind: 'knob', param: 'tune', x: 15.24, y: 24 },
     { kind: 'knob', param: 'decay', x: 15.24, y: 42 },
-    { kind: 'knob', param: 'punch', x: 9, y: 59, size: 'S' },
-    { kind: 'knob', param: 'drive', x: 21.5, y: 59, size: 'S' },
+    { kind: 'knob', param: 'punch', x: 8.5, y: 59, size: 'S' },
+    { kind: 'knob', param: 'drive', x: 22, y: 59, size: 'S' },
     { kind: 'led', index: 0, x: 15.24, y: 70, color: LED },
     { kind: 'in', jack: 'trig', x: 8.5, y: 85 },
     { kind: 'in', jack: 'acc', x: 22, y: 85 },
@@ -60,8 +60,8 @@ export const snare: ModuleSpec = {
   controls: [
     { kind: 'knob', param: 'tune', x: 15.24, y: 24 },
     { kind: 'knob', param: 'decay', x: 15.24, y: 42 },
-    { kind: 'knob', param: 'tone', x: 9, y: 59, size: 'S' },
-    { kind: 'knob', param: 'snappy', x: 21.5, y: 59, size: 'S' },
+    { kind: 'knob', param: 'tone', x: 8.5, y: 59, size: 'S' },
+    { kind: 'knob', param: 'snappy', x: 22, y: 59, size: 'S' },
     { kind: 'led', index: 0, x: 15.24, y: 70, color: LED },
     { kind: 'in', jack: 'trig', x: 8.5, y: 85 },
     { kind: 'in', jack: 'acc', x: 22, y: 85 },

@@ -39,9 +39,9 @@ export const orbit: ModuleSpec = {
   leds: PLANETS * 3 + 1,
   controls: [
     { kind: 'surface', name: 'orbit', x: 4, y: 15, w: 73.3, h: 50 },
-    { kind: 'knob', param: 'planets', x: 14, y: 74, size: 'S' },
-    { kind: 'knob', param: 'speed', x: 40.6, y: 74, size: 'S' },
-    { kind: 'knob', param: 'ecc', x: 67, y: 74, size: 'S' },
+    { kind: 'knob', param: 'planets', x: 12, y: 74, size: 'S' },
+    { kind: 'knob', param: 'speed', x: 40, y: 74, size: 'S' },
+    { kind: 'knob', param: 'ecc', x: 68, y: 74, size: 'S' },
     { kind: 'in', jack: 'speed', x: 12, y: 92 },
     { kind: 'in', jack: 'reset', x: 26, y: 92 },
     { kind: 'out', jack: 'x', x: 54, y: 98.9 },

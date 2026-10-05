@@ -3,6 +3,7 @@ import { engine } from '../../audio/engine'
 import { telemetry } from '../../audio/telemetry'
 import type { PanelStyle } from '../../modules/types'
 import { track } from '../pointer'
+import { PAD } from '../../modules/panelMetrics'
 
 interface Props {
   mod: string
@@ -50,7 +51,8 @@ export function Pad({ mod, index, x, y, size, label, sub, led, panel }: Props) {
 
   return (
     <g className="pad" transform={`translate(${x} ${y}) scale(${pressed ? 0.96 : 1})`} onPointerDown={down}>
-      <rect x={-h - 0.5} y={-h - 0.5} width={size + 1} height={size + 1} rx={1.6} fill="#0d0d0d" />
+      <title>{`${sub ?? label ?? 'Pad'}: hit it (higher up = harder)`}</title>
+      <rect x={-h - PAD.rim} y={-h - PAD.rim} width={size + PAD.rim * 2} height={size + PAD.rim * 2} rx={1.6} fill="#0d0d0d" />
       <rect x={-h} y={-h} width={size} height={size} rx={1.3} fill="url(#pad-rubber)" stroke="#000" strokeWidth={0.2} />
       <rect ref={glow} x={-h} y={-h} width={size} height={size} rx={1.3} fill={panel.accent} style={{ opacity: 0 }} pointerEvents="none" />
       {label && (

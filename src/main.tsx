@@ -9,6 +9,7 @@ import { actions, history, patchStore } from './patch/store'
 import { disableRackAutoscroll } from './ui/pointer'
 import { initShortcuts } from './ui/shortcuts'
 import { validatePresets } from './patch/presets'
+import { lintPanels } from './ui/panel/lint'
 import { tutorial } from './tutorial/runner'
 import { bootShared } from './ui/share/sharedState'
 import './styles.css'
@@ -16,6 +17,8 @@ import './styles.css'
 if (import.meta.env.DEV) {
   const errors = [...validateSpecs(), ...validatePresets()]
   if (errors.length) console.error('Module spec / preset errors:\n' + errors.join('\n'))
+  const layout = lintPanels()
+  if (layout.length) console.warn('Panel layout problems (overlaps, alignment, screws):\n' + layout.join('\n'))
   Object.assign(window, { __voltage: { patchStore, actions, history, engine, telemetry } })
 }
 

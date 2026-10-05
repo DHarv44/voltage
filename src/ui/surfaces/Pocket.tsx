@@ -1,9 +1,10 @@
 import { useRef, useState, type MouseEvent, type PointerEvent } from 'react'
 import { telemetry } from '../../audio/telemetry'
 import { POCKET_SOUNDS, POCKET_STEPS, POCKETL } from '../../modules/specs/pocket'
-import { actions } from '../../patch/store'
+import { actions, patchStore } from '../../patch/store'
 import { PX } from '../geometry'
 import { track } from '../pointer'
+import { drawCanvasKnob, useCanvasKnobs, type CanvasKnob } from './canvasKnob'
 import { RES, sendSurface, useFrame, type SurfaceProps } from './common'
 
 /** Regions as fractions of the surface. */
@@ -17,7 +18,7 @@ const FN = [
 const GRID = { x: 0.05, y: 0.52, w: 0.9, h: 0.46 }
 
 /** Pocket groovebox face: LCD, knobs A and B, PLAY/WRITE, and the 4×4 buttons. */
-export function Pocket({ inst, x, y, w, h }: SurfaceProps) {
+export function Pocket({ inst, spec, x, y, w, h }: SurfaceProps) {
   const mod = inst.id
   const ref = useRef<HTMLCanvasElement>(null)
   const W = Math.round(w * PX * RES)
@@ -33,6 +34,31 @@ export function Pocket({ inst, x, y, w, h }: SurfaceProps) {
     const ab = k === 0 ? 'a' : 'b'
     return lockRef.current !== null ? `l${ab}${sel}_${lockRef.current}` : `${ab}${sel}`
   }
+
+  // Knobs A and B: the selected sound's, or (with a step picked) that step's
+  // lock. A lock not set yet shows, and starts from, the sound's own value.
+  const knobs = (): CanvasKnob[] =>
+    KNOBS.map((fx, k) => {
+      // live from the store: gestures can arrive faster than React re-renders
+      const p = patchStore.get().modules.find((m) => m.id === mod)?.params ?? params.current
+      const ab = k === 0 ? 'a' : 'b'
+      const sound = `${ab}${Math.round(p.sel)}`
+      const id = knobParam(k)
+      const locking = lockRef.current !== null
+      const v = p[id] ?? 0.5
+      const label = k === 0 ? 'A · PITCH' : 'B · DECAY'
+      return {
+        fx,
+        fy: KNOB_Y,
+        fr: 0.075,
+        ps: locking ? { id, label, min: 0, max: 1, def: 0.5 } : (spec.params.find((s) => s.id === id) ?? { id, label, min: 0, max: 1, def: 0.5 }),
+        value: locking && v < 0 ? (p[sound] ?? 0.5) : v,
+        set: (nv: number) => actions.setParam(mod, id, nv),
+        label: locking ? `${label} (step ${lockRef.current! + 1} lock)` : label,
+        reset: locking ? () => actions.setParam(mod, id, -1) : undefined, // clear the lock
+      }
+    })
+  const pressKnob = useCanvasKnobs(ref, knobs)
 
   useFrame(ref, (now) => {
     const ctx = ref.current?.getContext('2d')
@@ -86,30 +112,15 @@ export function Pocket({ inst, x, y, w, h }: SurfaceProps) {
       ctx.fillText(`LOCK ${lockRef.current + 1}`, lx + lw * 0.04, ly + lh * 0.5)
     }
 
-    // Knobs A and B.
-    KNOBS.forEach((kx, k) => {
-      const v = p[knobParam(k)] ?? 0.5
-      const locked = lockRef.current !== null && v < 0
-      const val = locked ? (p[`${k === 0 ? 'a' : 'b'}${sel}`] ?? 0.5) : v
-      const cx = kx * W
-      const cy = KNOB_Y * H
-      const r = H * 0.075
-      ctx.fillStyle = lockRef.current !== null && !locked ? '#c2402a' : '#2a2a2a'
-      ctx.beginPath()
-      ctx.arc(cx, cy, r, 0, Math.PI * 2)
-      ctx.fill()
-      const a = (-135 + 270 * val) * (Math.PI / 180) - Math.PI / 2
-      ctx.strokeStyle = '#eee'
-      ctx.lineWidth = 3
-      ctx.beginPath()
-      ctx.moveTo(cx, cy)
-      ctx.lineTo(cx + Math.cos(a) * r * 0.8, cy + Math.sin(a) * r * 0.8)
-      ctx.stroke()
+    // Knobs A and B (a set lock shows red).
+    for (const [k, knob] of knobs().entries()) {
+      const locked = lockRef.current !== null && (p[knobParam(k)] ?? -1) >= 0
+      drawCanvasKnob(ctx, knob, W, H, { body: locked ? '#c2402a' : '#2a2a2a', pointer: '#eee', ticks: '#4a4540' })
       ctx.fillStyle = '#2a2520'
       ctx.textAlign = 'center'
       ctx.font = `${Math.round(H * 0.035)}px Bahnschrift, 'Arial Narrow', sans-serif`
-      ctx.fillText(k === 0 ? 'A · PITCH' : 'B · DECAY', cx, cy + r + H * 0.04)
-    })
+      ctx.fillText(k === 0 ? 'A · PITCH' : 'B · DECAY', knob.fx * W, (knob.fy + knob.fr) * H + H * 0.05)
+    }
     FN.forEach((f, k) => {
       const on = k === 0 ? p.run >= 0.5 : p.write >= 0.5
       ctx.fillStyle = on ? '#c2402a' : '#4a4540'
@@ -159,6 +170,7 @@ export function Pocket({ inst, x, y, w, h }: SurfaceProps) {
   }
 
   const down = (e: PointerEvent<HTMLCanvasElement>) => {
+    if (pressKnob(e)) return // A/B knobs: left or middle drag
     if (e.button !== 0) return
     e.stopPropagation()
     e.preventDefault()
@@ -181,21 +193,12 @@ export function Pocket({ inst, x, y, w, h }: SurfaceProps) {
         const id = fnHit === 0 ? 'run' : 'write'
         actions.setParam(mod, id, p[id] >= 0.5 ? 0 : 1)
         if (id === 'write') setLockStep(null)
-        return
       }
-      const k = KNOBS.findIndex((kx) => Math.abs(fx - kx) < 0.1)
-      if (k < 0) return
-      const id = knobParam(k)
-      const base = (p[id] ?? -1) < 0 ? (p[`${k === 0 ? 'a' : 'b'}${sel}`] ?? 0.5) : p[id]
-      const start = { y: e.clientY, v: base }
-      track(
-        (ev) => actions.setParam(mod, id, Math.min(1, Math.max(0, start.v + (start.y - ev.clientY) / (r.height * 0.6)))),
-        () => {},
-      )
     }
   }
 
-  // Right-click a step (WRITE on) to lock A/B for it; double-click a knob to clear its lock.
+  // Right-click a step (WRITE on) to lock A/B for it; double-click a knob to
+  // clear its lock (the canvas knobs handle that).
   const context = (e: MouseEvent<HTMLCanvasElement>) => {
     e.preventDefault()
     e.stopPropagation()
@@ -203,14 +206,6 @@ export function Pocket({ inst, x, y, w, h }: SurfaceProps) {
     const { fx, fy } = region(e)
     const i = gridIndex(fx, fy)
     if (i >= 0) setLockStep((cur) => (cur === i ? null : i))
-  }
-  const dbl = (e: MouseEvent<HTMLCanvasElement>) => {
-    e.stopPropagation()
-    if (lockRef.current === null) return
-    const { fx, fy } = region(e)
-    if (Math.abs(fy - KNOB_Y) > 0.1) return
-    const k = KNOBS.findIndex((kx) => Math.abs(fx - kx) < 0.1)
-    if (k >= 0) actions.setParam(mod, knobParam(k), -1)
   }
 
   return (
@@ -222,7 +217,6 @@ export function Pocket({ inst, x, y, w, h }: SurfaceProps) {
       style={{ left: x * PX, top: y * PX, width: w * PX, height: h * PX }}
       onPointerDown={down}
       onContextMenu={context}
-      onDoubleClick={dbl}
     />
   )
 }

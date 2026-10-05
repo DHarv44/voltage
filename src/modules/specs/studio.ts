@@ -112,8 +112,8 @@ export const studio: ModuleSpec = {
     knob('mr', 200, 31, 'S', 'RING'),
     { kind: 'switch', param: 'ncol', x: 174, y: 51 },
     { kind: 'section', x: 205, y: 16, w: 50, h: 48, label: 'FILTER' },
-    knob('cut', 218, 30, 'L'),
-    knob('res', 243, 30),
+    knob('cut', 218, 31, 'L'),
+    knob('res', 243, 31),
     knob('kbd', 211, 52, 'S'),
     knob('env', 223, 52, 'S'),
     knob('v3m', 235, 52, 'S'),
@@ -141,7 +141,7 @@ export const studio: ModuleSpec = {
     { kind: 'led', index: 2, x: 246, y: 85, color: '#3bff6b' },
 
     { kind: 'section', x: 258, y: 16, w: 64, h: 99, label: 'PATCH BAY' },
-    ...inputs.map((j, i): Control => ({ kind: 'in', jack: j.id, x: BAY_X[i % 4], y: [29, 44, 59][Math.floor(i / 4)] })),
+    ...inputs.map((j, i): Control => ({ kind: 'in', jack: j.id, x: BAY_X[i % 4], y: [31, 46, 61][Math.floor(i / 4)] })),
     ...outputs.map((j, i): Control => ({ kind: 'out', jack: j.id, x: BAY_X[i % 4], y: [80, 96, 111][Math.floor(i / 4)] })),
   ],
 }

@@ -17,6 +17,18 @@ export interface SurfaceProps {
 /** Canvas oversampling for crisp drawing at rack zoom. */
 export const RES = 2
 
+/** Set ctx.font to `weight size family`, shrinking the size until `text` fits
+ *  in maxW canvas pixels (labels on canvas buttons never overrun their cap). */
+export function fitFont(ctx: CanvasRenderingContext2D, text: string, maxW: number, size: number, family: string, weight = ''): void {
+  let s = Math.round(size)
+  ctx.font = `${weight} ${s}px ${family}`
+  const tw = ctx.measureText(text).width
+  if (tw > maxW && tw > 0) {
+    s = Math.max(6, Math.floor((s * maxW) / tw))
+    ctx.font = `${weight} ${s}px ${family}`
+  }
+}
+
 export function sendSurface(mod: string, name: string, x: number, y: number, down: boolean): void {
   engine.ui(mod, { kind: 'surface', name, x, y, down })
 }

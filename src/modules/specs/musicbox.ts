@@ -38,9 +38,10 @@ const ROW_PARAMS: ParamSpec[] = MB_NOTES.map((_, r) => ({
   stepped: true,
 }))
 
+// one 18 mm column grid for knobs, switch and jacks
 const KX = [12, 30, 48, 66]
-const IX = [12, 27]
-const OX = [52, 67, 82, 97]
+const IX = [12, 30]
+const OX = [48, 66, 84, 102]
 
 /** Paper-strip music box. Turn the crank (drag round it) or let the spring
  *  motor play; click the strip to punch or fill holes. Each tine is a tuned

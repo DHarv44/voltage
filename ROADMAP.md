@@ -110,6 +110,11 @@ extend VOLTAGE.
 - 18 factory presets (incl. five POCKET racks: boom bap, electro, lo-fi, + bassline, the Pocket Band);
   Jellyfish Dream (the jelly plays the melody) is the first-run rack.
 - README with a user guide, architecture and a how-to for adding modules.
+- **UI pass, standardised panels**: one metrics file for every control's geometry; stepped knobs show
+  one tick per position; `packRows`/`spread` layout helpers; a dev-startup panel linter (overlaps,
+  screws, title, near-miss alignment, label fit) reporting 0 across all 111 modules and sizes;
+  canvas knobs (POCKETs) share the panel knob model (left/middle drag, wheel, double-click,
+  tooltips); tooltips on every control.
 
 ## Waiting on a decision
 - **System direct output**: keep MONO-1 / GROOVE-1 / STUDIO-3 feeding the speakers directly until their

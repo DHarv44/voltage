@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { buffers } from '../../audio/buffers'
 import type { PanelStyle } from '../../modules/types'
+import { BUTTON } from '../../modules/panelMetrics'
 
 interface Props {
   mod: string
@@ -42,11 +43,11 @@ export function FileButton({ mod, slot, x, y, label, panel }: Props) {
         pick()
       }}
     >
-      <title>Load an audio file from your computer</title>
-      <circle r={3.9} fill="url(#jack-nut)" stroke="#5a5d61" strokeWidth={0.15} />
+      <title>{`${label}: load an audio file (WAV, MP3, OGG, FLAC…) from your computer; it stays on your machine`}</title>
+      <circle r={BUTTON.r} fill="url(#jack-nut)" stroke="#5a5d61" strokeWidth={0.15} />
       <circle r={3} fill={busy ? '#6a5a2a' : '#3c3c3c'} stroke="#000" strokeWidth={0.2} />
       <path d="M -1.3 0.6 L 0 -1 L 1.3 0.6 M 0 -1 L 0 1.4" stroke="#ddd" strokeWidth={0.45} fill="none" strokeLinecap="round" />
-      <text className="silk" y={7.2} fill={panel.fg} fontSize={2}>
+      <text className="silk" y={BUTTON.labelY} fill={panel.fg} fontSize={BUTTON.labelSize}>
         {busy ? '…' : label}
       </text>
     </g>

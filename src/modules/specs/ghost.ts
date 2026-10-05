@@ -37,7 +37,7 @@ export const ghost: ModuleSpec = {
   leds: 3,
   controls: [
     { kind: 'surface', name: 'ghost', x: 4, y: 15, w: 73.3, h: 44 },
-    ...['wait', 'length', 'temper', 'memory'].map((param, i) => ({ kind: 'knob' as const, param, x: 12 + i * 18.4, y: 70, size: 'S' as const })),
+    ...['wait', 'length', 'temper', 'memory'].map((param, i) => ({ kind: 'knob' as const, param, x: 12 + (i * 56) / 3, y: 70, size: 'S' as const })), // spans the jack columns 12…68
     { kind: 'in', jack: 'voct', x: 12, y: 92 },
     { kind: 'in', jack: 'gate', x: 26, y: 92 },
     { kind: 'out', jack: 'turn', x: 68, y: 98.9 },

@@ -1,4 +1,5 @@
-import type { Control, ModuleSpec, ParamSpec } from '../types'
+import { BEZEL, packRows, type SpecLabels } from '../panelMetrics'
+import { HP_MM, type Control, type ModuleSpec, type ParamSpec } from '../types'
 import { BLUSH, SAGE } from './panels'
 
 /** The melodic members of the POCKET family: same 16-step, calculator-sized
@@ -47,6 +48,42 @@ const common = (voices: string[]): ParamSpec[] => [
 
 const bit = (...steps: number[]) => steps.reduce((m, s) => m | (1 << (s - 1)), 0)
 
+const knob = (param: string): Control => ({ kind: 'knob', param, x: 0, y: 0, size: 'S' })
+const jack = (kind: 'in' | 'out', id: string): Control => ({ kind, jack: id, x: 0, y: 0 })
+
+/** The POCKETs' panel: the face on top, the knobs and jacks in a grid below
+ *  (packed so labels and plates never touch); the face takes the rest. */
+function pocketLayout(hp: number, spec: SpecLabels, rows: (Control | null)[][]): Control[] {
+  const w = hp * HP_MM
+  const { controls, top } = packRows(rows, spec, w, { grid: true })
+  return [{ kind: 'surface', name: 'pocketkeys', x: 4, y: 14, w: w - 8, h: top - BEZEL - 0.8 - 14 }, ...controls]
+}
+
+const CLK_IN: ModuleSpec['inputs'] = [{ id: 'clk', label: 'CLK' }]
+const SYNTH_OUTS: ModuleSpec['outputs'] = [
+  { id: 'out', label: 'OUT' },
+  { id: 'clko', label: 'CLK' },
+  { id: 'pitch', label: 'PITCH' },
+  { id: 'gate', label: 'GATE' },
+]
+const BASS_OUTS = SYNTH_OUTS
+const MELODY_OUTS: ModuleSpec['outputs'] = [...SYNTH_OUTS, { id: 'notes', label: 'NOTES', poly: true }]
+
+const BASS_PARAMS: ParamSpec[] = [
+  ...common(BASS_VOICES),
+  // a little bassline to start from: root, octave, fifth, flat seventh
+  // (step 9 slides up from step 8; steps 3 and 13 are accented)
+  ...stepParams(BASS_NOTES, [0, 0, 0, 0, 12, 0, 0, 0, 7, 0, 0, 0, 10, 0, 12, 0], bit(1, 3, 5, 8, 9, 11, 13, 15), 3, [0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0]),
+]
+
+const MELODY_PARAMS: ParamSpec[] = [
+  ...common(MELODY_VOICES),
+  { id: 'scale', label: 'SCALE', min: 0, max: SCALES.length - 1, def: 2, stepped: true, options: SCALES },
+  { id: 'root', label: 'ROOT', min: 0, max: 11, def: 9, stepped: true, options: ROOTS },
+  // a pentatonic phrase that ends on a chord
+  ...stepParams(MELODY_NOTES, [7, 0, 5, 0, 6, 0, 4, 0, 5, 0, 3, 0, 4, 0, 2, 0], bit(1, 3, 5, 7, 9, 11, 13, 16), 2, [0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1]),
+]
+
 /** Mono bass: 16 note steps, slide and accent per step (303-style lines). */
 export const pocketbass: ModuleSpec = {
   type: 'pocketbass',
@@ -56,33 +93,15 @@ export const pocketbass: ModuleSpec = {
   category: 'Drums',
   hp: 16,
   panel: SAGE,
-  inputs: [{ id: 'clk', label: 'CLK' }],
-  outputs: [
-    { id: 'out', label: 'OUT' },
-    { id: 'clko', label: 'CLK' },
-    { id: 'pitch', label: 'PITCH' },
-    { id: 'gate', label: 'GATE' },
-  ],
-  params: [
-    ...common(BASS_VOICES),
-    // a little bassline to start from: root, octave, fifth, flat seventh
-    // (step 9 slides up from step 8; steps 3 and 13 are accented)
-    ...stepParams(BASS_NOTES, [0, 0, 0, 0, 12, 0, 0, 0, 7, 0, 0, 0, 10, 0, 12, 0], bit(1, 3, 5, 8, 9, 11, 13, 15), 3, [0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0]),
-  ],
+  inputs: CLK_IN,
+  outputs: BASS_OUTS,
+  params: BASS_PARAMS,
   leds: 3,
-  controls: [
-    { kind: 'surface', name: 'pocketkeys', x: 4, y: 14, w: 73.3, h: 74 },
-    ...knobs([12, 26, 40], ['tempo', 'swing', 'vol'], 99),
-    ...knobs([12, 26], ['voice', 'oct'], 113.5),
-    { kind: 'in', jack: 'clk', x: 54, y: 99 },
-    { kind: 'out', jack: 'pitch', x: 69, y: 99 },
-    { kind: 'out', jack: 'gate', x: 40, y: 113.5 },
-    { kind: 'out', jack: 'clko', x: 54, y: 113.5 },
-    { kind: 'out', jack: 'out', x: 69, y: 113.5 },
-  ],
+  controls: pocketLayout(16, { params: BASS_PARAMS, inputs: CLK_IN, outputs: BASS_OUTS }, [
+    [knob('tempo'), knob('swing'), knob('vol'), jack('in', 'clk'), jack('out', 'pitch')],
+    [knob('voice'), knob('oct'), jack('out', 'gate'), jack('out', 'clko'), jack('out', 'out')],
+  ]),
 }
-
-const MX = [12, 27.5, 43, 58.5, 74, 89.5, 105]
 
 /** Lead/melody: steps are scale degrees (it can't play a wrong note), each one
  *  a single note, a chord or an arpeggio. */
@@ -94,35 +113,12 @@ export const pocketmelody: ModuleSpec = {
   category: 'Drums',
   hp: 24,
   panel: BLUSH,
-  inputs: [{ id: 'clk', label: 'CLK' }],
-  outputs: [
-    { id: 'out', label: 'OUT' },
-    { id: 'clko', label: 'CLK' },
-    { id: 'pitch', label: 'PITCH' },
-    { id: 'gate', label: 'GATE' },
-    { id: 'notes', label: 'NOTES', poly: true },
-  ],
-  params: [
-    ...common(MELODY_VOICES),
-    { id: 'scale', label: 'SCALE', min: 0, max: SCALES.length - 1, def: 2, stepped: true, options: SCALES },
-    { id: 'root', label: 'ROOT', min: 0, max: 11, def: 9, stepped: true, options: ROOTS },
-    // a pentatonic phrase that ends on a chord
-    ...stepParams(MELODY_NOTES, [7, 0, 5, 0, 6, 0, 4, 0, 5, 0, 3, 0, 4, 0, 2, 0], bit(1, 3, 5, 7, 9, 11, 13, 16), 2, [0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1]),
-  ],
+  inputs: CLK_IN,
+  outputs: MELODY_OUTS,
+  params: MELODY_PARAMS,
   leds: 3,
-  controls: [
-    { kind: 'surface', name: 'pocketkeys', x: 4, y: 14, w: 113.9, h: 74 },
-    ...knobs([MX[0], MX[1], MX[2], MX[3], MX[4]], ['tempo', 'swing', 'vol', 'scale', 'root'], 99),
-    ...knobs([MX[0], MX[1]], ['voice', 'oct'], 113.5),
-    { kind: 'in', jack: 'clk', x: MX[5], y: 99 },
-    { kind: 'out', jack: 'notes', x: MX[6], y: 99 },
-    { kind: 'out', jack: 'clko', x: MX[3], y: 113.5 },
-    { kind: 'out', jack: 'pitch', x: MX[4], y: 113.5 },
-    { kind: 'out', jack: 'gate', x: MX[5], y: 113.5 },
-    { kind: 'out', jack: 'out', x: MX[6], y: 113.5 },
-  ],
-}
-
-function knobs(xs: number[], params: string[], y: number): Control[] {
-  return params.map((param, i) => ({ kind: 'knob', param, x: xs[i], y, size: 'S' }))
+  controls: pocketLayout(24, { params: MELODY_PARAMS, inputs: CLK_IN, outputs: MELODY_OUTS }, [
+    [knob('tempo'), knob('swing'), knob('vol'), knob('scale'), knob('root'), jack('in', 'clk'), jack('out', 'notes')],
+    [knob('voice'), knob('oct'), null, jack('out', 'clko'), jack('out', 'pitch'), jack('out', 'gate'), jack('out', 'out')],
+  ]),
 }

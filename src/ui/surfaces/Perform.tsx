@@ -8,9 +8,10 @@ import { actions, patchStore } from '../../patch/store'
 import type { MorphSnapshot } from '../../patch/types'
 import { PX } from '../geometry'
 import { captureSnapshot, CONTROLLERS, lerpSnapshots } from '../xy/morph'
-import { RES, useFrame, type SurfaceProps } from './common'
+import { fitFont, RES, useFrame, type SurfaceProps } from './common'
 
-const btnFont = (H: number, k = 0.3) => `600 ${Math.round(H * k)}px Bahnschrift, 'Arial Narrow', sans-serif`
+const BTN_FAMILY = "Bahnschrift, 'Arial Narrow', sans-serif"
+const btnFont = (H: number, k = 0.3) => `600 ${Math.round(H * k)}px ${BTN_FAMILY}`
 
 /** Glide the rack from where it is to a snapshot over `secs` (0 = jump). */
 function glideTo(target: MorphSnapshot, secs: number, key: string, stop: { cancel?: () => void }): void {
@@ -172,9 +173,10 @@ export function Macro({ inst, x, y, w, h }: SurfaceProps) {
       ctx.roundRect(i * bw + 4, 4, bw - 8, H - 8, 6)
       ctx.fill()
       ctx.fillStyle = on ? '#2a1210' : '#f3e9dc'
-      ctx.font = btnFont(H, 0.26)
+      const word = on ? 'DONE' : 'LEARN'
+      fitFont(ctx, word, bw - 18, H * 0.26, BTN_FAMILY, '600')
       ctx.textAlign = 'center'
-      ctx.fillText(on ? 'DONE' : 'LEARN', i * bw + bw / 2, H * 0.48)
+      ctx.fillText(word, i * bw + bw / 2, H * 0.48)
       ctx.font = btnFont(H, 0.2)
       ctx.fillText(String(i + 1), i * bw + bw / 2, H * 0.8)
     }

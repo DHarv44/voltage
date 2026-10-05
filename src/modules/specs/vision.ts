@@ -1,3 +1,4 @@
+import { BEZEL, packRows } from '../panelMetrics'
 import { HP_MM, type Control, type ModuleSpec } from '../types'
 import { BLACK } from './panels'
 
@@ -106,19 +107,12 @@ export const VISION_PARAMS: ModuleSpec['params'] = [
 /** Widths (HP) the screen modules come in: right-click → Size. */
 export const SCREEN_SIZES = [12, 20, 28, 40]
 
-/** `n` evenly spaced columns centred on a panel `w` mm wide (at most `gap` apart). */
-export const columns = (w: number, n: number, gap: number) => {
-  const s = Math.min(gap, (w - 12) / (n - 1))
-  return Array.from({ length: n }, (_, i) => w / 2 + (i - (n - 1) / 2) * s)
-}
-
-/** Smallest comfortable spacing between control centres (mm), and the gap
- *  between rows: a knob's label below and a jack's label above clear each other. */
+/** The glass starts here (just under the top screws) and stops this far above
+ *  the controls (its bezel plus a hair). */
+export const GLASS_TOP = 5.5
+export const GLASS_GAP = BEZEL + 0.6
+/** Closest two control centres may sit across a row (a small knob's ring). */
 const PITCH = 11.5
-const ROW = 17
-/** Centre of the lowest control row, and the clearance above the top row. */
-const BOTTOM_ROW = 117.5
-const ABOVE = 10
 
 /** VISION's controls, in reading order: knobs, then inputs, then outputs. */
 const VISION_CONTROLS: Control[] = [
@@ -127,28 +121,27 @@ const VISION_CONTROLS: Control[] = [
   ...(['gate', 'sway', 'grow', 'light', 'link'] as const).map((jack): Control => ({ kind: 'out', jack, x: 0, y: 0 })),
 ]
 
-/** VISION's panel at any width. The glass is the point, so the controls are
- *  packed into as few rows as the width allows (one row at 40 HP, two at
- *  20–28, three at 12) and the glass takes everything above them, edge to
- *  edge. The gate LED sits on the top edge between the screws. */
+/** Split controls into as few even rows as fit across `w` mm. */
+export function rowsThatFit<T>(items: T[], w: number, pitch = PITCH): T[][] {
+  const fit = Math.max(1, Math.floor((w - 12) / pitch) + 1)
+  const rows = Math.ceil(items.length / fit)
+  const per = Math.ceil(items.length / rows)
+  return Array.from({ length: rows }, (_, r) => items.slice(r * per, (r + 1) * per))
+}
+
+/** VISION's panel at any width. The glass is the point: the controls pack into
+ *  as few rows as the width allows (packRows keeps their labels and plates
+ *  clear of each other) and the glass takes everything above, edge to edge.
+ *  The gate LED sits on the top edge between the screws. */
 function visionLayout(hp: number): Control[] {
   const w = hp * HP_MM
-  const fit = Math.max(1, Math.floor((w - 8) / PITCH) + 1)
-  const rows = Math.ceil(VISION_CONTROLS.length / fit)
-  const perRow = Math.ceil(VISION_CONTROLS.length / rows)
-  // three narrow rows are one kind each (knobs / ins / outs): they can sit closer
-  const gap = rows >= 3 ? 15.5 : ROW
-  const top = BOTTOM_ROW - (rows - 1) * gap
-  const out: Control[] = [
-    { kind: 'vision', x: 2.5, y: 5.5, w: w - 5, h: top - ABOVE - 5.5 },
+  const spec = { params: VISION_PARAMS, inputs: VISION_INPUTS, outputs: VISION_OUTPUTS }
+  const { controls, top } = packRows(rowsThatFit(VISION_CONTROLS, w), spec, w)
+  return [
+    { kind: 'vision', x: 2.5, y: GLASS_TOP, w: w - 5, h: top - GLASS_GAP - GLASS_TOP },
     { kind: 'led', index: VS.gate, x: w / 2, y: 2.9, color: '#5ef2ff' },
+    ...controls,
   ]
-  for (let r = 0; r < rows; r++) {
-    const row = VISION_CONTROLS.slice(r * perRow, (r + 1) * perRow)
-    const xs = columns(w, Math.max(2, row.length), 16)
-    row.forEach((c, i) => out.push({ ...c, x: row.length === 1 ? w / 2 : xs[i], y: top + r * gap } as Control))
-  }
-  return out
 }
 
 /** A glass tank with a living creature in it. The creature's body runs on the
