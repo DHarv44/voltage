@@ -418,6 +418,12 @@ button {
     opacity: 0.5;
   }
 }
+.lib-item.tut-glow,
+.lib-header.tut-glow {
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 2px #ffd25a, 0 0 14px #ffd25a;
+  background: #2a2614;
+}
 .topbar .power.tut-glow {
   box-shadow: 0 0 0 3px #ffd25a, 0 0 18px #ffd25a;
   animation: tut-pulse 1.2s ease-in-out infinite;

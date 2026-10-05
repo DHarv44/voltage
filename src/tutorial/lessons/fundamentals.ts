@@ -9,43 +9,79 @@ const firstSound: Lesson = {
   title: '1 · Your first sound',
   summary: 'Oscillators: pitch, octaves and wave shapes (timbre).',
   build() {
-    const b = new RackBuilder()
-    const vco = b.add('vco', 0, 0, { coarse: -1 })
-    const mult = b.add('mult', 0, 13)
-    const scope = b.add('scope', 0, 18, { time: 0.02 })
-    const out = b.add('output', 0, 36, { vol: 0.3 })
-    // the MULT splits one signal: one copy to the speakers, one to the scope
-    b.wire(mult, 'a1', out, 'l')
-    b.wire(mult, 'a2', scope, 'ch1')
-    return { patch: b.build(1), mods: { vco, mult, scope, out } }
+    // an empty case: you build everything yourself
+    return { patch: new RackBuilder().build(1), mods: {} }
   },
   steps: [
     {
-      text: 'Every synth sound starts with an oscillator (the VCO): a circuit that vibrates back and forth hundreds of times a second. Send those vibrations to a speaker and your ears hear a tone.',
+      text: 'This is your rack: an empty case. A modular synth is built from separate modules, each doing one job, joined with patch cables. The list on the left is every module you can add. Let’s build the simplest instrument there is, one piece at a time.',
     },
     {
-      text: 'The small MULT is a splitter: whatever goes into its A input comes out of all its jacks. It’s already wired to your speakers (OUT) and to the SCOPE, a screen that draws a voltage over time — so you’ll hear and see the same thing.',
+      text: 'Every synth sound starts with an oscillator: a circuit that vibrates back and forth hundreds of times a second. Ours is the VCO (voltage-controlled oscillator), in the SOURCES section of the list.',
+      task: 'Click “Oscillator” in the module list (or drag it into the rack).',
+      action: { kind: 'add', type: 'vco', as: 'vco' },
     },
-    { text: 'First, switch the rack on.', task: 'Press POWER ON at the top left.', target: POWER, action: { kind: 'power' } },
     {
-      text: 'Patch cables carry the vibration between modules. Outputs are the jacks on dark plates; inputs are plain. We’ll start with the gentlest wave there is: the sine.',
+      text: 'Vibrations are only sound once they reach your speakers. The OUT module is the rack’s connection to your speakers or headphones — nothing is heard without it. It’s in the I/O section.',
+      task: 'Add “Audio Output” from the I/O section.',
+      action: { kind: 'add', type: 'output', as: 'out' },
+    },
+    {
+      text: 'Before we make any sound, protect your ears: OUT’s VOLUME starts fairly high. Knobs turn with the scroll wheel over them (up = clockwise), or by dragging up and down.',
+      task: 'Turn OUT’s VOLUME down to about 30 %.',
+      target: { mod: 'out', param: 'vol' },
+      action: { kind: 'set', mod: 'out', param: 'vol', value: 0.3 },
+    },
+    {
+      text: 'A scope lets you see sound: it draws a voltage over time, so you can watch the shape of each wave while you hear it. It’s in UTILITIES.',
+      task: 'Add “Oscilloscope” from the UTILITIES section.',
+      action: { kind: 'add', type: 'scope', as: 'scope' },
+    },
+    {
+      text: 'We want the oscillator in two places at once: your speakers and the scope. A MULT (multiple) copies one signal to several outputs — whatever goes into its A input comes out of each of the jacks below it.',
+      task: 'Add “Buffered Multiple” from UTILITIES.',
+      action: { kind: 'add', type: 'mult', as: 'mult' },
+    },
+    {
+      text: 'Tip: you can move any module by dragging its panel (not a knob or jack); the others slide aside when you let go. Arrange them however you like.',
+    },
+    { text: 'Now switch the rack on (nothing will sound yet: nothing is connected).', task: 'Press POWER ON at the top left.', target: POWER, action: { kind: 'power' } },
+    {
+      text: 'Patch cables carry signals between modules. Outputs are the jacks on dark plates; inputs are the plain ones. A cable always goes from an output to an input.',
+      task: 'Drag a cable from the MULT’s first output to OUT’s L input.',
+      listen: 'Still silent: the MULT has nothing in it yet. (OUT plays its L input in both speakers while R is empty.)',
+      action: { kind: 'connect', from: ['mult', 'a1'], to: ['out', 'l'] },
+    },
+    {
+      text: 'The second copy goes to the scope.',
+      task: 'Drag a cable from the MULT’s second output to the SCOPE’s CH1 input.',
+      action: { kind: 'connect', from: ['mult', 'a2'], to: ['scope', 'ch1'] },
+    },
+    {
+      text: 'Now feed the oscillator into the MULT. We’ll start with the gentlest wave there is: the sine.',
       task: 'Patch the VCO’s SIN output into the MULT’s A input.',
-      listen: 'A soft, pure hum, and a smooth wave on the scope: the voltage rising and falling. (OUT plays its L input in both speakers while R is empty.)',
+      listen: 'A soft, pure hum — and a smooth wave on the scope: the voltage rising and falling.',
       action: { kind: 'connect', from: ['vco', 'sin'], to: ['mult', 'a'] },
     },
     {
-      text: 'FREQ sets how fast it vibrates — the pitch. One octave up is exactly twice as many vibrations per second.',
-      task: 'Turn FREQ up to 0 (scroll up over the knob, or drag it upward).',
-      listen: 'The same tone, an octave higher. The waves on the scope squeeze closer together.',
-      target: { mod: 'vco', param: 'coarse' },
-      action: { kind: 'set', mod: 'vco', param: 'coarse', value: 0 },
-    },
-    {
-      text: 'And back down: half as many vibrations, an octave lower.',
-      task: 'Turn FREQ back down to −1.',
-      listen: 'Lower and rounder; the waves spread out.',
+      text: 'FREQ sets how fast it vibrates — the pitch. One octave down is exactly half as many vibrations per second.',
+      task: 'Turn FREQ down to −1.',
+      listen: 'The same tone, an octave lower and rounder. The waves on the scope spread out.',
       target: { mod: 'vco', param: 'coarse' },
       action: { kind: 'set', mod: 'vco', param: 'coarse', value: -1 },
+    },
+    {
+      text: 'And up: twice as many vibrations, an octave higher than where we started.',
+      task: 'Turn FREQ up to +1.',
+      listen: 'Higher and brighter; the waves squeeze together. (Take it back to 0 or −1 if it’s piercing.)',
+      target: { mod: 'vco', param: 'coarse' },
+      action: { kind: 'set', mod: 'vco', param: 'coarse', value: 1 },
+    },
+    {
+      text: 'Back to the middle before we change the wave shape.',
+      task: 'Turn FREQ back to 0 (double-click a knob to reset it).',
+      target: { mod: 'vco', param: 'coarse' },
+      action: { kind: 'set', mod: 'vco', param: 'coarse', value: 0 },
     },
     {
       text: 'The shape of the wave is its timbre — why a flute and a violin sound different on the same note. A sine is a single pure frequency. A triangle adds a few quiet harmonics (extra tones at 3×, 5×, 7× the pitch).',
@@ -73,7 +109,10 @@ const firstSound: Lesson = {
       action: { kind: 'set', mod: 'vco', param: 'pw', value: 0.15 },
     },
     {
-      text: 'That’s an oscillator: FREQ for pitch, wave shape for timbre. Next lesson: filters, which carve those harmonics away.',
+      text: 'One last skill: to unplug, drag a cable out of an input, or right-click a jack to pull all its cables. Ctrl+Z undoes anything.',
+    },
+    {
+      text: 'You built an instrument from nothing: an oscillator (FREQ for pitch, wave shape for timbre), a splitter, a scope and an output. Next lesson: filters, which carve those harmonics away.',
     },
   ],
 }

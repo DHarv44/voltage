@@ -6,10 +6,11 @@ import { tutorial } from '../../tutorial/runner'
 import type { Target } from '../../tutorial/types'
 import { jackPos, moduleLeft, PX, rowTop, type Pt } from '../geometry'
 import { cablePath } from '../rack/CableLayer'
+import { libTarget } from './libTarget'
 
 /** Where a target sits in rack space, and how big a ring it needs. */
 export function targetPoint(p: Patch, t: Target): (Pt & { r: number }) | null {
-  if ('ui' in t) return null
+  if ('ui' in t || 'lib' in t) return null
   const m = p.modules.find((x) => x.id === tutorial.id(t.mod))
   if (!m) return null
   if ('jack' in t) {
@@ -33,12 +34,33 @@ export function TutorialHighlight({ width, height }: { width: number; height: nu
   const step = st.lesson?.steps[st.index] ?? null
   const targets = st.done ? [] : tutorial.targets(step)
   const power = targets.some((t) => 'ui' in t.target)
+  const lib = targets.map((t) => t.target).find((t): t is { lib: string } => 'lib' in t)?.lib ?? null
 
   useEffect(() => {
     const btn = document.querySelector('.topbar .power')
     btn?.classList.toggle('tut-glow', power)
     return () => btn?.classList.remove('tut-glow')
   }, [power])
+
+  // The module's row in the library glows (or its section header, until opened).
+  useEffect(() => {
+    if (!lib) return
+    let lit: Element | null = null
+    const update = () => {
+      const el = libTarget(lib)?.el ?? null
+      if (el === lit) return
+      lit?.classList.remove('tut-glow')
+      el?.classList.add('tut-glow')
+      el?.scrollIntoView({ block: 'nearest' })
+      lit = el
+    }
+    update()
+    const timer = window.setInterval(update, 200)
+    return () => {
+      window.clearInterval(timer)
+      lit?.classList.remove('tut-glow')
+    }
+  }, [lib])
 
   if (!targets.length) return null
   const pts = targets.map((t) => ({ ...t, pt: targetPoint(patch, t.target) }))

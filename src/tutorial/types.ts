@@ -5,11 +5,15 @@ export type Target =
   | { mod: string; param: string }
   | { mod: string; jack: string; dir: 'in' | 'out' }
   | { ui: 'power' }
+  /** A module in the library list (by type). */
+  | { lib: string }
 
 /** What a step does. In WALKTHROUGH mode the tutorial performs it; in GUIDED
  *  mode you do it and the tutorial notices. */
 export type Action =
   | { kind: 'power' }
+  /** Add a module from the library; later steps call it by `as`. */
+  | { kind: 'add'; type: string; as: string }
   | { kind: 'connect'; from: [string, string]; to: [string, string] }
   | { kind: 'set'; mod: string; param: string; value: number }
   /** Notes in semitones from C4 (played for you, or: play any key yourself). */

@@ -14,7 +14,7 @@ interface SectionProps {
 /** Collapsible library section with a chevron and item count. */
 export function LibrarySection({ title, count, open, onToggle, children }: SectionProps) {
   return (
-    <section className={open ? 'lib-section open' : 'lib-section'}>
+    <section className={open ? 'lib-section open' : 'lib-section'} data-lib-cat={title}>
       <button className="lib-header" onClick={onToggle} aria-expanded={open}>
         <span className="chevron">{open ? '▾' : '▸'}</span>
         <span className="lib-cat">{title}</span>
@@ -30,6 +30,7 @@ export function LibraryItem({ spec }: { spec: ModuleSpec }) {
   return (
     <button
       className="lib-item"
+      data-lib-type={spec.type}
       onPointerDown={(e) => startItemDrag(spec.type, e)}
       onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && actions.addModule(spec.type)}
       title={`${spec.name} (${spec.hp} HP)\n${spec.tagline}\n\nDrag onto the rack, or click to add.`}

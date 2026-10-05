@@ -3,6 +3,7 @@ import { patchStore } from '../../patch/store'
 import { tutorial } from '../../tutorial/runner'
 import { rackWidth, rowTop } from '../geometry'
 import { targetPoint } from './TutorialHighlight'
+import { libTarget } from './libTarget'
 
 type Side = 'right' | 'left' | 'below' | 'above' | 'centre'
 interface Spot {
@@ -11,6 +12,8 @@ interface Spot {
   side: Side
   /** Where the arrow points along the bubble's edge (px from its top/left). */
   arrow: number
+  /** Something to do first (e.g. open a library section). */
+  hint?: string
 }
 
 const GAP = 18
@@ -48,7 +51,14 @@ export function TutorialBubble() {
       let next: Spot
       const t = targets[0]?.target
       const rack = document.querySelector('.rack')
-      if (t && 'ui' in t) {
+      if (t && 'lib' in t) {
+        // a module in the library list: just right of its row (or its section)
+        const lt = libTarget(t.lib)
+        if (!lt) return
+        const b = lt.el.getBoundingClientRect()
+        const top = clampY(b.top + b.height / 2 - h / 2)
+        next = { left: b.right + GAP, top, side: 'right', arrow: b.top + b.height / 2 - top, hint: lt.open ? undefined : `First open ${lt.category.toUpperCase()} in the module list.` }
+      } else if (t && 'ui' in t) {
         const b = document.querySelector('.topbar .power')?.getBoundingClientRect()
         if (!b) return
         const left = clampX(b.left + b.width / 2 - WIDTH / 2)
@@ -100,7 +110,7 @@ export function TutorialBubble() {
         const cy = area ? area.top + Math.min(area.height, vh) * 0.4 : vh / 3
         next = { left: clampX(cx - WIDTH / 2), top: clampY(cy - h / 2), side: 'centre', arrow: 0 }
       }
-      setSpot((s) => (s && Math.abs(s.left - next.left) < 0.5 && Math.abs(s.top - next.top) < 0.5 && s.side === next.side ? s : next))
+      setSpot((s) => (s && Math.abs(s.left - next.left) < 0.5 && Math.abs(s.top - next.top) < 0.5 && s.side === next.side && s.hint === next.hint ? s : next))
     }
     place()
     return () => cancelAnimationFrame(raf)
@@ -130,6 +140,7 @@ export function TutorialBubble() {
         <p className={st.done ? 'tut-task done' : 'tut-task'}>
           {st.done ? '✓ ' : ''}
           {connect && !st.done && <span className="tut-hint">Drag from ① to ②</span>}
+          {spot?.hint && !st.done && <span className="tut-hint">{spot.hint}</span>}
           {step.task}
         </p>
       )}

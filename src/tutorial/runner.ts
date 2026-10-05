@@ -96,6 +96,7 @@ class TutorialRunner {
         { target: { mod: a.from[0], jack: a.from[1], dir: 'out' }, label: '1' },
         { target: { mod: a.to[0], jack: a.to[1], dir: 'in' }, label: '2' },
       ]
+    if (a?.kind === 'add') return [{ target: { lib: a.type } }]
     return step.target ? [{ target: step.target }] : []
   }
 
@@ -116,6 +117,9 @@ class TutorialRunner {
     if (!this.snapshot) return
     this.stopPlaying()
     actions.load(structuredClone(this.snapshot))
+    // forget names of modules that aren't in the restored rack
+    const ids = new Set(patchStore.get().modules.map((m) => m.id))
+    for (const [name, id] of Object.entries(this.state.mods)) if (!ids.has(id)) delete this.state.mods[name]
     this.begin()
   }
 
@@ -156,6 +160,15 @@ class TutorialRunner {
       }
       case 'play':
         return this.played
+      case 'add': {
+        // whichever module of that type you added (click or drag) gets the name
+        if (this.state.mods[a.as] && this.module(a.as)) return true
+        if (atStart) return false
+        const named = new Set(Object.values(this.state.mods))
+        const m = patchStore.get().modules.find((x) => x.type === a.type && !named.has(x.id))
+        if (m) this.state.mods = { ...this.state.mods, [a.as]: m.id }
+        return !!m
+      }
     }
   }
 
@@ -182,6 +195,11 @@ class TutorialRunner {
       case 'power':
         await engine.setPower(true)
         return
+      case 'add': {
+        const id = actions.addModule(a.type)
+        if (id) this.state.mods = { ...this.state.mods, [a.as]: id }
+        return
+      }
       case 'connect':
         actions.connect({ mod: this.id(a.from[0]), jack: a.from[1], dir: 'out' }, { mod: this.id(a.to[0]), jack: a.to[1], dir: 'in' }, '#ffb347')
         return
