@@ -14,6 +14,7 @@ const ORDER: Category[] = [
   'Shapers',
   'Drums',
   'Sequencing',
+  'Simulations',
   'Effects',
   'Pedals',
   'Sampling',

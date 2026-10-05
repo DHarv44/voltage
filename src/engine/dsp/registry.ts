@@ -59,6 +59,12 @@ import { HarpDsp } from './harp'
 import { ChopDsp } from './chop'
 import { PocketDsp } from './pocket'
 import { StylophoneDsp } from './stylophone'
+import { BounceDsp } from './bounce'
+import { OrbitDsp } from './orbit'
+import { LifeDsp } from './life'
+import { FlockDsp } from './flock'
+import { ChaosDsp } from './chaos'
+import { EcosystemDsp } from './ecosystem'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -151,6 +157,12 @@ const CIRCUITS: Record<string, DspCtor> = {
   chop: ChopDsp,
   pocket: PocketDsp,
   stylophone: StylophoneDsp,
+  bounce: BounceDsp,
+  orbit: OrbitDsp,
+  life: LifeDsp,
+  flock: FlockDsp,
+  chaos: ChaosDsp,
+  ecosystem: EcosystemDsp,
 }
 
 export function createDsp(type: string, fs: number, seed: number): Dsp | null {

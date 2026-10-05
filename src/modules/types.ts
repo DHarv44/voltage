@@ -98,6 +98,7 @@ export type Category =
   | 'Shapers'
   | 'Drums'
   | 'Sequencing'
+  | 'Simulations'
   | 'Effects'
   | 'Pedals'
   | 'Sampling'

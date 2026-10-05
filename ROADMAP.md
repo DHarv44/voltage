@@ -14,7 +14,7 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (88)
+### Modules (94)
 - **Systems**: MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine).
 - **Polyphonic**: POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX.
 - **Sources**: VCO, COMPLEX (Buchla-style), WAVE (band-limited wavetable), SUB, NOISE.
@@ -26,6 +26,10 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - **Shapers**: FOLD, RING, SLEW, QUANT.
 - **Drums**: KICK, SNARE, CLAP, HATS, TOM, PERC, PADS, TOUCH (plates).
 - **Sequencing**: CLOCK, DIV, SEQ-8, TR-16 (A–D + song chains), EUCLID, TURING, ARP, CHORD.
+- **Simulations**: BOUNCE (balls under gravity, accelerating bounces, throw them), ORBIT (Kepler orbits →
+  polyrhythms, eccentric swing, conjunction gate), LIFE (Conway scanned as a sequencer), FLOCK (24 boids →
+  centre/spread/speed/heading CV), CHAOS (double pendulum or Lorenz; flip/wing gates), ECOSYSTEM
+  (Rosenzweig–MacArthur limit cycle, boom/crash/extinct gates).
 - **Effects**: BBD, TAPE, SPRING, PLATE, PHASER, ENSEMBLE, TUNE (YIN pitch detection + delay-line
   shifter, key/scale or V/OCT target, hard-tune at SPEED 0), ECHO CHAMBER (drag speaker + mics;
   image-source reflections, Sabine-sized FDN tail, Doppler when moving).
@@ -75,9 +79,6 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - **More VISION scenes**: coral reef, fireflies, aurora, cymatics plate.
 
 ## Pinned for later: creative modules
-- **Simulations as sequencers**: BOUNCE (balls in a box → gates), ORBIT (planets → polyrhythms),
-  LIFE (Game of Life sequencer), FLOCK (boids → CV), CHAOS (double pendulum / Lorenz LFO),
-  ECOSYSTEM (predator–prey CV).
 - **Musical brains**: GHOST (learns your playing, answers back), PROGRESSION (harmony-rule chord
   generator), BANDMATE (invents fills on GROOVE-1).
 - **Real-world inputs**: webcam motion → CV, gamepad, mic pitch tracker, big XY pad.

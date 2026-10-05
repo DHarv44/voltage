@@ -50,6 +50,12 @@ import { harp } from './specs/harp'
 import { chop } from './specs/chop'
 import { pocket } from './specs/pocket'
 import { stylophone } from './specs/stylophone'
+import { bounce } from './specs/bounce'
+import { orbit } from './specs/orbit'
+import { life } from './specs/life'
+import { flock } from './specs/flock'
+import { chaos } from './specs/chaos'
+import { ecosystem } from './specs/ecosystem'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -75,6 +81,12 @@ export const SPEC_LIST: ModuleSpec[] = [
   tr16,
   euclid,
   turing,
+  bounce,
+  orbit,
+  life,
+  flock,
+  chaos,
+  ecosystem,
   loop,
   sample,
   turntable,

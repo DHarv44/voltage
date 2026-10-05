@@ -17,6 +17,12 @@ import { DjFaders } from './DjFaders'
 import { Harp } from './Harp'
 import { Pocket } from './Pocket'
 import { Stylophone } from './Stylophone'
+import { Bounce } from './Bounce'
+import { Orbit } from './Orbit'
+import { Life } from './Life'
+import { Flock } from './Flock'
+import { Chaos } from './Chaos'
+import { Ecosystem } from './Ecosystem'
 
 /** Played instrument surfaces, by the `name` a spec's surface control uses. */
 export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
@@ -37,4 +43,10 @@ export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
   harp: Harp,
   pocket: Pocket,
   stylophone: Stylophone,
+  bounce: Bounce,
+  orbit: Orbit,
+  life: Life,
+  flock: Flock,
+  chaos: Chaos,
+  ecosystem: Ecosystem,
 }
