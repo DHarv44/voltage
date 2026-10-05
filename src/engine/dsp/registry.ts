@@ -54,6 +54,11 @@ import { StrikeDsp } from './strike'
 import { TanpuraDsp } from './tanpura'
 import { GamelanDsp } from './gamelan'
 import { BowlDsp } from './bowl'
+import { DjMixDsp } from './djmix'
+import { HarpDsp } from './harp'
+import { ChopDsp } from './chop'
+import { PocketDsp } from './pocket'
+import { StylophoneDsp } from './stylophone'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -141,6 +146,11 @@ const CIRCUITS: Record<string, DspCtor> = {
   tanpura: TanpuraDsp,
   gamelan: GamelanDsp,
   bowl: BowlDsp,
+  djmix: DjMixDsp,
+  harp: HarpDsp,
+  chop: ChopDsp,
+  pocket: PocketDsp,
+  stylophone: StylophoneDsp,
 }
 
 export function createDsp(type: string, fs: number, seed: number): Dsp | null {

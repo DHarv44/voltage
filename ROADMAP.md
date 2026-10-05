@@ -14,7 +14,7 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (83)
+### Modules (88)
 - **Systems**: MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine).
 - **Polyphonic**: POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX.
 - **Sources**: VCO, COMPLEX (Buchla-style), WAVE (band-limited wavetable), SUB, NOISE.
@@ -41,7 +41,11 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
   paper strip, steel-comb tines), STRIKE (handpan D Kurd, tenor steel pan in fifths, kalimba; tap the
   face), TANPURA (waveguide strings over a jawari bridge, self-plucking cycle), GAMELAN (saron, bonang,
   gong; slendro/pelog; paired-tuning ombak; gong pitch sag), SINGING BOWL (bow the rim with stick-slip
-  friction, chatter, split modes, water).
+  friction, chatter, split modes, water), HARP (36 waveguide strings, glissando, key pedals), STYLUS
+  (stylus organ: relaxation oscillator, tiny speaker, vibrato).
+- **Performance boxes**: CHOP (MPC-style: 16 pads chopped at transients, note repeat + swing, 12-bit
+  vintage), POCKET (Pocket Operator-style: 8 sounds, 16 steps, per-step parameter locks), DJ MIXER (kill
+  EQ isolator, one-knob filter, faders, crossfader with scratch curve).
 - **Sampling**: LOOP (4 slots, overdub undo, ½× record), SAMPLE (record/load, slices), TURNTABLE
   (scratch the platter; flywheel motor + brake, 33/45, pitch, transformer CUT, strobe dots, cartridge
   output follows stylus velocity, crackle/rumble WEAR; cut your own record or load a file; factory
@@ -54,8 +58,10 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 ### Rack & workflow
 - Drag anywhere, slide-aside on drop, library drag-in, new-row drop.
 - Collapsible, searchable library.
-- Knobs: scroll wheel and middle-drag.
-- Cables: sag, recolour and remove via jack menu; Esc cancels a drag.
+- Knobs: scroll wheel, left-drag and middle-drag.
+- Cables: sag; right-click a jack pulls its cables, Shift+right-click recolours; Esc cancels a drag.
+- Eurorack mounting grid: panel screws land on the rail holes.
+- Played surfaces (platters, strings, pads, rooms…) via a surface registry.
 - Undo/redo; named patch library; export/import; `?scratch` sandbox.
 - 13 factory presets; Jellyfish Dream (the jelly plays the melody) is the first-run rack.
 - Git history.
@@ -93,21 +99,6 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - **DAW-style sequencing**: piano roll / clip launcher, MIDI file player, song arranger, swing templates,
   scale lock, chord memory, strum, tap tempo, MIDI clock in/out.
 - Suggested order: mixer + sidechain → Plaits/Rings-style → FM + supersaw → piano roll.
-
-## Pinned for later: off-rack gear brought into the rack
-Real instruments and studio gear rebuilt as patchable panels, modelled physically (no recordings).
-- **Played with the mouse**: turntable (scratch LOOP/SAMPLE, motor spin-up/down, pitch, crossfader),
-  theremin (pitch + volume antennas → CV), Stylophone, Omnichord (chord buttons + strum strip),
-  Kaossilator-style pad, music box (crank = tempo, editable punched strip).
-- **Guitar world**: pedalboard row (fuzz, wah, Space Echo-style tape echo, chorus, octave, looper pedal),
-  valve amp + speaker cabinet, talk box (vowel CV).
-- **Studio hardware**: Mellotron-style tape replay (mechanism modelled around synthesised tones),
-  reel-to-reel / 4-track (bounce, reverse, vari-speed), Auto-Tune-style pitch corrector, echo chamber
-  (place the speaker and mic).
-- **World & acoustic**: tanpura drone, handpan / steel pan / kalimba, gamelan gongs, bowed singing bowl.
-- **Performance boxes**: MPC-style chopper (16 pads, note repeat, swing), Pocket Operator-style unit with
-  parameter locks, DJ mixer (kill EQs, filter, crossfader), harp strum.
-- Suggested order: turntable → theremin + Omnichord → pedalboard → music box.
 
 ## Next
 

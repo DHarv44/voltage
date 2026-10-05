@@ -13,6 +13,10 @@ import { Strike } from './Strike'
 import { Tanpura } from './Tanpura'
 import { Gamelan } from './Gamelan'
 import { Bowl } from './Bowl'
+import { DjFaders } from './DjFaders'
+import { Harp } from './Harp'
+import { Pocket } from './Pocket'
+import { Stylophone } from './Stylophone'
 
 /** Played instrument surfaces, by the `name` a spec's surface control uses. */
 export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
@@ -29,4 +33,8 @@ export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
   tanpura: Tanpura,
   gamelan: Gamelan,
   bowl: Bowl,
+  djfaders: DjFaders,
+  harp: Harp,
+  pocket: Pocket,
+  stylophone: Stylophone,
 }

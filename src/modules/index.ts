@@ -45,6 +45,11 @@ import { strike } from './specs/strike'
 import { tanpura } from './specs/tanpura'
 import { gamelan } from './specs/gamelan'
 import { bowl } from './specs/bowl'
+import { djmix } from './specs/djmix'
+import { harp } from './specs/harp'
+import { chop } from './specs/chop'
+import { pocket } from './specs/pocket'
+import { stylophone } from './specs/stylophone'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -65,6 +70,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   tom,
   perc,
   pads,
+  pocket,
   touch,
   tr16,
   euclid,
@@ -72,6 +78,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   loop,
   sample,
   turntable,
+  chop,
   fourtrack,
   vco,
   theremin,
@@ -81,6 +88,8 @@ export const SPEC_LIST: ModuleSpec[] = [
   tanpura,
   gamelan,
   bowl,
+  harp,
+  stylophone,
   complexOsc,
   wave,
   sub,
@@ -123,6 +132,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   talkbox,
   mixer,
   smix,
+  djmix,
   mult,
   logic,
   atten,
