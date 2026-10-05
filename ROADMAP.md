@@ -86,7 +86,8 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
   moves on by itself when you do the step and asks you to play notes ("Show me" if stuck). Lessons run in a
   scratch rack; Finish keeps what you built. Lessons are data (steps with text, target, action).
 - Undo/redo; named patch library; export/import; `?scratch` sandbox.
-- 13 factory presets; Jellyfish Dream (the jelly plays the melody) is the first-run rack.
+- 17 factory presets (incl. four POCKET grooveboxes: boom bap, electro, lo-fi, + bassline); Jellyfish
+  Dream (the jelly plays the melody) is the first-run rack.
 - Git history.
 
 ## Waiting on a decision

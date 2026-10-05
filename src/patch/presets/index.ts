@@ -5,6 +5,7 @@ import type { Patch } from '../types'
 import { ambient, classicMono, monoLead, westCoast } from './synths'
 import { acidHouse, drumKit, loopJam } from './rhythm'
 import { euclidPolyrhythm, jellyDream, polyStrings, studioBleeps, studioClassic, tapeAmbient } from './more'
+import { pocketBass, pocketBoomBap, pocketElectro, pocketLofi } from './pocket'
 
 export interface Preset {
   id: string
@@ -107,6 +108,34 @@ export const PRESETS: Preset[] = [
     description: 'Random notes, a sine wavefolded by its own envelope, into a spring.',
     howTo: 'Power on and let it play.',
     build: westCoast,
+  },
+  {
+    id: 'pocket-boombap',
+    name: 'Pocket Boom Bap',
+    description: 'POCKET at 90 bpm with heavy swing: lazy kick, fat snare, a locked ghost kick, through worn tape.',
+    howTo: 'Power on: it plays itself. WRITE on: pick a sound, toggle its steps.',
+    build: pocketBoomBap,
+  },
+  {
+    id: 'pocket-electro',
+    name: 'Pocket Electro',
+    description: 'POCKET at 128: broken kick, ticking hats, a BLIP riff written with per-step pitch locks, laser ZAPs, BBD echo.',
+    howTo: 'Power on: it plays itself. Select BLIP and right-click a step to see its lock.',
+    build: pocketElectro,
+  },
+  {
+    id: 'pocket-lofi',
+    name: 'Pocket Lo-fi',
+    description: 'POCKET at 78 with deep swing: soft kick, rim snare, a slow pentatonic BLIP melody, warbly tape and a dark plate.',
+    howTo: 'Power on and let it loop. Try TAPE AGE and WOW.',
+    build: pocketLofi,
+  },
+  {
+    id: 'pocket-bass',
+    name: 'Pocket + Bassline',
+    description: 'POCKET is the clock: its CLK out steps SEQ-8 through a MONO-1 bassline, mixed with the beat.',
+    howTo: 'Power on: it plays itself. Change POCKET BPM and the bass follows.',
+    build: pocketBass,
   },
 ]
 
