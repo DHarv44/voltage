@@ -31,13 +31,69 @@ export function standardCamera(aspect: number): THREE.PerspectiveCamera {
 /** Half the visible height at z = 0 for standardCamera. */
 export const VIEW_H = 3 * Math.tan((17.5 * Math.PI) / 180)
 
+/** Distance from the camera to the backdrop plane (sized for it). */
+const BG_DIST = 5
+const HALF_FOV = (17.5 * Math.PI) / 180
+
+/** A scene's camera for the VIEW angles: set `pos`/`at` each frame, then
+ *  apply(). It eases there (snapping when the angle changes) and keeps the
+ *  backdrop square behind the camera, so any angle still sees sky or water. */
+export class CameraRig {
+  readonly pos = new THREE.Vector3(0, 0, 3)
+  readonly at = new THREE.Vector3()
+  private readonly look = new THREE.Vector3()
+  private readonly dir = new THREE.Vector3()
+  private last = -1
+
+  constructor(
+    private readonly cam: THREE.PerspectiveCamera,
+    private readonly bg?: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>,
+  ) {}
+
+  apply(angle: number, dt: number): void {
+    const k = angle !== this.last ? 1 : 1 - Math.exp(-dt / 0.35)
+    this.last = angle
+    this.cam.position.lerp(this.pos, k)
+    this.look.lerp(this.at, k)
+    this.cam.lookAt(this.look)
+    this.cam.updateMatrixWorld()
+    if (this.bg) {
+      this.cam.getWorldDirection(this.dir)
+      this.bg.position.copy(this.cam.position).addScaledVector(this.dir, BG_DIST)
+      this.bg.quaternion.copy(this.cam.quaternion)
+      // where the true horizon sits on screen, as a fraction of the backdrop
+      const pitch = Math.asin(Math.max(-1, Math.min(1, this.dir.y)))
+      const u = this.bg.material.uniforms.uHorizon
+      if (u) u.value = -Math.tan(pitch) / Math.tan(HALF_FOV) / 2 / 1.05
+    }
+  }
+}
+
+const ray = new THREE.Raycaster()
+const ndc = new THREE.Vector2()
+const plane = new THREE.Plane()
+const normal = new THREE.Vector3()
+
+/** Where a touch at (u, v) on the glass (0..1, v down) meets a plane: either
+ *  z = const (pass a number) or the plane facing the camera through a point. */
+export function touchPoint(cam: THREE.PerspectiveCamera, u: number, v: number, through: number | THREE.Vector3, out: THREE.Vector3): boolean {
+  ndc.set(u * 2 - 1, 1 - v * 2)
+  ray.setFromCamera(ndc, cam)
+  if (typeof through === 'number') plane.set(normal.set(0, 0, 1), -through)
+  else plane.setFromNormalAndCoplanarPoint(cam.getWorldDirection(normal).negate(), through)
+  return ray.ray.intersectPlane(plane, out) !== null
+}
+
 /** Full-view backdrop drawn by a fragment shader (gradients, shafts, stars). */
 export function backdrop(aspect: number, fragment: string): THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial> {
   const z = -2
   const h = 2 * (3 - z) * Math.tan((17.5 * Math.PI) / 180) * 1.05
   const mat = new THREE.ShaderMaterial({
-    uniforms: { uT: { value: 0 }, uAspect: { value: aspect } },
-    vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+    // uHorizon: how far the camera's tilt moves the horizon (set by CameraRig);
+    // the whole picture shifts with it, so looking up shows more sky.
+    uniforms: { uT: { value: 0 }, uAspect: { value: aspect }, uHorizon: { value: 0 } },
+    vertexShader:
+      'uniform float uHorizon; varying vec2 vUv; void main(){ vUv = vec2(uv.x, uv.y - uHorizon); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
     fragmentShader: fragment,
     depthWrite: false,
   })

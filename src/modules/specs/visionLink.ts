@@ -2,8 +2,11 @@ import type { ModuleSpec } from '../types'
 import { BLACK } from './panels'
 import { VISION_INPUTS, VISION_LEDS, VISION_OUTPUTS, VISION_PARAMS, VISION_SCENES, VS } from './vision'
 
-/** Camera angles a VISION VIEW can take (3D scenes; flat scenes show FRONT). */
-export const VIEW_CAMS = ['FRONT', 'SIDE', 'CLOSE'] as const
+/** Camera angles a VISION VIEW can take, in every scene: WIDE (the whole
+ *  scene, straight on), ANGLE (another side of it: the jelly's tank end, the
+ *  garden from eye level, the sky overhead, the plate at a slant) and CLOSE
+ *  (following the subject: the jelly, the newest bloom, a firefly). */
+export const VIEW_CAMS = ['WIDE', 'ANGLE', 'CLOSE'] as const
 
 const C3 = [10, 25.4, 40.8]
 

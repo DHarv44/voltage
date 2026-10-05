@@ -11,12 +11,16 @@ const DEFAULT_COUPLING = 0.15
  *  of how real fireflies synchronise), so a scattered twinkle slowly locks
  *  into a pulsing meadow. FEED sets how strongly they listen to each other,
  *  TRIG startles them back into disorder. GATE fires on a meadow-wide flash,
- *  GROW = how synchronised they are, LIGHT = how much light there is. */
+ *  GROW = how synchronised they are, LIGHT = how much light there is.
+ *  Touch: tap = a torch flash they answer (tap in time to sync them), drag
+ *  herds them across the meadow. */
 export class Fireflies implements Creature {
   private readonly ph = new Float64Array(FIREFLIES)
   private readonly freq = new Float64Array(FIREFLIES)
   private gate = 0
   private lastMean = 0
+  /** A finger dragged across the meadow herds them along. */
+  private herd = 0
   private readonly drift: Wander
 
   constructor(private readonly rng: Rng) {
@@ -30,6 +34,11 @@ export class Fireflies implements Creature {
   step(i: CreatureInput, o: CreatureOutput, led: Float32Array): void {
     const dt = i.dt
     if (i.trig) for (let k = 0; k < FIREFLIES; k++) this.ph[k] = this.rng.next()
+    // Touch: a torch flash. Each fly that sees it jumps its clock toward its
+    // own flash (phase advance), so a few taps in time pull them together.
+    const tc = i.touch
+    if (tc.tap) for (let k = 0; k < FIREFLIES; k++) this.ph[k] += (1 - this.ph[k]) * 0.6
+    this.herd += ((tc.touching ? Math.max(-1, Math.min(1, (tc.dx / dt) * 0.5)) : 0) - this.herd) * (1 - Math.exp(-dt / 0.8))
     const K = i.feedPatched ? Math.min(2, i.feed / 4) : DEFAULT_COUPLING
     // order parameter: the meadow's mean phase and how tightly they agree
     let sx = 0
@@ -58,7 +67,7 @@ export class Fireflies implements Creature {
     const glow = Math.max(0, Math.min(1.5, i.glow * Math.min(1, (light / FIREFLIES) * 3) + i.glowCv / 10))
     o.gate = this.gate > 0 ? 10 : 0
     o.grow = r * 10
-    o.sway = Math.max(-5, Math.min(5, this.drift.step(dt) * 5 + i.move * 0.2))
+    o.sway = Math.max(-5, Math.min(5, (this.drift.step(dt) + this.herd) * 5 + i.move * 0.2))
     o.light = Math.min(10, glow * 10)
     led[VS.action] = r
     led[VS.glow] = glow

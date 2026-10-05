@@ -4,7 +4,9 @@ import { telemetry } from '../../audio/telemetry'
 import { hashSeed } from './common'
 import { flowerScene } from './flowerScene'
 import { jellyScene } from './jellyScene'
-import { auroraScene, cymaticsScene, firefliesScene } from './moreScenes'
+import { auroraScene } from './auroraScene'
+import { cymaticsScene } from './cymaticsScene'
+import { firefliesScene } from './firefliesScene'
 import type { CreatureView, SceneFactory, VisionScene } from './types'
 
 /** In SCENE knob order (VISION_SCENES). */
@@ -92,12 +94,19 @@ function frame(now: number): void {
     const led = raw && base ? raw.slice(base, base + LED_BLOCK) : raw
     follow(s.view, led, dt)
     s.host.update(s.view, dt, s.t, H, led)
-    s.host.aim?.(Math.round(s.cam()), dt)
+    s.host.aim(Math.round(s.cam()), dt)
     r.setViewport(0, 0, W, H)
     r.setScissor(0, 0, W, H)
     r.render(s.host.scene, s.host.camera)
     s.ctx.drawImage(r.domElement, 0, needH - H, W, H, 0, 0, W, H)
   }
+}
+
+/** A touch at (u, v) on this screen's glass, in its scene's own space (seen
+ *  through whatever camera the screen uses). */
+export function pickAt(canvas: HTMLCanvasElement, u: number, v: number): { x: number; y: number } {
+  for (const s of screens) if (s.canvas === canvas && s.host) return s.host.pick(u, v)
+  return { x: u, y: 1 - v }
 }
 
 /** Start drawing a tank into `canvas`; returns the detach function. */

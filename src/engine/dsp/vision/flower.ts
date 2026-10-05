@@ -47,6 +47,12 @@ class Plant {
     this.stage = 0
   }
 
+  /** A seed pressed into the soil by hand at x: it comes up almost at once. */
+  plantAt(x: number): void {
+    this.x = Math.min(0.92, Math.max(0.08, x))
+    this.timer = 0.4
+  }
+
   /** Returns true when the plant reached a new stage (for the GATE). */
   step(dt: number, speed: number, health: number): boolean {
     const starving = health < 0.12
@@ -111,12 +117,16 @@ class Plant {
  *  always changing. FEED's envelope is the food (sunlight when unpatched);
  *  starve it and blooms wilt early and sprouts droop. GATE fires on every
  *  sprouting, new leaf, bloom and death; GROW = how alive the garden is; SWAY =
- *  the wind in the stems (MOVE adds wind); TRIG makes them shed glowing pollen. */
+ *  the wind in the stems (MOVE adds wind); TRIG makes them shed glowing pollen.
+ *  Touch: press the soil to plant a seed there, touch the air for pollen, drag
+ *  for wind. */
 export class Garden implements Creature {
   private readonly plants: Plant[]
   private health = SUNLIGHT
   private trigT = 0
   private flick = 0
+  /** Wind from a finger dragged across the glass. */
+  private breath = 0
   private readonly wind: Wander
   private readonly stem = new Spring2(2.6, 0.22)
 
@@ -149,6 +159,17 @@ export class Garden implements Creature {
       led[b + 3] = p.wilt
       led[b + 4] = p.phase === SEED ? 0 : p.fade
     }
+    // Touch: press the soil to plant a seed there (if one is waiting its turn);
+    // touch the air to shake the flowers' pollen loose.
+    const tc = i.touch
+    if (tc.tap) {
+      if (tc.y < 0.04) {
+        let waiting: Plant | null = null
+        for (const p of this.plants) if (p.phase === SEED && (!waiting || p.timer > waiting.timer)) waiting = p
+        waiting?.plantAt(tc.x)
+      } else this.flick = 1
+    }
+    this.breath += ((tc.touching ? Math.max(-1.2, Math.min(1.2, (tc.dx / dt) * 0.8)) : 0) - this.breath) * (1 - Math.exp(-dt / 0.5))
     if (i.trig) {
       this.flick = 1
       this.trigT = Math.max(this.trigT, TRIG_LEN)
@@ -156,7 +177,7 @@ export class Garden implements Creature {
     this.trigT = Math.max(0, this.trigT - dt)
     this.flick *= Math.exp(-dt / 0.6)
 
-    const gust = this.wind.step(dt) + i.move * 0.15
+    const gust = this.wind.step(dt) + i.move * 0.15 + this.breath
     const sway = this.stem.step(Math.max(-1.2, Math.min(1.2, gust)), dt)
     const light = Math.max(0, Math.min(1.5, i.glow * (0.2 + 0.5 * open + 0.8 * this.flick) + i.glowCv / 10))
 

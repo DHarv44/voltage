@@ -68,9 +68,13 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - **Visuals**: VISION (three.js tank: bioluminescent jellyfish; a flower garden where plants sprout, bloom,
   wilt, die and reseed; fireflies that synchronise (Kuramoto); aurora with substorms; a Chladni plate
   whose sand finds the mode the pitch picks). The creature lives on the
-  engine clock: TRIG/FEED/GLOW/HUE/MOVE steer it, GATE/SWAY/GROW/LIGHT come back out. The jelly swims
-  in 3D (depth + pitch) and a held TRIG (sustained note) jets it further. VISION CORE (the engine with no
-  screen) + any number of VISION VIEWs patched from LINK, each with its own camera (FRONT, SIDE, CLOSE). One shared
+  engine clock: TRIG/FEED/GLOW/PITCH/MOVE steer it, GATE/MOTION/STATE/LIGHT come back out (generic
+  names; each scene reads them its own way, and every one is used in every scene). The jelly swims in 3D
+  (depth + pitch) and a held TRIG (sustained note) jets it further. VISION CORE (the engine with no
+  screen) + any number of VISION VIEWs patched from LINK; each view picks its own scene and camera
+  (WIDE, ANGLE, CLOSE) in every scene. All scenes live at once. The glass is a touch screen: poke the
+  jelly, plant seeds, flash a torch at the fireflies, set off a substorm, knock/bend the Chladni plate.
+  One shared
   WebGL renderer for every tank; three.js loads only when a tank is on the rack. VECTOR (XY-mode CRT,
   phosphor persistence, beam dims with speed), WATERFALL (log-frequency spectrogram), LIGHTS (the music
   lights the whole rack: bass red, mids green, treble blue).

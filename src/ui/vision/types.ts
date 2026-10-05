@@ -20,8 +20,11 @@ export interface VisionScene {
   /** dt and t in seconds; `px` = drawing-buffer height in pixels (point sizes);
    *  `led` = the raw engine state (scene-specific values from VS_EXTRA on). */
   update(s: CreatureView, dt: number, t: number, px: number, led?: number[]): void
-  /** Point the camera (VIEW_CAMS index), after update. Flat scenes leave it out. */
-  aim?(cam: number, dt: number): void
+  /** Point the camera (VIEW_CAMS index: WIDE, ANGLE, CLOSE), after update. */
+  aim(cam: number, dt: number): void
+  /** A touch at (u, v) on the glass (0..1, v down) → the scene's own 0..1
+   *  space (y up), as the engine's creature understands it. */
+  pick(u: number, v: number): { x: number; y: number }
   dispose(): void
 }
 

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { JELLY_PITCH, JELLY_Z } from '../../modules/specs/vision'
-import { backdrop, disposeScene, glowPoints, rand, standardCamera, VIEW_H } from './common'
+import { backdrop, CameraRig, disposeScene, glowPoints, rand, standardCamera, touchPoint, VIEW_H } from './common'
 import { makeBell, makeHalo, marginPoint } from './jellyBell'
 import { Tentacles } from './jellyTentacles'
 import type { SceneFactory } from './types'
@@ -77,12 +77,10 @@ export const jellyScene: SceneFactory = (aspect, seed) => {
   const phase = rnd() * 10
   let depth = 0.5
   let pitch = 0
-  // camera: where it is and what it looks at, eased toward the chosen angle
-  const camGoal = new THREE.Vector3()
-  const look = new THREE.Vector3()
-  const lookGoal = new THREE.Vector3()
-  let lastCam = -1
+  let reach = 1
+  const rig = new CameraRig(camera, bg)
   const zMid = (Z_BACK + Z_FRONT) / 2
+  const hit = new THREE.Vector3()
 
   return {
     scene,
@@ -90,32 +88,23 @@ export const jellyScene: SceneFactory = (aspect, seed) => {
     aim(cam, dt) {
       const p = body.position
       if (cam === 1) {
-        // SIDE: through the tank's end wall; depth runs across the screen
-        camGoal.set(3.2, 0, zMid)
-        lookGoal.set(0, 0, zMid)
-        bg.position.set(-2.4, 0, zMid)
-        bg.rotation.set(0, Math.PI / 2, 0)
-        bg.scale.setScalar(1.2)
+        // ANGLE: through the tank's end wall; depth runs across the screen
+        rig.pos.set(3.2, 0, zMid)
+        rig.at.set(0, 0, zMid)
       } else if (cam === 2) {
         // CLOSE: just in front of the jelly, following it
-        camGoal.set(p.x * 0.85, p.y * 0.85 + 0.05, Math.min(CAM_Z - 0.1, p.z + 1.3))
-        lookGoal.copy(p)
-        bg.position.set(camera.position.x, camera.position.y, -2)
-        bg.rotation.set(0, 0, 0)
-        bg.scale.setScalar(1)
+        rig.pos.set(p.x * 0.85, p.y * 0.85 + 0.05, Math.min(CAM_Z - 0.1, p.z + 1.3))
+        rig.at.copy(p)
       } else {
-        camGoal.set(0, 0, CAM_Z)
-        lookGoal.set(0, 0, 0)
-        bg.position.set(0, 0, -2)
-        bg.rotation.set(0, 0, 0)
-        bg.scale.setScalar(1)
+        rig.pos.set(0, 0, CAM_Z)
+        rig.at.set(0, 0, 0)
       }
-      // snap when the angle changes, glide while following
-      const k = cam !== lastCam ? 1 : 1 - Math.exp(-dt / 0.35)
-      lastCam = cam
-      camera.position.lerp(camGoal, k)
-      look.lerp(lookGoal, k)
-      camera.lookAt(look)
+      rig.apply(cam, dt)
+    },
+    pick(u, v) {
+      // on the plane facing the camera through the jelly, in tank units
+      if (!touchPoint(camera, u, v, body.position, hit)) return { x: -1, y: -1 }
+      return { x: 0.5 + hit.x / (2 * halfW * reach), y: 0.5 + hit.y / (2 * halfH * reach) }
     },
     update(s, dt, t, px, led) {
       bg.material.uniforms.uT.value = t
@@ -130,7 +119,7 @@ export const jellyScene: SceneFactory = (aspect, seed) => {
       // Body: the bell's origin is its margin centre. Its x/y span the tank's
       // walls at its own depth, so it stays inside the glass wherever it swims.
       const z = Z_BACK + depth * (Z_FRONT - Z_BACK)
-      const reach = (CAM_Z - z) / CAM_Z
+      reach = (CAM_Z - z) / CAM_Z
       body.position.set((s.x - 0.5) * 2 * halfW * reach, (s.y - 0.5) * 2 * halfH * reach, z)
       body.rotation.x = pitch
       body.rotation.z = -s.tilt

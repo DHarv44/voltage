@@ -1,7 +1,10 @@
+import type React from 'react'
 import { useEffect, useRef, useSyncExternalStore } from 'react'
+import { engine } from '../../audio/engine'
 import { sceneBlock } from '../../modules/specs/vision'
 import { patchStore } from '../../patch/store'
 import { PX } from '../geometry'
+import { track } from '../pointer'
 
 interface Props {
   mod: string
@@ -30,11 +33,15 @@ export function VisionScreen({ mod, x, y, w, h, scene, cam = 0, ledBase = 0 }: P
   const W = Math.round(w * PX * RES)
   const H = Math.round(h * PX * RES)
 
+  const pick = useRef<((c: HTMLCanvasElement, u: number, v: number) => { x: number; y: number }) | null>(null)
+
   useEffect(() => {
     let detach: (() => void) | null = null
     let dead = false
-    void import('../vision/renderer').then(({ attachScreen }) => {
-      if (!dead && ref.current) detach = attachScreen(
+    void import('../vision/renderer').then(({ attachScreen, pickAt }) => {
+      pick.current = pickAt
+      if (!dead && ref.current)
+        detach = attachScreen(
           ref.current,
           mod,
           () => sceneRef.current,
@@ -48,6 +55,26 @@ export function VisionScreen({ mod, x, y, w, h, scene, cam = 0, ledBase = 0 }: P
     }
   }, [mod, W, H])
 
+  // The glass is a touch screen: each touch goes, through this screen's
+  // camera, to the scene it shows (in the module that runs the tank).
+  const down = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (e.button !== 0 || !pick.current) return
+    e.stopPropagation()
+    e.preventDefault()
+    const canvas = e.currentTarget
+    const name = `touch${Math.round(sceneRef.current)}`
+    const send = (cx: number, cy: number, isDown: boolean) => {
+      const r = canvas.getBoundingClientRect()
+      const p = pick.current!(canvas, (cx - r.left) / r.width, (cy - r.top) / r.height)
+      engine.ui(mod, { kind: 'surface', name, x: p.x, y: p.y, down: isDown })
+    }
+    send(e.clientX, e.clientY, true)
+    track(
+      (ev) => send(ev.clientX, ev.clientY, true),
+      (ev) => send(ev.clientX, ev.clientY, false),
+    )
+  }
+
   return (
     <canvas
       ref={ref}
@@ -55,6 +82,7 @@ export function VisionScreen({ mod, x, y, w, h, scene, cam = 0, ledBase = 0 }: P
       width={W}
       height={H}
       style={{ left: x * PX, top: y * PX, width: w * PX, height: h * PX }}
+      onPointerDown={down}
     />
   )
 }

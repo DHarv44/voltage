@@ -38,6 +38,11 @@ export class Jelly implements Creature {
   private pitch = 0
   private flash = 0
   private size = 0.5
+  /** Startled by a poke: steer away along `fleeTilt` for `fleeT` seconds. */
+  private fleeT = 0
+  private fleeTilt = 0
+  /** Water stirred by a finger dragging across the glass. */
+  private stir = 0
   private readonly current: Wander
   private readonly currentZ: Wander
   private readonly trail = new Spring2(4, 0.28)
@@ -69,6 +74,24 @@ export class Jelly implements Creature {
       }
     }
 
+    // Touch: a poke near the bell startles it into a stroke away from the
+    // finger; dragging stirs a current.
+    const tc = i.touch
+    if (tc.tap) {
+      const dx = this.x - tc.x
+      const dy = this.y - tc.y
+      const d = Math.hypot(dx, dy)
+      if (d < 0.3) {
+        this.fleeTilt = Math.max(-0.9, Math.min(0.9, Math.atan2(dx, Math.max(0.15, dy))))
+        this.fleeT = 1.2
+        this.c = 0 // a startle fires even mid-recovery
+        this.pulse()
+        this.vx += (dx / (d + 0.05)) * 0.06
+      }
+    }
+    this.stir += ((tc.touching ? Math.max(-0.4, Math.min(0.4, (tc.dx / dt) * 0.25)) : 0) - this.stir) * (1 - Math.exp(-dt / 0.6))
+    this.fleeT = Math.max(0, this.fleeT - dt)
+
     // Bell: a quick contraction stroke, then an elastic relaxation. While a
     // TRIG gate is held the bell stays clenched and keeps jetting, so a long
     // note carries it further than a short one.
@@ -87,7 +110,7 @@ export class Jelly implements Creature {
     // Body: jet along the bell axis, drag, sink, carried by the current.
     const ceiling = 1 - smoothstep(0.55, 0.92, this.y)
     const jet = this.stroking ? THRUST * ceiling * push : 0
-    const cur = this.current.step(dt) + i.move * 0.03
+    const cur = this.current.step(dt) + i.move * 0.03 + this.stir
     const curZ = this.currentZ.step(dt)
     // the jet runs along the bell's axis: leaned by tilt (sideways) and pitch (depth)
     const up = Math.cos(this.tilt) * Math.cos(this.pitch)
@@ -113,8 +136,8 @@ export class Jelly implements Creature {
     }
     this.x = Math.min(0.94, Math.max(0.06, this.x))
     // The bell leans into the current and steers back toward the middle.
-    const lean = Math.max(-0.5, Math.min(0.5, cur * 4 + (0.5 - this.x) * 0.6))
-    this.tilt += (lean - this.tilt) * (1 - Math.exp(-dt / 0.8))
+    const lean = this.fleeT > 0 ? this.fleeTilt : Math.max(-0.5, Math.min(0.5, cur * 4 + (0.5 - this.x) * 0.6))
+    this.tilt += (lean - this.tilt) * (1 - Math.exp(-dt / (this.fleeT > 0 ? 0.15 : 0.8)))
     const leanZ = Math.max(-0.6, Math.min(0.6, curZ * 4 + (0.5 - this.z) * 0.8))
     this.pitch += (leanZ - this.pitch) * (1 - Math.exp(-dt / 0.8))
 

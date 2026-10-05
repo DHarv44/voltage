@@ -8,6 +8,11 @@ export interface CreatureInput {
   trigPatched: boolean
   /** TRIG is still high (a held gate: a sustained note). */
   held: boolean
+  /** The glass is a touch screen. `tap`: a finger just landed this tick;
+   *  `touching`: one is down; x/y: where, in the scene's own 0..1 space
+   *  (the screen works it out through the camera); dx/dy: movement since the
+   *  last tick (a drag). */
+  touch: { tap: boolean; touching: boolean; x: number; y: number; dx: number; dy: number }
   /** Envelope of the FEED input in volts (0 when unpatched). */
   feed: number
   feedPatched: boolean

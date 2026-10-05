@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { GARDEN_PLANTS, PLANT_VALUES, VS_EXTRA } from '../../modules/specs/vision'
-import { backdrop, disposeScene, glowPoints, rand, standardCamera, VIEW_H } from './common'
+import { backdrop, CameraRig, disposeScene, glowPoints, rand, standardCamera, touchPoint, VIEW_H } from './common'
 import { DUSK_SKY, leafGeometry, petalGeometry } from './flowerParts'
 import { Plant, type PlantState } from './flowerPlant'
 import type { SceneFactory } from './types'
@@ -21,14 +21,17 @@ export const flowerScene: SceneFactory = (aspect, seed) => {
   sun.position.set(-2, 1.2, 2)
   scene.add(sun)
 
-  // Garden bed across the bottom.
-  const bed = new THREE.Mesh(new THREE.PlaneGeometry(VIEW_H * aspect * 2.4, 0.5), new THREE.MeshStandardMaterial({ color: 0x3b2716, roughness: 1 }))
-  bed.position.set(0, -VIEW_H - 0.02, -0.2)
-  bed.rotation.x = -0.25
+  // A real bed on the ground: soil with lawn around it. Seen straight on it's
+  // the strip along the bottom; from the ANGLE camera it's a plot you crouch by.
+  const ground = -VIEW_H + 0.16
+  const bed = new THREE.Mesh(new THREE.PlaneGeometry(VIEW_H * aspect * 2.2, 1.6), new THREE.MeshStandardMaterial({ color: 0x3b2716, roughness: 1 }))
+  bed.rotation.x = -Math.PI / 2
+  bed.position.set(0, ground, 0.2)
   scene.add(bed)
-  const grass = new THREE.Mesh(new THREE.PlaneGeometry(VIEW_H * aspect * 2.4, 0.08), new THREE.MeshStandardMaterial({ color: 0x3f6a2a, roughness: 1 }))
-  grass.position.set(0, -VIEW_H + 0.17, -0.25)
-  scene.add(grass)
+  const lawn = new THREE.Mesh(new THREE.PlaneGeometry(VIEW_H * aspect * 5, 3), new THREE.MeshStandardMaterial({ color: 0x3f6a2a, roughness: 1 }))
+  lawn.rotation.x = -Math.PI / 2
+  lawn.position.set(0, ground - 0.005, 0.1)
+  scene.add(lawn)
 
   const geo = {
     seg: new THREE.CylinderGeometry(1, 1, 1, 8, 1, true).translate(0, 0.5, 0),
@@ -50,12 +53,38 @@ export const flowerScene: SceneFactory = (aspect, seed) => {
   const life = new Float32Array(POLLEN)
   let emit = 0
   let next = 0
-  const baseY = -VIEW_H + 0.16
+  const baseY = ground
   const width = VIEW_H * aspect * 1.7
+  const rig = new CameraRig(camera, sky)
+  const hit = new THREE.Vector3()
+  /** The plant CLOSE follows: the most open flower, else the tallest. */
+  let star = 0
+  const score = new Float32Array(GARDEN_PLANTS)
 
   return {
     scene,
     camera,
+    aim(cam, dt) {
+      if (cam === 1) {
+        // ANGLE: crouched at the end of the bed, eye level with the flowers
+        rig.pos.set(1.9, baseY + 0.35, 2.2)
+        rig.at.set(-0.1, baseY + 0.4, 0)
+      } else if (cam === 2) {
+        // CLOSE: in front of the best flower
+        const h = plants[star].headPos
+        rig.pos.set(h.x + 0.2, h.y + 0.02, h.z + 1.2)
+        rig.at.set(h.x, h.y - 0.12, h.z)
+      } else {
+        rig.pos.set(0, 0, 3)
+        rig.at.set(0, 0, 0)
+      }
+      rig.apply(cam, dt)
+    },
+    pick(u, v) {
+      // the bed's plane: x across it, y = height above the soil (0 = soil)
+      if (!touchPoint(camera, u, v, 0, hit)) return { x: -1, y: -1 }
+      return { x: hit.x / width + 0.5, y: (hit.y - baseY) / (2 * VIEW_H) }
+    },
     update(s, dt, t, px, led) {
       sky.material.uniforms.uT.value = t
       const pp = pollen.geometry.attributes.position.array as Float32Array
@@ -68,6 +97,8 @@ export const flowerScene: SceneFactory = (aspect, seed) => {
         state.wilt = led?.[b + 3] ?? 0
         state.fade = led?.[b + 4] ?? (k === 0 ? 1 : 0)
         p.update(state, baseY, width, s.sway, s.glow, s.hue, t)
+        score[k] = state.fade * (state.open * 2 + state.g)
+        if (score[k] > score[star] + 0.05) star = k // a little stickiness
         // pollen from every open flower, a burst on TRIG
         if (state.fade > 0.5 && state.open > 0.2) {
           emit += dt * state.open * (0.5 + 25 * s.action)

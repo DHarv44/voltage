@@ -18,6 +18,8 @@ export const PLANT_VALUES = 5
  *  lean toward/away from the glass (radians). */
 export const JELLY_Z = VS_EXTRA
 export const JELLY_PITCH = VS_EXTRA + 1
+/** Cymatics: mode m, n, index, a knock's decaying jolt, the plate's tilt. */
+export const CYM = { m: VS_EXTRA, n: VS_EXTRA + 1, mode: VS_EXTRA + 2, knock: VS_EXTRA + 3, tilt: VS_EXTRA + 4 } as const
 /** Fireflies: how many, each publishing its brightness. */
 export const FIREFLIES = 24
 
@@ -50,19 +52,31 @@ const COLS = [12, 31.5, 51, 70.5, 90]
 
 export const VISION_LEDS = LED_BLOCK * (1 + VISION_SCENES.length)
 
-/** Shared by VISION and VISION CORE (the same creature engine). LINK carries
- *  no voltage: patch it into VISION VIEW modules to show the tank on them. */
+/** Shared by VISION and VISION CORE (the same creature engine). The names are
+ *  generic; each scene reads them its own way:
+ *
+ *  | jack   | JELLY        | GARDEN          | FIREFLIES      | AURORA        | CYMATICS            |
+ *  | TRIG   | bell stroke  | pollen burst    | scatter        | substorm      | knock the plate     |
+ *  | FEED   | food → size  | food → health   | coupling       | solar wind    | drive               |
+ *  | PITCH  | colour/note  | colour/note     | colour/note    | colour/note   | mode + colour       |
+ *  | MOVE   | current      | wind            | drift          | curtains      | tilt                |
+ *  | GATE   | stroke       | each new stage  | meadow flash   | onset         | new mode / knock    |
+ *  | MOTION | tentacles    | stems           | drift          | curtains      | buzz                |
+ *  | STATE  | size         | how alive       | sync           | energy        | mode number         |
+ *
+ *  Jack ids stay as first named (hue, sway, grow) so saved patches keep their
+ *  cables. LINK carries no voltage: patch it into VISION VIEW modules. */
 export const VISION_INPUTS: ModuleSpec['inputs'] = [
   { id: 'trig', label: 'TRIG' },
   { id: 'feed', label: 'FEED' },
   { id: 'glow', label: 'GLOW' },
-  { id: 'hue', label: 'HUE' },
+  { id: 'hue', label: 'PITCH' },
   { id: 'move', label: 'MOVE' },
 ]
 export const VISION_OUTPUTS: ModuleSpec['outputs'] = [
   { id: 'gate', label: 'GATE' },
-  { id: 'sway', label: 'SWAY' },
-  { id: 'grow', label: 'GROW' },
+  { id: 'sway', label: 'MOTION' },
+  { id: 'grow', label: 'STATE' },
   { id: 'light', label: 'LIGHT' },
   { id: 'link', label: 'LINK' },
 ]

@@ -8,6 +8,18 @@ import { Fireflies } from './fireflies'
 import { Aurora } from './aurora'
 import { Cymatics } from './cymatics'
 import type { Creature, CreatureInput, CreatureOutput } from './creature'
+import type { UiEvent } from '../../protocol'
+
+/** A finger on one scene's glass (scene-space 0..1). */
+class Finger {
+  tap = false
+  down = false
+  x = 0.5
+  y = 0.5
+  /** Where the creature last saw it (for drag deltas). */
+  seenX = 0.5
+  seenY = 0.5
+}
 
 /** VISION VIEW: only a screen. The tank it shows runs in the linked module. */
 export class VisionViewDsp extends Dsp {
@@ -38,6 +50,8 @@ export class VisionDsp extends Dsp {
   private readonly idle: CreatureOutput = { gate: 0, sway: 0, grow: 0, light: 0 }
   /** Each scene's block of the LED channel (block 0 mirrors the selected one). */
   private readonly blocks: Float32Array[]
+  /** Touches on the glass, one per scene (a VIEW can touch any scene). */
+  private readonly fingers: Finger[]
   private n = 0
   private edge = false
   private feedEnv = 0
@@ -49,10 +63,31 @@ export class VisionDsp extends Dsp {
     super(spec, fs, seed)
     this.creatures = [new Jelly(this.rng), new Garden(this.rng), new Fireflies(this.rng), new Aurora(this.rng), new Cymatics(this.rng)]
     this.blocks = this.creatures.map((_, k) => this.led.subarray(sceneBlock(k), sceneBlock(k) + LED_BLOCK))
-    this.ci = { dt: BLOCK / fs, trig: false, trigPatched: false, held: false, feed: 0, feedPatched: false, glowCv: 0, hueV: 0, move: 0, rate: 0, hue: 0, glow: 0 }
+    this.fingers = this.creatures.map(() => new Finger())
+    this.ci = {
+      dt: BLOCK / fs, trig: false, trigPatched: false, held: false, feed: 0, feedPatched: false, glowCv: 0, hueV: 0, move: 0, rate: 0, hue: 0, glow: 0,
+      touch: { tap: false, touching: false, x: 0.5, y: 0.5, dx: 0, dy: 0 },
+    }
     this.envUp = 1 - Math.exp(-1 / (0.01 * fs))
     this.envDown = 1 - Math.exp(-1 / (0.3 * fs))
     this.glide = 1 - Math.exp(-1 / (0.004 * fs))
+  }
+
+  /** Touch from a screen: name `touch<scene>`, x/y in that scene's space. */
+  onUi(ev: UiEvent): void {
+    if (ev.kind !== 'surface' || !ev.name.startsWith('touch')) return
+    const f = this.fingers[Number(ev.name.slice(5))]
+    if (!f) return
+    if (ev.down) {
+      if (!f.down) {
+        f.tap = true
+        f.seenX = ev.x
+        f.seenY = ev.y
+      }
+      f.down = true
+      f.x = ev.x
+      f.y = ev.y
+    } else f.down = false
   }
 
   tick(): void {
@@ -79,7 +114,20 @@ export class VisionDsp extends Dsp {
       // Every scene lives all the time (views may watch any of them); the
       // SCENE knob picks which one drives the jacks and the main glass.
       const scene = Math.min(this.creatures.length - 1, Math.max(0, Math.round(this.p[this.pScene])))
-      for (let k = 0; k < this.creatures.length; k++) this.creatures[k].step(ci, k === scene ? this.co : this.idle, this.blocks[k])
+      const t = ci.touch
+      for (let k = 0; k < this.creatures.length; k++) {
+        const f = this.fingers[k]
+        t.tap = f.tap
+        t.touching = f.down
+        t.x = f.x
+        t.y = f.y
+        t.dx = f.x - f.seenX
+        t.dy = f.y - f.seenY
+        f.tap = false
+        f.seenX = f.x
+        f.seenY = f.y
+        this.creatures[k].step(ci, k === scene ? this.co : this.idle, this.blocks[k])
+      }
       this.led.copyWithin(0, sceneBlock(scene), sceneBlock(scene) + LED_BLOCK)
     }
 
