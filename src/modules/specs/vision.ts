@@ -6,6 +6,11 @@ export const VISION_SCENES = ['JELLY', 'GARDEN', 'FIREFLIES', 'AURORA', 'CYMATIC
 
 /** Per-scene extra state starts here on the LED channel (after the shared VS fields). */
 export const VS_EXTRA = 10
+/** Every scene lives at once. The LED channel is blocks of LED_BLOCK values:
+ *  block 0 mirrors the selected scene, block k + 1 is scene k (so a VISION VIEW
+ *  can watch any scene, whatever the tank's SCENE knob drives). */
+export const LED_BLOCK = 40
+export const sceneBlock = (scene: number) => (scene + 1) * LED_BLOCK
 /** Garden: plants and the values each one publishes (x, growth, open, wilt, visibility). */
 export const GARDEN_PLANTS = 5
 export const PLANT_VALUES = 5
@@ -42,6 +47,8 @@ export const VS = {
 export const FLOWER_STAGES = [0.15, 0.3, 0.45, 0.6, 0.75, 0.9]
 
 const COLS = [12, 31.5, 51, 70.5, 90]
+
+export const VISION_LEDS = LED_BLOCK * (1 + VISION_SCENES.length)
 
 /** Shared by VISION and VISION CORE (the same creature engine). LINK carries
  *  no voltage: patch it into VISION VIEW modules to show the tank on them. */
@@ -80,7 +87,7 @@ export const vision: ModuleSpec = {
   inputs: VISION_INPUTS,
   outputs: VISION_OUTPUTS,
   params: VISION_PARAMS,
-  leds: 40,
+  leds: VISION_LEDS,
   controls: [
     { kind: 'vision', x: 5, y: 16, w: 91.6, h: 56 },
     { kind: 'knob', param: 'scene', x: COLS[0], y: 80, size: 'S' },

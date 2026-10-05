@@ -1,4 +1,5 @@
 import type { ModuleSpec } from '../../../modules/types'
+import { LED_BLOCK, sceneBlock } from '../../../modules/specs/vision'
 import { Dsp } from '../base'
 import { Schmitt } from '../cores'
 import { Garden } from './flower'
@@ -16,9 +17,9 @@ export class VisionViewDsp extends Dsp {
 /** Creatures live at control rate: one step every BLOCK samples. */
 const BLOCK = 32
 
-/** VISION tank. Hosts one creature per scene (each keeps its own life when you
- *  switch away), steps the selected one at control rate, and smooths its
- *  outputs to audio rate so CV never steps audibly. */
+/** VISION tank. Hosts one creature per scene, all alive at once at control
+ *  rate (so linked VIEWs can watch any of them); the selected one drives the
+ *  jacks, smoothed to audio rate so CV never steps audibly. */
 export class VisionDsp extends Dsp {
   private readonly pScene = this.pi('scene')
   private readonly pRate = this.pi('rate')
@@ -33,6 +34,10 @@ export class VisionDsp extends Dsp {
   private readonly trig = new Schmitt()
   private readonly ci: CreatureInput
   private readonly co: CreatureOutput = { gate: 0, sway: 0, grow: 0, light: 0 }
+  /** Where the scenes not on the jacks put their outputs (nobody reads them). */
+  private readonly idle: CreatureOutput = { gate: 0, sway: 0, grow: 0, light: 0 }
+  /** Each scene's block of the LED channel (block 0 mirrors the selected one). */
+  private readonly blocks: Float32Array[]
   private n = 0
   private edge = false
   private feedEnv = 0
@@ -43,6 +48,7 @@ export class VisionDsp extends Dsp {
   constructor(spec: ModuleSpec, fs: number, seed: number) {
     super(spec, fs, seed)
     this.creatures = [new Jelly(this.rng), new Garden(this.rng), new Fireflies(this.rng), new Aurora(this.rng), new Cymatics(this.rng)]
+    this.blocks = this.creatures.map((_, k) => this.led.subarray(sceneBlock(k), sceneBlock(k) + LED_BLOCK))
     this.ci = { dt: BLOCK / fs, trig: false, trigPatched: false, held: false, feed: 0, feedPatched: false, glowCv: 0, hueV: 0, move: 0, rate: 0, hue: 0, glow: 0 }
     this.envUp = 1 - Math.exp(-1 / (0.01 * fs))
     this.envDown = 1 - Math.exp(-1 / (0.3 * fs))
@@ -70,8 +76,11 @@ export class VisionDsp extends Dsp {
       ci.hue = this.p[this.pHue]
       ci.glow = this.p[this.pGlow]
       this.edge = false
+      // Every scene lives all the time (views may watch any of them); the
+      // SCENE knob picks which one drives the jacks and the main glass.
       const scene = Math.min(this.creatures.length - 1, Math.max(0, Math.round(this.p[this.pScene])))
-      this.creatures[scene].step(ci, this.co, this.led)
+      for (let k = 0; k < this.creatures.length; k++) this.creatures[k].step(ci, k === scene ? this.co : this.idle, this.blocks[k])
+      this.led.copyWithin(0, sceneBlock(scene), sceneBlock(scene) + LED_BLOCK)
     }
 
     const o = this.out

@@ -1,6 +1,6 @@
 import type { ModuleSpec } from '../types'
 import { BLACK } from './panels'
-import { VISION_INPUTS, VISION_OUTPUTS, VISION_PARAMS, VS } from './vision'
+import { VISION_INPUTS, VISION_LEDS, VISION_OUTPUTS, VISION_PARAMS, VISION_SCENES, VS } from './vision'
 
 /** Camera angles a VISION VIEW can take (3D scenes; flat scenes show FRONT). */
 export const VIEW_CAMS = ['FRONT', 'SIDE', 'CLOSE'] as const
@@ -21,7 +21,7 @@ export const visioncore: ModuleSpec = {
   inputs: VISION_INPUTS,
   outputs: VISION_OUTPUTS,
   params: VISION_PARAMS,
-  leds: 40,
+  leds: VISION_LEDS,
   controls: [
     { kind: 'knob', param: 'scene', x: 14, y: 26, size: 'S' },
     { kind: 'knob', param: 'rate', x: 36.8, y: 26, size: 'S' },
@@ -41,8 +41,12 @@ export const visioncore: ModuleSpec = {
   ],
 }
 
+/** What a VISION VIEW shows: the linked tank's own scene, or any other. */
+export const VIEW_SCENES = ['LINKED', ...VISION_SCENES] as const
+
 /** A screen for a VISION or VISION CORE: patch its LINK into this LINK. Add
- *  as many as you like; each picks its own camera on the 3D tank. */
+ *  as many as you like; each picks its own scene (LINKED follows the tank's
+ *  SCENE knob) and its own camera on the 3D tank. */
 export const visionview: ModuleSpec = {
   type: 'visionview',
   title: 'VISION VIEW',
@@ -53,10 +57,14 @@ export const visionview: ModuleSpec = {
   panel: BLACK,
   inputs: [{ id: 'link', label: 'LINK' }],
   outputs: [],
-  params: [{ id: 'cam', label: 'CAMERA', min: 0, max: VIEW_CAMS.length - 1, def: 0, stepped: true, options: [...VIEW_CAMS] }],
+  params: [
+    { id: 'scene', label: 'SCENE', min: 0, max: VIEW_SCENES.length - 1, def: 0, stepped: true, options: [...VIEW_SCENES] },
+    { id: 'cam', label: 'CAMERA', min: 0, max: VIEW_CAMS.length - 1, def: 0, stepped: true, options: [...VIEW_CAMS] },
+  ],
   controls: [
     { kind: 'vision', x: 5, y: 14, w: 91.6, h: 82, linked: true },
-    { kind: 'knob', param: 'cam', x: 30, y: 109, size: 'S' },
-    { kind: 'in', jack: 'link', x: 72, y: 109 },
+    { kind: 'knob', param: 'scene', x: 18, y: 109, size: 'S' },
+    { kind: 'knob', param: 'cam', x: 46, y: 109, size: 'S' },
+    { kind: 'in', jack: 'link', x: 78, y: 109 },
   ],
 }

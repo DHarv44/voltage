@@ -68,7 +68,16 @@ export const ModulePanel = memo(function ModulePanel({ inst, row, hp, lifted, ha
           />
         ) : c.kind === 'vision' ? (
           c.linked ? (
-            <LinkedVisionScreen key={i} mod={inst.id} cam={inst.params.cam ?? 0} x={c.x} y={c.y} w={c.w} h={c.h} />
+            <LinkedVisionScreen
+              key={i}
+              mod={inst.id}
+              view={Math.round(inst.params.scene ?? 0)}
+              cam={inst.params.cam ?? 0}
+              x={c.x}
+              y={c.y}
+              w={c.w}
+              h={c.h}
+            />
           ) : (
             <VisionScreen key={i} mod={inst.id} x={c.x} y={c.y} w={c.w} h={c.h} scene={inst.params.scene} />
           )

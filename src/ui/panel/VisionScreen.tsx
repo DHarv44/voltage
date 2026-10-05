@@ -1,4 +1,5 @@
 import { useEffect, useRef, useSyncExternalStore } from 'react'
+import { sceneBlock } from '../../modules/specs/vision'
 import { patchStore } from '../../patch/store'
 import { PX } from '../geometry'
 
@@ -11,17 +12,21 @@ interface Props {
   scene: number
   /** Camera angle (VIEW_CAMS); scenes that aren't 3D ignore it. */
   cam?: number
+  /** Where the scene's state starts on the LED channel (0 = the tank's own scene). */
+  ledBase?: number
 }
 
 const RES = 2
 
 /** The VISION tank's glass. three.js loads only once a tank is on the rack. */
-export function VisionScreen({ mod, x, y, w, h, scene, cam = 0 }: Props) {
+export function VisionScreen({ mod, x, y, w, h, scene, cam = 0, ledBase = 0 }: Props) {
   const ref = useRef<HTMLCanvasElement>(null)
   const sceneRef = useRef(scene)
   sceneRef.current = scene
   const camRef = useRef(cam)
   camRef.current = cam
+  const baseRef = useRef(ledBase)
+  baseRef.current = ledBase
   const W = Math.round(w * PX * RES)
   const H = Math.round(h * PX * RES)
 
@@ -29,7 +34,13 @@ export function VisionScreen({ mod, x, y, w, h, scene, cam = 0 }: Props) {
     let detach: (() => void) | null = null
     let dead = false
     void import('../vision/renderer').then(({ attachScreen }) => {
-      if (!dead && ref.current) detach = attachScreen(ref.current, mod, () => sceneRef.current, () => camRef.current)
+      if (!dead && ref.current) detach = attachScreen(
+          ref.current,
+          mod,
+          () => sceneRef.current,
+          () => camRef.current,
+          () => baseRef.current,
+        )
     })
     return () => {
       dead = true
@@ -49,8 +60,22 @@ export function VisionScreen({ mod, x, y, w, h, scene, cam = 0 }: Props) {
 }
 
 /** A VISION VIEW's glass: shows whichever VISION / VISION CORE is patched into
- *  its LINK input, through its own camera. */
-export function LinkedVisionScreen({ mod, cam, ...rect }: { mod: string; cam: number; x: number; y: number; w: number; h: number }) {
+ *  its LINK input: the tank's own scene (view scene 0, LINKED) or scene
+ *  view − 1, through its own camera. */
+export function LinkedVisionScreen({
+  mod,
+  cam,
+  view,
+  ...rect
+}: {
+  mod: string
+  cam: number
+  view: number
+  x: number
+  y: number
+  w: number
+  h: number
+}) {
   const source = useSyncExternalStore(
     (f) => patchStore.subscribe(f),
     () => {
@@ -67,6 +92,15 @@ export function LinkedVisionScreen({ mod, cam, ...rect }: { mod: string; cam: nu
       </div>
     )
   }
-  const [id, scene] = source.split('|')
-  return <VisionScreen mod={id} scene={Number(scene)} cam={cam} {...rect} />
+  const [id, tankScene] = source.split('|')
+  const own = view < 1
+  return (
+    <VisionScreen
+      mod={id}
+      scene={own ? Number(tankScene) : view - 1}
+      ledBase={own ? 0 : sceneBlock(view - 1)}
+      cam={cam}
+      {...rect}
+    />
+  )
 }
