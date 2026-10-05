@@ -15,6 +15,7 @@ interface Screen {
   ctx: CanvasRenderingContext2D
   mod: string
   scene: () => number
+  cam: () => number
   host: VisionScene | null
   hostIdx: number
   view: CreatureView
@@ -86,6 +87,7 @@ function frame(now: number): void {
     s.t += dt
     follow(s.view, telemetry.leds[s.mod], dt)
     s.host.update(s.view, dt, s.t, H, telemetry.leds[s.mod])
+    s.host.aim?.(Math.round(s.cam()), dt)
     r.setViewport(0, 0, W, H)
     r.setScissor(0, 0, W, H)
     r.render(s.host.scene, s.host.camera)
@@ -94,10 +96,10 @@ function frame(now: number): void {
 }
 
 /** Start drawing a tank into `canvas`; returns the detach function. */
-export function attachScreen(canvas: HTMLCanvasElement, mod: string, scene: () => number): () => void {
+export function attachScreen(canvas: HTMLCanvasElement, mod: string, scene: () => number, cam: () => number = () => 0): () => void {
   const ctx = canvas.getContext('2d')
   if (!ctx) return () => {}
-  const s: Screen = { canvas, ctx, mod, scene, host: null, hostIdx: -1, view: blankView(), t: 0 }
+  const s: Screen = { canvas, ctx, mod, scene, cam, host: null, hostIdx: -1, view: blankView(), t: 0 }
   screens.add(s)
   if (!raf) {
     last = 0

@@ -8,6 +8,11 @@ import { Aurora } from './aurora'
 import { Cymatics } from './cymatics'
 import type { Creature, CreatureInput, CreatureOutput } from './creature'
 
+/** VISION VIEW: only a screen. The tank it shows runs in the linked module. */
+export class VisionViewDsp extends Dsp {
+  tick(): void {}
+}
+
 /** Creatures live at control rate: one step every BLOCK samples. */
 const BLOCK = 32
 
@@ -38,7 +43,7 @@ export class VisionDsp extends Dsp {
   constructor(spec: ModuleSpec, fs: number, seed: number) {
     super(spec, fs, seed)
     this.creatures = [new Jelly(this.rng), new Garden(this.rng), new Fireflies(this.rng), new Aurora(this.rng), new Cymatics(this.rng)]
-    this.ci = { dt: BLOCK / fs, trig: false, trigPatched: false, feed: 0, feedPatched: false, glowCv: 0, hueV: 0, move: 0, rate: 0, hue: 0, glow: 0 }
+    this.ci = { dt: BLOCK / fs, trig: false, trigPatched: false, held: false, feed: 0, feedPatched: false, glowCv: 0, hueV: 0, move: 0, rate: 0, hue: 0, glow: 0 }
     this.envUp = 1 - Math.exp(-1 / (0.01 * fs))
     this.envDown = 1 - Math.exp(-1 / (0.3 * fs))
     this.glide = 1 - Math.exp(-1 / (0.004 * fs))
@@ -55,6 +60,7 @@ export class VisionDsp extends Dsp {
       const ci = this.ci
       ci.trig = this.edge
       ci.trigPatched = this.patched[this.iTrig] === 1
+      ci.held = this.trig.high
       ci.feed = this.feedEnv
       ci.feedPatched = this.patched[this.iFeed] === 1
       ci.glowCv = x[this.iGlow]

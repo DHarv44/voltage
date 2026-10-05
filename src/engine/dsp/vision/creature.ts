@@ -6,6 +6,8 @@ export interface CreatureInput {
   /** A TRIG rising edge arrived since the last tick. */
   trig: boolean
   trigPatched: boolean
+  /** TRIG is still high (a held gate: a sustained note). */
+  held: boolean
   /** Envelope of the FEED input in volts (0 when unpatched). */
   feed: number
   feedPatched: boolean

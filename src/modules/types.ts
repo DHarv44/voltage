@@ -44,8 +44,9 @@ export type Control =
   | { kind: 'led'; index: number; x: number; y: number; color?: string; bipolar?: boolean }
   | { kind: 'text'; text: string; x: number; y: number; size?: number }
   | { kind: 'scope'; x: number; y: number; w: number; h: number }
-  /** three.js creature tank, drawn from the module's LED-channel state. */
-  | { kind: 'vision'; x: number; y: number; w: number; h: number }
+  /** three.js creature tank, drawn from the module's LED-channel state, or
+   *  (`linked`) from whichever VISION module is patched into its LINK input. */
+  | { kind: 'vision'; x: number; y: number; w: number; h: number; linked?: boolean }
   /** XY touch surface with morph corners. */
   | { kind: 'xypad'; x: number; y: number; w: number; h: number }
   /** Stompbox footswitch toggling a 0/1 param, with its LED. */

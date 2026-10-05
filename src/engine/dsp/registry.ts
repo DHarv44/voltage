@@ -32,7 +32,7 @@ import { SampleDsp } from './sampler'
 import { PolyAdsrDsp, PolyCvDsp, PolyLadderDsp, PolyMixDsp, PolyVcaDsp, PolyVcoDsp } from './poly'
 import { MonitorDsp } from './monitor'
 import { StudioDsp } from './studio'
-import { VisionDsp } from './vision'
+import { VisionDsp, VisionViewDsp } from './vision'
 import { XyDsp } from './xy'
 import { TurntableDsp } from './turntable'
 import { ThereminDsp } from './theremin'
@@ -138,6 +138,8 @@ const CIRCUITS: Record<string, DspCtor> = {
   monitor: MonitorDsp,
   studio: StudioDsp,
   vision: VisionDsp,
+  visioncore: VisionDsp,
+  visionview: VisionViewDsp,
   xy: XyDsp,
   turntable: TurntableDsp,
   theremin: ThereminDsp,

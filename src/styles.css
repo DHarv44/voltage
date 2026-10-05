@@ -850,6 +850,16 @@ button {
 .vision-screen {
   background: #01060a;
 }
+.vision-unlinked {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  text-align: center;
+  color: #4d6a7d;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
 
 .surface-canvas {
   position: absolute;

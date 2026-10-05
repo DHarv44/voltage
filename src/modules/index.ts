@@ -29,6 +29,7 @@ import { padsr, polycv, polymix, pvca, pvcf, pvco } from './specs/poly'
 import { monitor } from './specs/monitor'
 import { studio } from './specs/studio'
 import { vision } from './specs/vision'
+import { visioncore, visionview } from './specs/visionLink'
 import { xy } from './specs/xy'
 import { turntable } from './specs/turntable'
 import { theremin } from './specs/theremin'
@@ -164,6 +165,8 @@ export const SPEC_LIST: ModuleSpec[] = [
   accident,
   scope,
   vision,
+  visioncore,
+  visionview,
   vector,
   waterfall,
   lightshow,

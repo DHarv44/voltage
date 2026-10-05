@@ -47,7 +47,7 @@ export const jellyScene: SceneFactory = (aspect, seed) => {
   for (let i = 0; i < SNOW; i++) {
     sp[i * 3] = (rnd() * 2 - 1) * VIEW_H * aspect
     sp[i * 3 + 1] = (rnd() * 2 - 1) * VIEW_H
-    sp[i * 3 + 2] = -1.2 + rnd() * 1.6
+    sp[i * 3 + 2] = -1.8 + rnd() * 2.8 // deep enough to fill the SIDE camera too
   }
   scene.add(snow)
 
@@ -77,10 +77,46 @@ export const jellyScene: SceneFactory = (aspect, seed) => {
   const phase = rnd() * 10
   let depth = 0.5
   let pitch = 0
+  // camera: where it is and what it looks at, eased toward the chosen angle
+  const camGoal = new THREE.Vector3()
+  const look = new THREE.Vector3()
+  const lookGoal = new THREE.Vector3()
+  let lastCam = -1
+  const zMid = (Z_BACK + Z_FRONT) / 2
 
   return {
     scene,
     camera,
+    aim(cam, dt) {
+      const p = body.position
+      if (cam === 1) {
+        // SIDE: through the tank's end wall; depth runs across the screen
+        camGoal.set(3.2, 0, zMid)
+        lookGoal.set(0, 0, zMid)
+        bg.position.set(-2.4, 0, zMid)
+        bg.rotation.set(0, Math.PI / 2, 0)
+        bg.scale.setScalar(1.2)
+      } else if (cam === 2) {
+        // CLOSE: just in front of the jelly, following it
+        camGoal.set(p.x * 0.85, p.y * 0.85 + 0.05, Math.min(CAM_Z - 0.1, p.z + 1.3))
+        lookGoal.copy(p)
+        bg.position.set(camera.position.x, camera.position.y, -2)
+        bg.rotation.set(0, 0, 0)
+        bg.scale.setScalar(1)
+      } else {
+        camGoal.set(0, 0, CAM_Z)
+        lookGoal.set(0, 0, 0)
+        bg.position.set(0, 0, -2)
+        bg.rotation.set(0, 0, 0)
+        bg.scale.setScalar(1)
+      }
+      // snap when the angle changes, glide while following
+      const k = cam !== lastCam ? 1 : 1 - Math.exp(-dt / 0.35)
+      lastCam = cam
+      camera.position.lerp(camGoal, k)
+      look.lerp(lookGoal, k)
+      camera.lookAt(look)
+    },
     update(s, dt, t, px, led) {
       bg.material.uniforms.uT.value = t
       color.setHSL(s.hue, 0.85, 0.6)

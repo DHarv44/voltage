@@ -14,7 +14,7 @@ import { Progress } from './Progress'
 import { StepGrid } from './StepGrid'
 import { Plate } from './Plate'
 import { FileButton } from './FileButton'
-import { VisionScreen } from './VisionScreen'
+import { LinkedVisionScreen, VisionScreen } from './VisionScreen'
 import { XyPad } from './XyPad'
 import { Stomp } from './Stomp'
 import { SURFACES } from '../surfaces'
@@ -67,7 +67,11 @@ export const ModulePanel = memo(function ModulePanel({ inst, row, hp, lifted, ha
             time={inst.params.time}
           />
         ) : c.kind === 'vision' ? (
-          <VisionScreen key={i} mod={inst.id} x={c.x} y={c.y} w={c.w} h={c.h} scene={inst.params.scene} />
+          c.linked ? (
+            <LinkedVisionScreen key={i} mod={inst.id} cam={inst.params.cam ?? 0} x={c.x} y={c.y} w={c.w} h={c.h} />
+          ) : (
+            <VisionScreen key={i} mod={inst.id} x={c.x} y={c.y} w={c.w} h={c.h} scene={inst.params.scene} />
+          )
         ) : c.kind === 'xypad' ? (
           <XyPad
             key={i}

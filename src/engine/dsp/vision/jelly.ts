@@ -10,6 +10,12 @@ const RELAX = 0.5
 const THRUST = 0.45
 const DRAG = 1.6
 const SINK = 0.045
+/** A held TRIG (a sustained note) keeps the bell clenched and jetting, the
+ *  thrust easing off over HOLD_FADE, for at most MAX_HOLD seconds. */
+const HOLD_FADE = 2.5
+const MAX_HOLD = 3
+/** Highest the bell's margin may rise (tank heights): keeps it in frame. */
+const TOP = 0.88
 
 /** Bioluminescent jellyfish. The bell pulses (free-running at RATE, or on TRIG),
  *  each stroke jets it along its axis, in 3D: the bell leans sideways (tilt)
@@ -63,17 +69,24 @@ export class Jelly implements Creature {
       }
     }
 
-    // Bell: a quick contraction stroke, then an elastic relaxation.
+    // Bell: a quick contraction stroke, then an elastic relaxation. While a
+    // TRIG gate is held the bell stays clenched and keeps jetting, so a long
+    // note carries it further than a short one.
     const stroke = STROKE * (0.8 + 0.4 * this.size)
+    let push = 1
     if (this.stroking) {
       this.strokeT += dt
       this.c = smoothstep(0, 1, this.strokeT / stroke)
-      if (this.strokeT >= stroke) this.stroking = false
+      const hold = this.strokeT - stroke
+      if (hold >= 0) {
+        if (i.trigPatched && i.held && hold < MAX_HOLD) push = Math.exp(-hold / HOLD_FADE)
+        else this.stroking = false
+      }
     } else this.c *= Math.exp(-dt / RELAX)
 
     // Body: jet along the bell axis, drag, sink, carried by the current.
     const ceiling = 1 - smoothstep(0.55, 0.92, this.y)
-    const jet = this.stroking ? THRUST * ceiling : 0
+    const jet = this.stroking ? THRUST * ceiling * push : 0
     const cur = this.current.step(dt) + i.move * 0.03
     const curZ = this.currentZ.step(dt)
     // the jet runs along the bell's axis: leaned by tilt (sideways) and pitch (depth)
@@ -89,12 +102,16 @@ export class Jelly implements Creature {
     this.vz += (smoothstep(0.8, 1, 1 - this.z) - smoothstep(0.8, 1, this.z)) * 0.3 * dt // back wall, front glass
     this.x += this.vx * dt
     this.y += this.vy * dt
+    if (this.x <= 0.06 || this.x >= 0.94) this.vx = 0 // at the side glass
     this.z = Math.min(1, Math.max(0, this.z + this.vz * dt))
     if (this.y < 0.1) {
       this.y = 0.1 // resting on the floor of the tank
       this.vy = 0
+    } else if (this.y > TOP) {
+      this.y = TOP // bumping the surface: long jets never carry it out of frame
+      this.vy = Math.min(0, this.vy)
     }
-    this.x = Math.min(0.97, Math.max(0.03, this.x))
+    this.x = Math.min(0.94, Math.max(0.06, this.x))
     // The bell leans into the current and steers back toward the middle.
     const lean = Math.max(-0.5, Math.min(0.5, cur * 4 + (0.5 - this.x) * 0.6))
     this.tilt += (lean - this.tilt) * (1 - Math.exp(-dt / 0.8))

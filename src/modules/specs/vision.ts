@@ -41,7 +41,30 @@ export const VS = {
 /** Flower growth stages (fraction of full growth): four leaves, the bud, the bloom. */
 export const FLOWER_STAGES = [0.15, 0.3, 0.45, 0.6, 0.75, 0.9]
 
-const COLS =[12, 31.5, 51, 70.5, 90]
+const COLS = [12, 31.5, 51, 70.5, 90]
+
+/** Shared by VISION and VISION CORE (the same creature engine). LINK carries
+ *  no voltage: patch it into VISION VIEW modules to show the tank on them. */
+export const VISION_INPUTS: ModuleSpec['inputs'] = [
+  { id: 'trig', label: 'TRIG' },
+  { id: 'feed', label: 'FEED' },
+  { id: 'glow', label: 'GLOW' },
+  { id: 'hue', label: 'HUE' },
+  { id: 'move', label: 'MOVE' },
+]
+export const VISION_OUTPUTS: ModuleSpec['outputs'] = [
+  { id: 'gate', label: 'GATE' },
+  { id: 'sway', label: 'SWAY' },
+  { id: 'grow', label: 'GROW' },
+  { id: 'light', label: 'LIGHT' },
+  { id: 'link', label: 'LINK' },
+]
+export const VISION_PARAMS: ModuleSpec['params'] = [
+  { id: 'scene', label: 'SCENE', min: 0, max: VISION_SCENES.length - 1, def: 0, stepped: true, options: [...VISION_SCENES] },
+  { id: 'rate', label: 'RATE', min: 0.05, max: 2, def: 0.4, curve: 'exp', unit: 'Hz' },
+  { id: 'hue', label: 'HUE', min: 0, max: 1, def: 0.55, unit: '%' },
+  { id: 'glow', label: 'GLOW', min: 0, max: 1, def: 0.7, unit: '%' },
+]
 
 /** A glass tank with a living creature in it. The creature's body runs on the
  *  engine clock, so it is patched like any module: CV steers it, and its
@@ -54,25 +77,9 @@ export const vision: ModuleSpec = {
   category: 'Visuals',
   hp: 20,
   panel: BLACK,
-  inputs: [
-    { id: 'trig', label: 'TRIG' },
-    { id: 'feed', label: 'FEED' },
-    { id: 'glow', label: 'GLOW' },
-    { id: 'hue', label: 'HUE' },
-    { id: 'move', label: 'MOVE' },
-  ],
-  outputs: [
-    { id: 'gate', label: 'GATE' },
-    { id: 'sway', label: 'SWAY' },
-    { id: 'grow', label: 'GROW' },
-    { id: 'light', label: 'LIGHT' },
-  ],
-  params: [
-    { id: 'scene', label: 'SCENE', min: 0, max: VISION_SCENES.length - 1, def: 0, stepped: true, options: [...VISION_SCENES] },
-    { id: 'rate', label: 'RATE', min: 0.05, max: 2, def: 0.4, curve: 'exp', unit: 'Hz' },
-    { id: 'hue', label: 'HUE', min: 0, max: 1, def: 0.55, unit: '%' },
-    { id: 'glow', label: 'GLOW', min: 0, max: 1, def: 0.7, unit: '%' },
-  ],
+  inputs: VISION_INPUTS,
+  outputs: VISION_OUTPUTS,
+  params: VISION_PARAMS,
   leds: 40,
   controls: [
     { kind: 'vision', x: 5, y: 16, w: 91.6, h: 56 },
@@ -90,5 +97,6 @@ export const vision: ModuleSpec = {
     { kind: 'out', jack: 'sway', x: COLS[1], y: 113.5 },
     { kind: 'out', jack: 'grow', x: COLS[2], y: 113.5 },
     { kind: 'out', jack: 'light', x: COLS[3], y: 113.5 },
+    { kind: 'out', jack: 'link', x: COLS[4], y: 113.5 },
   ],
 }

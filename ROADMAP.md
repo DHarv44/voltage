@@ -14,7 +14,7 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (107)
+### Modules (109)
 - **Systems**: MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine).
 - **Polyphonic**: POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX.
 - **Sources**: VCO, COMPLEX (Buchla-style), WAVE (band-limited wavetable), SUB, NOISE.
@@ -68,7 +68,9 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - **Visuals**: VISION (three.js tank: bioluminescent jellyfish; a flower garden where plants sprout, bloom,
   wilt, die and reseed; fireflies that synchronise (Kuramoto); aurora with substorms; a Chladni plate
   whose sand finds the mode the pitch picks). The creature lives on the
-  engine clock: TRIG/FEED/GLOW/HUE/MOVE steer it, GATE/SWAY/GROW/LIGHT come back out. One shared
+  engine clock: TRIG/FEED/GLOW/HUE/MOVE steer it, GATE/SWAY/GROW/LIGHT come back out. The jelly swims
+  in 3D (depth + pitch) and a held TRIG (sustained note) jets it further. VISION CORE (the engine with no
+  screen) + any number of VISION VIEWs patched from LINK, each with its own camera (FRONT, SIDE, CLOSE). One shared
   WebGL renderer for every tank; three.js loads only when a tank is on the rack. VECTOR (XY-mode CRT,
   phosphor persistence, beam dims with speed), WATERFALL (log-frequency spectrogram), LIGHTS (the music
   lights the whole rack: bass red, mids green, treble blue).
