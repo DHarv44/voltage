@@ -28,6 +28,8 @@ export function LearnMenu() {
             <b>Walkthrough</b>: read along and press Next; it does each step for you and you hear the change.
             <br />
             <b>Guided</b>: you do each step yourself; it notices and moves on. Your own rack isn’t touched.
+            <br />
+            One continuous course: each lesson picks up where the last one ended, so you can start anywhere.
           </div>
           {LESSONS.map((l) => (
             <div key={l.id} className="learn-row">

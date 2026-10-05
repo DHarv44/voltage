@@ -2,6 +2,7 @@ import { engine } from '../audio/engine'
 import { SPECS } from '../modules'
 import { fromNorm, toNorm } from '../modules/params'
 import { actions, patchStore } from '../patch/store'
+import { rackMatches } from './continuity'
 import { FUNDAMENTALS } from './lessons/fundamentals'
 import type { Patch } from '../patch/types'
 import { settings } from '../ui/settings'
@@ -19,6 +20,10 @@ export interface TutorialState {
   done: boolean
   /** Lesson module names → module ids in this rack. */
   mods: Record<string, string>
+  /** Said on a lesson's first step when the tutorial had to set up the rack. */
+  notice?: string
+  /** Guided: the knob's set, now play a note to hear what it did. */
+  playPrompt?: boolean
 }
 
 type Fn = () => void
@@ -66,16 +71,41 @@ class TutorialRunner {
     patchStore.subscribe(() => this.check())
     engine.subscribe(() => this.check())
     engine.midiListeners.add((ev) => {
-      if (ev.kind === 'on') {
-        this.played = true
-        this.lastNote = performance.now()
-      }
+      if (ev.kind === 'on') this.played = true
+      if (ev.kind === 'on' || ev.kind === 'off') this.lastNote = performance.now()
       this.check()
     })
     window.addEventListener('pointerdown', () => (this.pointerDown = true), true)
     window.addEventListener('pointerup', () => (this.pointerDown = false), true)
     window.addEventListener('pointercancel', () => (this.pointerDown = false), true)
-    this.begin()
+    void this.enter()
+  }
+
+  /** The lesson after this one, if any. */
+  get nextLesson(): Lesson | null {
+    const i = this.state.lesson ? LESSONS.indexOf(this.state.lesson) : -1
+    return i >= 0 ? (LESSONS[i + 1] ?? null) : null
+  }
+
+  /** Carry straight on into the next lesson with the rack you built (or, if
+   *  it's changed too much, the rack that lesson expects, and say so). */
+  async continueNext(): Promise<void> {
+    const next = this.nextLesson
+    const prev = this.state.lesson
+    if (!next || !prev) return
+    this.stopPlaying()
+    const expected = next.build()
+    if (rackMatches(patchStore.get(), this.state.mods, expected)) this.state.notice = undefined
+    else {
+      actions.load(expected.patch)
+      this.state.mods = expected.mods
+      this.state.notice = `Your rack had changed from how “${prev.title}” ended, so I’ve set it up the way this lesson starts.`
+    }
+    this.state.lesson = next
+    this.state.index = 0
+    this.snapshots = []
+    history.replaceState(null, '', `${location.pathname}?scratch&${URL_KEY}=${encodeURIComponent(next.id)}&mode=${this.state.mode}`)
+    await this.enter()
   }
 
   private played = false
@@ -114,11 +144,16 @@ class TutorialRunner {
     const lesson = this.state.lesson
     if (!lesson) return
     this.stopPlaying()
-    const { patch, mods } = lesson.build()
-    actions.load(patch)
-    this.state.mods = mods
+    // the rack this lesson began with (yours, if you continued into it)
+    const first = this.snapshots[0]
     this.state.index = 0
-    this.begin()
+    if (first) this.restore(first)
+    else {
+      const { patch, mods } = lesson.build()
+      actions.load(patch)
+      this.state.mods = mods
+    }
+    void this.enter()
   }
 
   /** Put the rack back to how it was when this step started. */
@@ -150,6 +185,7 @@ class TutorialRunner {
     const a = this.step?.action
     if (a?.kind === 'set') this.from = this.module(a.mod)?.params[a.param] ?? 0
     this.played = false
+    this.state.playPrompt = false
     this.state.done = !a || this.satisfied(a, true)
     this.emit()
   }
@@ -202,11 +238,21 @@ class TutorialRunner {
 
   private async afterDone(): Promise<void> {
     const index = this.state.index
-    for (const t of this.step?.then ?? []) await this.perform(t)
-    if (this.state.mode !== 'guided') return
+    const guided = this.state.mode === 'guided'
+    // Walkthrough plays any notes for you; guided asks you to play them.
+    const then = this.step?.then ?? []
+    for (const t of then) if (!guided || t.kind !== 'play') await this.perform(t)
+    if (!guided) return
     while (this.pointerDown) await wait(50)
-    // a "play" step: let them (or Show me) finish playing first
-    if (this.step?.action?.kind === 'play') while (performance.now() - this.lastNote < 1500) await wait(100)
+    if (then.some((t) => t.kind === 'play')) {
+      this.played = false
+      this.state.playPrompt = true
+      this.emit()
+      while (!this.played && this.state.index === index && this.state.playPrompt) await wait(100)
+      if (this.state.index !== index) return
+    }
+    // let them (or Show me) finish playing, and the last note ring out
+    if (this.state.playPrompt || this.step?.action?.kind === 'play') while (performance.now() - this.lastNote < 2000) await wait(100)
     await wait(450)
     if (this.state.index === index && this.state.done) await this.next()
   }
@@ -288,12 +334,21 @@ class TutorialRunner {
     this.state.index--
     const snap = this.snapshots[this.state.index]
     if (snap) this.restore(snap)
-    await this.enter()
+    await this.enter(-1)
   }
 
   /** Arrive at a step. Walkthrough does it for you right away (inside the
    *  click, so POWER ON is allowed to start audio); guided waits for you. */
-  private async enter(): Promise<void> {
+  private async enter(dir: 1 | -1 = 1): Promise<void> {
+    // pass over steps that are already done (POWER ON when you've continued)
+    const steps = this.state.lesson?.steps ?? []
+    for (;;) {
+      const s = this.step
+      const i = this.state.index + dir
+      if (!s?.skipIfDone || !s.action || i < 0 || i >= steps.length || !this.satisfied(s.action, true)) break
+      this.state.index = i
+    }
+    if (this.state.index > 0) this.state.notice = undefined
     this.begin()
     const a = this.step?.action
     if (this.state.mode === 'walkthrough' && a && !this.state.done) {
@@ -306,6 +361,11 @@ class TutorialRunner {
 
   /** Guided "Show me": do the current task for them. */
   async showMe(): Promise<void> {
+    if (this.state.playPrompt) {
+      // waiting for you to play a note: play it for you instead
+      for (const t of this.step?.then ?? []) if (t.kind === 'play') await this.perform(t)
+      return
+    }
     const a = this.step?.action
     if (a) await this.perform(a)
     this.check()

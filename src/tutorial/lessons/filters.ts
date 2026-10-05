@@ -1,63 +1,44 @@
 import type { Lesson } from '../types'
-import { emptyRack, powerStep, volumeStep } from './common'
+import { powerStep } from './common'
+import { afterFirstSound } from './racks'
 
 /** 2 — filters: cutoff and resonance (subtractive synthesis). */
 export const filters: Lesson = {
   id: 'filters',
   title: '2 · Filters shape the tone',
   summary: 'Low-pass filter: cutoff, resonance, the classic sweep.',
-  build: emptyRack,
+  build: afterFirstSound,
   steps: [
     {
-      text: 'Last time the sawtooth was bright and buzzy: it’s full of harmonics. A filter takes some of them away. You’ll build this patch from an empty case again — it’s good practice.',
+      text: 'Picking up where lesson 1 left off: the VCO goes through the MULT to your speakers and the scope. Every wave but the sine is full of harmonics. A filter takes some of them away.',
     },
-    {
-      text: 'First the sound source: an oscillator, from SOURCES.',
-      task: 'Add “Oscillator” from SOURCES.',
-      action: { kind: 'add', type: 'vco', as: 'vco' },
-    },
+    powerStep('Switch on to hear where we left off.', 'The thin, nasal pulse from the end of lesson 1.'),
     {
       text: 'The LADDER is a low-pass filter: it lets low frequencies through and takes the highs away. It’s in FILTERS.',
       task: 'Add “Ladder Filter” from FILTERS.',
       action: { kind: 'add', type: 'vcf', as: 'vcf' },
     },
     {
-      text: 'The output, so you can hear it.',
-      task: 'Add “Audio Output” from I/O.',
-      action: { kind: 'add', type: 'output', as: 'out' },
-    },
-    volumeStep(),
-    {
-      text: 'And a scope, to watch the filter smooth the wave.',
-      task: 'Add “Oscilloscope” from UTILITIES.',
-      action: { kind: 'add', type: 'scope', as: 'scope' },
-    },
-    powerStep('Switch on (still silent: nothing is connected).'),
-    {
-      text: 'The filter’s 24dB output is the filtered sound. Send it to your speakers.',
-      task: 'Patch the filter’s 24dB output into OUT’s L input.',
-      listen: 'Still silent: the filter has nothing going into it yet.',
-      action: { kind: 'connect', from: ['vcf', 'lp4'], to: ['out', 'l'] },
-    },
-    {
-      text: 'One output can feed several inputs — no MULT needed. Drag a second cable from the same jack.',
-      task: 'Patch the filter’s 24dB output into the SCOPE’s CH1 too.',
-      action: { kind: 'connect', from: ['vcf', 'lp4'], to: ['scope', 'ch1'] },
-    },
-    {
-      text: 'Filters show off best on low notes, and we’ll start gently: drop the oscillator an octave.',
+      text: 'Filters show off best on low notes.',
       task: 'Turn the VCO’s FREQ down to −1.',
+      listen: 'The pulse drops an octave.',
       target: { mod: 'vco', param: 'coarse' },
       action: { kind: 'set', mod: 'vco', param: 'coarse', value: -1 },
     },
     {
-      text: 'CUTOFF is where the filter starts cutting. Close it most of the way before the saw goes in.',
+      text: 'CUTOFF is where the filter starts cutting. Close it most of the way, so the first thing through it is gentle.',
       task: 'Turn the filter’s CUTOFF down to about 200 Hz.',
       target: { mod: 'vcf', param: 'cutoff' },
       action: { kind: 'set', mod: 'vcf', param: 'cutoff', value: 200 },
     },
     {
-      text: 'Now the sawtooth, through the filter.',
+      text: 'The filter goes between the oscillator and the MULT, so its output takes the VCO’s place in the MULT.',
+      task: 'Patch the filter’s 24dB output into the MULT’s A input (it replaces the VCO’s cable).',
+      listen: 'Silence: nothing is going into the filter yet.',
+      action: { kind: 'connect', from: ['vcf', 'lp4'], to: ['mult', 'a'] },
+    },
+    {
+      text: 'Now the brightest wave, the sawtooth, into the filter.',
       task: 'Patch the VCO’s SAW into the filter’s IN.',
       listen: 'A dark, muffled buzz — like music through a wall. The scope wave is smooth and round.',
       action: { kind: 'connect', from: ['vco', 'saw'], to: ['vcf', 'in'] },
@@ -91,7 +72,7 @@ export const filters: Lesson = {
       action: { kind: 'set', mod: 'vcf', param: 'cutoff', value: 250 },
     },
     {
-      text: 'Oscillators make harmonics, filters carve them away: that’s subtractive synthesis, how most analog synths work. Next: making notes start and stop.',
+      text: 'Oscillators make harmonics, filters carve them away: that’s subtractive synthesis, how most analog synths work. But the sound never stops — next, notes that start and stop.',
     },
   ],
 }

@@ -118,7 +118,7 @@ export function TutorialBubble() {
   if (!st.lesson || !step) return null
   const last = st.index === st.lesson.steps.length - 1
   const guided = st.mode === 'guided'
-  const waiting = guided && !!step.action && !st.done
+  const waiting = guided && ((!!step.action && !st.done) || !!st.playPrompt)
   const connect = step.action?.kind === 'connect'
   const run = async (fn: () => Promise<void>) => {
     setBusy(true)
@@ -134,6 +134,7 @@ export function TutorialBubble() {
       role="dialog"
       aria-label={st.lesson.title}
     >
+      {st.notice && st.index === 0 && <p className="tut-then">↪ {st.notice}</p>}
       <p className="tut-text">{step.text}</p>
       {step.task && (
         // Guided: your instruction (moves on by itself once you've done it).
@@ -147,7 +148,8 @@ export function TutorialBubble() {
       )}
       {/* guided says up front what to listen for, so there's no "success" stop */}
       {step.listen && (st.done || (guided && step.action)) && <p className="tut-listen">🎧 {step.listen}</p>}
-      {step.thenNote && st.done && <p className="tut-then">↪ {step.thenNote}</p>}
+      {st.playPrompt && <p className="tut-task">🎹 Now play a note (keys A S D F G H J K) to hear the difference.</p>}
+      {step.thenNote && st.done && !guided && <p className="tut-then">↪ {step.thenNote}</p>}
       <div className="tut-buttons">
         <button onClick={() => void run(() => tutorial.back())} disabled={st.index === 0 || busy}>
           Back
@@ -158,9 +160,16 @@ export function TutorialBubble() {
           </button>
         )}
         {last ? (
-          <button className="primary" onClick={() => tutorial.exit()}>
-            Finish
-          </button>
+          <>
+            <button className={tutorial.nextLesson ? '' : 'primary'} onClick={() => tutorial.exit()} title="Back to your own rack">
+              Finish
+            </button>
+            {tutorial.nextLesson && (
+              <button className="primary" onClick={() => void run(() => tutorial.continueNext())} disabled={busy} title={`Carry on with this rack: ${tutorial.nextLesson.title}`}>
+                Next lesson →
+              </button>
+            )}
+          </>
         ) : (
           !(guided && step.action) && (
             <button className="primary" onClick={() => void run(() => tutorial.next())} disabled={busy}>

@@ -1,54 +1,24 @@
 import type { Lesson } from '../types'
-import { emptyRack, powerStep, volumeStep } from './common'
+import { powerStep } from './common'
+import { afterEnvelopes } from './racks'
 
 /** 4 — LFO modulation: wah and vibrato. */
 export const modulation: Lesson = {
   id: 'modulation',
   title: '4 · Modulation: movement',
   summary: 'An LFO moving the filter (wah) and the pitch (vibrato).',
-  build: emptyRack,
+  build: afterEnvelopes,
   steps: [
     {
-      text: 'Modulation means one module turning another module’s knob for you. We’ll build a filtered oscillator, then add an LFO to move it.',
+      text: 'Your rack now plays plucks from the keyboard. Modulation means one module turning another module’s knob for you. To hear movement, we first need a sound that keeps going.',
     },
+    powerStep('Switch on (silent until you play: the envelope only opens the VCA for a note).'),
     {
-      text: 'The sound source.',
-      task: 'Add “Oscillator” from SOURCES.',
-      action: { kind: 'add', type: 'vco', as: 'vco' },
-    },
-    {
-      text: 'A filter for the LFO to move (you met it in lesson 2).',
-      task: 'Add “Ladder Filter” from FILTERS.',
-      action: { kind: 'add', type: 'vcf', as: 'vcf' },
-    },
-    {
-      text: 'An LFO (low-frequency oscillator) is an oscillator that vibrates too slowly to hear — under about 20 times a second. Too slow for a tone, perfect for movement. It’s in MODULATION.',
-      task: 'Add “Low-Frequency Oscillator” from MODULATION.',
-      action: { kind: 'add', type: 'lfo', as: 'lfo' },
-    },
-    {
-      text: 'And the output.',
-      task: 'Add “Audio Output” from I/O.',
-      action: { kind: 'add', type: 'output', as: 'out' },
-    },
-    volumeStep(),
-    powerStep('Switch on (silent for now).'),
-    {
-      text: 'The filtered sound goes to your speakers.',
-      task: 'Patch the filter’s 24dB output into OUT’s L input.',
-      action: { kind: 'connect', from: ['vcf', 'lp4'], to: ['out', 'l'] },
-    },
-    {
-      text: 'A low note, so the movement is easy to hear (and gentle).',
-      task: 'Turn the VCO’s FREQ down to −1.',
-      target: { mod: 'vco', param: 'coarse' },
-      action: { kind: 'set', mod: 'vco', param: 'coarse', value: -1 },
-    },
-    {
-      text: 'Now the sawtooth into the filter.',
-      task: 'Patch the VCO’s SAW into the filter’s IN.',
-      listen: 'A warm, filtered buzz — steady, nothing moving yet.',
-      action: { kind: 'connect', from: ['vco', 'saw'], to: ['vcf', 'in'] },
+      text: 'The VCA’s LEVEL opens it by hand; the envelope adds on top. Open it partway for a steady drone.',
+      task: 'Turn the VCA’s LEVEL up to about 80 %.',
+      listen: 'A steady tone, without pressing a key. Playing keys still changes the note.',
+      target: { mod: 'vca', param: 'gain' },
+      action: { kind: 'set', mod: 'vca', param: 'gain', value: 0.8 },
     },
     {
       text: 'A little resonance makes the filter’s movement easier to hear.',
@@ -56,6 +26,11 @@ export const modulation: Lesson = {
       listen: 'A slightly vocal edge on the tone.',
       target: { mod: 'vcf', param: 'res' },
       action: { kind: 'set', mod: 'vcf', param: 'res', value: 0.5 },
+    },
+    {
+      text: 'An LFO (low-frequency oscillator) vibrates too slowly to hear — under about 20 times a second. Too slow for a tone, perfect for movement. It’s in MODULATION.',
+      task: 'Add “Low-Frequency Oscillator” from MODULATION.',
+      action: { kind: 'add', type: 'lfo', as: 'lfo' },
     },
     {
       text: 'The filter’s CV input lets a voltage move its cutoff — as if a hand were turning the CUTOFF knob.',
@@ -85,7 +60,7 @@ export const modulation: Lesson = {
       action: { kind: 'set', mod: 'lfo', param: 'rate', value: 0.3 },
     },
     {
-      text: 'The same LFO can move the pitch too: that’s vibrato. An output can feed more than one input.',
+      text: 'The same LFO can move the pitch too: that’s vibrato. One output can feed several inputs.',
       task: 'Patch the LFO’s TRI into the VCO’s FM input as well.',
       listen: 'No change yet: the VCO’s FM knob is at zero.',
       action: { kind: 'connect', from: ['lfo', 'tri'], to: ['vco', 'fm'] },
@@ -98,7 +73,7 @@ export const modulation: Lesson = {
       action: { kind: 'set', mod: 'vco', param: 'fm', value: 0.06 },
     },
     {
-      text: 'That’s modulation: any output can turn any knob that has a CV input. Oscillators, filters, envelopes, VCAs and modulation — you now know the building blocks of every synth in this rack.',
+      text: 'That’s modulation: any output can turn any knob that has a CV input. Turn the VCA’s LEVEL back down to play plucks again — now with a moving filter. Oscillators, filters, envelopes, VCAs and modulation: you now know the building blocks of every synth in this rack.',
     },
   ],
 }

@@ -1,14 +1,15 @@
-import { RackBuilder } from '../../patch/presets/builder'
-import type { Lesson, Step } from '../types'
+import type { Step } from '../types'
 
-/** Every lesson starts from an empty case: you build the patch yourself. */
-export const emptyRack: Lesson['build'] = () => ({ patch: new RackBuilder().build(1), mods: {} })
+export { emptyRack } from './racks'
 
-export const powerStep = (text: string): Step => ({
+/** Skipped when the rack is already on (continuing from the last lesson). */
+export const powerStep = (text: string, listen?: string): Step => ({
   text,
   task: 'Press POWER ON at the top left.',
+  listen,
   target: { ui: 'power' },
   action: { kind: 'power' },
+  skipIfDone: true,
 })
 
 /** OUT starts fairly loud; turn it down before anything sounds. */

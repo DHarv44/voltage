@@ -34,13 +34,17 @@ export interface Step {
   /** Said on the card whenever `then` changes something (the tutorial never
    *  changes the rack without telling you). */
   thenNote?: string
+  /** Pass straight over this step if it's already done when you get to it
+   *  (e.g. POWER ON when you've continued from the previous lesson). */
+  skipIfDone?: boolean
 }
 
 export interface Lesson {
   id: string
   title: string
   summary: string
-  /** The starting rack, and the names the steps use for its modules. */
+  /** The starting rack (where the previous lesson ended), and the names the
+   *  steps use for its modules. */
   build(): { patch: Patch; mods: Record<string, string> }
   steps: Step[]
 }
