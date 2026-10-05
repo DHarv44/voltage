@@ -112,32 +112,43 @@ export const columns = (w: number, n: number, gap: number) => {
   return Array.from({ length: n }, (_, i) => w / 2 + (i - (n - 1) / 2) * s)
 }
 
-/** VISION's panel at any width: the glass takes everything above the controls
- *  (edge to edge, over the title: the picture is the point); knobs and jacks
- *  stay centred in three tight rows. */
+/** Smallest comfortable spacing between control centres (mm), and the gap
+ *  between rows: a knob's label below and a jack's label above clear each other. */
+const PITCH = 11.5
+const ROW = 17
+/** Centre of the lowest control row, and the clearance above the top row. */
+const BOTTOM_ROW = 117.5
+const ABOVE = 10
+
+/** VISION's controls, in reading order: knobs, then inputs, then outputs. */
+const VISION_CONTROLS: Control[] = [
+  ...(['scene', 'rate', 'hue', 'glow', 'count'] as const).map((param): Control => ({ kind: 'knob', param, x: 0, y: 0, size: 'S' })),
+  ...(['trig', 'feed', 'glow', 'hue', 'move'] as const).map((jack): Control => ({ kind: 'in', jack, x: 0, y: 0 })),
+  ...(['gate', 'sway', 'grow', 'light', 'link'] as const).map((jack): Control => ({ kind: 'out', jack, x: 0, y: 0 })),
+]
+
+/** VISION's panel at any width. The glass is the point, so the controls are
+ *  packed into as few rows as the width allows (one row at 40 HP, two at
+ *  20–28, three at 12) and the glass takes everything above them, edge to
+ *  edge. The gate LED sits on the top edge between the screws. */
 function visionLayout(hp: number): Control[] {
   const w = hp * HP_MM
-  const c = columns(w, 5, 19.5)
-  const k = columns(w, 6, 16.5)
-  return [
-    { kind: 'vision', x: 3, y: 5.5, w: w - 6, h: 71 },
-    { kind: 'knob', param: 'scene', x: k[0], y: 84, size: 'S' },
-    { kind: 'knob', param: 'rate', x: k[1], y: 84, size: 'S' },
-    { kind: 'knob', param: 'hue', x: k[2], y: 84, size: 'S' },
-    { kind: 'knob', param: 'glow', x: k[3], y: 84, size: 'S' },
-    { kind: 'knob', param: 'count', x: k[4], y: 84, size: 'S' },
-    { kind: 'led', index: VS.gate, x: k[5], y: 84, color: '#5ef2ff' },
-    { kind: 'in', jack: 'trig', x: c[0], y: 100 },
-    { kind: 'in', jack: 'feed', x: c[1], y: 100 },
-    { kind: 'in', jack: 'glow', x: c[2], y: 100 },
-    { kind: 'in', jack: 'hue', x: c[3], y: 100 },
-    { kind: 'in', jack: 'move', x: c[4], y: 100 },
-    { kind: 'out', jack: 'gate', x: c[0], y: 115 },
-    { kind: 'out', jack: 'sway', x: c[1], y: 115 },
-    { kind: 'out', jack: 'grow', x: c[2], y: 115 },
-    { kind: 'out', jack: 'light', x: c[3], y: 115 },
-    { kind: 'out', jack: 'link', x: c[4], y: 115 },
+  const fit = Math.max(1, Math.floor((w - 8) / PITCH) + 1)
+  const rows = Math.ceil(VISION_CONTROLS.length / fit)
+  const perRow = Math.ceil(VISION_CONTROLS.length / rows)
+  // three narrow rows are one kind each (knobs / ins / outs): they can sit closer
+  const gap = rows >= 3 ? 15.5 : ROW
+  const top = BOTTOM_ROW - (rows - 1) * gap
+  const out: Control[] = [
+    { kind: 'vision', x: 2.5, y: 5.5, w: w - 5, h: top - ABOVE - 5.5 },
+    { kind: 'led', index: VS.gate, x: w / 2, y: 2.9, color: '#5ef2ff' },
   ]
+  for (let r = 0; r < rows; r++) {
+    const row = VISION_CONTROLS.slice(r * perRow, (r + 1) * perRow)
+    const xs = columns(w, Math.max(2, row.length), 16)
+    row.forEach((c, i) => out.push({ ...c, x: row.length === 1 ? w / 2 : xs[i], y: top + r * gap } as Control))
+  }
+  return out
 }
 
 /** A glass tank with a living creature in it. The creature's body runs on the
