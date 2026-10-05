@@ -41,6 +41,9 @@ export function TopBar() {
       {SCRATCH && (
         <span className="scratch-badge" title="?scratch mode: this rack is never saved">
           SCRATCH · NOT SAVED
+          <button onClick={() => (location.href = location.pathname)} title="Leave this scratch rack and go back to your own saved rack">
+            My rack ↩
+          </button>
         </span>
       )}
       <button

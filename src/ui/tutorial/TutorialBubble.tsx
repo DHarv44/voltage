@@ -161,7 +161,7 @@ export function TutorialBubble() {
         )}
         {last ? (
           <>
-            <button className={tutorial.nextLesson ? '' : 'primary'} onClick={() => tutorial.exit()} title="Back to your own rack">
+            <button className={tutorial.nextLesson ? '' : 'primary'} onClick={() => tutorial.finish()} title="End the lesson and keep playing with the rack you built">
               Finish
             </button>
             {tutorial.nextLesson && (

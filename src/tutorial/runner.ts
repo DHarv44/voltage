@@ -60,6 +60,14 @@ class TutorialRunner {
     location.href = location.pathname
   }
 
+  /** End the lesson but keep the rack you built to play with (still a
+   *  scratch rack: your saved patch is never touched). */
+  finish(): void {
+    this.state = { ...this.state, lesson: null, index: 0, done: false, playPrompt: false, notice: undefined }
+    history.replaceState(null, '', `${location.pathname}?scratch`)
+    this.emit()
+  }
+
   /** Called once at startup: start the lesson named in the URL, if any. */
   boot(): void {
     const q = new URLSearchParams(location.search)

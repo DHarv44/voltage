@@ -65,6 +65,14 @@ button {
   color: var(--accent);
   font-size: 11px;
   letter-spacing: 0.12em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.scratch-badge button {
+  padding: 1px 6px;
+  font-size: 10px;
+  letter-spacing: 0.06em;
 }
 .power {
   display: flex;
