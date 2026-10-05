@@ -1,34 +1,18 @@
 import * as THREE from 'three'
 
-const BLADES = 1600
+const BLADES = 7000
+/** The grass field: its front edge (just in front of the nearest camera),
+ *  and how far back it runs (the haze has it by then). */
+const FRONT = 1.8
+const FIELD_DEPTH = 18
 
-/** The meadow the flowers grow in, built to read as 3D: a lawn of real grass
- *  blades (among the flowers too) that sway with the wind, a low dusk sun
- *  that casts soft shadows across it, and haze with distance. */
+/** The meadow the garden grows in, built to read as 3D: a lawn running off
+ *  into the haze, with real grass blades (among the flowers too) that sway
+ *  with the wind. (The light and haze are the sky's: see sky.ts.) */
 export function gardenGround(scene: THREE.Scene, ground: number, span: number, rnd: () => number): { sway(wind: number, t: number): void } {
-  scene.fog = new THREE.Fog(0xc294a2, 3.2, 9) // the horizon's dusky rose
-
-  const sun = new THREE.DirectionalLight(0xffd2a0, 1.9)
-  sun.position.set(-2.2, 1.4, 1.6)
-  sun.target.position.set(0, ground, 0.1)
-  sun.castShadow = true
-  sun.shadow.mapSize.set(1024, 1024)
-  sun.shadow.bias = -0.0008
-  sun.shadow.normalBias = 0.01
-  sun.shadow.radius = 3
-  const sc = sun.shadow.camera
-  sc.left = -span * 0.6
-  sc.right = span * 0.6
-  sc.top = 1.6
-  sc.bottom = -1.6
-  sc.near = 0.5
-  sc.far = 7
-  scene.add(sun, sun.target)
-  scene.add(new THREE.HemisphereLight(0xc9c0ff, 0x3a2a1a, 1.3))
-
-  const lawn = new THREE.Mesh(new THREE.PlaneGeometry(span * 4, 9), new THREE.MeshStandardMaterial({ color: 0x35602a, roughness: 1 }))
+  const lawn = new THREE.Mesh(new THREE.PlaneGeometry(span * 8, 40), new THREE.MeshStandardMaterial({ color: 0x3d6b2c, roughness: 1 })) // the grass's own average, so gaps don't show
   lawn.rotation.x = -Math.PI / 2
-  lawn.position.set(0, ground, -1.5)
+  lawn.position.set(0, ground, -12)
   lawn.receiveShadow = true
   scene.add(lawn)
 
@@ -67,18 +51,22 @@ export function gardenGround(scene: THREE.Scene, ground: number, span: number, r
   const sz = new THREE.Vector3()
   const tint = new THREE.Color()
   for (let i = 0; i < BLADES; i++) {
-    // everywhere, among the flowers too, thinning into the distance (where
-    // the haze takes over)
-    const x = (rnd() - 0.5) * span * 1.6
-    const z = 1.3 - rnd() ** 1.3 * 4.5
-    v.set(x, ground, z)
+    // The whole lawn the camera can see, however far it pulls back: densest
+    // up front among the flowers, the field widening with distance as the
+    // view does. Further back the blades are fewer but grow into bigger
+    // clumps, so the cover reads as unbroken grass right into the haze.
+    const d = FIELD_DEPTH * rnd() ** 2 // distance back from the front edge
+    const half = span * 0.8 + d * 0.75
+    v.set((rnd() - 0.5) * 2 * half, ground, FRONT - d)
     q.setFromEuler(e.set((rnd() - 0.5) * 0.3, rnd() * Math.PI, (rnd() - 0.5) * 0.3))
-    const h = 0.05 + rnd() * 0.09
-    sz.set(0.8 + rnd() * 0.8, h, 1)
+    const clump = 1 + d * 0.45
+    const h = (0.05 + rnd() * 0.09) * (1 + d * 0.06)
+    sz.set((0.8 + rnd() * 0.8) * clump, h, 1)
     grass.setMatrixAt(i, m.compose(v, q, sz))
     grass.setColorAt(i, tint.setRGB(0.25 + rnd() * 0.15, 0.45 + rnd() * 0.2, 0.18 + rnd() * 0.08))
   }
   grass.receiveShadow = true
+  grass.frustumCulled = false // spans the whole field, not one blade's bounds
   scene.add(grass)
 
   return {

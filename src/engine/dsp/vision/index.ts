@@ -2,7 +2,7 @@ import type { ModuleSpec } from '../../../modules/types'
 import { LED_BLOCK, sceneBlock } from '../../../modules/specs/vision'
 import { Dsp } from '../base'
 import { Schmitt } from '../cores'
-import { Garden } from './flower'
+import { Garden } from './garden'
 import { Jelly } from './jelly'
 import { Fireflies } from './fireflies'
 import { Aurora } from './aurora'
@@ -38,6 +38,10 @@ export class VisionDsp extends Dsp {
   private readonly pHue = this.pi('hue')
   private readonly pGlow = this.pi('glow')
   private readonly pCount = this.pi('count')
+  private readonly pSky = this.pi('sky')
+  private readonly pTrees = this.pi('trees')
+  private readonly pFlora = this.pi('flora')
+  private readonly pBugs = this.pi('bugs')
   private readonly iTrig = this.ii('trig')
   private readonly iFeed = this.ii('feed')
   private readonly iGlow = this.ii('glow')
@@ -68,6 +72,7 @@ export class VisionDsp extends Dsp {
     this.ci = {
       dt: BLOCK / fs, trig: false, trigPatched: false, held: false, feed: 0, feedPatched: false, glowCv: 0, hueV: 0, move: 0, rate: 0, hue: 0, glow: 0, count: 0.5,
       touch: { tap: false, touching: false, x: 0.5, y: 0.5, dx: 0, dy: 0 },
+      opts: { sky: 3, trees: 2, flora: 0, bugs: 1 },
     }
     this.envUp = 1 - Math.exp(-1 / (0.01 * fs))
     this.envDown = 1 - Math.exp(-1 / (0.3 * fs))
@@ -112,6 +117,10 @@ export class VisionDsp extends Dsp {
       ci.hue = this.p[this.pHue]
       ci.glow = this.p[this.pGlow]
       ci.count = this.p[this.pCount]
+      ci.opts.sky = Math.round(this.p[this.pSky])
+      ci.opts.trees = Math.round(this.p[this.pTrees])
+      ci.opts.flora = Math.round(this.p[this.pFlora])
+      ci.opts.bugs = Math.round(this.p[this.pBugs])
       this.edge = false
       // Every scene lives all the time (views may watch any of them); the
       // SCENE knob picks which one drives the jacks and the main glass.

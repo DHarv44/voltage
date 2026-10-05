@@ -1,7 +1,7 @@
 import { packRows } from '../panelMetrics'
 import { HP_MM, type Control, type ModuleSpec } from '../types'
 import { BLACK } from './panels'
-import { GLASS_GAP, GLASS_TOP, SCREEN_SIZES, VISION_INPUTS, VISION_LEDS, VISION_OUTPUTS, VISION_PARAMS, VISION_SCENES, VS } from './vision'
+import { GLASS_GAP, GLASS_TOP, SCREEN_SIZES, VISION_INPUTS, VISION_LEDS, VISION_OUTPUTS, VISION_PARAMS, VISION_SCENES, VISION_SETTINGS, VS } from './vision'
 
 /** Camera angles a VISION VIEW can take, in every scene: WIDE (the whole
  *  scene, straight on), ANGLE (another side of it: the jelly's tank end, the
@@ -26,6 +26,7 @@ export const visioncore: ModuleSpec = {
   outputs: VISION_OUTPUTS,
   params: VISION_PARAMS,
   leds: VISION_LEDS,
+  settings: VISION_SETTINGS,
   controls: [
     { kind: 'knob', param: 'scene', x: 14, y: 23, size: 'S' },
     { kind: 'knob', param: 'rate', x: 36.8, y: 23, size: 'S' },

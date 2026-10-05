@@ -134,6 +134,9 @@ export interface ModuleSpec {
    *  its panel laid out for any of them. */
   sizes?: number[]
   layout?: (hp: number) => Control[]
+  /** Stepped params that live in the right-click menu rather than on the
+   *  panel (deeper settings), in menu order. */
+  settings?: string[]
 }
 
 export const HP_MM = 5.08

@@ -1,21 +1,14 @@
 import { BEZEL, packRows } from '../panelMetrics'
 import { HP_MM, type Control, type ModuleSpec } from '../types'
 import { BLACK } from './panels'
+import { BUG_OPTIONS, FLORA_OPTIONS, GARDEN_PLANTS, SKY_OPTIONS, TREE_OPTIONS } from './garden'
+import { LED_BLOCK, VS, VS_EXTRA } from './visionState'
+
+export { LED_BLOCK, sceneBlock, VS, VS_EXTRA } from './visionState'
 
 /** Scenes the VISION tank can hold, in SCENE knob order. */
 export const VISION_SCENES = ['JELLY', 'GARDEN', 'FIREFLIES', 'AURORA', 'CYMATICS'] as const
 
-/** Per-scene extra state starts here on the LED channel (after the shared VS fields). */
-export const VS_EXTRA = 10
-/** Every scene lives at once. The LED channel is blocks of LED_BLOCK values:
- *  block 0 mirrors the selected scene, block k + 1 is scene k (so a VISION VIEW
- *  can watch any scene, whatever the tank's SCENE knob drives). */
-export const LED_BLOCK = 64
-export const sceneBlock = (scene: number) => (scene + 1) * LED_BLOCK
-/** Garden: up to this many plants (COUNT picks how many live), and the values
- *  each one publishes (x, growth, open, wilt, visibility). */
-export const GARDEN_PLANTS = 10
-export const PLANT_VALUES = 5
 /** Jelly: depth in the tank (0 back wall … 1 front glass) and the bell's
  *  lean toward/away from the glass (radians). */
 export const JELLY_Z = VS_EXTRA
@@ -38,32 +31,6 @@ export const countOf = {
   curtains: (c: number) => Math.max(1, Math.min(6, Math.round(c * 6))),
   grains: (c: number) => Math.max(300, Math.round(c * 5000)),
 }
-
-/** Creature state the engine publishes on the LED channel (~30 Hz); the renderer
- *  reads these, so both sides agree on the layout. */
-export const VS = {
-  /** Jelly: bell contraction 0..1. Flower: petal opening 0..1. */
-  action: 0,
-  x: 1,
-  y: 2,
-  tilt: 3,
-  /** Bioluminescence 0..~1.5. */
-  glow: 4,
-  /** Colour 0..1 around the wheel. */
-  hue: 5,
-  /** Jelly size / flower growth 0..1. */
-  grow: 6,
-  /** Tentacle trail / stem sway −1..1. */
-  sway: 7,
-  /** Flower wilt 0..1. */
-  wilt: 8,
-  /** Panel LED: the GATE output. */
-  gate: 9,
-} as const
-
-/** Flower growth stages (fraction of full growth): four leaves, the bud, the bloom. */
-export const FLOWER_STAGES = [0.15, 0.3, 0.45, 0.6, 0.75, 0.9]
-
 
 export const VISION_LEDS = LED_BLOCK * (1 + VISION_SCENES.length)
 
@@ -102,7 +69,14 @@ export const VISION_PARAMS: ModuleSpec['params'] = [
   { id: 'glow', label: 'GLOW', min: 0, max: 1, def: 0.7, unit: '%' },
   /** How many things the scene has (see countOf); halfway = its classic look. */
   { id: 'count', label: 'COUNT', min: 0, max: 1, def: 0.5, unit: '%' },
+  // menu settings (right-click the screen): the garden's world
+  { id: 'sky', label: 'GARDEN SKY', min: 0, max: SKY_OPTIONS.length - 1, def: 3, stepped: true, options: SKY_OPTIONS },
+  { id: 'trees', label: 'GARDEN TREES', min: 0, max: TREE_OPTIONS.length - 1, def: 2, stepped: true, options: TREE_OPTIONS },
+  { id: 'flora', label: 'GARDEN FLOWERS', min: 0, max: FLORA_OPTIONS.length - 1, def: 0, stepped: true, options: FLORA_OPTIONS },
+  { id: 'bugs', label: 'GARDEN INSECTS', min: 0, max: BUG_OPTIONS.length - 1, def: 1, stepped: true, options: BUG_OPTIONS },
 ]
+/** VISION's menu-only settings (right-click the screen), in menu order. */
+export const VISION_SETTINGS = ['sky', 'trees', 'flora', 'bugs']
 
 /** Widths (HP) the screen modules come in: right-click → Size. */
 export const SCREEN_SIZES = [12, 20, 28, 40]
@@ -162,4 +136,5 @@ export const vision: ModuleSpec = {
   controls: visionLayout(20),
   sizes: SCREEN_SIZES,
   layout: visionLayout,
+  settings: VISION_SETTINGS,
 }

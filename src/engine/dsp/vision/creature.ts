@@ -24,6 +24,8 @@ export interface CreatureInput {
   glow: number
   /** COUNT knob 0..1 (see countOf): how many things the scene has. */
   count: number
+  /** Menu settings (option indexes; see VISION_SETTINGS). */
+  opts: { sky: number; trees: number; flora: number; bugs: number }
 }
 
 /** What a creature drives: its four output voltages. State goes to `led`. */

@@ -1109,6 +1109,34 @@ button {
   background: var(--accent);
   color: #111;
 }
+.ctx-note {
+  padding: 6px 10px 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+.ctx-setting {
+  padding: 5px 6px 4px 10px;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+.ctx-setting div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 3px;
+}
+.ctx-menu .ctx-setting button {
+  display: inline-block;
+  width: auto;
+  padding: 3px 6px;
+  font-size: 10.5px;
+  background: #23252a;
+}
+.ctx-menu .ctx-setting button.on {
+  background: var(--accent);
+  color: #111;
+}
 .jack-menu {
   min-width: 230px;
 }

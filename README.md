@@ -130,8 +130,16 @@ FEED, GLOW, PITCH, MOVE) and its movements come back out as voltages (GATE, MOTI
 so the visuals can play the music and the music can drive the visuals.
 
 - **Five scenes:** a bioluminescent **jellyfish** that swims in 3D (long notes carry it further); a
-  **garden** whose flowers sprout, bloom, wilt and reseed; **fireflies** that fall into sync; an
-  **aurora** with substorms; a **Chladni plate** whose sand finds the shape of the note.
+  **garden** (below); **fireflies** that fall into sync; an **aurora** with substorms; a **Chladni
+  plate** whose sand finds the shape of the note.
+- **The garden** is a meadow through days and nights. Daisies, tulips, sunflowers (they turn to follow
+  the sun) and dandelions (their seed clocks blow away and come up where the seeds land) live whole
+  lives: they close at night, drop petals as they die, fall into the grass and rot away. Trees grow
+  behind them over minutes, turn and drop their leaves in their last autumn and come down, and the
+  camera pulls back to fit them. Bees and butterflies carry pollen between flowers of a kind, and only
+  pollinated flowers seed beside themselves, so where the insects go decides what spreads.
+  **Right-click** for its settings: sky (a day/night **CYCLE**, or day, golden hour, dusk, night),
+  trees, which flowers, and how many insects. A VISION VIEW's menu sets its linked tank's garden.
 - **COUNT:** how many of each thing (up to a smack of six jellies, ten plants, 48 fireflies).
 - **The glass is a touch screen:** poke the jelly, plant a seed, flash a torch at the fireflies,
   set off a substorm, knock the plate.
@@ -248,6 +256,8 @@ src/
   where you can. Both work from the real footprints, so nothing overlaps.
 - Line controls up: things in the same column share an exact `x`, and things in the same row share
   an exact `y`. The linter flags anything 0.2–1.5 mm off.
+- Deeper options that don't deserve panel space go in the right-click menu: make them stepped params
+  with `options` and list their ids in the spec's `settings` (see VISION's garden settings).
 - A stepped knob gets one tick per position automatically (`knobTicks()` in `src/ui/panel/knobModel.ts`).
 - A knob drawn on a canvas surface uses `useCanvasKnobs()` from `src/ui/surfaces/canvasKnob.ts`,
   so it turns, scrolls, resets and shows tooltips exactly like a panel knob. Canvas text on a

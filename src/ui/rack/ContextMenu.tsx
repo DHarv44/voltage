@@ -1,9 +1,10 @@
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { SPECS } from '../../modules'
 import { hpOf } from '../../modules/size'
 import { actions, patchStore } from '../../patch/store'
 import { BUFFER_SLOTS, buffers } from '../../audio/buffers'
 import type { MenuState } from './useRackInteractions'
+import { MenuSettings, settingsHost } from './MenuSettings'
 
 export function ContextMenu({ menu, onClose }: { menu: MenuState; onClose: () => void }) {
   useEffect(() => {
@@ -17,14 +18,25 @@ export function ContextMenu({ menu, onClose }: { menu: MenuState; onClose: () =>
     }
   }, [onClose])
 
+  // keep the whole menu on screen: open upward / leftward if it would run off
+  const box = useRef<HTMLDivElement>(null)
+  useLayoutEffect(() => {
+    const el = box.current
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    el.style.top = `${Math.max(8, Math.min(menu.y, innerHeight - r.height - 8))}px`
+    el.style.left = `${Math.max(8, Math.min(menu.x, innerWidth - r.width - 8))}px`
+  }, [menu.x, menu.y])
+
   const m = patchStore.get().modules.find((x) => x.id === menu.id)
   if (!m) return null
+  const host = settingsHost(m)
   const run = (fn: () => void) => () => {
     fn()
     onClose()
   }
   return (
-    <div className="ctx-menu" style={{ left: menu.x, top: menu.y }} onPointerDown={(e) => e.stopPropagation()}>
+    <div ref={box} className="ctx-menu" style={{ left: menu.x, top: menu.y }} onPointerDown={(e) => e.stopPropagation()}>
       <div className="ctx-title">{SPECS[m.type].name}</div>
       <button onClick={run(() => actions.addModule(m.type, { ...m.params }))}>Duplicate</button>
       <button onClick={run(() => actions.resetParams(m.id))}>Reset knobs</button>
@@ -44,6 +56,7 @@ export function ContextMenu({ menu, onClose }: { menu: MenuState; onClose: () =>
           ))}
         </div>
       )}
+      {host && <MenuSettings host={host} own={host.id === m.id} />}
       {BUFFER_SLOTS[m.type] && (
         <button
           onClick={run(async () => {
