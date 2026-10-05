@@ -10,11 +10,11 @@ export function App() {
     <div className="app">
       <GlobalDefs />
       <TopBar />
+      <TutorialCard />
       <div className="main">
         <Library />
         <Rack />
       </div>
-      <TutorialCard />
       <TutorialBubble />
     </div>
   )

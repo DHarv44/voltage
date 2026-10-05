@@ -1,101 +1,163 @@
-import { useEffect, useState, useSyncExternalStore } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { patchStore } from '../../patch/store'
 import { tutorial } from '../../tutorial/runner'
-import { rackWidth } from '../geometry'
+import { rackWidth, rowTop } from '../geometry'
 import { targetPoint } from './TutorialHighlight'
 
+type Side = 'right' | 'left' | 'below' | 'above' | 'centre'
 interface Spot {
-  x: number
-  y: number
-  side: 'right' | 'left' | 'below' | 'above'
+  left: number
+  top: number
+  side: Side
+  /** Where the arrow points along the bubble's edge (px from its top/left). */
+  arrow: number
 }
 
 const GAP = 18
-const WIDTH = 230
+const WIDTH = 330
+const MARGIN = 10
 
-/** The help bubble: the step's instruction, floating next to the control you
- *  need (the first target), in screen space so it stays readable at any zoom.
- *  Follows the rack as it scrolls and zooms. */
+/** The lesson, right where you're working: a popover beside the control the
+ *  step is about (explanation, task, what to listen for, and the buttons).
+ *  Cable steps sit under the whole span so neither jack nor the ghost cable is
+ *  covered; steps without a control float centred over the rack. Follows the
+ *  rack as it scrolls and zooms, and always stays fully on screen. */
 export function TutorialBubble() {
   const st = useSyncExternalStore(
     (f) => tutorial.subscribe(f),
     () => tutorial.state,
   )
   const step = st.lesson?.steps[st.index] ?? null
-  const targets = st.done ? [] : tutorial.targets(step)
   const [spot, setSpot] = useState<Spot | null>(null)
+  const [busy, setBusy] = useState(false)
+  const box = useRef<HTMLDivElement>(null)
+  useEffect(() => setBusy(false), [st.index])
 
   useEffect(() => {
-    if (!targets.length || !step?.task) {
-      setSpot(null)
-      return
-    }
+    if (!step) return
+    const targets = tutorial.targets(step)
     let raf = 0
     const place = () => {
       raf = requestAnimationFrame(place)
-      const t = targets[0].target
-      let x: number
-      let y: number
-      let r: number
-      if ('ui' in t) {
+      const el = box.current
+      const h = el?.offsetHeight ?? 200
+      const vw = window.innerWidth
+      const vh = window.innerHeight
+      const clampX = (x: number) => Math.min(vw - WIDTH - MARGIN, Math.max(MARGIN, x))
+      const clampY = (y: number) => Math.min(vh - h - MARGIN, Math.max(70, y))
+      let next: Spot
+      const t = targets[0]?.target
+      const rack = document.querySelector('.rack')
+      if (t && 'ui' in t) {
         const b = document.querySelector('.topbar .power')?.getBoundingClientRect()
         if (!b) return
-        x = b.left + b.width / 2
-        y = b.bottom
-        r = 4
-        setSpot((s) => (s && s.x === x && s.y === y + r && s.side === 'below' ? s : { x, y: y + r, side: 'below' }))
-        return
+        const left = clampX(b.left + b.width / 2 - WIDTH / 2)
+        next = { left, top: b.bottom + GAP, side: 'below', arrow: b.left + b.width / 2 - left }
+      } else if (t && rack) {
+        const rr = rack.getBoundingClientRect()
+        const zoom = rr.width / rackWidth()
+        const a = targetPoint(patchStore.get(), t)
+        if (!a) return
+        const ax = rr.left + a.x * zoom
+        const ay = rr.top + a.y * zoom
+        const ar = a.r * zoom
+        const p = patchStore.get()
+        const b = targets[1] && targetPoint(p, targets[1].target)
+        // Prefer the space just below the module row(s) involved, so the whole
+        // panel (and the scope you're watching) stays visible; the arrow lines
+        // up with the control. A cable also clears the ghost cable's sag.
+        const rowOf = (tt: (typeof targets)[number] | undefined) => {
+          const tg = tt?.target
+          return tg && 'mod' in tg ? (p.modules.find((m) => m.id === tutorial.id(tg.mod))?.row ?? 0) : 0
+        }
+        const row = Math.max(rowOf(targets[0]), rowOf(targets[1]))
+        let bottom = rr.top + rowTop(row + 1) * zoom
+        let cx = ax
+        let top = ay - ar - GAP
+        if (b) {
+          const bx = rr.left + b.x * zoom
+          const by = rr.top + b.y * zoom
+          const sag = Math.min(24 + Math.hypot(b.x - a.x, b.y - a.y) * 0.3, 280) * 0.75 * zoom
+          bottom = Math.max(bottom, (ay + by) / 2 + sag)
+          cx = (ax + bx) / 2
+          top = Math.min(ay, by) - Math.max(ar, b.r * zoom) - GAP
+        }
+        bottom += GAP
+        const left = clampX(cx - WIDTH / 2)
+        if (bottom + h < vh - MARGIN) next = { left, top: bottom, side: 'below', arrow: cx - left }
+        else if (b || top - h > 70) next = { left, top: clampY(top - h), side: 'above', arrow: cx - left }
+        else {
+          // no room above or below: beside the control
+          const right = ax + ar + GAP + WIDTH < vw - MARGIN
+          const sl = right ? ax + ar + GAP : ax - ar - GAP - WIDTH
+          const st2 = clampY(ay - h / 2)
+          next = { left: clampX(sl), top: st2, side: right ? 'right' : 'left', arrow: ay - st2 }
+        }
+      } else {
+        // no control: centred over the rack's visible area
+        const area = document.querySelector('.rack-scroll')?.getBoundingClientRect()
+        const cx = area ? area.left + area.width / 2 : vw / 2
+        const cy = area ? area.top + Math.min(area.height, vh) * 0.4 : vh / 3
+        next = { left: clampX(cx - WIDTH / 2), top: clampY(cy - h / 2), side: 'centre', arrow: 0 }
       }
-      const rack = document.querySelector('.rack')
-      const pt = targetPoint(patchStore.get(), t)
-      if (!rack || !pt) return
-      const rr = rack.getBoundingClientRect()
-      const zoom = rr.width / rackWidth()
-      // A cable step: sit under (or over) the whole span — both rings and the
-      // ghost cable's sag — so nothing you need to see is covered.
-      const end = targets[1] && targetPoint(patchStore.get(), targets[1].target)
-      if (end) {
-        const dx = end.x - pt.x
-        const dy = end.y - pt.y
-        const sag = Math.min(24 + Math.hypot(dx, dy) * 0.3, 280) * 0.75
-        const bottom = rr.top + (Math.max(pt.y + pt.r, end.y + end.r, (pt.y + end.y) / 2 + sag) + 12) * zoom
-        const top = rr.top + (Math.min(pt.y, end.y) - Math.max(pt.r, end.r) - 12) * zoom
-        const cx = Math.min(window.innerWidth - WIDTH / 2 - 8, Math.max(WIDTH / 2 + 8, rr.left + ((pt.x + end.x) / 2) * zoom))
-        const below = bottom + 90 < window.innerHeight
-        const sy = below ? bottom : top - GAP * 2
-        const side = below ? 'below' : 'above'
-        setSpot((s) => (s && Math.abs(s.x - cx) < 0.5 && Math.abs(s.y - sy) < 0.5 && s.side === side ? s : { x: cx, y: sy, side }))
-        return
-      }
-      x = rr.left + pt.x * zoom
-      y = rr.top + pt.y * zoom
-      r = pt.r * zoom
-      // right of the control if there's room, otherwise left
-      const right = x + r + GAP + WIDTH < window.innerWidth - 8
-      const sx = right ? x + r + GAP : x - r - GAP
-      const sy = Math.min(window.innerHeight - 90, Math.max(70, y))
-      const side = right ? 'right' : 'left'
-      setSpot((s) => (s && Math.abs(s.x - sx) < 0.5 && Math.abs(s.y - sy) < 0.5 && s.side === side ? s : { x: sx, y: sy, side }))
+      setSpot((s) => (s && Math.abs(s.left - next.left) < 0.5 && Math.abs(s.top - next.top) < 0.5 && s.side === next.side ? s : next))
     }
     place()
     return () => cancelAnimationFrame(raf)
-    // targets are derived from the step: re-run when the step or its state changes
-  }, [st.index, st.done, st.lesson])
+  }, [st.index, st.lesson, step])
 
-  if (!spot || !step?.task) return null
+  if (!st.lesson || !step) return null
+  const last = st.index === st.lesson.steps.length - 1
+  const guided = st.mode === 'guided'
+  const waiting = guided && !!step.action && !st.done
   const connect = step.action?.kind === 'connect'
-  const style =
-    spot.side === 'below'
-      ? { left: spot.x - WIDTH / 2, top: spot.y + GAP }
-      : spot.side === 'above'
-        ? { left: spot.x - WIDTH / 2, top: spot.y, transform: 'translateY(-100%)' }
-        : spot.side === 'right'
-        ? { left: spot.x, top: spot.y, transform: 'translateY(-50%)' }
-        : { left: spot.x - WIDTH, top: spot.y, transform: 'translateY(-50%)' }
+  const run = async (fn: () => Promise<void>) => {
+    setBusy(true)
+    await fn()
+    setBusy(false)
+  }
+
   return (
-    <div className={`tut-bubble ${spot.side}`} style={{ ...style, width: WIDTH }}>
-      {connect && <span className="tut-bubble-hint">Drag from ① to ②</span>}
-      {step.task}
+    <div
+      ref={box}
+      className={`tut-bubble ${spot?.side ?? 'centre'}`}
+      style={{ left: spot?.left ?? -9999, top: spot?.top ?? 0, width: WIDTH, ['--arrow' as string]: `${spot?.arrow ?? 0}px` }}
+      role="dialog"
+      aria-label={st.lesson.title}
+    >
+      <p className="tut-text">{step.text}</p>
+      {step.task && (
+        <p className={st.done ? 'tut-task done' : 'tut-task'}>
+          {st.done ? '✓ ' : ''}
+          {connect && !st.done && <span className="tut-hint">Drag from ① to ②</span>}
+          {step.task}
+        </p>
+      )}
+      {step.listen && st.done && <p className="tut-listen">🎧 {step.listen}</p>}
+      {step.thenNote && st.done && <p className="tut-then">↪ {step.thenNote}</p>}
+      <div className="tut-buttons">
+        <button onClick={() => tutorial.back()} disabled={st.index === 0 || busy}>
+          Back
+        </button>
+        {waiting && (
+          <button onClick={() => void run(() => tutorial.showMe())} disabled={busy} title="Do this step for me">
+            Show me
+          </button>
+        )}
+        {last ? (
+          <button className="primary" onClick={() => tutorial.exit()}>
+            Finish
+          </button>
+        ) : (
+          <button
+            className={guided && st.done && step.action ? 'primary tut-ready' : 'primary'}
+            onClick={() => void run(() => tutorial.next())}
+            disabled={busy || waiting}
+          >
+            {waiting ? 'Your turn…' : 'Next'}
+          </button>
+        )}
+      </div>
     </div>
   )
 }

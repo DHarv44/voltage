@@ -1,82 +1,39 @@
-import { useEffect, useState, useSyncExternalStore } from 'react'
+import { useSyncExternalStore } from 'react'
 import { tutorial } from '../../tutorial/runner'
 
-/** The lesson card: what's going on, what to do, what to listen for. */
+/** Slim lesson strip under the top bar: which lesson, how far along, and the
+ *  lesson-level controls. The step itself lives in the bubble at the control. */
 export function TutorialCard() {
   const st = useSyncExternalStore(
     (f) => tutorial.subscribe(f),
     () => tutorial.state,
   )
-  const [busy, setBusy] = useState(false)
-  useEffect(() => setBusy(false), [st.index])
   const lesson = st.lesson
   if (!lesson) return null
   const step = lesson.steps[st.index]
-  const last = st.index === lesson.steps.length - 1
-  const guided = st.mode === 'guided'
-  const waiting = guided && !!step.action && !st.done
-
-  const run = async (fn: () => Promise<void>) => {
-    setBusy(true)
-    await fn()
-    setBusy(false)
-  }
-
   return (
-    <div className="tutorial-card" role="dialog" aria-label={lesson.title}>
-      <div className="tut-head">
-        <span className="tut-title">{lesson.title}</span>
-        <span className="tut-mode">{guided ? 'GUIDED' : 'WALKTHROUGH'}</span>
-        <button className="tut-x" onClick={() => tutorial.exit()} title="Leave the lesson and go back to your rack">
-          ✕
-        </button>
-      </div>
+    <div className="tut-strip" role="navigation" aria-label="Lesson">
+      <span className="tut-title">{lesson.title}</span>
+      <span className="tut-mode">{st.mode === 'guided' ? 'GUIDED' : 'WALKTHROUGH'}</span>
       <div className="tut-progress">
         {lesson.steps.map((_, i) => (
           <span key={i} className={i < st.index ? 'past' : i === st.index ? 'now' : ''} />
         ))}
       </div>
-      <p className="tut-text">{step.text}</p>
-      {step.task && (
-        <p className={st.done ? 'tut-task done' : 'tut-task'}>
-          {st.done ? '✓ ' : guided ? '→ ' : '▶ '}
-          {step.task}
-        </p>
+      <span className="tut-count">
+        {st.index + 1} / {lesson.steps.length}
+      </span>
+      {step.action && (
+        <button onClick={() => tutorial.redoStep()} title="Put the rack back to how it was at the start of this step">
+          Redo step
+        </button>
       )}
-      {step.listen && st.done && <p className="tut-listen">🎧 {step.listen}</p>}
-      {step.thenNote && st.done && <p className="tut-then">↪ {step.thenNote}</p>}
-      <div className="tut-buttons">
-        <button onClick={() => tutorial.restart()} disabled={busy} title="Start this lesson again from the beginning">
-          ↺ Start over
-        </button>
-        {step.action && (
-          <button onClick={() => tutorial.redoStep()} disabled={busy} title="Put the rack back to how it was at the start of this step">
-            Redo step
-          </button>
-        )}
-        <span className="tut-gap" />
-        <button onClick={() => tutorial.back()} disabled={st.index === 0 || busy}>
-          Back
-        </button>
-        {waiting && (
-          <button onClick={() => void run(() => tutorial.showMe())} disabled={busy} title="Do this step for me">
-            Show me
-          </button>
-        )}
-        {last ? (
-          <button className="primary" onClick={() => tutorial.exit()}>
-            Finish
-          </button>
-        ) : (
-          <button
-            className={guided && st.done && step.action ? 'primary tut-ready' : 'primary'}
-            onClick={() => void run(() => tutorial.next())}
-            disabled={busy || waiting}
-          >
-            {waiting ? 'Your turn…' : 'Next'}
-          </button>
-        )}
-      </div>
+      <button onClick={() => tutorial.restart()} title="Start this lesson again from the beginning">
+        ↺ Start over
+      </button>
+      <button onClick={() => tutorial.exit()} title="Leave the lesson and go back to your rack">
+        Exit ✕
+      </button>
     </div>
   )
 }
