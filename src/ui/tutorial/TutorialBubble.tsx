@@ -34,7 +34,6 @@ export function TutorialBubble() {
   const [spot, setSpot] = useState<Spot | null>(null)
   const [busy, setBusy] = useState(false)
   const box = useRef<HTMLDivElement>(null)
-  useEffect(() => setBusy(false), [st.index])
 
   useEffect(() => {
     if (!step) return

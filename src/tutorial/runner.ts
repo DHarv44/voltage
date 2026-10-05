@@ -4,6 +4,9 @@ import { fromNorm, toNorm } from '../modules/params'
 import { actions, patchStore } from '../patch/store'
 import { FUNDAMENTALS } from './lessons/fundamentals'
 import type { Patch } from '../patch/types'
+import { settings } from '../ui/settings'
+
+const wait = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms))
 import type { Action, Lesson, Step, Target, TutorialMode } from './types'
 
 export const LESSONS: Lesson[] = [...FUNDAMENTALS]
@@ -196,6 +199,15 @@ class TutorialRunner {
         await engine.setPower(true)
         return
       case 'add': {
+        // Show where it comes from: open its section in the library, let the
+        // glowing row (and the popover) sit there a moment, then add it.
+        const cat = SPECS[a.type]?.category
+        const open = settings.get().libOpen
+        if (cat && !open.includes(cat)) {
+          settings.set({ libOpen: [...open, cat] })
+          await wait(700)
+        }
+        await wait(1100)
         const id = actions.addModule(a.type)
         if (id) this.state.mods = { ...this.state.mods, [a.as]: id }
         return
