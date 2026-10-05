@@ -107,8 +107,12 @@ class AudioEngine {
     void initMidi((ev) => this.midi(ev), (midi) => this.update({ midi }))
   }
 
+  /** Listeners for every note played (keyboard, MIDI): the tutorial uses this. */
+  readonly midiListeners = new Set<(ev: MidiEvent) => void>()
+
   midi(ev: MidiEvent): void {
     if (this.status.power) this.send({ type: 'midi', ev })
+    this.midiListeners.forEach((f) => f(ev))
   }
 
   /** Watch one module's jack voltages (hover readout). */

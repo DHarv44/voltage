@@ -9,6 +9,7 @@ import { actions, history, patchStore } from './patch/store'
 import { disableRackAutoscroll } from './ui/pointer'
 import { initShortcuts } from './ui/shortcuts'
 import { validatePresets } from './patch/presets'
+import { tutorial } from './tutorial/runner'
 import './styles.css'
 
 if (import.meta.env.DEV) {
@@ -18,6 +19,7 @@ if (import.meta.env.DEV) {
 }
 
 initQwerty((ev) => engine.midi(ev))
+tutorial.boot() // opens a lesson if the URL names one (lessons run in a scratch rack)
 disableRackAutoscroll()
 initShortcuts()
 

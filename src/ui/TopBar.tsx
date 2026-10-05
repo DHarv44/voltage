@@ -3,6 +3,7 @@ import { engine } from '../audio/engine'
 import { recorder, useRecorder } from '../audio/recorder'
 import { SCRATCH } from '../patch/persist'
 import { PresetMenu } from './PresetMenu'
+import { LearnMenu } from './tutorial/LearnMenu'
 import { actions, history, patchStore } from '../patch/store'
 import { settings, useSettings } from './settings'
 
@@ -111,6 +112,7 @@ export function TopBar() {
           New
         </button>
         <PresetMenu />
+        <LearnMenu />
         <button onClick={exportPatch}>Export</button>
         <button onClick={() => fileRef.current?.click()}>Import</button>
         <input

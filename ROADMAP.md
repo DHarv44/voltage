@@ -78,6 +78,10 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - Cables: sag; right-click a jack pulls its cables, Shift+right-click recolours; Esc cancels a drag.
 - Eurorack mounting grid: panel screws land on the rail holes.
 - Played surfaces (platters, strings, pads, rooms…) via a surface registry.
+- **Tutorials** (Learn menu): synth fundamentals in four lessons (oscillators, filters, envelopes + VCA,
+  modulation). Two modes: WALKTHROUGH (read, press Next, it performs each step so you hear it) and
+  GUIDED (you do each step; it detects it, rings the knob/jack, "Show me" if stuck). Lessons run in a
+  scratch rack, so your own patch is never touched. Lessons are data (steps with text, target, action).
 - Undo/redo; named patch library; export/import; `?scratch` sandbox.
 - 13 factory presets; Jellyfish Dream (the jelly plays the melody) is the first-run rack.
 - Git history.
@@ -87,6 +91,8 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
   main output is patched (switched direct out), or require patching to OUT like everything else.
 
 ## Up next
+- **Tutorial suite**: lessons for every module family (sequencing, drums, effects, systems, poly, the
+  played instruments), plus "how this preset works" tours of the factory presets.
 - **XY pad extras**: multi-touch → poly cables on tablets; save the recorded gesture with the patch.
 - **More VISION scenes**: coral reef, rain on a pond, starling murmuration.
 

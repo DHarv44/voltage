@@ -14,6 +14,7 @@ import { libraryPreview, placementOf } from './dragPreview'
 import { libraryDrag } from './libraryDrag'
 import { useRackInteractions } from './useRackInteractions'
 import { useLightShow } from './lightShow'
+import { TutorialHighlight } from '../tutorial/TutorialHighlight'
 
 export function Rack() {
   const patch = useSyncExternalStore(patchStore.subscribe, patchStore.get)
@@ -90,6 +91,7 @@ export function Rack() {
             </div>
           )}
           <CableLayer patch={patch} place={place} drag={cable} opacity={cableOpacity} width={W} height={H} />
+          <TutorialHighlight />
         </div>
       </div>
       {lib && (

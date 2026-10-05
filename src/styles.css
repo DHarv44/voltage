@@ -184,6 +184,147 @@ button {
   border-color: var(--accent);
   color: var(--accent);
 }
+/* ---- tutorials ---- */
+.learn-btn {
+  color: #ffd25a;
+}
+.learn-list {
+  width: 440px;
+}
+.learn-note {
+  padding: 4px 10px 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.learn-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: 5px;
+}
+.learn-row:hover {
+  background: #2a2c31;
+}
+.learn-info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+}
+.tutorial-card {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 300;
+  width: min(380px, calc(100vw - 32px));
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #1c1d21f2;
+  border: 1px solid #ffd25a66;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.7);
+  color: var(--text);
+}
+.tut-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tut-title {
+  flex: 1;
+  font-weight: 700;
+  font-size: 14px;
+}
+.tut-mode {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: #ffd25a;
+}
+.tut-x {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 14px;
+}
+.tut-progress {
+  display: flex;
+  gap: 4px;
+  margin: 10px 0 6px;
+}
+.tut-progress span {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: #3a3c41;
+}
+.tut-progress span.past {
+  background: #8a7a3a;
+}
+.tut-progress span.now {
+  background: #ffd25a;
+}
+.tut-text {
+  margin: 8px 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.tut-task {
+  margin: 8px 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #2a2614;
+  color: #ffd25a;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.tut-task.done {
+  background: #142a18;
+  color: #7dff8a;
+}
+.tut-listen {
+  margin: 6px 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #9fd6ff;
+}
+.tut-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+.tut-buttons .primary {
+  background: #ffd25a;
+  color: #1c1d21;
+  font-weight: 700;
+}
+.tut-ring {
+  position: absolute;
+  z-index: 40;
+  border-radius: 50%;
+  border: 3px solid #ffd25a;
+  box-shadow: 0 0 18px #ffd25a;
+  pointer-events: none;
+  animation: tut-pulse 1.2s ease-in-out infinite;
+}
+@keyframes tut-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.18);
+    opacity: 0.5;
+  }
+}
+.topbar .power.tut-glow {
+  box-shadow: 0 0 0 3px #ffd25a, 0 0 18px #ffd25a;
+  animation: tut-pulse 1.2s ease-in-out infinite;
+}
+
 .preset-list {
   position: absolute;
   top: calc(100% + 6px);

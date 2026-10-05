@@ -2,6 +2,7 @@ import { GlobalDefs } from './ui/GlobalDefs'
 import { Library } from './ui/Library'
 import { Rack } from './ui/rack/Rack'
 import { TopBar } from './ui/TopBar'
+import { TutorialCard } from './ui/tutorial/TutorialCard'
 
 export function App() {
   return (
@@ -12,6 +13,7 @@ export function App() {
         <Library />
         <Rack />
       </div>
+      <TutorialCard />
     </div>
   )
 }
