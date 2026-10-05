@@ -6,6 +6,10 @@ import { Plant, type PlantState } from './flowerPlant'
 import type { SceneFactory } from './types'
 
 const POLLEN = 160
+/** CLOSE camera: seconds the focus takes to settle on a flower, and the least
+ *  time a shot holds one before moving to a better bloom. */
+const CLOSE_SETTLE = 2.2
+const CLOSE_HOLD = 9
 
 /** A flower bed at dusk. Each plant draws its own life from the engine:
  *  sprouting, growing, blooming, wilting and fading away, then a new one
@@ -59,7 +63,16 @@ export const flowerScene: SceneFactory = (aspect, seed) => {
   const hit = new THREE.Vector3()
   /** The plant CLOSE follows: the most open flower, else the tallest. */
   let star = 0
+  let starAge = 0
   const score = new Float32Array(GARDEN_PLANTS)
+  // CLOSE moves like a camera operator, not a lock-on: the focus point rides a
+  // critically damped spring (eases out, settles, ignores sway twitches), the
+  // shot holds a flower for a while before moving on, and drifts slowly round it.
+  const focus = new THREE.Vector3()
+  const focusV = new THREE.Vector3()
+  const pull = new THREE.Vector3()
+  let clock = 0
+  let lastCam = -1
 
   return {
     scene,
@@ -72,12 +85,24 @@ export const flowerScene: SceneFactory = (aspect, seed) => {
       } else if (cam === 2) {
         // CLOSE: in front of the best flower
         const h = plants[star].headPos
-        rig.pos.set(h.x + 0.2, h.y + 0.02, h.z + 1.2)
-        rig.at.set(h.x, h.y - 0.12, h.z)
+        clock += dt
+        if (lastCam !== 2) {
+          focus.copy(h)
+          focusV.set(0, 0, 0)
+        } else {
+          const w = 2 / CLOSE_SETTLE // spring rate
+          pull.subVectors(h, focus).multiplyScalar(w * w).addScaledVector(focusV, -2 * w)
+          focusV.addScaledVector(pull, dt)
+          focus.addScaledVector(focusV, dt)
+        }
+        const swing = Math.sin(clock * 0.09) * 0.3 // slow orbit, ±17°
+        rig.pos.set(focus.x + Math.sin(swing) * 1.2, focus.y + 0.03 + Math.sin(clock * 0.13) * 0.04, focus.z + Math.cos(swing) * 1.2)
+        rig.at.set(focus.x, focus.y - 0.12, focus.z)
       } else {
         rig.pos.set(0, 0, 3)
         rig.at.set(0, 0, 0)
       }
+      lastCam = cam
       rig.apply(cam, dt)
     },
     pick(u, v) {
@@ -98,7 +123,6 @@ export const flowerScene: SceneFactory = (aspect, seed) => {
         state.fade = led?.[b + 4] ?? (k === 0 ? 1 : 0)
         p.update(state, baseY, width, s.sway, s.glow, s.hue, t)
         score[k] = state.fade * (state.open * 2 + state.g)
-        if (score[k] > score[star] + 0.05) star = k // a little stickiness
         // pollen from every open flower, a burst on TRIG
         if (state.fade > 0.5 && state.open > 0.2) {
           emit += dt * state.open * (0.5 + 25 * s.action)
@@ -111,6 +135,16 @@ export const flowerScene: SceneFactory = (aspect, seed) => {
           }
         }
       })
+      // Hold the shot: move to a better flower only after a while, or at once
+      // when this one is going (wilted away to almost nothing).
+      starAge += dt
+      let best = star
+      for (let k = 0; k < GARDEN_PLANTS; k++) if (score[k] > score[best]) best = k
+      const leaving = score[star] < 0.25 * score[best]
+      if (best !== star && (leaving || (starAge > CLOSE_HOLD && score[best] > score[star] + 0.15))) {
+        star = best
+        starAge = 0
+      }
       for (let i = 0; i < POLLEN; i++) {
         const k = i * 3
         if (life[i] <= 0) {
