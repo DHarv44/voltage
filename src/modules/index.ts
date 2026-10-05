@@ -60,6 +60,7 @@ import { ghost } from './specs/ghost'
 import { progression } from './specs/progression'
 import { bandmate } from './specs/bandmate'
 import { audioin, camera, gamepad } from './specs/inputs'
+import { lightshow, vector, waterfall } from './specs/visualOut'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -157,6 +158,9 @@ export const SPEC_LIST: ModuleSpec[] = [
   atten,
   scope,
   vision,
+  vector,
+  waterfall,
+  lightshow,
   midi,
   audioin,
   camera,

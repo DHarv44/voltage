@@ -27,6 +27,7 @@ import { Ghost } from './Ghost'
 import { Progression } from './Progression'
 import { Bandmate } from './Bandmate'
 import { AudioIn, Camera, Gamepad } from './Inputs'
+import { Vector, Waterfall } from './VisualOut'
 
 /** Played instrument surfaces, by the `name` a spec's surface control uses. */
 export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
@@ -59,4 +60,6 @@ export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
   audioin: AudioIn,
   camera: Camera,
   gamepad: Gamepad,
+  vector: Vector,
+  waterfall: Waterfall,
 }

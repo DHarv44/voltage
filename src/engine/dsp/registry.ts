@@ -69,6 +69,7 @@ import { GhostDsp } from './ghost'
 import { ProgressionDsp } from './progression'
 import { BandmateDsp } from './bandmate'
 import { AudioInDsp, CameraDsp, GamepadDsp } from './inputs'
+import { LightShowDsp, VectorDsp, WaterfallDsp } from './visualOut'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -173,6 +174,9 @@ const CIRCUITS: Record<string, DspCtor> = {
   audioin: AudioInDsp,
   camera: CameraDsp,
   gamepad: GamepadDsp,
+  vector: VectorDsp,
+  waterfall: WaterfallDsp,
+  lightshow: LightShowDsp,
 }
 
 export function createDsp(type: string, fs: number, seed: number): Dsp | null {

@@ -14,7 +14,7 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (100)
+### Modules (103)
 - **Systems**: MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine).
 - **Polyphonic**: POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX.
 - **Sources**: VCO, COMPLEX (Buchla-style), WAVE (band-limited wavetable), SUB, NOISE.
@@ -63,7 +63,9 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
   GAMEPAD (sticks, triggers, buttons).
 - **Visuals**: VISION (three.js tank: bioluminescent jellyfish, growing flower). The creature lives on the
   engine clock: TRIG/FEED/GLOW/HUE/MOVE steer it, GATE/SWAY/GROW/LIGHT come back out. One shared
-  WebGL renderer for every tank; three.js loads only when a tank is on the rack.
+  WebGL renderer for every tank; three.js loads only when a tank is on the rack. VECTOR (XY-mode CRT,
+  phosphor persistence, beam dims with speed), WATERFALL (log-frequency spectrogram), LIGHTS (the music
+  lights the whole rack: bass red, mids green, treble blue).
 
 ### Rack & workflow
 - Drag anywhere, slide-aside on drop, library drag-in, new-row drop.
@@ -85,7 +87,6 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - **More VISION scenes**: coral reef, fireflies, aurora, cymatics plate.
 
 ## Pinned for later: creative modules
-- **Visual outputs**: VECTOR (XY oscilloscope music), WATERFALL spectrogram, rack-wide light show.
 - **Performance**: scene snapshots with morphing, macro knobs, "happy accident" randomiser.
 - **Character output**: cassette deck and vinyl-lathe export.
 

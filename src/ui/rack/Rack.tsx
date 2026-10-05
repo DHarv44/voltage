@@ -13,6 +13,7 @@ import { JackReadout } from './JackReadout'
 import { libraryPreview, placementOf } from './dragPreview'
 import { libraryDrag } from './libraryDrag'
 import { useRackInteractions } from './useRackInteractions'
+import { useLightShow } from './lightShow'
 
 export function Rack() {
   const patch = useSyncExternalStore(patchStore.subscribe, patchStore.get)
@@ -22,6 +23,7 @@ export function Rack() {
   const innerRef = useRef<HTMLDivElement>(null)
   const fitZoom = useFitZoom(scrollRef)
   const zoom = zoomSetting ?? fitZoom
+  useLightShow(innerRef)
 
   const toLocal = useCallback(
     (e: { clientX: number; clientY: number }) => {
