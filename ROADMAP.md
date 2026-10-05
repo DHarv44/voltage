@@ -14,7 +14,7 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (97)
+### Modules (100)
 - **Systems**: MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine).
 - **Polyphonic**: POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX.
 - **Sources**: VCO, COMPLEX (Buchla-style), WAVE (band-limited wavetable), SUB, NOISE.
@@ -58,6 +58,9 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
   output follows stylus velocity, crackle/rumble WEAR; cut your own record or load a file; factory
   battle record is synthesised).
 - **Utilities / I/O**: MIX, STEREO, MULT, ATTN, LOGIC, SCOPE, MIDI·CV (aftertouch, bend range), OUT, MONITOR.
+- **Real-world inputs** (only on when you click ENABLE; nothing leaves the machine): AUDIO IN (mic/line
+  into the rack: audio, envelope, gate, YIN pitch), CAMERA (webcam motion amount/position/brightness),
+  GAMEPAD (sticks, triggers, buttons).
 - **Visuals**: VISION (three.js tank: bioluminescent jellyfish, growing flower). The creature lives on the
   engine clock: TRIG/FEED/GLOW/HUE/MOVE steer it, GATE/SWAY/GROW/LIGHT come back out. One shared
   WebGL renderer for every tank; three.js loads only when a tank is on the rack.
@@ -82,7 +85,6 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - **More VISION scenes**: coral reef, fireflies, aurora, cymatics plate.
 
 ## Pinned for later: creative modules
-- **Real-world inputs**: webcam motion → CV, gamepad, mic pitch tracker, big XY pad.
 - **Visual outputs**: VECTOR (XY oscilloscope music), WATERFALL spectrogram, rack-wide light show.
 - **Performance**: scene snapshots with morphing, macro knobs, "happy accident" randomiser.
 - **Character output**: cassette deck and vinyl-lathe export.
@@ -119,7 +121,6 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
   - Acid sequencer with per-step slide and accent (303-style).
   - Cartesian (René-style) sequencer.
   - TR-16 step probability, ratchets and micro-timing.
-- **Audio in**: mic/line input module (your own interface), so external sounds can be processed.
 
 ### MIDI & sync
 - MIDI clock in and out; MIDI out (CV → MIDI) to drive external gear; MPE input to POLY·CV.

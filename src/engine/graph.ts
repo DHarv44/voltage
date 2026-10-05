@@ -3,6 +3,7 @@ import { createDsp } from './dsp/registry'
 import type { MidiEvent, TelemetryMsg, ToEngine, UiEvent } from './protocol'
 import { Probe } from './probe'
 import { CROSSTALK, NOMINAL_RAIL, power } from './dsp/power'
+import { external } from './dsp/external'
 
 type PatchMsg = Extract<ToEngine, { type: 'patch' }>
 
@@ -70,6 +71,7 @@ export class Graph {
     const len = order.length
     const xt = power.crosstalk
     for (let s = 0; s < n; s++) {
+      external.i = s
       let l = 0
       let r = 0
       for (let k = 0; k < len; k++) {

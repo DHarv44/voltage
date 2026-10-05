@@ -75,7 +75,7 @@ class AudioEngine {
     const ctx = new AudioContext({ latencyHint: 'interactive' })
     await ctx.audioWorklet.addModule(workletUrl)
     const node = new AudioWorkletNode(ctx, 'voltage-rack', {
-      numberOfInputs: 0,
+      numberOfInputs: 1, // the audio interface's input, for AUDIO IN (connected on request)
       numberOfOutputs: 1,
       outputChannelCount: [2],
     })
@@ -130,6 +130,15 @@ class AudioEngine {
       const ps = m && SPECS[m.type].params[index]
       if (ps) actions.setParam(id, ps.id, value)
     }
+  }
+
+  /** Route a microphone/line stream into the engine's input. Returns the
+   *  disconnect function (null when the engine isn't running yet). */
+  connectInput(stream: MediaStream): (() => void) | null {
+    if (!this.ctx || !this.node) return null
+    const src = this.ctx.createMediaStreamSource(stream)
+    src.connect(this.node)
+    return () => src.disconnect()
   }
 
   send(msg: ToEngine): void {

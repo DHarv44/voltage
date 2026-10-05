@@ -26,6 +26,7 @@ import { Ecosystem } from './Ecosystem'
 import { Ghost } from './Ghost'
 import { Progression } from './Progression'
 import { Bandmate } from './Bandmate'
+import { AudioIn, Camera, Gamepad } from './Inputs'
 
 /** Played instrument surfaces, by the `name` a spec's surface control uses. */
 export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
@@ -55,4 +56,7 @@ export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
   ghost: Ghost,
   progression: Progression,
   bandmate: Bandmate,
+  audioin: AudioIn,
+  camera: Camera,
+  gamepad: Gamepad,
 }

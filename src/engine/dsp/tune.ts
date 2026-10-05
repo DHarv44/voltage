@@ -6,14 +6,14 @@ import { SCALES } from './shapers'
 import { C4 } from './util'
 
 /** Detection runs on a 4× decimated copy (12 kHz at 48 kHz). */
-const DECIM = 4
+export const DECIM = 4
 const WIN = 512
-const HOP = 64
+export const HOP = 64
 const BUF = 2048
 const YIN_THRESHOLD = 0.15
 
 /** YIN pitch detector over a ring buffer of decimated samples. */
-class Yin {
+export class Yin {
   readonly x = new Float32Array(BUF)
   w = 0
   private readonly d: Float32Array

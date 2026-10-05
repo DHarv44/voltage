@@ -1,5 +1,6 @@
 import { Graph } from './graph'
 import type { AudioChunkMsg, ToEngine } from './protocol'
+import { external } from './dsp/external'
 
 const TELEMETRY_HZ = 30
 const REC_CHUNK = 16384
@@ -78,9 +79,13 @@ class VoltageRackProcessor extends AudioWorkletProcessor {
     }
   }
 
-  process(_inputs: Float32Array[][], outputs: Float32Array[][]): boolean {
+  process(inputs: Float32Array[][], outputs: Float32Array[][]): boolean {
     const out = outputs[0]
     if (!out || !out[0] || this.failed) return true
+    // The audio interface's input (mic/line), if one is connected, for AUDIO IN.
+    const inp = inputs[0]
+    external.l = inp && inp[0] ? inp[0] : null
+    external.r = inp && inp[1] ? inp[1] : null
     try {
       this.graph.process(out[0].length, out[0], out[1] ?? null)
     } catch (err) {

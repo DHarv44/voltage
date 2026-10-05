@@ -59,6 +59,7 @@ import { ecosystem } from './specs/ecosystem'
 import { ghost } from './specs/ghost'
 import { progression } from './specs/progression'
 import { bandmate } from './specs/bandmate'
+import { audioin, camera, gamepad } from './specs/inputs'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -157,6 +158,9 @@ export const SPEC_LIST: ModuleSpec[] = [
   scope,
   vision,
   midi,
+  audioin,
+  camera,
+  gamepad,
   output,
   monitor,
 ]
@@ -175,6 +179,10 @@ export function validateSpecs(): string[] {
       if ((c.kind === 'knob' || c.kind === 'switch' || c.kind === 'stomp') && !s.params.some((p) => p.id === c.param))
         errors.push(`${s.type}: control references unknown param ${c.param}`)
       if (c.kind === 'in' && !s.inputs.some((j) => j.id === c.jack)) errors.push(`${s.type}: unknown input ${c.jack}`)
+      if (c.kind === 'knob') {
+        const ps = s.params.find((p) => p.id === c.param)
+        if (ps?.curve === 'exp' && ps.min <= 0) errors.push(`${s.type}: exp knob ${ps.id} needs min > 0`)
+      }
       if (c.kind === 'out' && !s.outputs.some((j) => j.id === c.jack)) errors.push(`${s.type}: unknown output ${c.jack}`)
       if (c.kind === 'led' && c.index >= (s.leds ?? 0)) errors.push(`${s.type}: led ${c.index} out of range`)
       if (c.kind === 'steps')
