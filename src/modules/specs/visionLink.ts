@@ -1,6 +1,6 @@
-import type { ModuleSpec } from '../types'
+import { HP_MM, type Control, type ModuleSpec } from '../types'
 import { BLACK } from './panels'
-import { VISION_INPUTS, VISION_LEDS, VISION_OUTPUTS, VISION_PARAMS, VISION_SCENES, VS } from './vision'
+import { columns, SCREEN_SIZES, VISION_INPUTS, VISION_LEDS, VISION_OUTPUTS, VISION_PARAMS, VISION_SCENES, VS } from './vision'
 
 /** Camera angles a VISION VIEW can take, in every scene: WIDE (the whole
  *  scene, straight on), ANGLE (another side of it: the jelly's tank end, the
@@ -64,10 +64,18 @@ export const visionview: ModuleSpec = {
     { id: 'scene', label: 'SCENE', min: 0, max: VIEW_SCENES.length - 1, def: 0, stepped: true, options: [...VIEW_SCENES] },
     { id: 'cam', label: 'CAMERA', min: 0, max: VIEW_CAMS.length - 1, def: 0, stepped: true, options: [...VIEW_CAMS] },
   ],
-  controls: [
-    { kind: 'vision', x: 5, y: 14, w: 91.6, h: 82, linked: true },
-    { kind: 'knob', param: 'scene', x: 18, y: 109, size: 'S' },
-    { kind: 'knob', param: 'cam', x: 46, y: 109, size: 'S' },
-    { kind: 'in', jack: 'link', x: 78, y: 109 },
-  ],
+  controls: viewLayout(20),
+  sizes: SCREEN_SIZES,
+  layout: viewLayout,
+}
+
+/** VISION VIEW's panel at any width: all glass, with three controls below. */
+function viewLayout(hp: number): Control[] {
+  const c = columns(hp * HP_MM, 3, 30)
+  return [
+    { kind: 'vision', x: 5, y: 14, w: hp * HP_MM - 10, h: 82, linked: true },
+    { kind: 'knob', param: 'scene', x: c[0], y: 109, size: 'S' },
+    { kind: 'knob', param: 'cam', x: c[1], y: 109, size: 'S' },
+    { kind: 'in', jack: 'link', x: c[2], y: 109 },
+  ]
 }

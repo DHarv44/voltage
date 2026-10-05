@@ -1,5 +1,6 @@
 import { SPECS } from '../modules'
 import { defaultParams } from '../modules/params'
+import { hpOf } from '../modules/size'
 import { defaultPatch } from './defaultPatch'
 import { makeModule, uid } from './factory'
 import { findSlot, placeWithPush } from './layout'
@@ -90,7 +91,7 @@ export const actions = {
   placeModule(id: string, row: number, hp: number): boolean {
     const m = state.modules.find((x) => x.id === id)
     if (!m || row < 0 || row > state.rows) return false
-    const pl = placeWithPush(state, row, hp, SPECS[m.type].hp, id)
+    const pl = placeWithPush(state, row, hp, hpOf(m), id)
     if (!pl) return false
     set({
       ...state,
@@ -115,6 +116,22 @@ export const actions = {
       modules: [...state.modules.map((x) => (x.row === row && x.id in pl.moves ? { ...x, hp: pl.moves[x.id] } : x)), m],
     })
     return m.id
+  },
+
+  /** Resize a resizable panel (spec.sizes), sliding neighbours aside to make
+   *  room. Fails (false) if the row can't fit it. */
+  setWidth(id: string, width: number): boolean {
+    const m = state.modules.find((x) => x.id === id)
+    if (!m || !SPECS[m.type]?.sizes?.includes(width)) return false
+    const pl = placeWithPush(state, m.row, m.hp, width, id)
+    if (!pl) return false
+    set({
+      ...state,
+      modules: state.modules.map((x) =>
+        x.id === id ? { ...x, hp: pl.hp, width } : x.row === m.row && x.id in pl.moves ? { ...x, hp: pl.moves[x.id] } : x,
+      ),
+    })
+    return true
   },
 
   removeModule(id: string): void {

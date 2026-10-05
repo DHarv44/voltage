@@ -1,4 +1,5 @@
 import { SPECS } from '../../modules'
+import { hpOf } from '../../modules/size'
 import { fits } from '../layout'
 import { sanitize } from '../persist'
 import type { Patch } from '../types'
@@ -149,7 +150,7 @@ export function validatePresets(): string[] {
     else if (clean.cables.length !== p.cables.length) errors.push(`${pr.id}: ${p.cables.length - clean.cables.length} invalid cable(s)`)
     for (const m of p.modules) {
       if (!SPECS[m.type]) errors.push(`${pr.id}: unknown module ${m.type}`)
-      else if (!fits(p, m.row, m.hp, SPECS[m.type].hp, m.id)) errors.push(`${pr.id}: ${m.type} overlaps or overflows`)
+      else if (!fits(p, m.row, m.hp, hpOf(m), m.id)) errors.push(`${pr.id}: ${m.type} overlaps or overflows`)
       for (const k of Object.keys(m.params))
         if (SPECS[m.type] && !SPECS[m.type].params.some((ps) => ps.id === k)) errors.push(`${pr.id}: ${m.type} has no param ${k}`)
     }

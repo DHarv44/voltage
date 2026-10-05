@@ -1,4 +1,4 @@
-import { SPECS } from '../modules'
+import { controlsOf } from '../modules/size'
 import { HP_MM, PANEL_H_MM, type JackControl } from '../modules/types'
 import { ROW_HP } from '../patch/layout'
 import type { JackRef, ModuleInst, Patch } from '../patch/types'
@@ -44,12 +44,12 @@ export interface JackHit extends JackRef, Pt {
 
 export type Placement = { row: number; hp: number }
 
-function jackControl(type: string, jack: string, dir: 'in' | 'out'): JackControl | undefined {
-  return SPECS[type]?.controls.find((c): c is JackControl => c.kind === dir && c.jack === jack)
+function jackControl(m: ModuleInst, jack: string, dir: 'in' | 'out'): JackControl | undefined {
+  return controlsOf(m).find((c): c is JackControl => c.kind === dir && c.jack === jack)
 }
 
 export function jackPos(m: ModuleInst, jack: string, dir: 'in' | 'out', at?: Placement): Pt | null {
-  const c = jackControl(m.type, jack, dir)
+  const c = jackControl(m, jack, dir)
   if (!c) return null
   return { x: moduleLeft(at?.hp ?? m.hp) + c.x * PX, y: rowTop(at?.row ?? m.row) + c.y * PX }
 }
@@ -58,7 +58,7 @@ export function nearestJack(p: Patch, pt: Pt, radius: number): JackHit | null {
   let best: JackHit | null = null
   let bestD = radius * radius
   for (const m of p.modules) {
-    for (const c of SPECS[m.type].controls) {
+    for (const c of controlsOf(m)) {
       if (c.kind !== 'in' && c.kind !== 'out') continue
       const x = moduleLeft(m.hp) + c.x * PX
       const y = rowTop(m.row) + c.y * PX

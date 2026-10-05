@@ -1,4 +1,4 @@
-import type { ModuleSpec } from '../types'
+import { HP_MM, type Control, type ModuleSpec } from '../types'
 import { BLACK } from './panels'
 
 /** Scenes the VISION tank can hold, in SCENE knob order. */
@@ -48,7 +48,6 @@ export const VS = {
 /** Flower growth stages (fraction of full growth): four leaves, the bud, the bloom. */
 export const FLOWER_STAGES = [0.15, 0.3, 0.45, 0.6, 0.75, 0.9]
 
-const COLS = [12, 31.5, 51, 70.5, 90]
 
 export const VISION_LEDS = LED_BLOCK * (1 + VISION_SCENES.length)
 
@@ -87,6 +86,39 @@ export const VISION_PARAMS: ModuleSpec['params'] = [
   { id: 'glow', label: 'GLOW', min: 0, max: 1, def: 0.7, unit: '%' },
 ]
 
+/** Widths (HP) the screen modules come in: right-click → Size. */
+export const SCREEN_SIZES = [12, 20, 28, 40]
+
+/** `n` evenly spaced columns centred on a panel `w` mm wide (at most `gap` apart). */
+export const columns = (w: number, n: number, gap: number) => {
+  const s = Math.min(gap, (w - 12) / (n - 1))
+  return Array.from({ length: n }, (_, i) => w / 2 + (i - (n - 1) / 2) * s)
+}
+
+/** VISION's panel at any width: the glass fills it; knobs and jacks stay centred. */
+function visionLayout(hp: number): Control[] {
+  const w = hp * HP_MM
+  const c = columns(w, 5, 19.5)
+  return [
+    { kind: 'vision', x: 5, y: 16, w: w - 10, h: 56 },
+    { kind: 'knob', param: 'scene', x: c[0], y: 80, size: 'S' },
+    { kind: 'knob', param: 'rate', x: c[1], y: 80, size: 'S' },
+    { kind: 'knob', param: 'hue', x: c[2], y: 80, size: 'S' },
+    { kind: 'knob', param: 'glow', x: c[3], y: 80, size: 'S' },
+    { kind: 'led', index: VS.gate, x: c[4], y: 80, color: '#5ef2ff' },
+    { kind: 'in', jack: 'trig', x: c[0], y: 97 },
+    { kind: 'in', jack: 'feed', x: c[1], y: 97 },
+    { kind: 'in', jack: 'glow', x: c[2], y: 97 },
+    { kind: 'in', jack: 'hue', x: c[3], y: 97 },
+    { kind: 'in', jack: 'move', x: c[4], y: 97 },
+    { kind: 'out', jack: 'gate', x: c[0], y: 113.5 },
+    { kind: 'out', jack: 'sway', x: c[1], y: 113.5 },
+    { kind: 'out', jack: 'grow', x: c[2], y: 113.5 },
+    { kind: 'out', jack: 'light', x: c[3], y: 113.5 },
+    { kind: 'out', jack: 'link', x: c[4], y: 113.5 },
+  ]
+}
+
 /** A glass tank with a living creature in it. The creature's body runs on the
  *  engine clock, so it is patched like any module: CV steers it, and its
  *  movements come back out as gates and voltages. */
@@ -102,22 +134,7 @@ export const vision: ModuleSpec = {
   outputs: VISION_OUTPUTS,
   params: VISION_PARAMS,
   leds: VISION_LEDS,
-  controls: [
-    { kind: 'vision', x: 5, y: 16, w: 91.6, h: 56 },
-    { kind: 'knob', param: 'scene', x: COLS[0], y: 80, size: 'S' },
-    { kind: 'knob', param: 'rate', x: COLS[1], y: 80, size: 'S' },
-    { kind: 'knob', param: 'hue', x: COLS[2], y: 80, size: 'S' },
-    { kind: 'knob', param: 'glow', x: COLS[3], y: 80, size: 'S' },
-    { kind: 'led', index: VS.gate, x: COLS[4], y: 80, color: '#5ef2ff' },
-    { kind: 'in', jack: 'trig', x: COLS[0], y: 97 },
-    { kind: 'in', jack: 'feed', x: COLS[1], y: 97 },
-    { kind: 'in', jack: 'glow', x: COLS[2], y: 97 },
-    { kind: 'in', jack: 'hue', x: COLS[3], y: 97 },
-    { kind: 'in', jack: 'move', x: COLS[4], y: 97 },
-    { kind: 'out', jack: 'gate', x: COLS[0], y: 113.5 },
-    { kind: 'out', jack: 'sway', x: COLS[1], y: 113.5 },
-    { kind: 'out', jack: 'grow', x: COLS[2], y: 113.5 },
-    { kind: 'out', jack: 'light', x: COLS[3], y: 113.5 },
-    { kind: 'out', jack: 'link', x: COLS[4], y: 113.5 },
-  ],
+  controls: visionLayout(20),
+  sizes: SCREEN_SIZES,
+  layout: visionLayout,
 }

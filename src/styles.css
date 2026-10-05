@@ -953,6 +953,28 @@ button {
 .ctx-menu button.danger {
   color: #ff8a7e;
 }
+.ctx-sizes {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 6px 4px 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.ctx-sizes span {
+  margin-right: 4px;
+}
+.ctx-menu .ctx-sizes button {
+  display: inline-block;
+  width: auto;
+  padding: 4px 6px;
+  font-size: 11px;
+  background: #23252a;
+}
+.ctx-menu .ctx-sizes button.on {
+  background: var(--accent);
+  color: #111;
+}
 .jack-menu {
   min-width: 230px;
 }

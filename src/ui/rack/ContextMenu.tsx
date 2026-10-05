@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { SPECS } from '../../modules'
+import { hpOf } from '../../modules/size'
 import { actions, patchStore } from '../../patch/store'
 import { BUFFER_SLOTS, buffers } from '../../audio/buffers'
 import type { MenuState } from './useRackInteractions'
@@ -27,6 +28,22 @@ export function ContextMenu({ menu, onClose }: { menu: MenuState; onClose: () =>
       <div className="ctx-title">{SPECS[m.type].name}</div>
       <button onClick={run(() => actions.addModule(m.type, { ...m.params }))}>Duplicate</button>
       <button onClick={run(() => actions.resetParams(m.id))}>Reset knobs</button>
+      {SPECS[m.type].sizes && (
+        <div className="ctx-sizes">
+          <span>Size</span>
+          {SPECS[m.type].sizes!.map((hp) => (
+            <button
+              key={hp}
+              className={hpOf(m) === hp ? 'on' : ''}
+              onClick={run(() => {
+                if (!actions.setWidth(m.id, hp)) alert(`No room for ${hp} HP in this row: make space first, or move it to another row.`)
+              })}
+            >
+              {hp} HP
+            </button>
+          ))}
+        </div>
+      )}
       {BUFFER_SLOTS[m.type] && (
         <button
           onClick={run(async () => {

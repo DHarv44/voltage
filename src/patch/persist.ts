@@ -57,6 +57,7 @@ export function sanitize(raw: unknown): Patch | null {
       row: Math.max(0, Math.round(num(m.row))),
       hp: Math.max(0, Math.round(num(m.hp))),
       seed: num(m.seed, 1),
+      ...(typeof m.width === 'number' && SPECS[m.type].sizes?.includes(m.width) ? { width: m.width } : {}),
       params: { ...defaultParams(SPECS[m.type]), ...(typeof m.params === 'object' ? m.params : {}) },
       ...(Array.isArray(m.morph) ? { morph: sanitizeMorph(m.morph) } : {}),
     })

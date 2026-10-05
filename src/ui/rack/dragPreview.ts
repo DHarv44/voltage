@@ -1,4 +1,5 @@
 import { SPECS } from '../../modules'
+import { hpOf } from '../../modules/size'
 import { placeWithPush } from '../../patch/layout'
 import type { ModuleInst, Patch } from '../../patch/types'
 import { GAP, HP_PX, ROW_PX, SIDE, rackHeight, rackWidth, type Placement, type Pt } from '../geometry'
@@ -25,7 +26,9 @@ export function slotAt(pt: Pt, grabX: number, grabY: number, rows: number): { ro
 }
 
 export function resolve(base: Patch, id: string | null, type: string, row: number, hp: number): DragPreview | null {
-  const pl = placeWithPush(base, row, hp, SPECS[type].hp, id ?? undefined)
+  // a module being moved keeps its own (possibly resized) width
+  const m = id ? base.modules.find((x) => x.id === id) : undefined
+  const pl = placeWithPush(base, row, hp, m ? hpOf(m) : SPECS[type].hp, id ?? undefined)
   return pl ? { id, type, row, hp: pl.hp, targetHp: hp, moves: pl.moves } : null
 }
 

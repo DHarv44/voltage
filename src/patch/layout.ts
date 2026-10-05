@@ -1,4 +1,4 @@
-import { SPECS } from '../modules'
+import { hpOf } from '../modules/size'
 import type { Patch } from './types'
 
 /** A standard 104 HP Eurorack row. */
@@ -8,7 +8,7 @@ export function fits(p: Patch, row: number, hp: number, width: number, ignoreId?
   if (row < 0 || row >= p.rows || hp < 0 || hp + width > ROW_HP) return false
   return p.modules.every((m) => {
     if (m.id === ignoreId || m.row !== row) return true
-    const w = SPECS[m.type]?.hp ?? 0
+    const w = hpOf(m)
     return hp + width <= m.hp || m.hp + w <= hp
   })
 }
@@ -33,7 +33,7 @@ export interface PushPlacement {
 export function placeWithPush(p: Patch, row: number, hp: number, width: number, ignoreId?: string): PushPlacement | null {
   const others = p.modules
     .filter((m) => m.row === row && m.id !== ignoreId)
-    .map((m) => ({ id: m.id, hp: m.hp, w: SPECS[m.type]?.hp ?? 0 }))
+    .map((m) => ({ id: m.id, hp: m.hp, w: hpOf(m) }))
     .sort((a, b) => a.hp - b.hp)
   if (others.reduce((s, m) => s + m.w, width) > ROW_HP) return null
 

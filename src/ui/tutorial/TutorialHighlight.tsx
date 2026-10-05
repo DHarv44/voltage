@@ -1,5 +1,5 @@
 import { useEffect, useSyncExternalStore } from 'react'
-import { SPECS } from '../../modules'
+import { controlsOf } from '../../modules/size'
 import { patchStore } from '../../patch/store'
 import type { Patch } from '../../patch/types'
 import { tutorial } from '../../tutorial/runner'
@@ -17,7 +17,7 @@ export function targetPoint(p: Patch, t: Target): (Pt & { r: number }) | null {
     const pt = jackPos(m, t.jack, t.dir)
     return pt && { ...pt, r: 7 * PX }
   }
-  const c = SPECS[m.type].controls.find((k) => (k.kind === 'knob' || k.kind === 'switch') && k.param === t.param)
+  const c = controlsOf(m).find((k) => (k.kind === 'knob' || k.kind === 'switch') && k.param === t.param)
   if (!c || !('x' in c)) return null
   return { x: moduleLeft(m.hp) + c.x * PX, y: rowTop(m.row) + c.y * PX, r: 9 * PX }
 }

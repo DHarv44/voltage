@@ -128,7 +128,12 @@ export interface ModuleSpec {
   outputs: JackSpec[]
   params: ParamSpec[]
   leds?: number
+  /** The panel at its default width (`hp`). */
   controls: Control[]
+  /** Resizable panels: the widths (HP) it comes in (right-click → Size), and
+   *  its panel laid out for any of them. */
+  sizes?: number[]
+  layout?: (hp: number) => Control[]
 }
 
 export const HP_MM = 5.08

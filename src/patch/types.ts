@@ -8,6 +8,8 @@ export interface ModuleInst {
   type: string
   row: number
   hp: number
+  /** Chosen width (HP) for a resizable panel (spec.sizes); default spec.hp. */
+  width?: number
   /** Fixes this unit's component tolerances and drift character for life. */
   seed: number
   params: Record<string, number>

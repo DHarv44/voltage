@@ -1,5 +1,6 @@
 import { memo, type MouseEvent, type PointerEvent } from 'react'
 import { SPECS } from '../../modules'
+import { controlsOf, hpOf } from '../../modules/size'
 import { HP_MM, PANEL_H_MM, type Control, type ModuleSpec } from '../../modules/types'
 import type { ModuleInst } from '../../patch/types'
 import { PX, SCREW_Y_MM, moduleLeft, rowTop, screwHoles } from '../geometry'
@@ -39,7 +40,9 @@ interface Props {
 
 export const ModulePanel = memo(function ModulePanel({ inst, row, hp, lifted, handlers }: Props) {
   const spec = SPECS[inst.type]
-  const w = spec.hp * HP_MM
+  const panelHp = hpOf(inst)
+  const w = panelHp * HP_MM
+  const controls = controlsOf(inst)
   return (
     <div
       className={lifted ? 'module lifted' : 'module'}
@@ -48,12 +51,12 @@ export const ModulePanel = memo(function ModulePanel({ inst, row, hp, lifted, ha
       onContextMenu={(e) => handlers.panelContext(inst.id, e)}
     >
       <svg viewBox={`0 0 ${w} ${PANEL_H_MM}`} width="100%" height="100%">
-        <PanelFace spec={spec} w={w} />
-        {spec.controls.map((c, i) => (
+        <PanelFace spec={spec} w={w} hp={panelHp} />
+        {controls.map((c, i) => (
           <ControlView key={i} c={c} spec={spec} inst={inst} handlers={handlers} />
         ))}
       </svg>
-      {spec.controls.map((c, i) =>
+      {controls.map((c, i) =>
         c.kind === 'scope' ? (
           <ScopeScreen
             key={i}
@@ -107,16 +110,16 @@ function SurfaceView({ name, ...props }: SurfaceProps & { name: string }) {
   return <S {...props} />
 }
 
-function PanelFace({ spec, w }: { spec: ModuleSpec; w: number }) {
+function PanelFace({ spec, w, hp }: { spec: ModuleSpec; w: number; hp: number }) {
   const { bg, fg, accent } = spec.panel
-  const screwX = screwHoles(spec.hp)
+  const screwX = screwHoles(hp)
   return (
     <g pointerEvents="none">
       <rect x={0.15} y={0} width={w - 0.3} height={PANEL_H_MM} fill={bg} />
       <rect x={0.15} y={0} width={w - 0.3} height={PANEL_H_MM} fill="url(#panel-sheen)" />
       <rect x={0.15} y={0} width={w - 0.3} height={PANEL_H_MM} fill="none" stroke="#000" strokeOpacity={0.35} strokeWidth={0.3} />
       {screwX.flatMap((x) => [SCREW_Y_MM, PANEL_H_MM - SCREW_Y_MM].map((y) => <Screw key={`${x}-${y}`} x={x} y={y} />))}
-      <text className="silk title" x={w / 2} y={11} fill={fg} fontSize={spec.hp <= 4 ? 3.4 : 4.4}>
+      <text className="silk title" x={w / 2} y={11} fill={fg} fontSize={hp <= 4 ? 3.4 : hp <= 12 && spec.title.length > 8 ? 3.6 : 4.4}>
         {spec.title}
       </text>
       <rect x={w / 2 - Math.min(8, w / 3)} y={12.6} width={Math.min(16, (w * 2) / 3)} height={0.5} fill={accent} />
