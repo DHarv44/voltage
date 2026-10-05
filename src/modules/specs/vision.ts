@@ -2,7 +2,15 @@ import type { ModuleSpec } from '../types'
 import { BLACK } from './panels'
 
 /** Scenes the VISION tank can hold, in SCENE knob order. */
-export const VISION_SCENES = ['JELLY', 'FLOWER'] as const
+export const VISION_SCENES = ['JELLY', 'GARDEN', 'FIREFLIES', 'AURORA', 'CYMATICS'] as const
+
+/** Per-scene extra state starts here on the LED channel (after the shared VS fields). */
+export const VS_EXTRA = 10
+/** Garden: plants and the values each one publishes (x, growth, open, wilt, visibility). */
+export const GARDEN_PLANTS = 5
+export const PLANT_VALUES = 5
+/** Fireflies: how many, each publishing its brightness. */
+export const FIREFLIES = 24
 
 /** Creature state the engine publishes on the LED channel (~30 Hz); the renderer
  *  reads these, so both sides agree on the layout. */
@@ -38,7 +46,7 @@ export const vision: ModuleSpec = {
   type: 'vision',
   title: 'VISION',
   name: 'Vision Tank',
-  tagline: 'A living creature you patch: jellyfish or growing flower. CV drives it, its movements come back as CV',
+  tagline: 'Living scenes you patch: jellyfish, a flower garden, fireflies, aurora, cymatics. CV in, CV out',
   category: 'Visuals',
   hp: 20,
   panel: BLACK,
@@ -61,7 +69,7 @@ export const vision: ModuleSpec = {
     { id: 'hue', label: 'HUE', min: 0, max: 1, def: 0.55, unit: '%' },
     { id: 'glow', label: 'GLOW', min: 0, max: 1, def: 0.7, unit: '%' },
   ],
-  leds: 10,
+  leds: 40,
   controls: [
     { kind: 'vision', x: 5, y: 16, w: 91.6, h: 56 },
     { kind: 'knob', param: 'scene', x: COLS[0], y: 80, size: 'S' },

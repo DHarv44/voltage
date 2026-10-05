@@ -4,10 +4,11 @@ import { telemetry } from '../../audio/telemetry'
 import { hashSeed } from './common'
 import { flowerScene } from './flowerScene'
 import { jellyScene } from './jellyScene'
+import { auroraScene, cymaticsScene, firefliesScene } from './moreScenes'
 import type { CreatureView, SceneFactory, VisionScene } from './types'
 
 /** In SCENE knob order (VISION_SCENES). */
-const SCENES: SceneFactory[] = [jellyScene, flowerScene]
+const SCENES: SceneFactory[] = [jellyScene, flowerScene, firefliesScene, auroraScene, cymaticsScene]
 
 interface Screen {
   canvas: HTMLCanvasElement
@@ -84,7 +85,7 @@ function frame(now: number): void {
     }
     s.t += dt
     follow(s.view, telemetry.leds[s.mod], dt)
-    s.host.update(s.view, dt, s.t, H)
+    s.host.update(s.view, dt, s.t, H, telemetry.leds[s.mod])
     r.setViewport(0, 0, W, H)
     r.setScissor(0, 0, W, H)
     r.render(s.host.scene, s.host.camera)

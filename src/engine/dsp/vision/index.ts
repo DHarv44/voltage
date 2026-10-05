@@ -1,8 +1,11 @@
 import type { ModuleSpec } from '../../../modules/types'
 import { Dsp } from '../base'
 import { Schmitt } from '../cores'
-import { Flower } from './flower'
+import { Garden } from './flower'
 import { Jelly } from './jelly'
+import { Fireflies } from './fireflies'
+import { Aurora } from './aurora'
+import { Cymatics } from './cymatics'
 import type { Creature, CreatureInput, CreatureOutput } from './creature'
 
 /** Creatures live at control rate: one step every BLOCK samples. */
@@ -34,7 +37,7 @@ export class VisionDsp extends Dsp {
 
   constructor(spec: ModuleSpec, fs: number, seed: number) {
     super(spec, fs, seed)
-    this.creatures = [new Jelly(this.rng), new Flower(this.rng)]
+    this.creatures = [new Jelly(this.rng), new Garden(this.rng), new Fireflies(this.rng), new Aurora(this.rng), new Cymatics(this.rng)]
     this.ci = { dt: BLOCK / fs, trig: false, trigPatched: false, feed: 0, feedPatched: false, glowCv: 0, hueV: 0, move: 0, rate: 0, hue: 0, glow: 0 }
     this.envUp = 1 - Math.exp(-1 / (0.01 * fs))
     this.envDown = 1 - Math.exp(-1 / (0.3 * fs))

@@ -63,7 +63,9 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 - **Real-world inputs** (only on when you click ENABLE; nothing leaves the machine): AUDIO IN (mic/line
   into the rack: audio, envelope, gate, YIN pitch), CAMERA (webcam motion amount/position/brightness),
   GAMEPAD (sticks, triggers, buttons).
-- **Visuals**: VISION (three.js tank: bioluminescent jellyfish, growing flower). The creature lives on the
+- **Visuals**: VISION (three.js tank: bioluminescent jellyfish; a flower garden where plants sprout, bloom,
+  wilt, die and reseed; fireflies that synchronise (Kuramoto); aurora with substorms; a Chladni plate
+  whose sand finds the mode the pitch picks). The creature lives on the
   engine clock: TRIG/FEED/GLOW/HUE/MOVE steer it, GATE/SWAY/GROW/LIGHT come back out. One shared
   WebGL renderer for every tank; three.js loads only when a tank is on the rack. VECTOR (XY-mode CRT,
   phosphor persistence, beam dims with speed), WATERFALL (log-frequency spectrogram), LIGHTS (the music
@@ -86,7 +88,7 @@ anywhere. Only well-established packages (React, Vite, TypeScript, three.js).
 
 ## Up next
 - **XY pad extras**: multi-touch → poly cables on tablets; save the recorded gesture with the patch.
-- **More VISION scenes**: coral reef, fireflies, aurora, cymatics plate.
+- **More VISION scenes**: coral reef, rain on a pond, starling murmuration.
 
 ## Pinned for later: creative modules
 - **Character output**: cassette deck and vinyl-lathe export.

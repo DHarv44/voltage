@@ -17,8 +17,9 @@ export interface CreatureView {
 export interface VisionScene {
   readonly scene: THREE.Scene
   readonly camera: THREE.PerspectiveCamera
-  /** dt and t in seconds; `px` = drawing-buffer height in pixels (point sizes). */
-  update(s: CreatureView, dt: number, t: number, px: number): void
+  /** dt and t in seconds; `px` = drawing-buffer height in pixels (point sizes);
+   *  `led` = the raw engine state (scene-specific values from VS_EXTRA on). */
+  update(s: CreatureView, dt: number, t: number, px: number, led?: number[]): void
   dispose(): void
 }
 
