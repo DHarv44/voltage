@@ -51,7 +51,8 @@ export type Control =
   /** Stompbox footswitch toggling a 0/1 param, with its LED. */
   | { kind: 'stomp'; param: string; x: number; y: number }
   /** A played instrument surface (platter, antennas, strings…) from the UI surface registry. */
-  | { kind: 'surface'; name: string; x: number; y: number; w: number; h: number }
+  /** `bare`: no dark bezel behind it (for round surfaces drawn on the panel). */
+  | { kind: 'surface'; name: string; x: number; y: number; w: number; h: number; bare?: boolean }
   /** Printed outline grouping a circuit section on system panels. */
   | { kind: 'section'; x: number; y: number; w: number; h: number; label: string }
   /** Velocity-sensitive rubber pad; glows from LED `led`. */

@@ -7,7 +7,7 @@ import { RES, sendSurface, useFrame, type SurfaceProps } from './common'
 
 /** Ring edges as fractions of the radius: outer (major), middle (minor),
  *  inner (diminished); inside HUB is the 7TH button. */
-const EDGES = [1, 0.68, 0.45, 0.27]
+const EDGES = [1, 0.7, 0.47, 0.24]
 const HUB = EDGES[3]
 const RINGS = [WHEEL_MAJOR, WHEEL_MINOR, WHEEL_DIM]
 /** Roman numerals of the lit key wedge: positions key−1, key, key+1. */
@@ -137,7 +137,7 @@ export function ChordWheel({ inst, x, y, w, h }: SurfaceProps) {
       className="surface-canvas"
       width={W}
       height={H}
-      style={{ left: x * PX, top: y * PX, width: w * PX, height: h * PX }}
+      style={{ left: x * PX, top: y * PX, width: w * PX, height: h * PX, boxShadow: 'none', borderRadius: '50%' }}
       onPointerDown={down}
     />
   )

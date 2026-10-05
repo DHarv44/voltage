@@ -162,6 +162,7 @@ function ControlView({ c, spec, inst, handlers }: { c: Control; spec: ModuleSpec
     case 'vision':
     case 'xypad':
     case 'surface':
+      if (c.bare) return null
       return <rect x={c.x - 1} y={c.y - 1} width={c.w + 2} height={c.h + 2} rx={1.5} fill="#0a0a0a" stroke="#444" strokeWidth={0.3} />
     case 'pad':
       return (

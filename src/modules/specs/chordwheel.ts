@@ -20,7 +20,7 @@ export const CWL = {
   seventh: 4,
 } as const
 
-const OX = [12, 33, 54, 75, 96, 117]
+const OX = [16, 40, 64, 88, 112, 136]
 
 /** Chord wheel: a circle-of-fifths chord controller. Hold a chord to play it;
  *  slide across the wheel to change chords without lifting. The current key's
@@ -32,7 +32,7 @@ export const chordwheel: ModuleSpec = {
   name: 'Chord Wheel',
   tagline: 'Circle-of-fifths chord controller: majors, relative minors and diminished; chord on a poly cable + built-in pad',
   category: 'Sources',
-  hp: 26,
+  hp: 30,
   panel: BLUE,
   inputs: [],
   outputs: [
@@ -52,8 +52,15 @@ export const chordwheel: ModuleSpec = {
   ],
   leds: 5,
   controls: [
-    { kind: 'surface', name: 'chordwheel', x: 26.04, y: 13, w: 80, h: 80 },
-    ...['key', 'oct', 'voicing', 'level', 'tone'].map((param, i) => ({ kind: 'knob' as const, param, x: 16 + i * 25, y: 100, size: 'S' as const })),
-    ...['out', 'notes', 'root', 'bass', 'gate', 'trig'].map((jack, i) => ({ kind: 'out' as const, jack, x: OX[i] + 4, y: 116 })),
+    { kind: 'surface', name: 'chordwheel', x: 5, y: 14, w: 92, h: 92, bare: true },
+    // knobs in a column beside the wheel: KEY + OCTAVE, VOICING + PAD, TONE
+    ...['key', 'oct', 'voicing', 'level', 'tone'].map((param, i) => ({
+      kind: 'knob' as const,
+      param,
+      x: i === 4 ? 124 : i % 2 ? 136 : 112,
+      y: 30 + Math.floor(i / 2) * 26,
+      size: 'S' as const,
+    })),
+    ...['out', 'notes', 'root', 'bass', 'gate', 'trig'].map((jack, i) => ({ kind: 'out' as const, jack, x: OX[i], y: 116 })),
   ],
 }
