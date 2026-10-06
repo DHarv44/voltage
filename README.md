@@ -64,6 +64,11 @@ case. **Walkthrough** does each step for you; **Guided** lets you do it and move
 ### The rack
 - **Add a module:** click it in the list on the left, or drag it onto the rack. Search with the box
   at the top of the list.
+- **Ready-to-play:** right-click any module in the list → **Add ready-to-play …** for that module
+  already wired up with everything it needs to make music (a sequencer to play it, a sound for it to
+  process, a voice for it to drive, the way out to the speakers). It goes in new rows below your rack,
+  with a note on what to try; Ctrl+Z takes it away. Instruments you play yourself (keyboard, theremin,
+  pads, mic…) come wired and waiting for you.
 - **Move a module:** drag its panel (not a knob or jack). Neighbours slide aside when you drop it;
   drop below the last row to start a new row.
 - **Rows and rails:** **+ Row / − Row**, and the **rails** selector (84 / 104 / 126 / 168 HP, the
@@ -248,9 +253,13 @@ src/
 2. **DSP:** add `src/engine/dsp/<name>.ts` with a class extending `Dsp`. Read params with
    `this.p[this.pi('id')]`, inputs with `this.in[...]`, write `this.out[...]` once per `tick()`.
    Register it in `src/engine/dsp/registry.ts`.
-3. **Surface** (only if it needs a custom face): add a component to `src/ui/surfaces` and register it
+3. **Ready-to-play rig:** add a starter for it in `src/patch/starters/` (the group file that fits).
+   It's a few lines on the shared building blocks in `kit.ts` (`melody`, `voice`, `beat`, `chords`,
+   `tune`, `toOut`…); modules lay themselves out. Startup checks that every module has one; to hear
+   them all, run `await (await import('/src/dev/starterCheck.ts')).checkStarters()` in the console.
+4. **Surface** (only if it needs a custom face): add a component to `src/ui/surfaces` and register it
    in `src/ui/surfaces/index.ts`.
-4. Run the dev server: specs, factory racks and panel layouts are checked on startup (problems
+5. Run the dev server: specs, factory racks, ready-to-play rigs and panel layouts are checked on startup (problems
    appear in the browser console). Test it headless with the bench (below), then in a `?scratch` rack.
 
 **Rules for panels** (so every module looks and behaves the same):

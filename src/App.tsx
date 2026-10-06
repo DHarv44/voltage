@@ -5,6 +5,7 @@ import { TopBar } from './ui/TopBar'
 import { TutorialCard } from './ui/tutorial/TutorialCard'
 import { SharedBanner } from './ui/share/SharedBanner'
 import { TutorialBubble } from './ui/tutorial/TutorialBubble'
+import { Toast } from './ui/Toast'
 
 export function App() {
   return (
@@ -18,6 +19,7 @@ export function App() {
         <Rack />
       </div>
       <TutorialBubble />
+      <Toast />
     </div>
   )
 }

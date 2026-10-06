@@ -11,6 +11,7 @@ import { ContextMenu } from './ContextMenu'
 import { JackMenu } from './JackMenu'
 import { JackReadout } from './JackReadout'
 import { RemoveRowDialog, RowMenu, type RowMenuState } from './RowMenu'
+import { rackView } from './rackView'
 import { libraryPreview, placementOf } from './dragPreview'
 import { libraryDrag } from './libraryDrag'
 import { useRackInteractions } from './useRackInteractions'
@@ -48,6 +49,11 @@ export function Rack() {
   )
   const preview = move ?? libPreview
   const place = useCallback((m: ModuleInst) => placementOf(m, preview), [preview])
+
+  // Others (a rig just added from the library) can bring a row into view.
+  useEffect(() => {
+    rackView.reveal = (row) => scrollRef.current?.scrollTo({ top: Math.max(0, rowTop(row) * zoom - 12), behavior: 'smooth' })
+  }, [zoom])
 
   // Library drops land wherever the preview showed them.
   useEffect(() => {

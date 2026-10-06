@@ -1087,6 +1087,39 @@ button {
 .ctx-menu button.danger {
   color: #ff8a7e;
 }
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 150;
+  width: min(460px, calc(100vw - 32px));
+  padding: 10px 34px 10px 14px;
+  border-radius: 8px;
+  background: #1f2024;
+  border: 1px solid #3a3c41;
+  border-left: 3px solid var(--accent);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55);
+  font-size: 12.5px;
+}
+.toast-title {
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+.toast-text {
+  color: var(--muted);
+  line-height: 1.4;
+}
+.toast-x {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 12px;
+}
 .dialog-backdrop {
   position: fixed;
   inset: 0;
@@ -1145,6 +1178,12 @@ button {
 .dialog-actions button:disabled {
   opacity: 0.4;
   cursor: default;
+}
+.ctx-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 10.5px;
+  color: var(--muted);
 }
 .ctx-menu button:disabled {
   opacity: 0.4;

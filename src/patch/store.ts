@@ -5,7 +5,7 @@ import { defaultPatch } from './defaultPatch'
 import { makeModule, uid } from './factory'
 import { findSlot, placeWithPush, RAIL_SIZES, ROW_HP, usedHp } from './layout'
 import { loadSaved, sanitize, save } from './persist'
-import { withoutRow } from './rowOps'
+import { withoutRow, withRig } from './rowOps'
 import type { Cable, JackRef, MorphSnapshot, Patch } from './types'
 
 type Listener = () => void
@@ -234,6 +234,14 @@ export const actions = {
     const last = state.rows - 1
     if (last < 1 || state.modules.some((m) => m.row === last)) return
     set({ ...state, rows: last })
+  },
+
+  /** Mount a rig (a patch fragment, e.g. a module's ready-to-play starter) in
+   *  new rows below the rack; one undo step. Returns the row it starts on. */
+  mountRig(rig: Patch): number {
+    const { patch, row } = withRig(state, rig)
+    set(patch)
+    return row
   },
 
   /** Remove any row: its modules move to free space in other rows (`move`)

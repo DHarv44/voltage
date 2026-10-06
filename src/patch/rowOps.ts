@@ -4,6 +4,23 @@ import type { Patch } from './types'
 
 /** Row edits as pure functions on a patch (the store commits them). */
 
+/** The rack with a rig (a patch fragment: its own rows from 0, its own
+ *  cables) mounted in new rows below everything that's already there. The
+ *  rig's modules and cables keep their (unique) ids. Returns the new patch
+ *  and the row the rig starts on. */
+export function withRig(p: Patch, rig: Patch): { patch: Patch; row: number } {
+  const used = p.modules.reduce((r, m) => Math.max(r, m.row + 1), 0)
+  return {
+    row: used,
+    patch: {
+      ...p,
+      rows: Math.max(p.rows, used + rig.rows),
+      modules: [...p.modules, ...rig.modules.map((m) => ({ ...m, row: m.row + used }))],
+      cables: [...p.cables, ...rig.cables],
+    },
+  }
+}
+
 /** The rack without row `row` (the rows below move up), or null if it can't
  *  be done. Its modules either go (`delete`, with their cables) or move to
  *  free space in the other rows (`move`: nearest rows first, biggest panels

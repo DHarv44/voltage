@@ -116,6 +116,12 @@ extend VOLTAGE.
 - 18 factory presets (incl. five POCKET racks: boom bap, electro, lo-fi, + bassline, the Pocket Band);
   Jellyfish Dream (the jelly plays the melody) is the first-run rack.
 - README with a user guide, architecture and a how-to for adding modules.
+- **Ready-to-play rigs**: right-click any module in the library → that module wired up with everything
+  it needs to make music, added below the rack with a how-to toast (one undo step). All 111 modules;
+  built from shared blocks (melody, voice, beat, chords…) with auto-layout; startup checks every module
+  has one, and a headless check plays each and confirms sound reaches the speakers (played
+  instruments excepted).
+- Row menu (right-click an empty rail → Remove row, with a move/remove/cancel prompt if it has modules).
 - **UI pass, standardised panels**: one metrics file for every control's geometry; stepped knobs show
   one tick per position; `packRows`/`spread` layout helpers; a dev-startup panel linter (overlaps,
   screws, title, near-miss alignment, label fit) reporting 0 across all 111 modules and sizes;
