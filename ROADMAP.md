@@ -16,7 +16,7 @@ extend VOLTAGE.
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (116)
+### Modules (117)
 - **POCKET family**: POCKET (drums), POCKET BASS (16 note steps, slide/accent, SUB/SQUARE/ACID), POCKET
   MELODY (scale degrees, per-step NOTE/CHORD/ARP, BELL/PLUCK/LEAD, poly NOTES). Drag a step to set its
   note, right-click for its flag; off WRITE the buttons are a keyboard. They follow each other's CLK.
@@ -24,7 +24,7 @@ extend VOLTAGE.
   (portable workstation), KIN-8 (DFAM-style percussion: two VCOs, noise, ladder, three decays, 8-step
   pitch/velocity sequencer), UNDERTONE (Subharmonicon-style: two VCOs with phase-locked subharmonics,
   two 4-step sequencers clocked by four polyrhythm dividers, OR/XOR, 12/8-tone equal or just quantizing),
-  LOCKSTEP (FM groovebox: parameter locks, conditional trigs, polymeter).
+  LOCKSTEP (FM groovebox: parameter locks, conditional trigs, polymeter), LATTICE (16×16 light grid).
 - **Polyphonic**: POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX.
 - **Sources**: VCO, COMPLEX (Buchla-style), WAVE (band-limited wavetable), SUB, NOISE.
 - **Filters**: LADDER, SVF, MS-12.
@@ -202,7 +202,7 @@ Our own versions throughout: inspired by the classics, our own names, panels and
   patterns and scenes), velocity + aftertouch routing and MPE input, Scala / just-intonation tunings.
 
 ## Systems (whole instruments, our own names and looks)
-Have: MONO-1, STUDIO-3, GROOVE-1, SKETCHBOOK, KIN-8, UNDERTONE, LOCKSTEP, the POCKET family; played: OMNICHORD, STYLOPHONE, TAPE KEYS, THEREMIN.
+Have: MONO-1, STUDIO-3, GROOVE-1, SKETCHBOOK, KIN-8, UNDERTONE, LOCKSTEP, LATTICE, the POCKET family; played: OMNICHORD, STYLOPHONE, TAPE KEYS, THEREMIN.
 - **Shortlist, in order**:
   1. **OP-1-style workstation: SKETCHBOOK** (64 HP). Four encoders that follow the mode, on-panel
      keybed, screen; semi-modular (CLK / V/OCT / GATE / AUDIO in; CLK / PITCH / GATE / L / R out).
@@ -240,7 +240,16 @@ Have: MONO-1, STUDIO-3, GROOVE-1, SKETCHBOOK, KIN-8, UNDERTONE, LOCKSTEP, the PO
        it; right-click (or hold) to pick it and lock knobs on it.
      - Phase 2: patterns (A–D, chaining), copy / paste steps, micro-timing, retrigs, slides, a reverb
        send, per-track LFO, track mutes; then the sampler voice (with the sampler core).
-  4. **Tenori-on-style light grid**: 16×16 light buttons, patterns as pictures.
+  4. **Tenori-on-style light grid: LATTICE** (40 HP).
+     - ~~Phase 1~~ (done): 16×16 lights, four layers drawn on the same grid (selected layer bright,
+       the others dim, each its own colour); per layer MODE (SCORE: columns are time, rows pitch, a
+       column plays as a chord; BOUNCE: one ball per column dropped from its lit cell, sounding on
+       landing; RANDOM: the lit dots one at a time in no order), SOUND (BELL, PLUCK, GLASS, PAD, BASS
+       from SKETCHBOOK's engines; DRUMS: rows are its kit), OCTAVE, LOOP, RATE (1/4…1/32), VOLUME;
+       rows follow SCALE in KEY; every note ripples out across the lights; drag to draw; CLK / RUN /
+       RESET in, L1–L4 and L / R out.
+     - Phase 2: PUSH and SOLO modes, DRAW (play what you trace, then loop it), more layers (8–16),
+       per-layer swing, saved "pages" of the whole grid.
   5. **VL-Tone-style calculator synth**: a POCKET-sized sibling.
 - **Also pinned**: OP-XY / OP-Z-style sequencer brain (could drive VISION), EP-133-style sampler-composer,
   Kaossilator / KAOSS-style XY performance system, Game Boy + LSDJ-style chiptune tracker, Roland MC-707 /

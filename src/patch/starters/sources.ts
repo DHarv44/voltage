@@ -88,6 +88,15 @@ export const SOURCE_STARTERS: Record<string, Starter> = {
       toOut(k, [g, 'l'], [g, 'r'])
     },
   },
+  lattice: {
+    howTo: 'LATTICE playing its four layers. Pick a layer (1–4), click or drag across the lights to draw; MODE switches SCORE / BOUNCE / RANDOM.',
+    build(k) {
+      const g = k.add('lattice', { run: 1 })
+      const plate = k.add('plate', { decay: 0.6, mix: 0.25 })
+      k.wire(mix(k, [[g, 'l'], [g, 'r']], [0.7, 0.7]), [plate, 'in'])
+      toOut(k, [plate, 'l'], [plate, 'r'])
+    },
+  },
   groove: {
     howTo: 'GROOVE-1 running its pattern. Edit steps on its grid; try SWING.',
     build(k) {

@@ -59,6 +59,7 @@ import { sketchbook } from './specs/sketchbook'
 import { kin } from './specs/kin'
 import { undertone } from './specs/undertone'
 import { lockstep } from './specs/lockstep'
+import { lattice } from './specs/lattice'
 import { orbit } from './specs/orbit'
 import { life } from './specs/life'
 import { flock } from './specs/flock'
@@ -80,6 +81,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   kin,
   undertone,
   lockstep,
+  lattice,
   polycv,
   pvco,
   pvcf,

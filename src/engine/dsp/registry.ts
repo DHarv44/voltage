@@ -68,6 +68,7 @@ import { SketchbookDsp } from './sketchbook'
 import { KinDsp } from './kin'
 import { UndertoneDsp } from './undertone'
 import { LockstepDsp } from './lockstep'
+import { LatticeDsp } from './lattice'
 import { OrbitDsp } from './orbit'
 import { LifeDsp } from './life'
 import { FlockDsp } from './flock'
@@ -182,6 +183,7 @@ const CIRCUITS: Record<string, DspCtor> = {
   kin: KinDsp,
   undertone: UndertoneDsp,
   lockstep: LockstepDsp,
+  lattice: LatticeDsp,
   orbit: OrbitDsp,
   life: LifeDsp,
   flock: FlockDsp,
