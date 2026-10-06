@@ -80,6 +80,14 @@ export const SOURCE_STARTERS: Record<string, Starter> = {
       toOut(k, [plate, 'l'], [plate, 'r'], 0.65)
     },
   },
+  lockstep: {
+    howTo:
+      'LOCKSTEP playing four FM tracks. Pick a track, click steps to toggle trigs; right-click a step to select it, then turn a knob to lock it on that step (TRIG page: its note and condition).',
+    build(k) {
+      const g = k.add('lockstep', { run: 1 })
+      toOut(k, [g, 'l'], [g, 'r'])
+    },
+  },
   groove: {
     howTo: 'GROOVE-1 running its pattern. Edit steps on its grid; try SWING.',
     build(k) {

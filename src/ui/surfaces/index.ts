@@ -23,6 +23,7 @@ import { Bounce } from './Bounce'
 import { Tumbler } from './Tumbler'
 import { SketchFace } from './sketchbook/Face'
 import { SketchKeys } from './sketchbook/Keys'
+import { LockstepFace } from './lockstep/Face'
 import { Orbit } from './Orbit'
 import { Life } from './Life'
 import { Flock } from './Flock'
@@ -60,6 +61,7 @@ export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
   tumbler: Tumbler,
   sketchbook: SketchFace,
   sketchkeys: SketchKeys,
+  lockstep: LockstepFace,
   orbit: Orbit,
   life: Life,
   flock: Flock,

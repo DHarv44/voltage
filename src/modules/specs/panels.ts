@@ -19,6 +19,8 @@ export const PEDAL_ORANGE: PanelStyle = { bg: '#e07b22', fg: '#24160a', accent: 
 export const AMP: PanelStyle = { bg: '#1a1714', fg: '#e8d9a8', accent: '#d4af37' }
 /** Charcoal with a cool teal print (UNDERTONE). */
 export const SLATE: PanelStyle = { bg: '#2a2e33', fg: '#e8e6df', accent: '#4fc6d6' }
+/** Dark grey with an amber print (LOCKSTEP). */
+export const GRAPHITE: PanelStyle = { bg: '#232427', fg: '#d8d9dc', accent: '#ff8a2b' }
 export const SAND: PanelStyle = { bg: '#d8d0bd', fg: '#24211d', accent: '#c0392b' }
 /** The POCKET family's other colourways (bass, melody). */
 export const SAGE: PanelStyle = { bg: '#c3cfc6', fg: '#1d2621', accent: '#2d6cdf' }

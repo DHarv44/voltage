@@ -67,6 +67,7 @@ import { TumblerDsp } from './tumbler'
 import { SketchbookDsp } from './sketchbook'
 import { KinDsp } from './kin'
 import { UndertoneDsp } from './undertone'
+import { LockstepDsp } from './lockstep'
 import { OrbitDsp } from './orbit'
 import { LifeDsp } from './life'
 import { FlockDsp } from './flock'
@@ -180,6 +181,7 @@ const CIRCUITS: Record<string, DspCtor> = {
   sketchbook: SketchbookDsp,
   kin: KinDsp,
   undertone: UndertoneDsp,
+  lockstep: LockstepDsp,
   orbit: OrbitDsp,
   life: LifeDsp,
   flock: FlockDsp,

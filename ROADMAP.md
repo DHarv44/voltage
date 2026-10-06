@@ -16,14 +16,15 @@ extend VOLTAGE.
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (115)
+### Modules (116)
 - **POCKET family**: POCKET (drums), POCKET BASS (16 note steps, slide/accent, SUB/SQUARE/ACID), POCKET
   MELODY (scale degrees, per-step NOTE/CHORD/ARP, BELL/PLUCK/LEAD, poly NOTES). Drag a step to set its
   note, right-click for its flag; off WRITE the buttons are a keyboard. They follow each other's CLK.
 - **Systems**: MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine), SKETCHBOOK
   (portable workstation), KIN-8 (DFAM-style percussion: two VCOs, noise, ladder, three decays, 8-step
   pitch/velocity sequencer), UNDERTONE (Subharmonicon-style: two VCOs with phase-locked subharmonics,
-  two 4-step sequencers clocked by four polyrhythm dividers, OR/XOR, 12/8-tone equal or just quantizing).
+  two 4-step sequencers clocked by four polyrhythm dividers, OR/XOR, 12/8-tone equal or just quantizing),
+  LOCKSTEP (FM groovebox: parameter locks, conditional trigs, polymeter).
 - **Polyphonic**: POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX.
 - **Sources**: VCO, COMPLEX (Buchla-style), WAVE (band-limited wavetable), SUB, NOISE.
 - **Filters**: LADDER, SVF, MS-12.
@@ -201,7 +202,7 @@ Our own versions throughout: inspired by the classics, our own names, panels and
   patterns and scenes), velocity + aftertouch routing and MPE input, Scala / just-intonation tunings.
 
 ## Systems (whole instruments, our own names and looks)
-Have: MONO-1, STUDIO-3, GROOVE-1, SKETCHBOOK, KIN-8, UNDERTONE, the POCKET family; played: OMNICHORD, STYLOPHONE, TAPE KEYS, THEREMIN.
+Have: MONO-1, STUDIO-3, GROOVE-1, SKETCHBOOK, KIN-8, UNDERTONE, LOCKSTEP, the POCKET family; played: OMNICHORD, STYLOPHONE, TAPE KEYS, THEREMIN.
 - **Shortlist, in order**:
   1. **OP-1-style workstation: SKETCHBOOK** (64 HP). Four encoders that follow the mode, on-panel
      keybed, screen; semi-modular (CLK / V/OCT / GATE / AUDIO in; CLK / PITCH / GATE / L / R out).
@@ -229,8 +230,16 @@ Have: MONO-1, STUDIO-3, GROOVE-1, SKETCHBOOK, KIN-8, UNDERTONE, the POCKET famil
      that move a VCO and/or its sub divisions (ASSIGN grid); four rhythm dividers of the tempo routed to
      either sequencer (grid), OR / XOR; QUANTIZE OFF / 12-ET / 8-ET / 12-JI / 8-JI, SEQ RANGE ±1/±2/±5,
      GLIDE. UNDERTONE's ready-to-play rig clocks KIN-8 from its CLK, the way the pair is played.
-  3. **Elektron-style groovebox**: parameter locks, conditional trigs, an FM (Digitone) or sampler
-     (Digitakt) voice.
+  3. **Elektron-style groovebox: LOCKSTEP** (56 HP).
+     - ~~Phase 1~~ (done): four tracks, each an FM voice (operators C / A / B, six algorithms, eight
+       ratio sets, B feedback, mod envelope, pitch SWEEP for drums, AD amp, filter, pan, delay send);
+       16 steps per track with its own LENGTH and SPEED (1/4…2×), so tracks drift (polymeter); per
+       step a NOTE, a condition (ALWAYS, A:B, 75/50/25/10%, FILL / !FILL, FIRST / !FIRST) and
+       parameter locks on all twelve sound knobs (packed four to a param); swing, ping-pong delay,
+       momentary FILL; CLK / RUN / FILL / RESET in; CLK, T1–T4, L / R out. Click a step key to toggle
+       it; right-click (or hold) to pick it and lock knobs on it.
+     - Phase 2: patterns (A–D, chaining), copy / paste steps, micro-timing, retrigs, slides, a reverb
+       send, per-track LFO, track mutes; then the sampler voice (with the sampler core).
   4. **Tenori-on-style light grid**: 16×16 light buttons, patterns as pictures.
   5. **VL-Tone-style calculator synth**: a POCKET-sized sibling.
 - **Also pinned**: OP-XY / OP-Z-style sequencer brain (could drive VISION), EP-133-style sampler-composer,

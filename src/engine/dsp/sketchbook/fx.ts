@@ -2,7 +2,8 @@ import { Svf } from '../drumVoices'
 import { TAU } from '../util'
 
 export const FX_OFF = 0
-const DELAY = 1
+export const FX_DELAY = 1
+const DELAY = FX_DELAY
 const CHORUS = 2
 const PHONE = 3
 const CRUSH = 4
