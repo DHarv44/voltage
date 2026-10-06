@@ -197,6 +197,26 @@ Our own versions throughout: inspired by the classics, our own names, panels and
 - **Beyond modules**: per-module presets (save a module's settings), song mode / arranger (chain
   patterns and scenes), velocity + aftertouch routing and MPE input, Scala / just-intonation tunings.
 
+## Systems (whole instruments, our own names and looks)
+Have: MONO-1, STUDIO-3, GROOVE-1, the POCKET family; played: OMNICHORD, STYLOPHONE, TAPE KEYS, THEREMIN.
+- **Shortlist, in order**:
+  1. **OP-1-style workstation** (in progress): four-knob synth engines, modes (SYNTH / DRUM / TAPE /
+     MIXER), playful sequencers (TUMBLER inside), 4-track tape with tricks, mixer, on-panel keys and a
+     screen; semi-modular (CLK in/out, PITCH/GATE out, AUDIO IN to tape, track outs, CV for the knobs).
+     Phases: 1 shell + engines + pattern sequencer + tape + mixer; 2 more engines, drums, sequencers;
+     3 tape tricks, recording audio in.
+  2. **DFAM + Subharmonicon-style pair**: semi-modular percussion (8-step pitch/velocity) and
+     subharmonic polyrhythms.
+  3. **Elektron-style groovebox**: parameter locks, conditional trigs, an FM (Digitone) or sampler
+     (Digitakt) voice.
+  4. **Tenori-on-style light grid**: 16×16 light buttons, patterns as pictures.
+  5. **VL-Tone-style calculator synth**: a POCKET-sized sibling.
+- **Also pinned**: OP-XY / OP-Z-style sequencer brain (could drive VISION), EP-133-style sampler-composer,
+  Kaossilator / KAOSS-style XY performance system, Game Boy + LSDJ-style chiptune tracker, Roland MC-707 /
+  Novation Circuit-style clip groovebox, Korg Volca-style stack, Juno-60/106-style poly, Model D-style
+  mono, Buchla Easel-style west coast, Make Noise 0-Coast-style, DX7 / Casio CZ voices, Prophet-5-style
+  poly; samplers per the sampler review (SP-404 / MPC, Octatrack, M8 / Polyend tracker).
+
 ## Pinned for later: samplers (industry review)
 A sampler's sound is its hardware, so model the hardware: bits, rate, anti-alias filter (or none),
 variable-rate playback (aliasing that follows pitch), companding, per-voice analog filter, time-stretch
