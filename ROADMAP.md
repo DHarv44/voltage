@@ -212,8 +212,10 @@ Have: MONO-1, STUDIO-3, GROOVE-1, the POCKET family; played: OMNICHORD, STYLOPHO
        TumbleCore) / DRIFT (mutating pattern, KEEP); DRUM mode: 8-sound analog kit, 16 steps per
        sound, edited by touching the screen grid.
      - Later in phase 2's spirit: a sampler engine, a sketch (draw-a-melody) sequencer.
-     - Phase 3: tape tricks (lift/drop, reverse, speed, loop points), separate track outs, CV for the
-       encoders, save the tape with the patch.
+     - ~~Phase 3~~ (done): TAPE TRICKS page: varispeed SPEED (−2…2×, negative = reverse, motor
+       inertia), LOOP IN / OUT, WOW, LIFT / DROP (touch buttons on the screen); touch a lane to pick
+       the track; T1–T4 track outputs; K1–K4 CV onto the sound's knobs; the tape is kept with the patch
+       (and Export audio (WAV) per track).
   2. **DFAM + Subharmonicon-style pair**: semi-modular percussion (8-step pitch/velocity) and
      subharmonic polyrhythms.
   3. **Elektron-style groovebox**: parameter locks, conditional trigs, an FM (Digitone) or sampler

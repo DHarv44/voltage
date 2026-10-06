@@ -34,7 +34,12 @@ export class SketchbookDsp extends Dsp implements Player {
     stype: this.pi('stype'), arate: this.pi('arate'), aoct: this.pi('aoct'), amode: this.pi('amode'),
     tspin: this.pi('tspin'), tgrav: this.pi('tgrav'), tballs: this.pi('tballs'), dchange: this.pi('dchange'),
     mode: this.pi('mode'), dk: this.pi('d0_0'), dm: this.pi('dm0'),
+    tspd: this.pi('tspd'), tin: this.pi('tin'), tout: this.pi('tout'), twow: this.pi('twow'),
   }
+  /** K1–K4: CV onto the sound's four knobs (consecutive inputs). */
+  private readonly iK = this.ii('k1')
+  /** T1–T4 (consecutive outputs). */
+  private readonly oT = this.oi('t1')
   private readonly seq: SketchSeq
   private readonly drums: SketchDrums
   private drumStep = -1
@@ -107,9 +112,26 @@ export class SketchbookDsp extends Dsp implements Player {
     else this.noteOff(volts)
   }
 
+  /** The sound's four knobs, with K1–K4 CV on top (±5 V = ± half their travel). */
   private loadKnobs(): void {
     const base = this.p0.k + Math.round(this.p[this.p0.engine]) * 4
-    for (let i = 0; i < 4; i++) this.knobs[i] = this.p[base + i]
+    for (let i = 0; i < 4; i++) this.knobs[i] = Math.min(1, Math.max(0, this.p[base + i] + this.in[this.iK + i] / 10))
+  }
+
+  /** Saved tape tracks coming back (a reload, undo). */
+  loadBuffer(slot: number, rate: number, data: Float32Array): void {
+    const t = this.tape.tracks[slot]
+    if (!t || rate !== this.fs) return
+    const n = Math.min(t.length, data.length)
+    t.set(data.subarray(0, n))
+    this.tape.ends[slot] = n
+  }
+
+  /** A track for "Export audio (WAV)". */
+  dumpBuffer(slot: number): { rate: number; data: Float32Array } | null {
+    const t = this.tape.tracks[slot]
+    const n = this.tape.ends[slot] ?? 0
+    return t && n ? { rate: this.fs, data: t.slice(0, n) } : null
   }
 
   onMidi(ev: MidiEvent): void {
@@ -127,6 +149,8 @@ export class SketchbookDsp extends Dsp implements Player {
     else if (ev.name === 'kick' && ev.down) this.seq.drum.kick(Math.round(this.p[this.p0.tballs]))
     else if (ev.name === 'rec' && ev.down) this.tape.recording = !this.tape.recording
     else if (ev.name === 'clear' && ev.down) this.tape.clear(Math.round(ev.x))
+    else if (ev.name === 'lift' && ev.down) this.tape.lift(Math.round(ev.x), this.p[this.p0.tin], this.p[this.p0.tout])
+    else if (ev.name === 'drop' && ev.down) this.tape.drop(Math.round(ev.x))
   }
 
   tick(): void {
@@ -135,7 +159,7 @@ export class SketchbookDsp extends Dsp implements Player {
     const fs = this.fs
     const running = p[q.run] >= 0.5
     if (running && !this.wasRunning) {
-      this.tape.rewind()
+      this.tape.rewind(p[q.tin], p[q.tout], p[q.tspd])
       this.seq.step = -1
       this.drumStep = -1
     }
@@ -194,15 +218,26 @@ export class SketchbookDsp extends Dsp implements Player {
     // tempo; it records the effected sound and AUDIO in), then the mix
     const fx = this.fx
     fx.process(synth, Math.round(p[q.fx]), p[q.fxmix], p[q.fxa], p[q.fxb], c.stepLen)
-    if ((this.n++ & 63) === 0) this.tape.setLength(Math.round(p[q.bars]), c.stepLen, fs)
+    const tp = this.tape
+    if ((this.n++ & 63) === 0) tp.setLength(Math.round(p[q.bars]), c.stepLen)
     const audio = this.patched[this.iAudio] ? this.in[this.iAudio] / 5 : 0
     const drums = this.drums.step(p, q.dk) * 0.45 // the kit sits under the synth, not on top of it
-    this.tape.step((fx.l[0] + fx.r[0]) * 0.5 + drums + audio, running, Math.round(p[q.trk]), p[q.drive], this.trackOut)
+    const trk = Math.round(p[q.trk])
+    tp.step((fx.l[0] + fx.r[0]) * 0.5 + drums + audio, running, trk, p[q.drive], p[q.tspd], p[q.tin], p[q.tout], p[q.twow], this.trackOut)
+    const o = this.out
     let tape = audio + drums
-    for (let t = 0; t < SB_TRACKS; t++) tape += this.trackOut[t] * p[q.lv + t]
+    for (let t = 0; t < SB_TRACKS; t++) {
+      const y = this.trackOut[t] * p[q.lv + t]
+      tape += y
+      o[this.oT + t] = y * 5
+      // a track that changed goes to the rack to be kept with the patch
+      if (tp.changed[t]) {
+        tp.changed[t] = 0
+        this.bufferOut.push({ slot: t, rate: fs, data: tp.tracks[t].subarray(0, tp.ends[t]) })
+      }
+    }
     const gain = p[q.master] * 2
 
-    const o = this.out
     o[0] = c.clkSample()
     o[1] = this.lastVolts
     o[2] = gates > 0 ? 10 : 0

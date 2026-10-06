@@ -72,6 +72,9 @@ export const SB_VOICES = 6
 export const SB_KEYS = 25
 /** Longest tape loop (s): 8 bars at 60 bpm. */
 export const SB_TAPE_S = 32
+/** TAPE's pages: the tracks (length, which, drive, synth level) and the tricks
+ *  (speed / reverse, loop in, loop out, wow); LIFT and DROP are on the screen. */
+export const SB_TAPE_PAGES = ['TRACKS', 'TRICKS']
 
 /** Engine → screen state on the LED channel: transport and meters, then the
  *  drum (angle, x,y per ball), the drifting pattern, the arpeggio's notes. */
@@ -95,26 +98,32 @@ export const SBL = {
   end: L0 + 3 + SB_BALLS * 2 + SB_STEPS + SB_ARP_MAX + SB_DRUMS.length,
 } as const
 
-/** The four encoders' params in a mode (SYNTH: the engine's knobs, or the
- *  envelope on page 2). Shared by the face and the docs. */
-export function encoderParams(mode: number, page: number, engine: number, seq = PATTERN, drum = 0): string[] {
-  switch (mode) {
+/** The four encoders' params right now: they follow the mode and its page
+ *  (SYNTH: sound / envelope / FX / LFO; SEQ: the sequencer type; DRUM: the
+ *  selected sound; TAPE: tracks / tricks). Shared by the face and the docs. */
+export function encoderParams(p: Record<string, number>): string[] {
+  const r = (id: string) => Math.round(p[id] ?? 0)
+  switch (r('mode')) {
     case DRUM:
-      return [0, 1, 2, 3].map((i) => `d${drum}_${i}`)
-    case SEQ:
+      return [0, 1, 2, 3].map((i) => `d${r('dsel')}_${i}`)
+    case SEQ: {
+      const seq = r('stype')
       if (seq === ARP) return ['tempo', 'arate', 'aoct', 'amode']
       if (seq === TUMBLE) return ['tspin', 'tgrav', 'tballs', 'len']
       if (seq === DRIFT) return ['tempo', 'len', 'dchange', 'glen']
       return ['tempo', 'len', 'swing', 'glen']
+    }
     case TAPE:
-      return ['bars', 'trk', 'drive', 'vol']
+      return r('tpage') === 1 ? ['tspd', 'tin', 'tout', 'twow'] : ['bars', 'trk', 'drive', 'vol']
     case MIX:
       return ['lv0', 'lv1', 'lv2', 'lv3']
-    default:
+    default: {
+      const page = r('page')
       if (page === 1) return ['a', 'd', 's', 'r']
       if (page === 2) return ['fx', 'fxmix', 'fxa', 'fxb']
       if (page === 3) return ['lfo', 'lrate', 'ldepth', 'ldest']
-      return [0, 1, 2, 3].map((i) => `k${engine}_${i}`)
+      return [0, 1, 2, 3].map((i) => `k${r('engine')}_${i}`)
+    }
   }
 }
 
@@ -131,7 +140,7 @@ export function encoderLabels(p: Record<string, number>, fallback: (id: string) 
   }
   if (mode === SEQ && Math.round(p.stype) === TUMBLE) return ['SPIN', 'GRAVITY', 'BALLS', 'SIDES']
   if (mode === DRUM) return ['TUNE', 'DECAY', 'TONE', 'LEVEL']
-  return encoderParams(mode, page, engine, Math.round(p.stype)).map(fallback)
+  return encoderParams(p).map(fallback)
 }
 
 /** The LFO's destination, named for the selected engine (KNOB 1 → SHAPE …). */
@@ -184,24 +193,33 @@ const params: ParamSpec[] = [
   { id: 'run', label: 'PLAY', min: 0, max: 1, def: 0, stepped: true, options: ['STOP', 'PLAY'] },
   { id: 'bars', label: 'BARS', min: 1, max: 8, def: 2, stepped: true },
   { id: 'trk', label: 'TRACK', min: 0, max: SB_TRACKS - 1, def: 0, stepped: true, options: ['1', '2', '3', '4'] },
+  { id: 'tpage', label: 'TAPE PAGE', min: 0, max: 1, def: 0, stepped: true, options: SB_TAPE_PAGES },
+  { id: 'tspd', label: 'SPEED', min: -2, max: 2, def: 1, unit: 'x' },
+  { id: 'tin', label: 'LOOP IN', min: 0, max: 1, def: 0, unit: '%' },
+  { id: 'tout', label: 'LOOP OUT', min: 0, max: 1, def: 1, unit: '%' },
+  { id: 'twow', label: 'WOW', min: 0, max: 1, def: 0.15, unit: '%' },
   { id: 'drive', label: 'DRIVE', min: 0, max: 1, def: 0.25, unit: '%' },
   { id: 'vol', label: 'SYNTH', min: 0, max: 1, def: 0.8, unit: '%' },
   ...[0, 1, 2, 3].map((t) => ({ id: `lv${t}`, label: `TRACK ${t + 1}`, min: 0, max: 1, def: 0.8, unit: '%' as const })),
   { id: 'master', label: 'MASTER', min: 0, max: 1, def: 0.7, unit: '%' },
 ]
 
+/** K1–K4 move the sound's four knobs (±5 V = ± half their travel). */
 const inputs: ModuleSpec['inputs'] = [
   { id: 'clk', label: 'CLK' },
   { id: 'voct', label: 'V/OCT' },
   { id: 'gate', label: 'GATE' },
   { id: 'audio', label: 'AUDIO' },
+  ...[1, 2, 3, 4].map((i) => ({ id: `k${i}`, label: `K${i}` })),
 ]
+/** T1–T4: each tape track on its own (after its level). */
 const outputs: ModuleSpec['outputs'] = [
   { id: 'clko', label: 'CLK' },
   { id: 'pitch', label: 'PITCH' },
   { id: 'gateo', label: 'GATE' },
   { id: 'l', label: 'L' },
   { id: 'r', label: 'R' },
+  ...[1, 2, 3, 4].map((i) => ({ id: `t${i}`, label: `T${i}` })),
 ]
 
 const HP = 64

@@ -6,7 +6,7 @@ import { engine } from './engine'
 import { encodeWav24 } from './wav'
 
 /** Module types that hold audio, and how many slots each has. */
-export const BUFFER_SLOTS: Record<string, number> = { loop: 4, sample: 1, turntable: 1, lpedal: 1, fourtrack: 4, chop: 1 }
+export const BUFFER_SLOTS: Record<string, number> = { loop: 4, sample: 1, turntable: 1, lpedal: 1, fourtrack: 4, chop: 1, sketchbook: 4 }
 
 const MAX_FILE_SECONDS = 60
 

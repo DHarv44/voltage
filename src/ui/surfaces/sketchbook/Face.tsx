@@ -27,6 +27,7 @@ import { drawCanvasKnob, useCanvasKnobs, type CanvasKnob } from '../canvasKnob'
 import { RES, sendSurface, useFrame, type SurfaceProps } from '../common'
 import { sketchCursor } from './cursor'
 import { drumCellAt } from './drumScreen'
+import { tapeHit } from './tapeScreen'
 import { drawScreen, screenBody } from './screen'
 
 /** Layout as fractions of the face. */
@@ -69,7 +70,7 @@ export function SketchFace({ inst, spec, x, y, w, h }: SurfaceProps) {
     const p = live()
     const specOf = (id: string) => spec.params.find((s) => s.id === id)!
     const labels = encoderLabels(p, (id) => specOf(id).label)
-    return encoderParams(Math.round(p.mode), Math.round(p.page), Math.round(p.engine), Math.round(p.stype), Math.round(p.dsel)).map((id, i) => {
+    return encoderParams(p).map((id, i) => {
       const ps = specOf(id)
       return { fx: ENC_X[i], fy: ENC_Y, fr: ENC_R, ps, value: p[id] ?? ps.def, set: (v) => set(id, v), label: labels[i] }
     })
@@ -137,6 +138,7 @@ export function SketchFace({ inst, spec, x, y, w, h }: SurfaceProps) {
       { label: '● REC', x: CLUSTER_X[0], y: ROW_Y[1], w: BTN.w, lit: rec, press: () => sendSurface(mod, 'rec', 0, 0, true) },
       { label: p.run >= 0.5 ? '■ STOP' : '▶ PLAY', x: CLUSTER_X[1], y: ROW_Y[1], w: BTN.w, lit: p.run >= 0.5, press: () => set('run', p.run >= 0.5 ? 0 : 1) },
       ...(mode === SEQ ? [{ label: 'TYPE', x: CLUSTER_X[2], y: ROW_Y[1], w: BTN.w, press: () => set('stype', (Math.round(p.stype) + 1) % SB_SEQS.length) }] : []),
+      ...(mode === TAPE ? [{ label: 'PAGE', x: CLUSTER_X[2], y: ROW_Y[1], w: BTN.w, lit: p.tpage >= 0.5, press: () => set('tpage', p.tpage >= 0.5 ? 0 : 1) }] : []),
       { label: 'OCT−', x: CLUSTER_X[3], y: ROW_Y[1], w: BTN.w, press: () => set('oct', Math.max(-2, Math.round(p.oct) - 1)) },
     ]
   }
@@ -182,8 +184,18 @@ export function SketchFace({ inst, spec, x, y, w, h }: SurfaceProps) {
     const fx = (e.clientX - r.left) / r.width
     const fy = (e.clientY - r.top) / r.height
     const p = live()
+    const body = screenBody(screenRect(W, H))
+    // TAPE: touch a lane to pick the track; TRICKS has LIFT and DROP on the screen
+    const tap = Math.round(p.mode) === TAPE ? tapeHit(body, p.tpage >= 0.5, fx * W, fy * H) : null
+    if (tap) {
+      e.stopPropagation()
+      e.preventDefault()
+      if (typeof tap === 'object') set('trk', tap.lane)
+      else sendSurface(mod, tap, Math.round(p.trk), 0, true)
+      return
+    }
     // DRUM: the screen is a touch grid (click a cell to toggle it, a name to pick the sound)
-    const cell = Math.round(p.mode) === DRUM ? drumCellAt(screenBody(screenRect(W, H)), fx * W, fy * H) : null
+    const cell = Math.round(p.mode) === DRUM ? drumCellAt(body, fx * W, fy * H) : null
     if (cell) {
       e.stopPropagation()
       e.preventDefault()

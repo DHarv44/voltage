@@ -12,6 +12,7 @@ import {
   SB_MODES,
   SB_PAGES,
   SB_SEQS,
+  SB_TAPE_PAGES,
   SB_TRACKS,
   SBL,
   SEQ,
@@ -19,6 +20,7 @@ import {
   TAPE,
 } from '../../../modules/specs/sketchbook'
 import { drawDrums } from './drumScreen'
+import { drawTape } from './tapeScreen'
 import { drawSequencer } from './seqScreen'
 
 export interface ScreenRect {
@@ -72,7 +74,7 @@ export function drawScreen(ctx: CanvasRenderingContext2D, r: ScreenRect, s: Scre
       : mode === DRUM
         ? SB_DRUMS[Math.round(p.dsel)]
         : mode === TAPE
-        ? `TRACK ${Math.round(p.trk) + 1}`
+        ? `TRACK ${Math.round(p.trk) + 1} · ${SB_TAPE_PAGES[Math.round(p.tpage)]}${Math.round(p.tpage) === 1 ? ` ${p.tspd.toFixed(2)}×` : ''}`
         : mode === SEQ
           ? `${SB_SEQS[Math.round(p.stype)]} · ${Math.round(p.tempo)}`
           : 'LEVELS'
@@ -189,44 +191,6 @@ function drawEnvelope(ctx: CanvasRenderingContext2D, b: ScreenRect, s: ScreenSta
     ctx.lineTo(...pts[i + 1])
     ctx.stroke()
   }
-}
-
-/** TAPE: two reels turning while it plays, four lanes with the playhead. */
-function drawTape(ctx: CanvasRenderingContext2D, b: ScreenRect, s: ScreenState): void {
-  const pos = s.led?.[SBL.pos] ?? 0
-  const run = (s.led?.[SBL.run] ?? 0) > 0.5
-  const rec = (s.led?.[SBL.rec] ?? 0) > 0.5
-  const trk = Math.round(s.p.trk)
-  const reelR = b.h * 0.3
-  const spin = run ? s.t * 2.2 : 0
-  for (const [k, cx] of [b.x + reelR, b.x + reelR * 3.3].entries()) {
-    const cy = b.y + reelR
-    ctx.strokeStyle = INK
-    ctx.lineWidth = 2
-    ctx.beginPath()
-    ctx.arc(cx, cy, reelR * (k === 0 ? 0.95 - pos * 0.3 : 0.65 + pos * 0.3), 0, TAU)
-    ctx.stroke()
-    for (let sp = 0; sp < 3; sp++) {
-      const a = spin + (sp * TAU) / 3
-      ctx.beginPath()
-      ctx.moveTo(cx, cy)
-      ctx.lineTo(cx + Math.cos(a) * reelR * 0.5, cy + Math.sin(a) * reelR * 0.5)
-      ctx.stroke()
-    }
-  }
-  const lx = b.x + reelR * 4.6
-  const lw = b.x + b.w - lx
-  const lh = b.h / SB_TRACKS
-  for (let t = 0; t < SB_TRACKS; t++) {
-    const y = b.y + t * lh
-    const peak = s.led?.[SBL.peak + t] ?? 0
-    ctx.fillStyle = t === trk ? (rec ? 'rgba(255,77,61,0.25)' : 'rgba(255,255,255,0.1)') : 'rgba(255,255,255,0.04)'
-    ctx.fillRect(lx, y + lh * 0.12, lw, lh * 0.76)
-    ctx.fillStyle = SB_COLORS[t]
-    ctx.fillRect(lx, y + lh * 0.12, Math.min(1, peak * 1.5) * lw * 0.12 + 2, lh * 0.76)
-  }
-  ctx.fillStyle = rec ? REC : INK
-  ctx.fillRect(lx + pos * lw - 1, b.y, 2, b.h)
 }
 
 /** MIX: a fader per tape track with its level meter. */

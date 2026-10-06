@@ -111,7 +111,7 @@ The full list, with what each module does, is in [ROADMAP.md](ROADMAP.md#modules
 
 | Family | For example |
 |---|---|
-| **Systems** | MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine), SKETCHBOOK (portable workstation: 7 four-knob synth engines with an effect and LFO each, a drum kit, pattern / arpeggio / tumbling-drum / drifting sequencers, 4-track loop tape, mixer, keybed) |
+| **Systems** | MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine), SKETCHBOOK (portable workstation: 7 four-knob synth engines with an effect and LFO each, a drum kit, pattern / arpeggio / tumbling-drum / drifting sequencers, 4-track loop tape with varispeed, reverse, loop points and lift/drop, mixer, keybed; kept with the patch) |
 | **Sound sources** | VCO, complex (west-coast) oscillator, wavetable, sub, noise |
 | **Filters and amps** | Ladder, SVF, MS-12, VCAs |
 | **Modulation** | ADSR, FUNC (Maths-style), LFO, S&H, follower, the XY touch pad |
