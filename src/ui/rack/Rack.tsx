@@ -10,7 +10,7 @@ import { CableLayer } from './CableLayer'
 import { ContextMenu } from './ContextMenu'
 import { JackMenu } from './JackMenu'
 import { JackReadout } from './JackReadout'
-import { RowMenu, type RowMenuState } from './RowMenu'
+import { RemoveRowDialog, RowMenu, type RowMenuState } from './RowMenu'
 import { libraryPreview, placementOf } from './dragPreview'
 import { libraryDrag } from './libraryDrag'
 import { useRackInteractions } from './useRackInteractions'
@@ -39,6 +39,8 @@ export function Rack() {
   const closeJackMenu = useCallback(() => setJackMenu(null), [setJackMenu])
   const [rowMenu, setRowMenu] = useState<RowMenuState | null>(null)
   const closeRowMenu = useCallback(() => setRowMenu(null), [])
+  const [removing, setRemoving] = useState<number | null>(null)
+  const closeRemoving = useCallback(() => setRemoving(null), [])
 
   const libPreview = useMemo(
     () => (lib ? libraryPreview(lib.type, toLocal(lib), patch) : null),
@@ -112,7 +114,8 @@ export function Rack() {
       )}
       {menu && <ContextMenu menu={menu} onClose={() => setMenu(null)} />}
       {jackMenu && <JackMenu menu={jackMenu} onClose={closeJackMenu} />}
-      {rowMenu && <RowMenu menu={rowMenu} onClose={closeRowMenu} />}
+      {rowMenu && <RowMenu menu={rowMenu} onClose={closeRowMenu} onAsk={setRemoving} />}
+      {removing !== null && <RemoveRowDialog row={removing} onClose={closeRemoving} />}
       {!cable && !move && <JackReadout />}
     </div>
   )

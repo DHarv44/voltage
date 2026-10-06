@@ -4,11 +4,6 @@ import type { Patch } from './types'
 
 /** Row edits as pure functions on a patch (the store commits them). */
 
-/** The rack with a new empty row inserted at `at` (rows from there move down). */
-export function withRowAt(p: Patch, at: number): Patch {
-  return { ...p, rows: p.rows + 1, modules: p.modules.map((m) => (m.row >= at ? { ...m, row: m.row + 1 } : m)) }
-}
-
 /** The rack without row `row` (the rows below move up), or null if it can't
  *  be done. Its modules either go (`delete`, with their cables) or move to
  *  free space in the other rows (`move`: nearest rows first, biggest panels

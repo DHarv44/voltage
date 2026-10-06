@@ -1087,6 +1087,65 @@ button {
 .ctx-menu button.danger {
   color: #ff8a7e;
 }
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.5);
+}
+.dialog {
+  width: min(420px, 100%);
+  padding: 16px 18px 14px;
+  border-radius: 8px;
+  background: #1f2024;
+  border: 1px solid #3a3c41;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+  font-size: 13px;
+}
+.dialog-title {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+.dialog-body {
+  color: var(--muted);
+  line-height: 1.45;
+}
+.dialog-note {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #e0b26a;
+}
+.dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 14px;
+}
+.dialog-actions button {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid #3a3c41;
+  background: #2a2c31;
+  color: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.dialog-actions button:hover:not(:disabled) {
+  background: #34363c;
+}
+.dialog-actions button.danger {
+  color: #ff8a7e;
+}
+.dialog-actions button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
 .ctx-menu button:disabled {
   opacity: 0.4;
   cursor: default;
