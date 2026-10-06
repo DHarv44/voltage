@@ -13,13 +13,16 @@ export const SEQ = 1
 export const TAPE = 2
 export const MIX = 3
 export const SB_PAGES = ['SOUND', 'ENVELOPE']
-export const SB_ENGINES = ['TWIN', 'DUO', 'PLUCK', 'SWARM']
+export const SB_ENGINES = ['TWIN', 'DUO', 'PLUCK', 'SWARM', 'PHASE', 'DUST', 'WAVE']
 /** Each engine's four knobs (names, and where they start). */
 export const SB_ENGINE_KNOBS: { names: string[]; defs: number[] }[] = [
   { names: ['SHAPE', 'DETUNE', 'CUTOFF', 'RESO'], defs: [0.3, 0.35, 0.5, 0.3] },
   { names: ['RATIO', 'INDEX', 'FEEDBK', 'DECAY'], defs: [0.2, 0.4, 0.15, 0.4] },
   { names: ['DAMP', 'BRIGHT', 'BODY', 'PLUCK'], defs: [0.6, 0.6, 0.5, 0.25] },
   { names: ['DETUNE', 'SPREAD', 'CUTOFF', 'SUB'], defs: [0.45, 0.6, 0.6, 0.2] },
+  { names: ['WAVE', 'DCW', 'ENV', 'RESO'], defs: [0.1, 0.6, 0.6, 0.4] },
+  { names: ['COLOR', 'RING', 'GRIT', 'BODY'], defs: [0.3, 0.7, 0.2, 0.3] },
+  { names: ['POSITION', 'WARP', 'CUTOFF', 'TWIN'], defs: [0.4, 0.2, 0.6, 0.4] },
 ]
 /** The four encoder colours, left to right (also the screen's colour code). */
 export const SB_COLORS = ['#ff6b5b', '#ffbe3d', '#3ddc97', '#4aa8ff']

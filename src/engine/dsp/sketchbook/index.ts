@@ -5,7 +5,8 @@ import { Dsp } from '../base'
 import { Schmitt } from '../cores'
 import { PocketClock } from '../pocketClock'
 import { Tape } from './tape'
-import { render, Voice } from './voice'
+import { render } from './engines'
+import { Voice } from './voice'
 
 /** SKETCHBOOK (see the spec): six voices on the selected engine, played from
  *  its keybed, the computer keyboard / MIDI, V/OCT+GATE, or its own pattern;
@@ -55,7 +56,7 @@ export class SketchbookDsp extends Dsp {
       if (x.born < v.born) v = x
     }
     this.loadKnobs()
-    v.start(volts, vel, hold, this.born++, this.knobs, this.rng, this.fs)
+    v.start(volts, vel, hold, this.born++, this.knobs, this.fs)
     this.lastVolts = volts
   }
 
