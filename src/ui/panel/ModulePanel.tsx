@@ -76,7 +76,6 @@ export const ModulePanel = memo(function ModulePanel({ inst, row, hp, lifted, ha
               key={i}
               mod={inst.id}
               view={Math.round(inst.params.scene ?? 0)}
-              cam={inst.params.cam ?? 0}
               x={c.x}
               y={c.y}
               w={c.w}

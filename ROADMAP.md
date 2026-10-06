@@ -84,9 +84,10 @@ extend VOLTAGE.
     STATE / LIGHT out (the table is in `specs/vision.ts`). COUNT sets how many things a scene has
     (up to 6 jellies, 10 plants, 48 fireflies, 6 curtains, 5000 grains).
   - VISION CORE (the engine, no screen) + any number of VISION VIEWs patched from LINK, each with its
-    own scene and camera (WIDE / ANGLE / CLOSE) in every scene. All scenes live at once.
+    own scene and its own pan and zoom. All scenes live at once.
   - The glass is a touch screen (poke the jelly, plant seeds, flash a torch at the fireflies, set off a
-    substorm, knock/bend the plate). Sizes 12 / 20 / 28 / 40 HP with the controls packed so the glass
+    substorm, knock/bend the plate), with pan and zoom: scroll or pinch to zoom toward the pointer,
+    middle-drag or two fingers to pan, never past the scene's own framing; touches follow the view. Sizes 12 / 20 / 28 / 40 HP with the controls packed so the glass
     gets the space; full screen and pop-out on hover.
   - One shared WebGL renderer for every screen; three.js loads only when a tank is on the rack.
   - **VECTOR** (XY-mode CRT, phosphor persistence, beam dims with speed), **WATERFALL** (log-frequency
@@ -141,8 +142,8 @@ extend VOLTAGE.
   - Shared upgrades: 16 hold-to-play punch-in effects (stutter, loop, filter sweep, crush, retrigger,
     reverse), several patterns per pocket chained into a song, a family LCD with its own animated mascot.
 - **VISION extras**: TOUCH X / Y / GATE outputs (the glass as a performance pad), a DEPTH output for the
-  jelly, more CLOSE options (slow orbit, distance), and the new scenes (coral reef, rain on a pond,
-  starling murmuration) built in 3D so every camera has something to see.
+  jelly, and the new scenes (coral reef, rain on a pond, starling murmuration) built in 3D so there's
+  something to see wherever you zoom.
 
 ## Pinned for later: cloud saving, short links and a public gallery
 Goal: short links anyone can open; public patches browsable on the site; private patches only their

@@ -60,20 +60,10 @@ export const auroraScene: SceneFactory = (aspect, seed) => {
   return {
     scene,
     camera,
-    aim(cam, dt) {
-      if (cam === 1) {
-        // ANGLE: lying in the snow, looking up into the curtains
-        rig.pos.set(0, -0.7, 1.3)
-        rig.at.set(0, 0.8, -0.9)
-      } else if (cam === 2) {
-        // CLOSE: right up under the nearest curtain
-        rig.pos.set(0.25, 0.2, 0.55)
-        rig.at.set(-0.1, 0.45, -0.5)
-      } else {
-        rig.pos.set(0, 0, 3)
-        rig.at.set(0, 0, 0)
-      }
-      rig.apply(cam, dt)
+    aim(dt) {
+      rig.pos.set(0, 0, 3)
+      rig.at.set(0, 0, 0)
+      rig.apply(dt)
     },
     pick(u, v) {
       // anywhere in the sky: tap for a substorm, drag to push the curtains

@@ -91,7 +91,6 @@ export const jellyScene: SceneFactory = (aspect, seed) => {
   let pitch = 0
   let reach = 1
   const rig = new CameraRig(camera, bg)
-  const zMid = (Z_BACK + Z_FRONT) / 2
   const hit = new THREE.Vector3()
 
   /** A spot in the tank (0..1 across, up, deep) → world, inside the glass. */
@@ -104,21 +103,10 @@ export const jellyScene: SceneFactory = (aspect, seed) => {
   return {
     scene,
     camera,
-    aim(cam, dt) {
-      const p = lead
-      if (cam === 1) {
-        // ANGLE: through the tank's end wall; depth runs across the screen
-        rig.pos.set(3.2, 0, zMid)
-        rig.at.set(0, 0, zMid)
-      } else if (cam === 2) {
-        // CLOSE: just in front of the (lead) jelly, following it
-        rig.pos.set(p.x * 0.85, p.y * 0.85 + 0.05, Math.min(CAM_Z - 0.1, p.z + 1.3))
-        rig.at.copy(p)
-      } else {
-        rig.pos.set(0, 0, CAM_Z)
-        rig.at.set(0, 0, 0)
-      }
-      rig.apply(cam, dt)
+    aim(dt) {
+      rig.pos.set(0, 0, CAM_Z)
+      rig.at.set(0, 0, 0)
+      rig.apply(dt)
     },
     pick(u, v) {
       // on the plane facing the camera through the lead jelly, in tank units

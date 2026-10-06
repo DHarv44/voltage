@@ -3,12 +3,6 @@ import { HP_MM, type Control, type ModuleSpec } from '../types'
 import { BLACK } from './panels'
 import { GLASS_GAP, GLASS_TOP, SCREEN_SIZES, VISION_INPUTS, VISION_LEDS, VISION_OUTPUTS, VISION_PARAMS, VISION_SCENES, VISION_SETTINGS, VS } from './vision'
 
-/** Camera angles a VISION VIEW can take, in every scene: WIDE (the whole
- *  scene, straight on), ANGLE (another side of it: the jelly's tank end, the
- *  garden from eye level, the sky overhead, the plate at a slant) and CLOSE
- *  (following the subject: the jelly, the newest bloom, a firefly). */
-export const VIEW_CAMS = ['WIDE', 'ANGLE', 'CLOSE'] as const
-
 const C3 = [10, 25.4, 40.8]
 
 /** VISION's creature engine without the glass: the same scenes, CV in and CV
@@ -53,17 +47,17 @@ export const VIEW_SCENES = ['LINKED', ...VISION_SCENES] as const
 const VIEW_INPUTS: ModuleSpec['inputs'] = [{ id: 'link', label: 'LINK' }]
 const VIEW_PARAMS: ModuleSpec['params'] = [
   { id: 'scene', label: 'SCENE', min: 0, max: VIEW_SCENES.length - 1, def: 0, stepped: true, options: [...VIEW_SCENES] },
-  { id: 'cam', label: 'CAMERA', min: 0, max: VIEW_CAMS.length - 1, def: 0, stepped: true, options: [...VIEW_CAMS] },
 ]
 
 /** A screen for a VISION or VISION CORE: patch its LINK into this LINK. Add
  *  as many as you like; each picks its own scene (LINKED follows the tank's
- *  SCENE knob) and its own camera on the 3D tank. */
+ *  SCENE knob) and has its own pan and zoom on the 3D tank (scroll or pinch to
+ *  zoom, middle-drag or two fingers to pan). */
 export const visionview: ModuleSpec = {
   type: 'visionview',
   title: 'VISION VIEW',
   name: 'Vision View',
-  tagline: 'A viewport onto a linked VISION / VISION CORE tank, with its own camera (front, side, close-up)',
+  tagline: 'A viewport onto a linked VISION / VISION CORE tank, with its own scene and its own pan and zoom',
   category: 'Visuals',
   hp: 20,
   panel: BLACK,
@@ -76,12 +70,11 @@ export const visionview: ModuleSpec = {
 }
 
 /** VISION VIEW's panel at any width: nearly all glass (edge to edge, over the
- *  title), with its three controls in one slim row packed along the bottom. */
+ *  title), with its two controls in one slim row packed along the bottom. */
 function viewLayout(hp: number): Control[] {
   const w = hp * HP_MM
   const row: Control[] = [
     { kind: 'knob', param: 'scene', x: 0, y: 0, size: 'S' },
-    { kind: 'knob', param: 'cam', x: 0, y: 0, size: 'S' },
     { kind: 'in', jack: 'link', x: 0, y: 0 },
   ]
   const { controls, top } = packRows([row], { params: VIEW_PARAMS, inputs: VIEW_INPUTS, outputs: [] }, w, { maxPitch: 30 })

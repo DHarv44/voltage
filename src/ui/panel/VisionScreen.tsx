@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { sceneBlock, VISION_SCENES } from '../../modules/specs/vision'
 import { patchStore } from '../../patch/store'
 import { PX } from '../geometry'
-import { fillWindow, loadRenderer, popOut, touchGlass, type GlassSource } from './visionGlass'
+import { attachGlass, fillWindow, GLASS_HINT, loadedRenderer, loadRenderer, popOut, type GlassSource } from './visionGlass'
 
 interface Props {
   mod: string
@@ -12,8 +12,6 @@ interface Props {
   w: number
   h: number
   scene: number
-  /** Camera angle (VIEW_CAMS: WIDE, ANGLE, CLOSE). */
-  cam?: number
   /** Where the scene's state starts on the LED channel (0 = the tank's own scene). */
   ledBase?: number
 }
@@ -21,13 +19,14 @@ interface Props {
 /** Canvas pixels per panel pixel: sharp on high-DPI screens and when zoomed. */
 const RES = Math.min(3, Math.max(2, Math.ceil((window.devicePixelRatio || 1) * 1.5)))
 
-/** The VISION tank's glass, a touch screen. Hover for FULL SCREEN and POP OUT
- *  (its own window: a second monitor or a projector). three.js loads only once
- *  a tank is on the rack. */
-export function VisionScreen({ mod, x, y, w, h, scene, cam = 0, ledBase = 0 }: Props) {
+/** The VISION tank's glass, a touch screen you can also pan and zoom (see
+ *  attachGlass). Hover for RESET VIEW, FULL SCREEN and POP OUT (its own
+ *  window: a second monitor or a projector). three.js loads only once a tank
+ *  is on the rack. */
+export function VisionScreen({ mod, x, y, w, h, scene, ledBase = 0 }: Props) {
   const ref = useRef<HTMLCanvasElement>(null)
-  const live = useRef({ scene, cam, ledBase })
-  live.current = { scene, cam, ledBase }
+  const live = useRef({ scene, ledBase })
+  live.current = { scene, ledBase }
   const [full, setFull] = useState(false)
   const W = Math.round(w * PX * RES)
   const H = Math.round(h * PX * RES)
@@ -37,7 +36,6 @@ export function VisionScreen({ mod, x, y, w, h, scene, cam = 0, ledBase = 0 }: P
   const src = useRef<GlassSource>({
     mod,
     scene: () => live.current.scene,
-    cam: () => live.current.cam,
     base: () => live.current.ledBase,
     // COUNT belongs to the tank (this screen may be a VIEW of it)
     count: (): number => patchStore.get().modules.find((m) => m.id === tank.current)?.params.count ?? 0.5,
@@ -55,18 +53,16 @@ export function VisionScreen({ mod, x, y, w, h, scene, cam = 0, ledBase = 0 }: P
       detach?.()
     }
   }, [mod, W, H])
+  useEffect(() => (ref.current ? attachGlass(ref.current, src.current) : undefined), [])
 
   const sceneName = VISION_SCENES[Math.round(scene)] ?? 'VISION'
   return (
     <div className="vision-glass" style={{ left: x * PX, top: y * PX, width: w * PX, height: h * PX }}>
-      <canvas
-        ref={ref}
-        className="vision-screen"
-        width={W}
-        height={H}
-        onPointerDown={(e) => ref.current && touchGlass(e.nativeEvent, ref.current, src.current)}
-      />
+      <canvas ref={ref} className="vision-screen" width={W} height={H} title={GLASS_HINT} />
       <div className="vision-tools" onPointerDown={(e) => e.stopPropagation()}>
+        <button onClick={() => loadedRenderer()?.resetView(src.current)} title="Reset the view (undo pan and zoom)">
+          ⟲
+        </button>
         <button onClick={() => setFull(true)} title="Full screen (Esc to leave)">
           ⛶
         </button>
@@ -117,15 +113,13 @@ function FullScreenGlass({ src, onClose: closeProp }: { src: GlassSource; onClos
 
 /** A VISION VIEW's glass: shows whichever VISION / VISION CORE is patched into
  *  its LINK input: the tank's own scene (view scene 0, LINKED) or scene
- *  view − 1, through its own camera. */
+ *  view − 1, with its own pan and zoom. */
 export function LinkedVisionScreen({
   mod,
-  cam,
   view,
   ...rect
 }: {
   mod: string
-  cam: number
   view: number
   x: number
   y: number
@@ -155,7 +149,6 @@ export function LinkedVisionScreen({
       mod={id}
       scene={own ? Number(tankScene) : view - 1}
       ledBase={own ? 0 : sceneBlock(view - 1)}
-      cam={cam}
       {...rect}
     />
   )

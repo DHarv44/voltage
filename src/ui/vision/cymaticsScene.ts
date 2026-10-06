@@ -38,20 +38,10 @@ export const cymaticsScene: SceneFactory = (aspect, seed) => {
   return {
     scene,
     camera,
-    aim(cam, dt) {
-      if (cam === 1) {
-        // ANGLE: the plate seen at a slant, as if leaning over the bench
-        rig.pos.set(0, -2.3, 1.8)
-        rig.at.set(0, -0.1, 0)
-      } else if (cam === 2) {
-        // CLOSE: down into the middle of the figure
-        rig.pos.set(0, 0, 1.25)
-        rig.at.set(0, 0, 0)
-      } else {
-        rig.pos.set(0, 0, 3)
-        rig.at.set(0, 0, 0)
-      }
-      rig.apply(cam, dt)
+    aim(dt) {
+      rig.pos.set(0, 0, 3)
+      rig.at.set(0, 0, 0)
+      rig.apply(dt)
     },
     pick(pu, pv) {
       // on the plate itself, 0..1 across and up

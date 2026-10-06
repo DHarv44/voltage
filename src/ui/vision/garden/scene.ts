@@ -25,10 +25,6 @@ import { GARDEN_SKY, GardenSky } from './sky'
 import { TreeView, treeX, type TreeState } from './tree'
 
 const POLLEN = 160
-/** CLOSE camera: seconds the focus takes to settle on a flower, and the least
- *  time a shot holds one before moving to a better bloom. */
-const CLOSE_SETTLE = 2.2
-const CLOSE_HOLD = 9
 /** How slowly the camera pulls back for a growing tree (s). */
 const REACH_EASE = 4
 /** Highest a tree top may sit above the middle of the wide shot (radians:
@@ -112,19 +108,8 @@ export const flowerScene: SceneFactory = (aspect, seed) => {
 
   const rig = new CameraRig(camera, sky)
   const hit = new THREE.Vector3()
-  /** The plant CLOSE follows: the most open flower, else the tallest. */
-  let star = 0
-  let starAge = 0
-  const score = new Float32Array(GARDEN_PLANTS)
-  // CLOSE moves like a camera operator, not a lock-on: the focus point rides a
-  // critically damped spring (eases out, settles, ignores sway twitches), the
-  // shot holds a flower for a while before moving on, and drifts slowly round it.
-  const focus = new THREE.Vector3()
-  const focusV = new THREE.Vector3()
-  const pull = new THREE.Vector3()
   let clock = 0
-  let lastCam = -1
-  /** How far the wide shots pull back to fit the tallest tree (eased), and
+  /** How far the shot pulls back to fit the tallest tree (eased), and
    *  how far they want to. */
   let reach = 0
   let wantReach = 0
@@ -132,36 +117,14 @@ export const flowerScene: SceneFactory = (aspect, seed) => {
   return {
     scene,
     camera,
-    aim(cam, dt) {
+    aim(dt) {
       clock += dt
       reach += (wantReach - reach) * (1 - Math.exp(-dt / REACH_EASE))
-      if (cam === 1) {
-        // ANGLE: crouched at the end of the bed, eye level with the flowers
-        rig.pos.set(1.9, ground + 0.35, 2.2 + reach * 0.4)
-        rig.at.set(-0.1, ground + 0.4 + reach * 0.15, 0)
-      } else if (cam === 2) {
-        // CLOSE: in front of the best flower
-        const h = plants[star].headPos
-        if (lastCam !== 2) {
-          focus.copy(h)
-          focusV.set(0, 0, 0)
-        } else {
-          const w = 2 / CLOSE_SETTLE // spring rate
-          pull.subVectors(h, focus).multiplyScalar(w * w).addScaledVector(focusV, -2 * w)
-          focusV.addScaledVector(pull, dt)
-          focus.addScaledVector(focusV, dt)
-        }
-        const swing = Math.sin(clock * 0.09) * 0.3 // slow orbit, ±17°
-        rig.pos.set(focus.x + Math.sin(swing) * 1.2, focus.y + 0.03 + Math.sin(clock * 0.13) * 0.04, focus.z + Math.cos(swing) * 1.2)
-        rig.at.set(focus.x, focus.y - 0.12, focus.z)
-      } else {
-        // WIDE: a little above the flowers looking across them, drifting side
-        // to side so the depth reads, and pulled back (and up) far enough to
-        // take in the tallest tree
-        wideShot(reach, Math.sin(clock * 0.05) * 0.3, rig.pos, rig.at)
-      }
-      lastCam = cam
-      rig.apply(cam, dt)
+      // a little above the flowers looking across them, drifting side to side
+      // so the depth reads, and pulled back (and up) far enough to take in the
+      // tallest tree
+      wideShot(reach, Math.sin(clock * 0.05) * 0.3, rig.pos, rig.at)
+      rig.apply(dt)
     },
     pick(u, v) {
       // the bed's plane: x across it, y = height above the ground (0 = ground)
@@ -197,7 +160,6 @@ export const flowerScene: SceneFactory = (aspect, seed) => {
         state.size = led?.[b + PLANT.size] ?? 1
         p.update(state, world)
         if (p.released > 0) fluff.release(p.released, p.headPos)
-        score[k] = state.fade * (state.open * 2 + state.g)
         // pollen from every open flower, a burst on TRIG
         if (state.fade > 0.5 && state.open > 0.2) {
           emit += dt * state.open * (0.5 + 25 * s.action)
@@ -210,18 +172,7 @@ export const flowerScene: SceneFactory = (aspect, seed) => {
           }
         }
       })
-      // Hold the shot: move to a better flower only after a while, or at once
-      // when this one is going (wilted away to almost nothing).
-      starAge += dt
-      let best = star
-      for (let k = 0; k < GARDEN_PLANTS; k++) if (score[k] > score[best]) best = k
-      const leaving = score[star] < 0.25 * score[best]
-      if (best !== star && (leaving || (starAge > CLOSE_HOLD && score[best] > score[star] + 0.15))) {
-        star = best
-        starAge = 0
-      }
-
-      // trees, and how far back the wide shots must stand to see the tallest
+      // trees, and how far back the shot must stand to see the tallest
       let need = 0
       trees.forEach((tv, k) => {
         const b = GARDEN.trees + k * TREE_VALUES

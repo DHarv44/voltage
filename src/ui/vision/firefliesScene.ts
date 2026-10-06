@@ -33,25 +33,13 @@ export const firefliesScene: SceneFactory = (aspect, seed) => {
   const W = VIEW_H * aspect
   const col = new THREE.Color()
   const rig = new CameraRig(camera, sky)
-  /** CLOSE follows this one. */
-  const followed = new THREE.Vector3()
   return {
     scene,
     camera,
-    aim(cam, dt) {
-      if (cam === 1) {
-        // ANGLE: from the edge of the meadow, low down, looking across it
-        rig.pos.set(2.4, -0.35, 1.7)
-        rig.at.set(-0.2, -0.1, -0.3)
-      } else if (cam === 2) {
-        // CLOSE: drifting along beside one firefly
-        rig.pos.set(followed.x + 0.08, followed.y + 0.04, followed.z + 0.5)
-        rig.at.copy(followed)
-      } else {
-        rig.pos.set(0, 0, 3)
-        rig.at.set(0, 0, 0)
-      }
-      rig.apply(cam, dt)
+    aim(dt) {
+      rig.pos.set(0, 0, 3)
+      rig.at.set(0, 0, 0)
+      rig.apply(dt)
     },
     pick(u, v) {
       // the flies answer a flash wherever it is; drags read left/right
@@ -70,7 +58,6 @@ export const firefliesScene: SceneFactory = (aspect, seed) => {
         const x = p.x * W * 0.85 + Math.sin(t * p.fx + p.ph) * 0.25 + s.sway * 0.3
         const y = -VIEW_H * 0.6 + p.y * VIEW_H * 1.1 + Math.sin(t * p.fy * 2 + p.ph) * 0.12
         const z = p.z + Math.sin(t * p.fz + p.ph * 1.3) * 0.25
-        if (k === 0) followed.set(x, y, z)
         // −1: not flying tonight (COUNT); hidden entirely
         const raw = led?.[VS_EXTRA + k] ?? (k < 24 ? 0 : -1)
         const b = raw < 0 ? 0 : raw * 1.6

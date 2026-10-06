@@ -1,11 +1,11 @@
 import type * as THREE from 'three'
 
-/** What a piece of glass shows: a tank (module id), which scene and camera,
- *  where that scene's state starts on the LED channel, and the tank's COUNT. */
+/** What a piece of glass shows: a tank (module id), which scene, where that
+ *  scene's state starts on the LED channel, and the tank's COUNT. (Each
+ *  source also keeps its own pan and zoom: see viewer.ts.) */
 export interface ScreenSource {
   mod: string
   scene: () => number
-  cam: () => number
   base: () => number
   count: () => number
 }
@@ -32,8 +32,9 @@ export interface VisionScene {
   /** dt and t in seconds; `px` = drawing-buffer height in pixels (point sizes);
    *  `led` = the raw engine state (scene-specific values from VS_EXTRA on). */
   update(s: CreatureView, dt: number, t: number, px: number, led?: number[]): void
-  /** Point the camera (VIEW_CAMS index: WIDE, ANGLE, CLOSE), after update. */
-  aim(cam: number, dt: number): void
+  /** Point the camera at the scene's own shot, after update (the glass's pan
+   *  and zoom are applied on top of it by the renderer). */
+  aim(dt: number): void
   /** A touch at (u, v) on the glass (0..1, v down) → the scene's own 0..1
    *  space (y up), as the engine's creature understands it. */
   pick(u: number, v: number): { x: number; y: number }

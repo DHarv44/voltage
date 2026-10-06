@@ -43,16 +43,17 @@ export class CameraRig {
   readonly at = new THREE.Vector3()
   private readonly look = new THREE.Vector3()
   private readonly dir = new THREE.Vector3()
-  private last = -1
+  private first = true
 
   constructor(
     private readonly cam: THREE.PerspectiveCamera,
     private readonly bg?: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>,
   ) {}
 
-  apply(angle: number, dt: number): void {
-    const k = angle !== this.last ? 1 : 1 - Math.exp(-dt / 0.35)
-    this.last = angle
+  /** Ease the camera toward pos/at (it starts there). */
+  apply(dt: number): void {
+    const k = this.first ? 1 : 1 - Math.exp(-dt / 0.35)
+    this.first = false
     this.cam.position.lerp(this.pos, k)
     this.look.lerp(this.at, k)
     this.cam.lookAt(this.look)
@@ -100,6 +101,7 @@ export function backdrop(aspect: number, fragment: string): THREE.Mesh<THREE.Pla
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(h * aspect, h), mat)
   mesh.position.z = z
   mesh.renderOrder = -1
+  mesh.userData.followsCamera = true // it rides along when the glass pans and zooms
   return mesh
 }
 

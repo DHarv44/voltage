@@ -10,31 +10,114 @@ let renderer: Renderer | null = null
 export const loadRenderer = async (): Promise<Renderer> => (renderer ??= await import('../vision/renderer'))
 export const loadedRenderer = () => renderer
 
-/** Touch on a piece of glass: each touch goes, through that screen's camera,
- *  to the scene it shows. Works in any window (pop-outs track their own). */
-export function touchGlass(e: PointerEvent, canvas: HTMLCanvasElement, src: GlassSource): void {
-  const r = renderer
-  if (e.button !== 0 || !r) return
-  e.stopPropagation()
-  e.preventDefault()
-  const win = canvas.ownerDocument.defaultView ?? window
-  const name = `touch${Math.round(src.scene())}`
+/** What the glass's gestures do, for its tooltip. */
+export const GLASS_HINT = 'Touch screen: touch or drag to play with the scene · scroll or pinch to zoom · middle-drag or two fingers to pan'
+
+/** A piece of glass is a touch screen. One finger (or the left button)
+ *  touches the scene, through the glass's camera, wherever it's panned and
+ *  zoomed; two fingers pinch to zoom and drag to pan (a second finger turns a
+ *  touch into that); the mouse wheel zooms at the pointer and middle-drag
+ *  pans. Right-click is left for the module's menu. Works in any window
+ *  (pop-outs have their own). Returns the detach function. */
+export function attachGlass(canvas: HTMLCanvasElement, src: GlassSource): () => void {
+  const fingers = new Map<number, { x: number; y: number }>()
+  /** The pointer touching the scene, the middle button panning, and the pinch so far. */
+  let touching: number | null = null
+  let panning: { id: number; x: number; y: number } | null = null
+  let pinch: { x: number; y: number; d: number } | null = null
+  const box = () => canvas.getBoundingClientRect()
   const send = (cx: number, cy: number, down: boolean) => {
-    const b = canvas.getBoundingClientRect()
+    const r = renderer
+    if (!r) return
+    const b = box()
     const p = r.pickAt(canvas, (cx - b.left) / b.width, (cy - b.top) / b.height)
-    engine.ui(src.mod, { kind: 'surface', name, x: p.x, y: p.y, down })
+    engine.ui(src.mod, { kind: 'surface', name: `touch${Math.round(src.scene())}`, x: p.x, y: p.y, down })
   }
-  send(e.clientX, e.clientY, true)
-  const move = (ev: PointerEvent) => send(ev.clientX, ev.clientY, true)
-  const up = (ev: PointerEvent) => {
-    send(ev.clientX, ev.clientY, false)
-    win.removeEventListener('pointermove', move)
-    win.removeEventListener('pointerup', up)
-    win.removeEventListener('pointercancel', up)
+  const spread = () => {
+    const [a, b] = [...fingers.values()]
+    return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, d: Math.max(1, Math.hypot(a.x - b.x, a.y - b.y)) }
   }
-  win.addEventListener('pointermove', move)
-  win.addEventListener('pointerup', up)
-  win.addEventListener('pointercancel', up)
+
+  const down = (e: PointerEvent) => {
+    if (e.button === 2 || !renderer) return
+    e.stopPropagation()
+    e.preventDefault()
+    try {
+      canvas.setPointerCapture(e.pointerId) // keep the gesture when a finger slides off the glass
+    } catch {
+      // the pointer already went away
+    }
+    if (e.button === 1) {
+      panning = { id: e.pointerId, x: e.clientX, y: e.clientY }
+      return
+    }
+    if (e.button !== 0) return
+    fingers.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    if (fingers.size === 1) {
+      touching = e.pointerId
+      send(e.clientX, e.clientY, true)
+    } else if (fingers.size === 2) {
+      // a second finger: this is a pinch, not a touch
+      if (touching !== null) {
+        const f = fingers.get(touching)!
+        send(f.x, f.y, false)
+        touching = null
+      }
+      pinch = spread()
+    }
+  }
+  const move = (e: PointerEvent) => {
+    const r = renderer
+    if (!r) return
+    if (panning && e.pointerId === panning.id) {
+      const b = box()
+      r.panView(src, (e.clientX - panning.x) / b.width, (e.clientY - panning.y) / b.height)
+      panning.x = e.clientX
+      panning.y = e.clientY
+      return
+    }
+    if (!fingers.has(e.pointerId)) return
+    fingers.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    if (e.pointerId === touching) send(e.clientX, e.clientY, true)
+    else if (pinch && fingers.size >= 2) {
+      const now = spread()
+      const b = box()
+      r.zoomView(src, now.d / pinch.d, (now.x - b.left) / b.width, (now.y - b.top) / b.height)
+      r.panView(src, (now.x - pinch.x) / b.width, (now.y - pinch.y) / b.height)
+      pinch = now
+    }
+  }
+  const up = (e: PointerEvent) => {
+    if (panning && e.pointerId === panning.id) panning = null
+    if (!fingers.has(e.pointerId)) return
+    fingers.delete(e.pointerId)
+    if (e.pointerId === touching) {
+      send(e.clientX, e.clientY, false)
+      touching = null
+    }
+    if (fingers.size < 2) pinch = null // the finger left behind doesn't start touching
+  }
+  const wheel = (e: WheelEvent) => {
+    const r = renderer
+    if (!r) return
+    e.preventDefault()
+    const b = box()
+    const dy = e.deltaY * (e.deltaMode === 1 ? 33 : 1)
+    r.zoomView(src, Math.exp(-dy * 0.0015), (e.clientX - b.left) / b.width, (e.clientY - b.top) / b.height)
+  }
+
+  canvas.addEventListener('pointerdown', down)
+  canvas.addEventListener('pointermove', move)
+  canvas.addEventListener('pointerup', up)
+  canvas.addEventListener('pointercancel', up)
+  canvas.addEventListener('wheel', wheel, { passive: false })
+  return () => {
+    canvas.removeEventListener('pointerdown', down)
+    canvas.removeEventListener('pointermove', move)
+    canvas.removeEventListener('pointerup', up)
+    canvas.removeEventListener('pointercancel', up)
+    canvas.removeEventListener('wheel', wheel)
+  }
 }
 
 /** Fill a whole window (or full-screen overlay) with a tank: a canvas sized
@@ -45,8 +128,9 @@ export async function fillWindow(win: Window, host: HTMLElement, src: GlassSourc
   const doc = win.document
   const canvas = doc.createElement('canvas')
   canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:pointer'
+  canvas.title = GLASS_HINT
   host.appendChild(canvas)
-  canvas.addEventListener('pointerdown', (e) => touchGlass(e, canvas, src))
+  const unglass = attachGlass(canvas, src)
   let detach = () => {}
   const fit = () => {
     // device pixels, capped so a 4K screen doesn't melt the GPU
@@ -67,6 +151,7 @@ export async function fillWindow(win: Window, host: HTMLElement, src: GlassSourc
   return () => {
     win.removeEventListener('resize', resized)
     detach()
+    unglass()
     canvas.remove()
   }
 }

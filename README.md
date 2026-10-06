@@ -145,8 +145,10 @@ so the visuals can play the music and the music can drive the visuals.
 - **COUNT:** how many of each thing (up to a smack of six jellies, ten plants, 48 fireflies).
 - **The glass is a touch screen:** poke the jelly, plant a seed, flash a torch at the fireflies,
   set off a substorm, knock the plate.
+- **Pan and zoom:** scroll or pinch to zoom (toward the pointer), middle-drag or two fingers to pan.
+  A touch still lands on what you see. Hover the glass for ⟲ to reset the view.
 - **VISION CORE + VISION VIEW:** run the creatures in a slim screenless module and show them on any
-  number of VIEW screens, each with its own scene and camera (**WIDE / ANGLE / CLOSE**).
+  number of VIEW screens, each with its own scene and its own pan and zoom.
 - **Sizes:** right-click → Size (12 / 20 / 28 / 40 HP). Hover the glass for full screen or a pop-out
   window.
 

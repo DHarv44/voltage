@@ -8,6 +8,7 @@ import { auroraScene } from './auroraScene'
 import { cymaticsScene } from './cymaticsScene'
 import { firefliesScene } from './firefliesScene'
 import type { CreatureView, SceneFactory, ScreenSource, VisionScene } from './types'
+import { Viewer } from './viewer'
 
 /** In SCENE knob order (VISION_SCENES). */
 const SCENES: SceneFactory[] = [jellyScene, flowerScene, firefliesScene, auroraScene, cymaticsScene]
@@ -99,10 +100,13 @@ function frame(now: number): void {
     follow(s.view, led, dt)
     s.view.count = src.count()
     s.host.update(s.view, dt, s.t, H, led)
-    s.host.aim(Math.round(src.cam()), dt)
+    s.host.aim(dt)
     r.setViewport(0, 0, W, H)
     r.setScissor(0, 0, W, H)
+    const view = viewerOf(src)
+    view.apply(s.host.camera, s.host.scene)
     r.render(s.host.scene, s.host.camera)
+    view.restore(s.host.camera)
     s.ctx.drawImage(r.domElement, 0, needH - H, W, H, 0, 0, W, H)
   }
 }
@@ -110,8 +114,40 @@ function frame(now: number): void {
 /** A touch at (u, v) on this screen's glass, in its scene's own space (seen
  *  through whatever camera the screen uses). */
 export function pickAt(canvas: HTMLCanvasElement, u: number, v: number): { x: number; y: number } {
-  for (const s of screens) if (s.canvas === canvas && s.host) return s.host.pick(u, v)
+  for (const s of screens) {
+    if (s.canvas !== canvas || !s.host) continue
+    // through the glass as it's panned and zoomed, so a touch lands on what you see
+    const view = viewerOf(s.src)
+    view.apply(s.host.camera, s.host.scene)
+    const at = s.host.pick(u, v)
+    view.restore(s.host.camera)
+    return at
+  }
   return { x: u, y: 1 - v }
+}
+
+/** Each glass source's own pan and zoom (shared by its panel, full-screen and
+ *  pop-out glass, and kept when the screen is resized). */
+const viewers = new WeakMap<ScreenSource, Viewer>()
+function viewerOf(src: ScreenSource): Viewer {
+  let v = viewers.get(src)
+  if (!v) viewers.set(src, (v = new Viewer()))
+  return v
+}
+
+/** Zoom a glass by `factor` (> 1 in) about (u, v) on it (0..1, v down). */
+export function zoomView(src: ScreenSource, factor: number, u: number, v: number): void {
+  viewerOf(src).zoom(factor, u * 2 - 1, 1 - v * 2)
+}
+/** Pan a glass by (du, dv), fractions of its size: the picture follows. */
+export function panView(src: ScreenSource, du: number, dv: number): void {
+  viewerOf(src).pan(du, dv)
+}
+export function resetView(src: ScreenSource): void {
+  viewerOf(src).reset()
+}
+export function viewMoved(src: ScreenSource): boolean {
+  return viewerOf(src).changed
 }
 
 /** Start drawing a tank into `canvas`; returns the detach function. */
