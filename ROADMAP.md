@@ -197,6 +197,32 @@ Our own versions throughout: inspired by the classics, our own names, panels and
 - **Beyond modules**: per-module presets (save a module's settings), song mode / arranger (chain
   patterns and scenes), velocity + aftertouch routing and MPE input, Scala / just-intonation tunings.
 
+## Pinned for later: samplers (industry review)
+A sampler's sound is its hardware, so model the hardware: bits, rate, anti-alias filter (or none),
+variable-rate playback (aliasing that follows pitch), companding, per-voice analog filter, time-stretch
+artifacts, swing. Material: record from IN (any rack sound), load your own, or synthesised factory
+material (no downloaded samples). Our own names; no Fairlight / Akai / MPC / SP / Octatrack marks.
+1. **Sampler core**: shared playback with a converter model; CHOP moves onto it.
+2. **ERA**: run any cable through a period converter (8-bit variable-rate, 12-bit punchy, Amiga, 90s rack).
+3. **TRACKER**: Amiga-style tracker (Paula 8-bit ~28 kHz + LED filter; vertical rows, effect columns).
+4. **Lo-fi FX sampler** (SP-404 / EP-133 style): pads, punch-in effects, fader moves recorded,
+   resampling (vinyl sim, crushing compressor, bitcrush, filter).
+5. **Early-80s workstation** (Fairlight / Emulator style): pitched per-key sample with variable-rate
+   aliasing, grid sequencer, our own synthesised orchestra stab.
+6. **JUNGLE** (S950 style): cyclic time-stretch artifacts on breaks built from our drum models.
+7. **Performance sampler** (Octatrack style): 4–8 tracks, live slicing, scene crossfader, pickup looper.
+8. **Multisample instrument**: zones, velocity layers, round robin, filled from rack recordings.
+
+## Pinned for later: Teenage Engineering-inspired (our own names, look and sounds)
+- ~~Spinning-shape physics sequencer~~ (TUMBLER: building now).
+- Retrospective recorder: the rack is always being recorded; scrub back and loop what just happened.
+- CHOIR: a row of little formant singers that sing notes, vowels or words and harmonise.
+- Step components on TR-16 / SEQ-8 (per-step probability, ratchets, pulse count, random) (OP-Z style).
+- 4-TRACK tape tricks: lift/drop sections, reverse a region, loop, speed scrub (OP-1 style).
+- Draw-a-melody sequencer and pattern keys (OP-1 "sketch" / "finger" ideas).
+- OP-1-style effects: "phone" lo-fi band-pass, punch compressor, resonant comb grid.
+- POCKET ARCADE / OFFICE / ROBOT / SPEAK / SAMPLER (already in Up next).
+
 ## Pinned for later: creative modules
 - **Character output**: cassette deck and vinyl-lathe export.
 

@@ -54,6 +54,7 @@ import { pocket } from './specs/pocket'
 import { pocketbass, pocketmelody } from './specs/pocketSynth'
 import { stylophone } from './specs/stylophone'
 import { bounce } from './specs/bounce'
+import { tumbler } from './specs/tumbler'
 import { orbit } from './specs/orbit'
 import { life } from './specs/life'
 import { flock } from './specs/flock'
@@ -93,6 +94,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   euclid,
   turing,
   bounce,
+  tumbler,
   orbit,
   life,
   flock,

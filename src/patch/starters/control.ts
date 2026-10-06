@@ -197,6 +197,19 @@ export const CONTROL_STARTERS: Record<string, Starter> = {
       toOut(k, drums(k, [b, 'g1'], [b, 'g2'], [b, 'g3']))
     },
   },
+  tumbler: {
+    howTo: 'Balls tumbling in a spinning drum play a handpan: each wall is a note. Turn SPIN and SIDES; drag the drum.',
+    build(k) {
+      const t = k.add('tumbler')
+      const s = k.add('strike', { decay: 1.4 })
+      k.wire([t, 'pitch'], [s, 'voct'])
+      k.wire([t, 'trig'], [s, 'trig'])
+      k.wire([t, 'vel'], [s, 'vel'])
+      const p = k.add('plate', { mix: 0.3 })
+      k.wire([s, 'out'], [p, 'in'])
+      toOut(k, [p, 'l'], [p, 'r'])
+    },
+  },
   orbit: {
     howTo: 'Planets crossing a line play notes; where they cross picks the note. Turn SPEED.',
     build(k) {
