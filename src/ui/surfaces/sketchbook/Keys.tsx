@@ -1,6 +1,6 @@
 import { useRef, type PointerEvent } from 'react'
 import { telemetry } from '../../../audio/telemetry'
-import { PATTERN, SB_KEYS, SBL, SEQ } from '../../../modules/specs/sketchbook'
+import { DRUM, PATTERN, SB_DRUMS, SB_KEYS, SBL, SEQ } from '../../../modules/specs/sketchbook'
 import { actions, patchStore } from '../../../patch/store'
 import { PX } from '../../geometry'
 import { track } from '../../pointer'
@@ -72,7 +72,9 @@ export function SketchKeys({ inst, x, y, w, h }: SurfaceProps) {
     held.current = k
     sendSurface(mod, 'key', k, 0, true)
     const p = live()
-    if (Math.round(p.mode) === SEQ && Math.round(p.stype) === PATTERN) {
+    // DRUM: a key plays (and picks) its sound
+    if (Math.round(p.mode) === DRUM) actions.setParam(mod, 'dsel', k % SB_DRUMS.length)
+    else if (Math.round(p.mode) === SEQ && Math.round(p.stype) === PATTERN) {
       // step record: the note goes at the cursor, which moves on
       const len = Math.max(1, Math.round(p.len))
       const c = sketchCursor.get(mod)

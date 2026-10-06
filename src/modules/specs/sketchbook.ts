@@ -7,11 +7,26 @@ import { SAND } from './panels'
  *  engines with four knobs each, a pattern sequencer, a 4-track loop tape
  *  and a mixer, on a keybed with a screen. */
 
-export const SB_MODES = ['SYNTH', 'SEQ', 'TAPE', 'MIX']
+export const SB_MODES = ['SYNTH', 'DRUM', 'SEQ', 'TAPE', 'MIX']
 export const SYNTH = 0
-export const SEQ = 1
-export const TAPE = 2
-export const MIX = 3
+export const DRUM = 1
+export const SEQ = 2
+export const TAPE = 3
+export const MIX = 4
+/** The drum kit, and each sound's TUNE / DECAY / TONE / LEVEL to start from. */
+export const SB_DRUMS = ['KICK', 'SNARE', 'CLAP', 'CLOSED', 'OPEN', 'TOM', 'RIM', 'ZAP']
+const DRUM_DEFS = [
+  [0.3, 0.4, 0.6, 0.8],
+  [0.35, 0.4, 0.5, 0.6],
+  [0.4, 0.35, 0.4, 0.5],
+  [0.5, 0.3, 0.5, 0.45],
+  [0.5, 0.35, 0.5, 0.4],
+  [0.4, 0.4, 0.4, 0.6],
+  [0.5, 0.3, 0.6, 0.5],
+  [0.4, 0.3, 0.6, 0.4],
+]
+/** Each sound's 16 steps (bit n = step n): four on the floor, backbeat, offbeat hats, an open hat. */
+const DRUM_STEPS = [0x1111, 0x1010, 0, 0x4444, 0x4000, 0, 0, 0]
 export const SB_PAGES = ['SOUND', 'ENVELOPE', 'FX', 'LFO']
 export const SB_FX = ['OFF', 'DELAY', 'CHORUS', 'PHONE', 'CRUSH']
 /** The FX page's A and B knobs mean different things per effect. */
@@ -75,13 +90,17 @@ export const SBL = {
   drift: L0 + 1 + SB_BALLS * 2,
   arpCount: L0 + 1 + SB_BALLS * 2 + SB_STEPS,
   arp: L0 + 2 + SB_BALLS * 2 + SB_STEPS,
-  end: L0 + 2 + SB_BALLS * 2 + SB_STEPS + SB_ARP_MAX,
+  dstep: L0 + 2 + SB_BALLS * 2 + SB_STEPS + SB_ARP_MAX,
+  dflash: L0 + 3 + SB_BALLS * 2 + SB_STEPS + SB_ARP_MAX,
+  end: L0 + 3 + SB_BALLS * 2 + SB_STEPS + SB_ARP_MAX + SB_DRUMS.length,
 } as const
 
 /** The four encoders' params in a mode (SYNTH: the engine's knobs, or the
  *  envelope on page 2). Shared by the face and the docs. */
-export function encoderParams(mode: number, page: number, engine: number, seq = PATTERN): string[] {
+export function encoderParams(mode: number, page: number, engine: number, seq = PATTERN, drum = 0): string[] {
   switch (mode) {
+    case DRUM:
+      return [0, 1, 2, 3].map((i) => `d${drum}_${i}`)
     case SEQ:
       if (seq === ARP) return ['tempo', 'arate', 'aoct', 'amode']
       if (seq === TUMBLE) return ['tspin', 'tgrav', 'tballs', 'len']
@@ -111,6 +130,7 @@ export function encoderLabels(p: Record<string, number>, fallback: (id: string) 
     return ['EFFECT', 'MIX', a, b]
   }
   if (mode === SEQ && Math.round(p.stype) === TUMBLE) return ['SPIN', 'GRAVITY', 'BALLS', 'SIDES']
+  if (mode === DRUM) return ['TUNE', 'DECAY', 'TONE', 'LEVEL']
   return encoderParams(mode, page, engine, Math.round(p.stype)).map(fallback)
 }
 
@@ -148,6 +168,11 @@ const params: ParamSpec[] = [
   { id: 'swing', label: 'SWING', min: 0, max: 0.5, def: 0.05, unit: '%' },
   { id: 'glen', label: 'GATE', min: 0.1, max: 1, def: 0.5, unit: '%' },
   ...START.map((n, i) => ({ id: `n${i}`, label: `STEP ${i + 1}`, min: -1, max: 24, def: n, stepped: true })),
+  { id: 'dsel', label: 'DRUM', min: 0, max: SB_DRUMS.length - 1, def: 0, stepped: true, options: SB_DRUMS },
+  ...SB_DRUMS.flatMap((name, s) =>
+    ['TUNE', 'DECAY', 'TONE', 'LEVEL'].map((k, i) => ({ id: `d${s}_${i}`, label: `${name} ${k}`, min: 0, max: 1, def: DRUM_DEFS[s][i], unit: '%' as const })),
+  ),
+  ...SB_DRUMS.map((name, s) => ({ id: `dm${s}`, label: `${name} STEPS`, min: 0, max: 0xffff, def: DRUM_STEPS[s], stepped: true })),
   { id: 'stype', label: 'SEQUENCER', min: 0, max: SB_SEQS.length - 1, def: PATTERN, stepped: true, options: SB_SEQS },
   { id: 'arate', label: 'RATE', min: 0, max: SB_ARP_RATES.length - 1, def: 2, stepped: true, options: SB_ARP_RATES },
   { id: 'aoct', label: 'OCTAVES', min: 1, max: 3, def: 1, stepped: true },

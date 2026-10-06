@@ -2,11 +2,13 @@ import { useRef, type PointerEvent } from 'react'
 import { telemetry } from '../../../audio/telemetry'
 import {
   DRIFT,
+  DRUM,
   encoderLabels,
   encoderParams,
   MIX,
   PATTERN,
   SB_COLORS,
+  SB_DRUMS,
   SB_ENGINES,
   SB_MODES,
   SB_PAGES,
@@ -24,7 +26,8 @@ import { PX } from '../../geometry'
 import { drawCanvasKnob, useCanvasKnobs, type CanvasKnob } from '../canvasKnob'
 import { RES, sendSurface, useFrame, type SurfaceProps } from '../common'
 import { sketchCursor } from './cursor'
-import { drawScreen } from './screen'
+import { drumCellAt } from './drumScreen'
+import { drawScreen, screenBody } from './screen'
 
 /** Layout as fractions of the face. */
 const SCREEN = { x: 0.012, y: 0.07, w: 0.36, h: 0.86 }
@@ -32,9 +35,14 @@ const ENC_X = [0.43, 0.52, 0.61, 0.7]
 const ENC_Y = 0.34
 const ENC_R = 0.19
 const MODE_Y = 0.84
+/** The five mode buttons, spread under the encoders. */
+const MODE_X = [0.415, 0.488, 0.561, 0.634, 0.707]
 const CLUSTER_X = [0.78, 0.84, 0.9, 0.96]
 const ROW_Y = [0.3, 0.75]
 const BTN = { w: 0.05, h: 0.3 }
+
+/** The screen's rectangle on a face W × H canvas pixels. */
+const screenRect = (W: number, H: number) => ({ x: SCREEN.x * W, y: SCREEN.y * H, w: SCREEN.w * W, h: SCREEN.h * H })
 
 interface Button {
   label: string
@@ -61,7 +69,7 @@ export function SketchFace({ inst, spec, x, y, w, h }: SurfaceProps) {
     const p = live()
     const specOf = (id: string) => spec.params.find((s) => s.id === id)!
     const labels = encoderLabels(p, (id) => specOf(id).label)
-    return encoderParams(Math.round(p.mode), Math.round(p.page), Math.round(p.engine), Math.round(p.stype)).map((id, i) => {
+    return encoderParams(Math.round(p.mode), Math.round(p.page), Math.round(p.engine), Math.round(p.stype), Math.round(p.dsel)).map((id, i) => {
       const ps = specOf(id)
       return { fx: ENC_X[i], fy: ENC_Y, fr: ENC_R, ps, value: p[id] ?? ps.def, set: (v) => set(id, v), label: labels[i] }
     })
@@ -105,20 +113,23 @@ export function SketchFace({ inst, spec, x, y, w, h }: SurfaceProps) {
     const len = Math.max(1, Math.round(p.len))
     const move = (d: number) => () => {
       if (mode === SYNTH) set('engine', (Math.round(p.engine) + d + SB_ENGINES.length) % SB_ENGINES.length)
+      else if (mode === DRUM) set('dsel', (Math.round(p.dsel) + d + SB_DRUMS.length) % SB_DRUMS.length)
       else if (mode === SEQ) sketchCursor.set(mod, sketchCursor.get(mod) + d, len)
       else if (mode === TAPE) set('trk', (Math.round(p.trk) + d + SB_TRACKS) % SB_TRACKS)
     }
     const action: Button | null =
       mode === SYNTH
         ? { label: 'PAGE', x: CLUSTER_X[2], y: ROW_Y[0], w: BTN.w, press: () => set('page', (Math.round(p.page) + 1) % SB_PAGES.length) }
-        : mode === SEQ
+        : mode === DRUM
+          ? { label: 'CLEAR', x: CLUSTER_X[2], y: ROW_Y[0], w: BTN.w, press: () => set(`dm${Math.round(p.dsel)}`, 0) }
+          : mode === SEQ
           ? seqAction(Math.round(p.stype), len)
           : mode === TAPE
             ? { label: 'CLEAR', x: CLUSTER_X[2], y: ROW_Y[0], w: BTN.w, press: () => sendSurface(mod, 'clear', Math.round(p.trk), 0, true) }
             : null
     const rec = (telemetry.leds[mod]?.[SBL.rec] ?? 0) > 0.5
     return [
-      ...SB_MODES.map((label, i) => ({ label, x: ENC_X[i], y: MODE_Y, w: 0.075, lit: mode === i, press: () => set('mode', i) })),
+      ...SB_MODES.map((label, i) => ({ label, x: MODE_X[i], y: MODE_Y, w: 0.066, lit: mode === i, press: () => set('mode', i) })),
       { label: '◀', x: CLUSTER_X[0], y: ROW_Y[0], w: BTN.w, off: mode === MIX, press: move(-1) },
       { label: '▶', x: CLUSTER_X[1], y: ROW_Y[0], w: BTN.w, off: mode === MIX, press: move(1) },
       ...(action ? [action] : []),
@@ -139,7 +150,7 @@ export function SketchFace({ inst, spec, x, y, w, h }: SurfaceProps) {
     ctx.beginPath()
     ctx.roundRect(0, 0, W, H, H * 0.06)
     ctx.fill()
-    drawScreen(ctx, { x: SCREEN.x * W, y: SCREEN.y * H, w: SCREEN.w * W, h: SCREEN.h * H }, { p, led, t, cursor: sketchCursor.get(mod) })
+    drawScreen(ctx, screenRect(W, H), { p, led, t, cursor: sketchCursor.get(mod) })
     // encoders, each named below in its colour
     knobs().forEach((k, i) => {
       drawCanvasKnob(ctx, k, W, H, { body: SB_COLORS[i], pointer: '#1b1c1e', ticks: 'rgba(40,36,30,0.55)' })
@@ -170,6 +181,17 @@ export function SketchFace({ inst, spec, x, y, w, h }: SurfaceProps) {
     const r = e.currentTarget.getBoundingClientRect()
     const fx = (e.clientX - r.left) / r.width
     const fy = (e.clientY - r.top) / r.height
+    const p = live()
+    // DRUM: the screen is a touch grid (click a cell to toggle it, a name to pick the sound)
+    const cell = Math.round(p.mode) === DRUM ? drumCellAt(screenBody(screenRect(W, H)), fx * W, fy * H) : null
+    if (cell) {
+      e.stopPropagation()
+      e.preventDefault()
+      const [d, step] = cell
+      set('dsel', d)
+      if (step >= 0) set(`dm${d}`, Math.round(p[`dm${d}`] ?? 0) ^ (1 << step))
+      return
+    }
     const hit = buttons().find((b) => !b.off && Math.abs(fx - b.x) < b.w / 2 && Math.abs(fy - b.y) < BTN.h / 2)
     if (!hit) return
     e.stopPropagation()

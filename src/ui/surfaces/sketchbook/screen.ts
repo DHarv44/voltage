@@ -1,8 +1,10 @@
 import {
+  DRUM,
   encoderLabels,
   lfoTarget,
   MIX,
   SB_COLORS,
+  SB_DRUMS,
   SB_ENGINE_KNOBS,
   SB_ENGINES,
   SB_FX,
@@ -16,6 +18,7 @@ import {
   SYNTH,
   TAPE,
 } from '../../../modules/specs/sketchbook'
+import { drawDrums } from './drumScreen'
 import { drawSequencer } from './seqScreen'
 
 export interface ScreenRect {
@@ -41,6 +44,13 @@ const TAU = Math.PI * 2
 
 const font = (px: number, weight = 600) => `${weight} ${Math.round(px)}px Bahnschrift, 'Arial Narrow', sans-serif`
 
+/** The screen's picture area, under the header (the face hit-tests it too). */
+export function screenBody(r: ScreenRect): ScreenRect {
+  const pad = r.h * 0.07
+  const head = r.h * 0.14
+  return { x: r.x + pad, y: r.y + pad * 1.5 + head, w: r.w - pad * 2, h: r.h - pad * 2.5 - head }
+}
+
 /** The SKETCHBOOK screen: a header line, then the mode's own picture. */
 export function drawScreen(ctx: CanvasRenderingContext2D, r: ScreenRect, s: ScreenState): void {
   const { p, led } = s
@@ -59,7 +69,9 @@ export function drawScreen(ctx: CanvasRenderingContext2D, r: ScreenRect, s: Scre
   const sub =
     mode === SYNTH
       ? `${SB_ENGINES[Math.round(p.engine)]} · ${Math.round(p.page) === 2 ? `FX ${SB_FX[Math.round(p.fx)]}` : SB_PAGES[Math.round(p.page)]}`
-      : mode === TAPE
+      : mode === DRUM
+        ? SB_DRUMS[Math.round(p.dsel)]
+        : mode === TAPE
         ? `TRACK ${Math.round(p.trk) + 1}`
         : mode === SEQ
           ? `${SB_SEQS[Math.round(p.stype)]} · ${Math.round(p.tempo)}`
@@ -70,8 +82,9 @@ export function drawScreen(ctx: CanvasRenderingContext2D, r: ScreenRect, s: Scre
   const run = (led?.[SBL.run] ?? 0) > 0.5
   ctx.fillStyle = recOn ? REC : run ? SB_COLORS[2] : DIM
   ctx.fillText(recOn ? '● REC' : run ? '▶ PLAY' : '■ STOP', r.x + r.w - pad, r.y + pad + head / 2)
-  const body = { x: r.x + pad, y: r.y + pad * 1.5 + head, w: r.w - pad * 2, h: r.h - pad * 2.5 - head }
-  if (mode === SEQ) drawSequencer(ctx, body, s)
+  const body = screenBody(r)
+  if (mode === DRUM) drawDrums(ctx, body, s)
+  else if (mode === SEQ) drawSequencer(ctx, body, s)
   else if (mode === TAPE) drawTape(ctx, body, s)
   else if (mode === MIX) drawMix(ctx, body, s)
   else [drawSound, drawEnvelope, drawFx, drawLfo][Math.round(p.page)]?.(ctx, body, s)

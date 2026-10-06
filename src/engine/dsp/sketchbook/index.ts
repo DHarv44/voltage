@@ -1,11 +1,12 @@
 import type { ModuleSpec } from '../../../modules/types'
-import { ARP, SB_ARP_MAX, SB_BALLS, SB_STEPS, SB_TRACKS, SB_VOICES, SBL, TUMBLE } from '../../../modules/specs/sketchbook'
+import { ARP, DRUM, SB_ARP_MAX, SB_BALLS, SB_DRUMS, SB_STEPS, SB_TRACKS, SB_VOICES, SBL, TUMBLE } from '../../../modules/specs/sketchbook'
 import type { MidiEvent, UiEvent } from '../../protocol'
 import { Dsp } from '../base'
 import { Schmitt } from '../cores'
 import { PocketClock } from '../pocketClock'
 import { Tape } from './tape'
 import { render } from './engines'
+import { SketchDrums } from './drums'
 import { SketchFx, SketchLfo } from './fx'
 import { SketchSeq, type Player } from './seq'
 import { Voice } from './voice'
@@ -32,8 +33,11 @@ export class SketchbookDsp extends Dsp implements Player {
     lfo: this.pi('lfo'), lrate: this.pi('lrate'), ldepth: this.pi('ldepth'), ldest: this.pi('ldest'),
     stype: this.pi('stype'), arate: this.pi('arate'), aoct: this.pi('aoct'), amode: this.pi('amode'),
     tspin: this.pi('tspin'), tgrav: this.pi('tgrav'), tballs: this.pi('tballs'), dchange: this.pi('dchange'),
+    mode: this.pi('mode'), dk: this.pi('d0_0'), dm: this.pi('dm0'),
   }
   private readonly seq: SketchSeq
+  private readonly drums: SketchDrums
+  private drumStep = -1
   private readonly fx: SketchFx
   private readonly lfo = new SketchLfo()
   private readonly voices: Voice[]
@@ -56,6 +60,7 @@ export class SketchbookDsp extends Dsp implements Player {
     this.tape = new Tape(fs)
     this.fx = new SketchFx(fs)
     this.seq = new SketchSeq(this.rng, this)
+    this.drums = new SketchDrums(fs, this.rng)
   }
 
   /** The sequencer plays through here (Player). */
@@ -91,6 +96,12 @@ export class SketchbookDsp extends Dsp implements Player {
   /** A key played (keybed, computer keys, MIDI): straight to a voice, or,
    *  with the ARP sequencer, into the arpeggio. */
   private key(volts: number, down: boolean, vel: number): void {
+    if (Math.round(this.p[this.p0.mode]) === DRUM) {
+      // DRUM mode: the keys are the kit (C = KICK, C# = SNARE …, repeating)
+      const semis = Math.round(volts * 12 - 12 * Math.round(this.p[this.p0.oct]) + 12)
+      if (down) this.drums.trigger(((semis % SB_DRUMS.length) + SB_DRUMS.length) % SB_DRUMS.length, Math.max(0.3, vel))
+      return
+    }
     if (Math.round(this.p[this.p0.stype]) === ARP) this.seq.hold(volts, down)
     else if (down) this.noteOn(volts, vel, -1)
     else this.noteOff(volts)
@@ -126,6 +137,7 @@ export class SketchbookDsp extends Dsp implements Player {
     if (running && !this.wasRunning) {
       this.tape.rewind()
       this.seq.step = -1
+      this.drumStep = -1
     }
     this.wasRunning = running
     const c = this.clock
@@ -134,8 +146,12 @@ export class SketchbookDsp extends Dsp implements Player {
     const len = Math.max(1, Math.round(p[q.len]))
     const clocked = this.patched[this.iClk] === 1
     // PATTERN / DRIFT: one step per 16th (or per CLK edge)
-    if (c.tick(running, clocked, this.in[this.iClk], p[q.tempo], p[q.swing]))
+    if (c.tick(running, clocked, this.in[this.iClk], p[q.tempo], p[q.swing])) {
       seq.onStep(type, p, q.n, len, p[q.glen], p[q.dchange], c.stepLen, fs)
+      // the drums have their own 16 steps per sound
+      this.drumStep = (this.drumStep + 1) % SB_STEPS
+      for (let s = 0; s < SB_DRUMS.length; s++) if ((p[q.dm + s] >> this.drumStep) & 1) this.drums.trigger(s, 0.9)
+    }
     // ARP plays whenever keys are held, on the tempo's grid
     if (type === ARP) seq.arpTick(Math.round(p[q.arate]), Math.round(p[q.aoct]), Math.round(p[q.amode]), clocked ? c.stepLen : 15 / p[q.tempo], fs)
     // TUMBLE: the drum turns while the transport runs; its walls are the first steps
@@ -180,8 +196,9 @@ export class SketchbookDsp extends Dsp implements Player {
     fx.process(synth, Math.round(p[q.fx]), p[q.fxmix], p[q.fxa], p[q.fxb], c.stepLen)
     if ((this.n++ & 63) === 0) this.tape.setLength(Math.round(p[q.bars]), c.stepLen, fs)
     const audio = this.patched[this.iAudio] ? this.in[this.iAudio] / 5 : 0
-    this.tape.step((fx.l[0] + fx.r[0]) * 0.5 + audio, running, Math.round(p[q.trk]), p[q.drive], this.trackOut)
-    let tape = audio
+    const drums = this.drums.step(p, q.dk) * 0.45 // the kit sits under the synth, not on top of it
+    this.tape.step((fx.l[0] + fx.r[0]) * 0.5 + drums + audio, running, Math.round(p[q.trk]), p[q.drive], this.trackOut)
+    let tape = audio + drums
     for (let t = 0; t < SB_TRACKS; t++) tape += this.trackOut[t] * p[q.lv + t]
     const gain = p[q.master] * 2
 
@@ -205,6 +222,8 @@ export class SketchbookDsp extends Dsp implements Player {
         led[SBL.balls + i * 2 + 1] = (b.y + 1) / 2
       }
       for (let i = 0; i < SB_STEPS; i++) led[SBL.drift + i] = seq.drift[i]
+      led[SBL.dstep] = this.drumStep
+      for (let s = 0; s < SB_DRUMS.length; s++) led[SBL.dflash + s] = this.drums.flash[s]
       led[SBL.arpCount] = seq.heldCount
       for (let i = 0; i < SB_ARP_MAX; i++) led[SBL.arp + i] = Math.round(seq.held[i] * 12)
     }

@@ -206,8 +206,12 @@ Have: MONO-1, STUDIO-3, GROOVE-1, the POCKET family; played: OMNICHORD, STYLOPHO
        PLUCK (Karplus-Strong), SWARM (supersaw + sub); shared ADSR; 6 voices; 16-step pattern,
        step-recorded from the keys (REST, cursor); 4-track loop tape in tempo (1–8 bars, REC punches
        the selected track, CLEAR, DRIVE saturation); track levels; AUDIO IN onto tape.
-     - Phase 2: more engines (phase distortion, wavetable, noise/DNA-style, sampler), a DRUM mode,
-       more sequencers (endless, arpeggio, TUMBLER, sketch), per-sound effect and LFO.
+     - ~~Phase 2~~ (done): engines PHASE (CZ-style), DUST (noise resonator + crusher), WAVE (morphing
+       wavetable) → 7 engines; per-sound FX (DELAY ping-pong, CHORUS, PHONE, CRUSH) and LFO (to pitch,
+       knob 1, knob 3, volume); sequencer types PATTERN / ARP / TUMBLE (TUMBLER's drum, shared
+       TumbleCore) / DRIFT (mutating pattern, KEEP); DRUM mode: 8-sound analog kit, 16 steps per
+       sound, edited by touching the screen grid.
+     - Later in phase 2's spirit: a sampler engine, a sketch (draw-a-melody) sequencer.
      - Phase 3: tape tricks (lift/drop, reverse, speed, loop points), separate track outs, CV for the
        encoders, save the tape with the patch.
   2. **DFAM + Subharmonicon-style pair**: semi-modular percussion (8-step pitch/velocity) and
