@@ -1,6 +1,6 @@
 import { useRef, type PointerEvent } from 'react'
 import { telemetry } from '../../../audio/telemetry'
-import { encoderParams, MIX, SB_COLORS, SB_ENGINES, SB_MODES, SB_TRACKS, SBL, SEQ, SYNTH, TAPE } from '../../../modules/specs/sketchbook'
+import { encoderLabels, encoderParams, MIX, SB_COLORS, SB_ENGINES, SB_MODES, SB_PAGES, SB_TRACKS, SBL, SEQ, SYNTH, TAPE } from '../../../modules/specs/sketchbook'
 import { actions, patchStore } from '../../../patch/store'
 import { PX } from '../../geometry'
 import { drawCanvasKnob, useCanvasKnobs, type CanvasKnob } from '../canvasKnob'
@@ -41,9 +41,11 @@ export function SketchFace({ inst, spec, x, y, w, h }: SurfaceProps) {
 
   const knobs = (): CanvasKnob[] => {
     const p = live()
+    const specOf = (id: string) => spec.params.find((s) => s.id === id)!
+    const labels = encoderLabels(p, (id) => specOf(id).label)
     return encoderParams(Math.round(p.mode), Math.round(p.page), Math.round(p.engine)).map((id, i) => {
-      const ps = spec.params.find((s) => s.id === id)!
-      return { fx: ENC_X[i], fy: ENC_Y, fr: ENC_R, ps, value: p[id] ?? ps.def, set: (v) => set(id, v), label: ps.label }
+      const ps = specOf(id)
+      return { fx: ENC_X[i], fy: ENC_Y, fr: ENC_R, ps, value: p[id] ?? ps.def, set: (v) => set(id, v), label: labels[i] }
     })
   }
   const pressKnob = useCanvasKnobs(ref, knobs)
@@ -59,7 +61,7 @@ export function SketchFace({ inst, spec, x, y, w, h }: SurfaceProps) {
     }
     const action: Button | null =
       mode === SYNTH
-        ? { label: 'PAGE', x: CLUSTER_X[2], y: ROW_Y[0], w: BTN.w, lit: p.page >= 0.5, press: () => set('page', p.page >= 0.5 ? 0 : 1) }
+        ? { label: 'PAGE', x: CLUSTER_X[2], y: ROW_Y[0], w: BTN.w, press: () => set('page', (Math.round(p.page) + 1) % SB_PAGES.length) }
         : mode === SEQ
           ? {
               label: 'REST',

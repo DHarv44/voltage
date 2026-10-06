@@ -12,7 +12,18 @@ export const SYNTH = 0
 export const SEQ = 1
 export const TAPE = 2
 export const MIX = 3
-export const SB_PAGES = ['SOUND', 'ENVELOPE']
+export const SB_PAGES = ['SOUND', 'ENVELOPE', 'FX', 'LFO']
+export const SB_FX = ['OFF', 'DELAY', 'CHORUS', 'PHONE', 'CRUSH']
+/** The FX page's A and B knobs mean different things per effect. */
+const FX_KNOBS = [
+  ['—', '—'],
+  ['TIME', 'FEEDBK'],
+  ['RATE', 'DEPTH'],
+  ['TONE', 'DRIVE'],
+  ['BITS', 'RATE'],
+]
+export const SB_LFO_SHAPES = ['SINE', 'TRIANGLE', 'SQUARE', 'RANDOM']
+export const SB_LFO_DESTS = ['PITCH', 'KNOB 1', 'KNOB 3', 'VOLUME']
 export const SB_ENGINES = ['TWIN', 'DUO', 'PLUCK', 'SWARM', 'PHASE', 'DUST', 'WAVE']
 /** Each engine's four knobs (names, and where they start). */
 export const SB_ENGINE_KNOBS: { names: string[]; defs: number[] }[] = [
@@ -48,8 +59,32 @@ export function encoderParams(mode: number, page: number, engine: number): strin
     case MIX:
       return ['lv0', 'lv1', 'lv2', 'lv3']
     default:
-      return page === 1 ? ['a', 'd', 's', 'r'] : [0, 1, 2, 3].map((i) => `k${engine}_${i}`)
+      if (page === 1) return ['a', 'd', 's', 'r']
+      if (page === 2) return ['fx', 'fxmix', 'fxa', 'fxb']
+      if (page === 3) return ['lfo', 'lrate', 'ldepth', 'ldest']
+      return [0, 1, 2, 3].map((i) => `k${engine}_${i}`)
   }
+}
+
+/** What the four encoders are called right now (the FX knobs and the LFO's
+ *  destination name the actual thing they move). */
+export function encoderLabels(p: Record<string, number>, fallback: (id: string) => string): string[] {
+  const mode = Math.round(p.mode)
+  const page = Math.round(p.page)
+  const engine = Math.round(p.engine)
+  if (mode === SYNTH && page === 0) return SB_ENGINE_KNOBS[engine].names
+  if (mode === SYNTH && page === 2) {
+    const [a, b] = FX_KNOBS[Math.round(p.fx)] ?? FX_KNOBS[0]
+    return ['EFFECT', 'MIX', a, b]
+  }
+  return encoderParams(mode, page, engine).map(fallback)
+}
+
+/** The LFO's destination, named for the selected engine (KNOB 1 → SHAPE …). */
+export function lfoTarget(p: Record<string, number>): string {
+  const d = Math.round(p.ldest)
+  const names = SB_ENGINE_KNOBS[Math.round(p.engine)].names
+  return d === 1 ? names[0] : d === 2 ? names[2] : SB_LFO_DESTS[d]
 }
 
 /** A pattern to start from: a minor-pentatonic phrase (semitones above the
@@ -58,7 +93,7 @@ const START = [0, -1, 7, -1, 10, 12, -1, 7, 5, -1, 3, -1, 7, 10, -1, 12]
 
 const params: ParamSpec[] = [
   { id: 'mode', label: 'MODE', min: 0, max: SB_MODES.length - 1, def: SYNTH, stepped: true, options: SB_MODES },
-  { id: 'page', label: 'PAGE', min: 0, max: 1, def: 0, stepped: true, options: SB_PAGES },
+  { id: 'page', label: 'PAGE', min: 0, max: SB_PAGES.length - 1, def: 0, stepped: true, options: SB_PAGES },
   { id: 'engine', label: 'ENGINE', min: 0, max: SB_ENGINES.length - 1, def: 0, stepped: true, options: SB_ENGINES },
   { id: 'oct', label: 'OCTAVE', min: -2, max: 2, def: 0, stepped: true },
   ...SB_ENGINE_KNOBS.flatMap((e, ei) => e.names.map((label, i) => ({ id: `k${ei}_${i}`, label, min: 0, max: 1, def: e.defs[i], unit: '%' as const }))),
@@ -66,6 +101,14 @@ const params: ParamSpec[] = [
   { id: 'd', label: 'DECAY', min: 0.01, max: 4, def: 0.35, curve: 'exp', unit: 's' },
   { id: 's', label: 'SUSTAIN', min: 0, max: 1, def: 0.5, unit: '%' },
   { id: 'r', label: 'RELEASE', min: 0.01, max: 6, def: 0.4, curve: 'exp', unit: 's' },
+  { id: 'fx', label: 'EFFECT', min: 0, max: SB_FX.length - 1, def: 1, stepped: true, options: SB_FX },
+  { id: 'fxmix', label: 'FX MIX', min: 0, max: 1, def: 0.3, unit: '%' },
+  { id: 'fxa', label: 'FX A', min: 0, max: 1, def: 0.5, unit: '%' },
+  { id: 'fxb', label: 'FX B', min: 0, max: 1, def: 0.4, unit: '%' },
+  { id: 'lfo', label: 'LFO SHAPE', min: 0, max: SB_LFO_SHAPES.length - 1, def: 0, stepped: true, options: SB_LFO_SHAPES },
+  { id: 'lrate', label: 'LFO RATE', min: 0.05, max: 20, def: 2, curve: 'exp', unit: 'Hz' },
+  { id: 'ldepth', label: 'LFO DEPTH', min: 0, max: 1, def: 0, unit: '%' },
+  { id: 'ldest', label: 'LFO TO', min: 0, max: SB_LFO_DESTS.length - 1, def: 2, stepped: true, options: SB_LFO_DESTS },
   { id: 'tempo', label: 'TEMPO', min: 40, max: 240, def: 100, unit: 'bpm' },
   { id: 'len', label: 'LENGTH', min: 1, max: SB_STEPS, def: SB_STEPS, stepped: true },
   { id: 'swing', label: 'SWING', min: 0, max: 0.5, def: 0.05, unit: '%' },

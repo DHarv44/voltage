@@ -1,4 +1,21 @@
-import { MIX, SB_COLORS, SB_ENGINE_KNOBS, SB_ENGINES, SB_MODES, SB_STEPS, SB_TRACKS, SBL, SEQ, SYNTH, TAPE } from '../../../modules/specs/sketchbook'
+import {
+  encoderLabels,
+  lfoTarget,
+  MIX,
+  SB_COLORS,
+  SB_ENGINE_KNOBS,
+  SB_ENGINES,
+  SB_FX,
+  SB_LFO_SHAPES,
+  SB_MODES,
+  SB_PAGES,
+  SB_STEPS,
+  SB_TRACKS,
+  SBL,
+  SEQ,
+  SYNTH,
+  TAPE,
+} from '../../../modules/specs/sketchbook'
 
 export interface ScreenRect {
   x: number
@@ -39,7 +56,9 @@ export function drawScreen(ctx: CanvasRenderingContext2D, r: ScreenRect, s: Scre
   ctx.fillStyle = INK
   ctx.font = font(head * 0.75, 700)
   const sub =
-    mode === SYNTH ? `${SB_ENGINES[Math.round(p.engine)]} · ${p.page >= 0.5 ? 'ENVELOPE' : 'SOUND'}` : mode === TAPE ? `TRACK ${Math.round(p.trk) + 1}` : mode === SEQ ? `${Math.round(p.tempo)} BPM` : 'LEVELS'
+    mode === SYNTH
+      ? `${SB_ENGINES[Math.round(p.engine)]} · ${Math.round(p.page) === 2 ? `FX ${SB_FX[Math.round(p.fx)]}` : SB_PAGES[Math.round(p.page)]}`
+      : mode === TAPE ? `TRACK ${Math.round(p.trk) + 1}` : mode === SEQ ? `${Math.round(p.tempo)} BPM` : 'LEVELS'
   ctx.fillText(`${SB_MODES[mode]}  ${sub}`, r.x + pad, r.y + pad + head / 2)
   ctx.textAlign = 'right'
   const recOn = (led?.[SBL.rec] ?? 0) > 0.5
@@ -50,17 +69,55 @@ export function drawScreen(ctx: CanvasRenderingContext2D, r: ScreenRect, s: Scre
   if (mode === SEQ) drawSeq(ctx, body, s)
   else if (mode === TAPE) drawTape(ctx, body, s)
   else if (mode === MIX) drawMix(ctx, body, s)
-  else if (p.page >= 0.5) drawEnvelope(ctx, body, s)
-  else drawSound(ctx, body, s)
+  else [drawSound, drawEnvelope, drawFx, drawLfo][Math.round(p.page)]?.(ctx, body, s)
 }
 
-/** SYNTH · SOUND: the four knobs as coloured gauges, named. */
+/** SYNTH · SOUND: the engine's four knobs as coloured gauges. */
 function drawSound(ctx: CanvasRenderingContext2D, b: ScreenRect, s: ScreenState): void {
   const e = Math.round(s.p.engine)
-  const names = SB_ENGINE_KNOBS[e].names
+  drawGauges(ctx, b, s, SB_ENGINE_KNOBS[e].names, [0, 1, 2, 3].map((i) => s.p[`k${e}_${i}`] ?? 0))
+}
+
+/** SYNTH · FX: the effect's knobs (the first one picks the effect). */
+function drawFx(ctx: CanvasRenderingContext2D, b: ScreenRect, s: ScreenState): void {
+  const p = s.p
+  drawGauges(ctx, b, s, encoderLabels(p, (id) => id), [p.fx / (SB_FX.length - 1), p.fxmix, p.fxa, p.fxb])
+}
+
+/** SYNTH · LFO: its wave, a dot running along it at RATE, and what it moves. */
+function drawLfo(ctx: CanvasRenderingContext2D, b: ScreenRect, s: ScreenState): void {
+  const p = s.p
+  const shape = Math.round(p.lfo)
+  const amp = (b.h * 0.36) * Math.max(0.08, p.ldepth)
+  const mid = b.y + b.h * 0.42
+  const wave = (ph: number) =>
+    shape === 1 ? 1 - 4 * Math.abs(ph - 0.5) : shape === 2 ? (ph < 0.5 ? 1 : -1) : shape === 3 ? Math.sin(ph * 37.1 + Math.floor(ph * 6) * 1.7) : Math.sin(TAU * ph)
+  ctx.strokeStyle = SB_COLORS[1]
+  ctx.lineWidth = b.h * 0.035
+  ctx.beginPath()
+  for (let i = 0; i <= 64; i++) {
+    const ph = i / 64
+    const y = mid - wave(shape === 3 ? Math.floor(ph * 6) / 6 : ph) * amp
+    if (i === 0) ctx.moveTo(b.x + ph * b.w, y)
+    else ctx.lineTo(b.x + ph * b.w, y)
+  }
+  ctx.stroke()
+  const at = (s.t * p.lrate) % 1
+  ctx.fillStyle = INK
+  ctx.beginPath()
+  ctx.arc(b.x + at * b.w, mid - wave(shape === 3 ? Math.floor(at * 6) / 6 : at) * amp, b.h * 0.06, 0, TAU)
+  ctx.fill()
+  ctx.fillStyle = SB_COLORS[3]
+  ctx.textAlign = 'center'
+  ctx.font = font(b.h * 0.14)
+  ctx.fillText(`${SB_LFO_SHAPES[shape]}  →  ${lfoTarget(p)}`, b.x + b.w / 2, b.y + b.h * 0.92)
+}
+
+/** Four coloured gauges with names, pulsing with the sound's level. */
+function drawGauges(ctx: CanvasRenderingContext2D, b: ScreenRect, s: ScreenState, names: string[], values: number[]): void {
   const live = s.led?.[SBL.live] ?? 0
   for (let i = 0; i < 4; i++) {
-    const v = s.p[`k${e}_${i}`] ?? 0
+    const v = values[i] ?? 0
     const cx = b.x + (b.w * (i + 0.5)) / 4
     const cy = b.y + b.h * 0.42
     const rad = Math.min(b.w / 9, b.h * 0.32)

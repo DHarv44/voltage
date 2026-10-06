@@ -140,9 +140,10 @@ const wave: Engine = (v, k, envV, _f, dt, fs) => {
 
 const ENGINES: Engine[] = [twin, duo, pluck, swarm, phase, dust, wave]
 
-/** One sample of a voice through engine `engine`. */
-export function render(v: Voice, engine: number, k: Float64Array, envV: number, fs: number): number {
-  const f = C4 * Math.pow(2, v.volts + v.drift)
+/** One sample of a voice through engine `engine`; `bend` shifts its pitch
+ *  (volts: the LFO's vibrato). */
+export function render(v: Voice, engine: number, k: Float64Array, envV: number, fs: number, bend: number): number {
+  const f = C4 * Math.pow(2, v.volts + v.drift + bend)
   const dt = Math.min(0.45, f / fs)
   v.age += 1 / fs
   return (ENGINES[engine] ?? twin)(v, k, envV, f, dt, fs)

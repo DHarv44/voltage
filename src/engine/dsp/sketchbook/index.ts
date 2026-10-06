@@ -6,6 +6,7 @@ import { Schmitt } from '../cores'
 import { PocketClock } from '../pocketClock'
 import { Tape } from './tape'
 import { render } from './engines'
+import { SketchFx, SketchLfo } from './fx'
 import { Voice } from './voice'
 
 /** SKETCHBOOK (see the spec): six voices on the selected engine, played from
@@ -22,7 +23,11 @@ export class SketchbookDsp extends Dsp {
     tempo: this.pi('tempo'), len: this.pi('len'), swing: this.pi('swing'), glen: this.pi('glen'), n: this.pi('n0'),
     run: this.pi('run'), bars: this.pi('bars'), trk: this.pi('trk'), drive: this.pi('drive'), vol: this.pi('vol'),
     lv: this.pi('lv0'), master: this.pi('master'),
+    fx: this.pi('fx'), fxmix: this.pi('fxmix'), fxa: this.pi('fxa'), fxb: this.pi('fxb'),
+    lfo: this.pi('lfo'), lrate: this.pi('lrate'), ldepth: this.pi('ldepth'), ldest: this.pi('ldest'),
   }
+  private readonly fx: SketchFx
+  private readonly lfo = new SketchLfo()
   private readonly voices: Voice[]
   private readonly clock: PocketClock
   private readonly tape: Tape
@@ -42,6 +47,7 @@ export class SketchbookDsp extends Dsp {
     this.voices = Array.from({ length: SB_VOICES }, () => new Voice(fs, this.rng))
     this.clock = new PocketClock(SB_STEPS, fs)
     this.tape = new Tape(fs)
+    this.fx = new SketchFx(fs)
   }
 
   /** Start a note on a free voice (or the oldest). `hold`: samples until it
@@ -115,9 +121,17 @@ export class SketchbookDsp extends Dsp {
       this.noteOn(this.extVolts, 1, -1)
     } else if (wasHigh && !this.gateIn.high) this.noteOff(this.extVolts)
 
+    // the LFO: vibrato, a knob swept, or tremolo
+    const depth = p[q.ldepth]
+    const lfo = depth > 0 ? this.lfo.step(Math.round(p[q.lfo]), p[q.lrate], fs) * depth : 0
+    const dest = Math.round(p[q.ldest])
+    this.loadKnobs()
+    if (dest === 1) this.knobs[0] = Math.min(1, Math.max(0, this.knobs[0] + lfo * 0.5))
+    else if (dest === 2) this.knobs[2] = Math.min(1, Math.max(0, this.knobs[2] + lfo * 0.5))
+    const bend = dest === 0 ? (lfo * 2) / 12 : 0
+
     // the voices, on the selected engine
     const engine = Math.round(p[q.engine])
-    this.loadKnobs()
     let mix = 0
     let gates = 0
     let sounding = 0
@@ -127,24 +141,28 @@ export class SketchbookDsp extends Dsp {
       sounding++
       if (v.gate > 0) gates++
       const e = v.env.step(v.gate, v.age === 0, p[q.a], p[q.d], p[q.s], p[q.r])
-      mix += render(v, engine, this.knobs, e, fs) * e * v.vel
+      mix += render(v, engine, this.knobs, e, fs, bend) * e * v.vel
     }
-    const synth = Math.tanh(mix * 0.9) * p[q.vol]
+    let synth = Math.tanh(mix * 0.9) * p[q.vol]
+    if (dest === 3) synth *= 1 - depth * 0.5 + lfo * 0.5
 
-    // the tape (loop length follows the tempo), then the mix
+    // the sound's effect (stereo), then the tape (loop length follows the
+    // tempo; it records the effected sound and AUDIO in), then the mix
+    const fx = this.fx
+    fx.process(synth, Math.round(p[q.fx]), p[q.fxmix], p[q.fxa], p[q.fxb], c.stepLen)
     if ((this.n++ & 63) === 0) this.tape.setLength(Math.round(p[q.bars]), c.stepLen, fs)
     const audio = this.patched[this.iAudio] ? this.in[this.iAudio] / 5 : 0
-    this.tape.step(synth + audio, running, Math.round(p[q.trk]), p[q.drive], this.trackOut)
-    let out = synth + audio
-    for (let t = 0; t < SB_TRACKS; t++) out += this.trackOut[t] * p[q.lv + t]
-    const y = Math.tanh(out * p[q.master] * 2) * 5
+    this.tape.step((fx.l[0] + fx.r[0]) * 0.5 + audio, running, Math.round(p[q.trk]), p[q.drive], this.trackOut)
+    let tape = audio
+    for (let t = 0; t < SB_TRACKS; t++) tape += this.trackOut[t] * p[q.lv + t]
+    const gain = p[q.master] * 2
 
     const o = this.out
     o[0] = c.clkSample()
     o[1] = this.lastVolts
     o[2] = gates > 0 ? 10 : 0
-    o[3] = y
-    o[4] = y
+    o[3] = Math.tanh((fx.l[0] + tape) * gain) * 5
+    o[4] = Math.tanh((fx.r[0] + tape) * gain) * 5
 
     const a = Math.abs(synth)
     this.livePeak = a > this.livePeak ? a : this.livePeak * 0.99995
