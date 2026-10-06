@@ -200,11 +200,16 @@ Our own versions throughout: inspired by the classics, our own names, panels and
 ## Systems (whole instruments, our own names and looks)
 Have: MONO-1, STUDIO-3, GROOVE-1, the POCKET family; played: OMNICHORD, STYLOPHONE, TAPE KEYS, THEREMIN.
 - **Shortlist, in order**:
-  1. **OP-1-style workstation** (in progress): four-knob synth engines, modes (SYNTH / DRUM / TAPE /
-     MIXER), playful sequencers (TUMBLER inside), 4-track tape with tricks, mixer, on-panel keys and a
-     screen; semi-modular (CLK in/out, PITCH/GATE out, AUDIO IN to tape, track outs, CV for the knobs).
-     Phases: 1 shell + engines + pattern sequencer + tape + mixer; 2 more engines, drums, sequencers;
-     3 tape tricks, recording audio in.
+  1. **OP-1-style workstation: SKETCHBOOK** (64 HP). Four encoders that follow the mode, on-panel
+     keybed, screen; semi-modular (CLK / V/OCT / GATE / AUDIO in; CLK / PITCH / GATE / L / R out).
+     - ~~Phase 1~~ (done): modes SYNTH / SEQ / TAPE / MIX; engines TWIN (2 osc + filter), DUO (2-op FM),
+       PLUCK (Karplus-Strong), SWARM (supersaw + sub); shared ADSR; 6 voices; 16-step pattern,
+       step-recorded from the keys (REST, cursor); 4-track loop tape in tempo (1–8 bars, REC punches
+       the selected track, CLEAR, DRIVE saturation); track levels; AUDIO IN onto tape.
+     - Phase 2: more engines (phase distortion, wavetable, noise/DNA-style, sampler), a DRUM mode,
+       more sequencers (endless, arpeggio, TUMBLER, sketch), per-sound effect and LFO.
+     - Phase 3: tape tricks (lift/drop, reverse, speed, loop points), separate track outs, CV for the
+       encoders, save the tape with the patch.
   2. **DFAM + Subharmonicon-style pair**: semi-modular percussion (8-step pitch/velocity) and
      subharmonic polyrhythms.
   3. **Elektron-style groovebox**: parameter locks, conditional trigs, an FM (Digitone) or sampler

@@ -55,6 +55,7 @@ import { pocketbass, pocketmelody } from './specs/pocketSynth'
 import { stylophone } from './specs/stylophone'
 import { bounce } from './specs/bounce'
 import { tumbler } from './specs/tumbler'
+import { sketchbook } from './specs/sketchbook'
 import { orbit } from './specs/orbit'
 import { life } from './specs/life'
 import { flock } from './specs/flock'
@@ -72,6 +73,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   mono,
   studio,
   groove,
+  sketchbook,
   polycv,
   pvco,
   pvcf,

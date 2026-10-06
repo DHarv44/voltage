@@ -55,6 +55,13 @@ export const SOURCE_STARTERS: Record<string, Starter> = {
       toOut(k, [s, 'out'])
     },
   },
+  sketchbook: {
+    howTo: 'SKETCHBOOK playing its pattern. Try the four engines (◀ ▶ in SYNTH), then TAPE: pick a track, ● REC a loop, layer the next.',
+    build(k) {
+      const s = k.add('sketchbook', { run: 1 })
+      toOut(k, [s, 'l'], [s, 'r'])
+    },
+  },
   groove: {
     howTo: 'GROOVE-1 running its pattern. Edit steps on its grid; try SWING.',
     build(k) {

@@ -21,6 +21,8 @@ import { PocketKeys } from './PocketKeys'
 import { Stylophone } from './Stylophone'
 import { Bounce } from './Bounce'
 import { Tumbler } from './Tumbler'
+import { SketchFace } from './sketchbook/Face'
+import { SketchKeys } from './sketchbook/Keys'
 import { Orbit } from './Orbit'
 import { Life } from './Life'
 import { Flock } from './Flock'
@@ -56,6 +58,8 @@ export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
   stylophone: Stylophone,
   bounce: Bounce,
   tumbler: Tumbler,
+  sketchbook: SketchFace,
+  sketchkeys: SketchKeys,
   orbit: Orbit,
   life: Life,
   flock: Flock,
