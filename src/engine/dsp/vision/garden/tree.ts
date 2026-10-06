@@ -11,7 +11,7 @@ const T_ROT = 6
 
 /** Tree timings (units at RATE 0.4 Hz; a flower lives ~40): trees take ages
  *  to grow, stand for longer, and take their time dying. */
-const GROW_TIME = 260
+const GROW_TIME = 200
 const MATURE = [260, 200]
 const TURN_TIME = 30
 const LEAF_FALL = 45
@@ -52,14 +52,6 @@ export class Tree {
     this.g = this.leaves = this.autumn = this.fall = this.fade = 0
   }
 
-  /** Already partway grown (a garden that has been here a while). */
-  established(g: number): void {
-    this.phase = T_GROW
-    this.g = g
-    this.fade = 1
-    this.leaves = 1
-  }
-
   get standing(): boolean {
     return this.phase !== T_SEED
   }
@@ -86,7 +78,7 @@ export class Tree {
         break
       case T_GROW:
         this.g = Math.min(1, this.g + (u / GROW_TIME) * (0.4 + 0.6 * light) * Math.min(1, health * 2))
-        this.leaves = smoothstep(0.02, 0.12, this.g)
+        this.leaves = smoothstep(0.01, 0.05, this.g) // a sapling leafs out straight away
         if (this.g >= 1) {
           this.phase = T_MATURE
           this.timer = MATURE[0] + this.rng.next() * MATURE[1]

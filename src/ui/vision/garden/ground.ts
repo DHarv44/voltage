@@ -3,7 +3,7 @@ import * as THREE from 'three'
 const BLADES = 7000
 /** The grass field: its front edge (just in front of the nearest camera),
  *  and how far back it runs (the haze has it by then). */
-const FRONT = 1.8
+const FRONT = 1.3
 const FIELD_DEPTH = 18
 
 /** The meadow the garden grows in, built to read as 3D: a lawn running off
@@ -55,7 +55,7 @@ export function gardenGround(scene: THREE.Scene, ground: number, span: number, r
     // up front among the flowers, the field widening with distance as the
     // view does. Further back the blades are fewer but grow into bigger
     // clumps, so the cover reads as unbroken grass right into the haze.
-    const d = FIELD_DEPTH * rnd() ** 2 // distance back from the front edge
+    const d = FIELD_DEPTH * rnd() ** 1.6 // distance back from the front edge
     const half = span * 0.8 + d * 0.75
     v.set((rnd() - 0.5) * 2 * half, ground, FRONT - d)
     q.setFromEuler(e.set((rnd() - 0.5) * 0.3, rnd() * Math.PI, (rnd() - 0.5) * 0.3))

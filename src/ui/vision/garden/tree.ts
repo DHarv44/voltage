@@ -150,17 +150,19 @@ export class TreeView {
     const grew = Math.abs(st.g - this.shownG) > 0.003
     if (grew) {
       this.shownG = st.g
-      this.branches.forEach((b, i) => {
-        // a sapling already has every fork (small); the size is the height's
-        const k = smooth(b.depth * 0.05 - 0.03, b.depth * 0.05 + 0.06, st.g)
-        this.wood.setMatrixAt(i, k > 0.001 ? tmp.copy(b.m).multiply(new THREE.Matrix4().makeScale(k, k, k)) : zero)
-      })
+      // a sapling is the same tree in miniature (its height is treeHeight's),
+      // but spindly: the wood thickens as it grows
+      const girth = 0.3 + 0.7 * smooth(0, 0.7, st.g)
+      const thicken = new THREE.Matrix4().makeScale(girth, 1, girth)
+      this.branches.forEach((b, i) => this.wood.setMatrixAt(i, tmp.copy(b.m).multiply(thicken)))
       this.wood.count = this.branches.length
       this.wood.instanceMatrix.needsUpdate = true
     }
     // leaves: turn colour (each in its own time), then drop one by one
     let changed = false
-    const twigs = smooth(0.22, 0.4, st.g) // the crown is on the outer twigs
+    // leaves are out from the first weeks; a young tree's are a touch larger
+    // for its size (a sapling is mostly leaf)
+    const twigs = smooth(0.005, 0.04, st.g) * (1 + 0.6 * (1 - smooth(0, 0.5, st.g)))
     this.leaves.forEach((l) => {
       const on = st.leaves > l.hold && twigs > 0.01
       if (l.on && !on && st.leaves < 0.999 && st.fall === 0) {

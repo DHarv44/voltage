@@ -54,19 +54,16 @@ export class Garden implements Creature {
   private breath = 0
   private readonly wind: Wander
   private readonly stem = new Spring2(2.6, 0.22)
-  private first = true
 
   constructor(private readonly rng: Rng) {
     this.wind = new Wander(rng, 0.3, 0.35)
     this.plants = Array.from({ length: GARDEN_PLANTS }, () => new Plant(rng))
     // the first one is already up; the rest are seeds waiting their turn
     this.plants.forEach((p, k) => p.sow(this.plants, k === 0 ? 0 : 3 + (k % 5) * 5 + rng.next() * 4, this.pick(0)))
-    // the trees have been here a while: one grown, one half grown, a sapling
+    // trees start as seeds too: the first sapling comes up at once, the
+    // others a while later, so they're never all the same age
     this.trees = Array.from({ length: GARDEN_TREES }, () => new Tree(rng))
-    this.trees.forEach((t, k) => {
-      t.sow(this.trees, 0)
-      t.established([0.85, 0.45, 0.12][k])
-    })
+    this.trees.forEach((t, k) => t.sow(this.trees, k === 0 ? 0 : 25 + k * 35 + rng.next() * 20))
     this.bugs = new Bugs(rng)
     this.seeds = new Seeds(rng)
   }
@@ -153,11 +150,6 @@ export class Garden implements Creature {
     }
     if (this.bugs.step(dt, light, this.plants, sway, nBees, nFlies, this.flick) > 0) this.trigT = TRIG_LEN
     for (let k = 0; k < this.trees.length; k++) this.trees[k].step(dt, speed, this.health, light, k < opts.trees, this.trees)
-    if (this.first) {
-      // a fresh garden with fewer trees than it was built with: just not there
-      for (let k = opts.trees; k < this.trees.length; k++) this.trees[k].sow(this.trees, 5 + this.rng.next() * 10)
-      this.first = false
-    }
 
     const glowLight = Math.max(0, Math.min(1.5, i.glow * (0.2 + 0.5 * open + 0.8 * this.flick) + i.glowCv / 10))
     o.gate = this.trigT > 0 ? 10 : 0
