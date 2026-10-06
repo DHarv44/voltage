@@ -176,6 +176,27 @@ sharing), which stays as the no-account option.
 - Before it: version history of the autosaved rack and a full-copy `.voltage` file with recordings
   bundled in (local, no server).
 
+## Pinned for later: what big synth artists use (gap review)
+Our own versions throughout: inspired by the classics, our own names, panels and sounds.
+- **Suggested order**:
+  1. Mix bus: mixer console + sidechain compressor + limiter + EQ (the "produced" sound; EDM pump).
+  2. Vocoder (band-filter) and low-pass gate (vactrol "bongo" for west-coast patches).
+  3. FM voice (DX7-style EP/bass) and supersaw / unison voice stacking.
+  4. Knob-motion recording (automation that loops) and resampling (record the master or any cable
+     straight into SAMPLE / LOOP / CHOP).
+  5. Ambient toolkit: granular (Clouds/Morphagene-style), shimmer reverb, pitch shifter / harmoniser.
+  6. MIDI clock in/out (sync with a DAW and gear).
+- **Gaps by sound**:
+  - Analog poly: unison/detune stacking, poly-mod, built-in chorus (Prophet / Juno / CS-80 / OB style).
+  - Mono: full acid sequencer, 3-osc Model-D-style system.
+  - Modular: quad LFO, probability / ratchet gates (Bernoulli-style), sequential switch, track & hold.
+  - Digital: FM, sample-based drum kit (LinnDrum-style), macro oscillator (Plaits-style), resonator
+    (Rings-style).
+  - EDM: sidechain, multiband ("OTT"-style), supersaw.
+  - Stereo: panner, mid/side widener, auto-pan, ping-pong delay (most of the rack is mono today).
+- **Beyond modules**: per-module presets (save a module's settings), song mode / arranger (chain
+  patterns and scenes), velocity + aftertouch routing and MPE input, Scala / just-intonation tunings.
+
 ## Pinned for later: creative modules
 - **Character output**: cassette deck and vinyl-lathe export.
 
