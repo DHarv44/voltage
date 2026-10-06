@@ -240,7 +240,8 @@ export function footprint(c: Control, spec: SpecLabels, own: number): Box[] {
       return [
         {
           x0: c.x - c.dx * 1.05 - labelW / 2,
-          y0: c.y - c.dy * 0.85 - 1.9 * SILK.ascent,
+          // the pattern letter sits above the first row; without one, just the playhead
+          y0: c.pattern ? c.y - c.dy * 0.85 - 1.9 * SILK.ascent : c.y - c.dy / 2 - 0.5,
           x1: c.x + (c.cols - 1) * c.dx + c.dx * 0.38,
           y1: c.y + (c.rows.length - 1) * c.dy + c.dy * 0.35,
           part: 'body',

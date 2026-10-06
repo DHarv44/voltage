@@ -16,11 +16,14 @@ extend VOLTAGE.
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (111)
+### Modules (115)
 - **POCKET family**: POCKET (drums), POCKET BASS (16 note steps, slide/accent, SUB/SQUARE/ACID), POCKET
   MELODY (scale degrees, per-step NOTE/CHORD/ARP, BELL/PLUCK/LEAD, poly NOTES). Drag a step to set its
   note, right-click for its flag; off WRITE the buttons are a keyboard. They follow each other's CLK.
-- **Systems**: MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine).
+- **Systems**: MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine), SKETCHBOOK
+  (portable workstation), KIN-8 (DFAM-style percussion: two VCOs, noise, ladder, three decays, 8-step
+  pitch/velocity sequencer), UNDERTONE (Subharmonicon-style: two VCOs with phase-locked subharmonics,
+  two 4-step sequencers clocked by four polyrhythm dividers, OR/XOR, 12/8-tone equal or just quantizing).
 - **Polyphonic**: POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX.
 - **Sources**: VCO, COMPLEX (Buchla-style), WAVE (band-limited wavetable), SUB, NOISE.
 - **Filters**: LADDER, SVF, MS-12.
@@ -198,7 +201,7 @@ Our own versions throughout: inspired by the classics, our own names, panels and
   patterns and scenes), velocity + aftertouch routing and MPE input, Scala / just-intonation tunings.
 
 ## Systems (whole instruments, our own names and looks)
-Have: MONO-1, STUDIO-3, GROOVE-1, the POCKET family; played: OMNICHORD, STYLOPHONE, TAPE KEYS, THEREMIN.
+Have: MONO-1, STUDIO-3, GROOVE-1, SKETCHBOOK, KIN-8, UNDERTONE, the POCKET family; played: OMNICHORD, STYLOPHONE, TAPE KEYS, THEREMIN.
 - **Shortlist, in order**:
   1. **OP-1-style workstation: SKETCHBOOK** (64 HP). Four encoders that follow the mode, on-panel
      keybed, screen; semi-modular (CLK / V/OCT / GATE / AUDIO in; CLK / PITCH / GATE / L / R out).
@@ -216,8 +219,16 @@ Have: MONO-1, STUDIO-3, GROOVE-1, the POCKET family; played: OMNICHORD, STYLOPHO
        inertia), LOOP IN / OUT, WOW, LIFT / DROP (touch buttons on the screen); touch a lane to pick
        the track; T1–T4 track outputs; K1–K4 CV onto the sound's knobs; the tape is kept with the patch
        (and Export audio (WAV) per track).
-  2. **DFAM + Subharmonicon-style pair**: semi-modular percussion (8-step pitch/velocity) and
-     subharmonic polyrhythms.
+  2. ~~**DFAM + Subharmonicon-style pair**~~ (done): **KIN-8** (48 HP) and **UNDERTONE** (60 HP),
+     both semi-modular with patch bays whose inputs break their normals. KIN-8: two VCOs (TRI/SQR,
+     VCO EG pitch sweep ±5 oct, 1→2 FM, hard sync), noise / EXT IN, ladder LP/HP with NOISE MOD, VCO /
+     VCF / VCA decay envelopes (VCA FAST/SLOW attack), 8 steps of PITCH (to VCO 2 / both / off;
+     semitone snapping in its right-click menu) and VELOCITY (scales the VCA and VCF EG; 0 = a rest);
+     TRIG / ADV buttons. UNDERTONE: two VCOs (SAW/SQR) each with two subharmonics ÷1–16 (counted off
+     the VCO, phase-locked), six levels, ladder + AD envelopes, VCA ENV/DRONE; two 4-step sequencers
+     that move a VCO and/or its sub divisions (ASSIGN grid); four rhythm dividers of the tempo routed to
+     either sequencer (grid), OR / XOR; QUANTIZE OFF / 12-ET / 8-ET / 12-JI / 8-JI, SEQ RANGE ±1/±2/±5,
+     GLIDE. UNDERTONE's ready-to-play rig clocks KIN-8 from its CLK, the way the pair is played.
   3. **Elektron-style groovebox**: parameter locks, conditional trigs, an FM (Digitone) or sampler
      (Digitakt) voice.
   4. **Tenori-on-style light grid**: 16×16 light buttons, patterns as pictures.

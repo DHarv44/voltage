@@ -1,4 +1,4 @@
-import { chords, melody, toOut, tune, voice, type Jack, type Kit } from './kit'
+import { chords, melody, mix, toOut, tune, voice, type Jack, type Kit } from './kit'
 import type { Starter } from './types'
 
 /** Self-playing poly chords (see chords()) through a poly voice. */
@@ -60,6 +60,24 @@ export const SOURCE_STARTERS: Record<string, Starter> = {
     build(k) {
       const s = k.add('sketchbook', { run: 1 })
       toOut(k, [s, 'l'], [s, 'r'])
+    },
+  },
+  kin: {
+    howTo: 'KIN-8 running its 8 steps. Turn the PITCH and VELOCITY knobs; sweep VCO DECAY, 1→2 FM and the VCF EG.',
+    build(k) {
+      const d = k.add('kin', { run: 1 })
+      toOut(k, [d, 'vca'], undefined, 0.5)
+    },
+  },
+  undertone: {
+    howTo: 'UNDERTONE clocking KIN-8 (its CLK into KIN-8 ADV). Light other RHYTHMS squares, try XOR, turn the SUB ÷ knobs.',
+    build(k) {
+      const u = k.add('undertone', { run: 1 })
+      const d = k.add('kin', { vol: 0.45, vcadec: 0.18 })
+      k.wire([u, 'clk'], [d, 'adv'])
+      const plate = k.add('plate', { decay: 0.55, mix: 0.25 })
+      k.wire(mix(k, [[u, 'vca'], [d, 'vca']], [0.9, 0.75]), [plate, 'in'])
+      toOut(k, [plate, 'l'], [plate, 'r'], 0.65)
     },
   },
   groove: {

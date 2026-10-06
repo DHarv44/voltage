@@ -17,6 +17,8 @@ export const PEDAL_GREEN: PanelStyle = { bg: '#2f5a3f', fg: '#ecf3e9', accent: '
 export const PEDAL_ORANGE: PanelStyle = { bg: '#e07b22', fg: '#24160a', accent: '#ff2a1a' }
 /** Amp head: black tolex with a gold faceplate print. */
 export const AMP: PanelStyle = { bg: '#1a1714', fg: '#e8d9a8', accent: '#d4af37' }
+/** Charcoal with a cool teal print (UNDERTONE). */
+export const SLATE: PanelStyle = { bg: '#2a2e33', fg: '#e8e6df', accent: '#4fc6d6' }
 export const SAND: PanelStyle = { bg: '#d8d0bd', fg: '#24211d', accent: '#c0392b' }
 /** The POCKET family's other colourways (bass, melody). */
 export const SAGE: PanelStyle = { bg: '#c3cfc6', fg: '#1d2621', accent: '#2d6cdf' }
