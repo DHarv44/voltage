@@ -1,6 +1,24 @@
 import { useRef, type PointerEvent } from 'react'
 import { telemetry } from '../../../audio/telemetry'
-import { encoderLabels, encoderParams, MIX, SB_COLORS, SB_ENGINES, SB_MODES, SB_PAGES, SB_TRACKS, SBL, SEQ, SYNTH, TAPE } from '../../../modules/specs/sketchbook'
+import {
+  DRIFT,
+  encoderLabels,
+  encoderParams,
+  MIX,
+  PATTERN,
+  SB_COLORS,
+  SB_ENGINES,
+  SB_MODES,
+  SB_PAGES,
+  SB_SEQS,
+  SB_STEPS,
+  SB_TRACKS,
+  SBL,
+  SEQ,
+  SYNTH,
+  TAPE,
+  TUMBLE,
+} from '../../../modules/specs/sketchbook'
 import { actions, patchStore } from '../../../patch/store'
 import { PX } from '../../geometry'
 import { drawCanvasKnob, useCanvasKnobs, type CanvasKnob } from '../canvasKnob'
@@ -43,12 +61,43 @@ export function SketchFace({ inst, spec, x, y, w, h }: SurfaceProps) {
     const p = live()
     const specOf = (id: string) => spec.params.find((s) => s.id === id)!
     const labels = encoderLabels(p, (id) => specOf(id).label)
-    return encoderParams(Math.round(p.mode), Math.round(p.page), Math.round(p.engine)).map((id, i) => {
+    return encoderParams(Math.round(p.mode), Math.round(p.page), Math.round(p.engine), Math.round(p.stype)).map((id, i) => {
       const ps = specOf(id)
       return { fx: ENC_X[i], fy: ENC_Y, fr: ENC_R, ps, value: p[id] ?? ps.def, set: (v) => set(id, v), label: labels[i] }
     })
   }
   const pressKnob = useCanvasKnobs(ref, knobs)
+
+  /** SEQ's action button, by sequencer type. */
+  const seqAction = (type: number, len: number): Button | null => {
+    const at = { x: CLUSTER_X[2], y: ROW_Y[0], w: BTN.w }
+    if (type === PATTERN)
+      return {
+        ...at,
+        label: 'REST',
+        press: () => {
+          const c = sketchCursor.get(mod)
+          set(`n${c}`, -1)
+          sketchCursor.set(mod, c + 1, len)
+        },
+      }
+    if (type === TUMBLE) return { ...at, label: 'KICK', press: () => sendSurface(mod, 'kick', 0, 0, true) }
+    if (type === DRIFT)
+      return {
+        ...at,
+        label: 'KEEP',
+        // write the drifted notes back into the pattern
+        press: () => {
+          const led = telemetry.leds[mod]
+          if (!led) return
+          actions.setParams(
+            Array.from({ length: SB_STEPS }, (_, i) => [mod, `n${i}`, led[SBL.drift + i]] as [string, string, number]),
+            `keep:${mod}`,
+          )
+        },
+      }
+    return null
+  }
 
   const buttons = (): Button[] => {
     const p = live()
@@ -63,17 +112,7 @@ export function SketchFace({ inst, spec, x, y, w, h }: SurfaceProps) {
       mode === SYNTH
         ? { label: 'PAGE', x: CLUSTER_X[2], y: ROW_Y[0], w: BTN.w, press: () => set('page', (Math.round(p.page) + 1) % SB_PAGES.length) }
         : mode === SEQ
-          ? {
-              label: 'REST',
-              x: CLUSTER_X[2],
-              y: ROW_Y[0],
-              w: BTN.w,
-              press: () => {
-                const c = sketchCursor.get(mod)
-                set(`n${c}`, -1)
-                sketchCursor.set(mod, c + 1, len)
-              },
-            }
+          ? seqAction(Math.round(p.stype), len)
           : mode === TAPE
             ? { label: 'CLEAR', x: CLUSTER_X[2], y: ROW_Y[0], w: BTN.w, press: () => sendSurface(mod, 'clear', Math.round(p.trk), 0, true) }
             : null
@@ -86,6 +125,7 @@ export function SketchFace({ inst, spec, x, y, w, h }: SurfaceProps) {
       { label: 'OCT+', x: CLUSTER_X[3], y: ROW_Y[0], w: BTN.w, press: () => set('oct', Math.min(2, Math.round(p.oct) + 1)) },
       { label: '● REC', x: CLUSTER_X[0], y: ROW_Y[1], w: BTN.w, lit: rec, press: () => sendSurface(mod, 'rec', 0, 0, true) },
       { label: p.run >= 0.5 ? '■ STOP' : '▶ PLAY', x: CLUSTER_X[1], y: ROW_Y[1], w: BTN.w, lit: p.run >= 0.5, press: () => set('run', p.run >= 0.5 ? 0 : 1) },
+      ...(mode === SEQ ? [{ label: 'TYPE', x: CLUSTER_X[2], y: ROW_Y[1], w: BTN.w, press: () => set('stype', (Math.round(p.stype) + 1) % SB_SEQS.length) }] : []),
       { label: 'OCT−', x: CLUSTER_X[3], y: ROW_Y[1], w: BTN.w, press: () => set('oct', Math.max(-2, Math.round(p.oct) - 1)) },
     ]
   }

@@ -9,13 +9,14 @@ import {
   SB_LFO_SHAPES,
   SB_MODES,
   SB_PAGES,
-  SB_STEPS,
+  SB_SEQS,
   SB_TRACKS,
   SBL,
   SEQ,
   SYNTH,
   TAPE,
 } from '../../../modules/specs/sketchbook'
+import { drawSequencer } from './seqScreen'
 
 export interface ScreenRect {
   x: number
@@ -58,7 +59,11 @@ export function drawScreen(ctx: CanvasRenderingContext2D, r: ScreenRect, s: Scre
   const sub =
     mode === SYNTH
       ? `${SB_ENGINES[Math.round(p.engine)]} · ${Math.round(p.page) === 2 ? `FX ${SB_FX[Math.round(p.fx)]}` : SB_PAGES[Math.round(p.page)]}`
-      : mode === TAPE ? `TRACK ${Math.round(p.trk) + 1}` : mode === SEQ ? `${Math.round(p.tempo)} BPM` : 'LEVELS'
+      : mode === TAPE
+        ? `TRACK ${Math.round(p.trk) + 1}`
+        : mode === SEQ
+          ? `${SB_SEQS[Math.round(p.stype)]} · ${Math.round(p.tempo)}`
+          : 'LEVELS'
   ctx.fillText(`${SB_MODES[mode]}  ${sub}`, r.x + pad, r.y + pad + head / 2)
   ctx.textAlign = 'right'
   const recOn = (led?.[SBL.rec] ?? 0) > 0.5
@@ -66,7 +71,7 @@ export function drawScreen(ctx: CanvasRenderingContext2D, r: ScreenRect, s: Scre
   ctx.fillStyle = recOn ? REC : run ? SB_COLORS[2] : DIM
   ctx.fillText(recOn ? '● REC' : run ? '▶ PLAY' : '■ STOP', r.x + r.w - pad, r.y + pad + head / 2)
   const body = { x: r.x + pad, y: r.y + pad * 1.5 + head, w: r.w - pad * 2, h: r.h - pad * 2.5 - head }
-  if (mode === SEQ) drawSeq(ctx, body, s)
+  if (mode === SEQ) drawSequencer(ctx, body, s)
   else if (mode === TAPE) drawTape(ctx, body, s)
   else if (mode === MIX) drawMix(ctx, body, s)
   else [drawSound, drawEnvelope, drawFx, drawLfo][Math.round(p.page)]?.(ctx, body, s)
@@ -170,36 +175,6 @@ function drawEnvelope(ctx: CanvasRenderingContext2D, b: ScreenRect, s: ScreenSta
     ctx.moveTo(...pts[i])
     ctx.lineTo(...pts[i + 1])
     ctx.stroke()
-  }
-}
-
-/** SEQ: the pattern as bars (height = note), the playing step lit, the
- *  record cursor outlined, rests as dots. */
-function drawSeq(ctx: CanvasRenderingContext2D, b: ScreenRect, s: ScreenState): void {
-  const len = Math.round(s.p.len)
-  const step = s.led?.[SBL.step] ?? -1
-  const cw = b.w / SB_STEPS
-  for (let i = 0; i < SB_STEPS; i++) {
-    const n = Math.round(s.p[`n${i}`] ?? -1)
-    const x = b.x + i * cw
-    const col = SB_COLORS[Math.floor(i / 4)]
-    ctx.globalAlpha = i < len ? 1 : 0.25
-    if (n < 0) {
-      ctx.fillStyle = DIM
-      ctx.beginPath()
-      ctx.arc(x + cw / 2, b.y + b.h * 0.85, cw * 0.1, 0, TAU)
-      ctx.fill()
-    } else {
-      const hgt = b.h * (0.12 + (n / 24) * 0.78)
-      ctx.fillStyle = i === step ? INK : col
-      ctx.fillRect(x + cw * 0.15, b.y + b.h - hgt, cw * 0.7, hgt)
-    }
-    if (i === s.cursor) {
-      ctx.strokeStyle = INK
-      ctx.lineWidth = 2
-      ctx.strokeRect(x + cw * 0.05, b.y, cw * 0.9, b.h)
-    }
-    ctx.globalAlpha = 1
   }
 }
 

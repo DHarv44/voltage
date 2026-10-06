@@ -22,6 +22,19 @@ const FX_KNOBS = [
   ['TONE', 'DRIVE'],
   ['BITS', 'RATE'],
 ]
+/** SEQ's types: PATTERN (step-recorded), ARP (the keys you hold), TUMBLE
+ *  (balls in a spinning drum; wall k plays step k's note), DRIFT (the pattern,
+ *  mutating a little each time round). */
+export const SB_SEQS = ['PATTERN', 'ARP', 'TUMBLE', 'DRIFT']
+export const PATTERN = 0
+export const ARP = 1
+export const TUMBLE = 2
+export const DRIFT = 3
+export const SB_ARP_RATES = ['1/4', '1/8', '1/16', '1/32']
+export const SB_ARP_MODES = ['UP', 'DOWN', 'UPDOWN', 'RANDOM']
+/** Notes an arpeggio holds; balls in the drum. */
+export const SB_ARP_MAX = 8
+export const SB_BALLS = 4
 export const SB_LFO_SHAPES = ['SINE', 'TRIANGLE', 'SQUARE', 'RANDOM']
 export const SB_LFO_DESTS = ['PITCH', 'KNOB 1', 'KNOB 3', 'VOLUME']
 export const SB_ENGINES = ['TWIN', 'DUO', 'PLUCK', 'SWARM', 'PHASE', 'DUST', 'WAVE']
@@ -45,14 +58,34 @@ export const SB_KEYS = 25
 /** Longest tape loop (s): 8 bars at 60 bpm. */
 export const SB_TAPE_S = 32
 
-/** Engine → screen state on the LED channel. */
-export const SBL = { step: 0, pos: 1, rec: 2, run: 3, peak: 4, live: 4 + SB_TRACKS, note: 5 + SB_TRACKS, voices: 6 + SB_TRACKS } as const
+/** Engine → screen state on the LED channel: transport and meters, then the
+ *  drum (angle, x,y per ball), the drifting pattern, the arpeggio's notes. */
+const L0 = 7 + SB_TRACKS
+export const SBL = {
+  step: 0,
+  pos: 1,
+  rec: 2,
+  run: 3,
+  peak: 4,
+  live: 4 + SB_TRACKS,
+  note: 5 + SB_TRACKS,
+  voices: 6 + SB_TRACKS,
+  angle: L0,
+  balls: L0 + 1,
+  drift: L0 + 1 + SB_BALLS * 2,
+  arpCount: L0 + 1 + SB_BALLS * 2 + SB_STEPS,
+  arp: L0 + 2 + SB_BALLS * 2 + SB_STEPS,
+  end: L0 + 2 + SB_BALLS * 2 + SB_STEPS + SB_ARP_MAX,
+} as const
 
 /** The four encoders' params in a mode (SYNTH: the engine's knobs, or the
  *  envelope on page 2). Shared by the face and the docs. */
-export function encoderParams(mode: number, page: number, engine: number): string[] {
+export function encoderParams(mode: number, page: number, engine: number, seq = PATTERN): string[] {
   switch (mode) {
     case SEQ:
+      if (seq === ARP) return ['tempo', 'arate', 'aoct', 'amode']
+      if (seq === TUMBLE) return ['tspin', 'tgrav', 'tballs', 'len']
+      if (seq === DRIFT) return ['tempo', 'len', 'dchange', 'glen']
       return ['tempo', 'len', 'swing', 'glen']
     case TAPE:
       return ['bars', 'trk', 'drive', 'vol']
@@ -77,7 +110,8 @@ export function encoderLabels(p: Record<string, number>, fallback: (id: string) 
     const [a, b] = FX_KNOBS[Math.round(p.fx)] ?? FX_KNOBS[0]
     return ['EFFECT', 'MIX', a, b]
   }
-  return encoderParams(mode, page, engine).map(fallback)
+  if (mode === SEQ && Math.round(p.stype) === TUMBLE) return ['SPIN', 'GRAVITY', 'BALLS', 'SIDES']
+  return encoderParams(mode, page, engine, Math.round(p.stype)).map(fallback)
 }
 
 /** The LFO's destination, named for the selected engine (KNOB 1 → SHAPE …). */
@@ -114,6 +148,14 @@ const params: ParamSpec[] = [
   { id: 'swing', label: 'SWING', min: 0, max: 0.5, def: 0.05, unit: '%' },
   { id: 'glen', label: 'GATE', min: 0.1, max: 1, def: 0.5, unit: '%' },
   ...START.map((n, i) => ({ id: `n${i}`, label: `STEP ${i + 1}`, min: -1, max: 24, def: n, stepped: true })),
+  { id: 'stype', label: 'SEQUENCER', min: 0, max: SB_SEQS.length - 1, def: PATTERN, stepped: true, options: SB_SEQS },
+  { id: 'arate', label: 'RATE', min: 0, max: SB_ARP_RATES.length - 1, def: 2, stepped: true, options: SB_ARP_RATES },
+  { id: 'aoct', label: 'OCTAVES', min: 1, max: 3, def: 1, stepped: true },
+  { id: 'amode', label: 'ARP', min: 0, max: SB_ARP_MODES.length - 1, def: 0, stepped: true, options: SB_ARP_MODES },
+  { id: 'tspin', label: 'SPIN', min: -1, max: 1, def: 0.15, unit: 'Hz' },
+  { id: 'tgrav', label: 'GRAVITY', min: 0.2, max: 3, def: 1, curve: 'exp', unit: 'x' },
+  { id: 'tballs', label: 'BALLS', min: 1, max: SB_BALLS, def: 2, stepped: true },
+  { id: 'dchange', label: 'CHANGE', min: 0, max: 1, def: 0.2, unit: '%' },
   { id: 'run', label: 'PLAY', min: 0, max: 1, def: 0, stepped: true, options: ['STOP', 'PLAY'] },
   { id: 'bars', label: 'BARS', min: 1, max: 8, def: 2, stepped: true },
   { id: 'trk', label: 'TRACK', min: 0, max: SB_TRACKS - 1, def: 0, stepped: true, options: ['1', '2', '3', '4'] },
@@ -161,7 +203,7 @@ export const sketchbook: ModuleSpec = {
   inputs,
   outputs,
   params,
-  leds: 7 + SB_TRACKS,
+  leds: SBL.end,
   controls: [
     { kind: 'surface', name: 'sketchbook', x: 4, y: FACE.y, w: W - 8, h: FACE.h, bare: true },
     { kind: 'surface', name: 'sketchkeys', x: 4, y: KEYS_Y, w: W - 8, h: jacks.top - 1.6 - KEYS_Y, bare: true },

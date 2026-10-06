@@ -1,5 +1,5 @@
 import type { ModuleSpec } from '../../../modules/types'
-import { SB_STEPS, SB_TRACKS, SB_VOICES, SBL } from '../../../modules/specs/sketchbook'
+import { ARP, SB_ARP_MAX, SB_BALLS, SB_STEPS, SB_TRACKS, SB_VOICES, SBL, TUMBLE } from '../../../modules/specs/sketchbook'
 import type { MidiEvent, UiEvent } from '../../protocol'
 import { Dsp } from '../base'
 import { Schmitt } from '../cores'
@@ -7,12 +7,17 @@ import { PocketClock } from '../pocketClock'
 import { Tape } from './tape'
 import { render } from './engines'
 import { SketchFx, SketchLfo } from './fx'
+import { SketchSeq, type Player } from './seq'
 import { Voice } from './voice'
 
+/** TUMBLE's drum moves every CTRL samples. */
+const CTRL = 16
+const TAU = Math.PI * 2
+
 /** SKETCHBOOK (see the spec): six voices on the selected engine, played from
- *  its keybed, the computer keyboard / MIDI, V/OCT+GATE, or its own pattern;
+ *  its keybed, the computer keyboard / MIDI, V/OCT+GATE, or its sequencer;
  *  everything you hear can go onto the 4-track loop tape. */
-export class SketchbookDsp extends Dsp {
+export class SketchbookDsp extends Dsp implements Player {
   private readonly iClk = this.ii('clk')
   private readonly iVoct = this.ii('voct')
   private readonly iGate = this.ii('gate')
@@ -25,7 +30,10 @@ export class SketchbookDsp extends Dsp {
     lv: this.pi('lv0'), master: this.pi('master'),
     fx: this.pi('fx'), fxmix: this.pi('fxmix'), fxa: this.pi('fxa'), fxb: this.pi('fxb'),
     lfo: this.pi('lfo'), lrate: this.pi('lrate'), ldepth: this.pi('ldepth'), ldest: this.pi('ldest'),
+    stype: this.pi('stype'), arate: this.pi('arate'), aoct: this.pi('aoct'), amode: this.pi('amode'),
+    tspin: this.pi('tspin'), tgrav: this.pi('tgrav'), tballs: this.pi('tballs'), dchange: this.pi('dchange'),
   }
+  private readonly seq: SketchSeq
   private readonly fx: SketchFx
   private readonly lfo = new SketchLfo()
   private readonly voices: Voice[]
@@ -34,7 +42,6 @@ export class SketchbookDsp extends Dsp {
   private readonly gateIn = new Schmitt()
   private readonly knobs = new Float64Array(4)
   private readonly trackOut = new Float32Array(SB_TRACKS)
-  private seqStep = -1
   private wasRunning = false
   private born = 0
   private extVolts = 0
@@ -48,6 +55,12 @@ export class SketchbookDsp extends Dsp {
     this.clock = new PocketClock(SB_STEPS, fs)
     this.tape = new Tape(fs)
     this.fx = new SketchFx(fs)
+    this.seq = new SketchSeq(this.rng, this)
+  }
+
+  /** The sequencer plays through here (Player). */
+  play(volts: number, vel: number, hold: number): void {
+    this.noteOn(volts, vel, hold)
   }
 
   /** Start a note on a free voice (or the oldest). `hold`: samples until it
@@ -70,9 +83,17 @@ export class SketchbookDsp extends Dsp {
     for (const v of this.voices) if (v.gate > 0 && v.hold < 0 && Math.abs(v.volts - volts) < 1e-6) v.gate = 0
   }
 
-  /** Keybed key → volts: 25 keys from C, two octaves below C4 at OCTAVE 0 … */
-  private keyVolts(key: number): number {
+  /** Keybed key / pattern note → volts: 25 keys from C3 at OCTAVE 0 (Player). */
+  volts(key: number): number {
     return (key + 12 * Math.round(this.p[this.p0.oct]) - 12) / 12
+  }
+
+  /** A key played (keybed, computer keys, MIDI): straight to a voice, or,
+   *  with the ARP sequencer, into the arpeggio. */
+  private key(volts: number, down: boolean, vel: number): void {
+    if (Math.round(this.p[this.p0.stype]) === ARP) this.seq.hold(volts, down)
+    else if (down) this.noteOn(volts, vel, -1)
+    else this.noteOff(volts)
   }
 
   private loadKnobs(): void {
@@ -81,18 +102,19 @@ export class SketchbookDsp extends Dsp {
   }
 
   onMidi(ev: MidiEvent): void {
-    if (ev.kind === 'on') this.noteOn((ev.note - 60) / 12, ev.vel / 127, -1)
-    else if (ev.kind === 'off') this.noteOff((ev.note - 60) / 12)
-    else if (ev.kind === 'panic') for (const v of this.voices) v.gate = 0
+    if (ev.kind === 'on') this.key((ev.note - 60) / 12, true, ev.vel / 127)
+    else if (ev.kind === 'off') this.key((ev.note - 60) / 12, false, 0)
+    else if (ev.kind === 'panic') {
+      for (const v of this.voices) v.gate = 0
+      this.seq.heldCount = 0
+    }
   }
 
   onUi(ev: UiEvent): void {
     if (ev.kind !== 'surface') return
-    if (ev.name === 'key') {
-      const volts = this.keyVolts(Math.round(ev.x))
-      if (ev.down) this.noteOn(volts, 0.9, -1)
-      else this.noteOff(volts)
-    } else if (ev.name === 'rec' && ev.down) this.tape.recording = !this.tape.recording
+    if (ev.name === 'key') this.key(this.volts(Math.round(ev.x)), ev.down, 0.9)
+    else if (ev.name === 'kick' && ev.down) this.seq.drum.kick(Math.round(this.p[this.p0.tballs]))
+    else if (ev.name === 'rec' && ev.down) this.tape.recording = !this.tape.recording
     else if (ev.name === 'clear' && ev.down) this.tape.clear(Math.round(ev.x))
   }
 
@@ -103,16 +125,22 @@ export class SketchbookDsp extends Dsp {
     const running = p[q.run] >= 0.5
     if (running && !this.wasRunning) {
       this.tape.rewind()
-      this.seqStep = -1
+      this.seq.step = -1
     }
     this.wasRunning = running
     const c = this.clock
-    // the pattern: one step per 16th (or per CLK edge)
-    if (c.tick(running, this.patched[this.iClk] === 1, this.in[this.iClk], p[q.tempo], p[q.swing])) {
-      this.seqStep = (this.seqStep + 1) % Math.max(1, Math.round(p[q.len]))
-      const note = Math.round(p[q.n + this.seqStep])
-      if (note >= 0) this.noteOn(this.keyVolts(note), 0.85, Math.round(p[q.glen] * c.stepLen * fs))
-    }
+    const seq = this.seq
+    const type = Math.round(p[q.stype])
+    const len = Math.max(1, Math.round(p[q.len]))
+    const clocked = this.patched[this.iClk] === 1
+    // PATTERN / DRIFT: one step per 16th (or per CLK edge)
+    if (c.tick(running, clocked, this.in[this.iClk], p[q.tempo], p[q.swing]))
+      seq.onStep(type, p, q.n, len, p[q.glen], p[q.dchange], c.stepLen, fs)
+    // ARP plays whenever keys are held, on the tempo's grid
+    if (type === ARP) seq.arpTick(Math.round(p[q.arate]), Math.round(p[q.aoct]), Math.round(p[q.amode]), clocked ? c.stepLen : 15 / p[q.tempo], fs)
+    // TUMBLE: the drum turns while the transport runs; its walls are the first steps
+    if (type === TUMBLE && running && this.n % CTRL === 0)
+      seq.tumbleTick(CTRL / fs, p, q.n, Math.min(8, Math.max(3, len)), p[q.tspin], p[q.tgrav], Math.round(p[q.tballs]), Math.round(p[q.glen] * 0.25 * fs))
     // V/OCT + GATE from the rack
     const g = this.in[this.iGate]
     const wasHigh = this.gateIn.high
@@ -167,7 +195,19 @@ export class SketchbookDsp extends Dsp {
     const a = Math.abs(synth)
     this.livePeak = a > this.livePeak ? a : this.livePeak * 0.99995
     const led = this.led
-    led[SBL.step] = this.seqStep
+    led[SBL.step] = seq.step
+    if ((this.n & 255) === 0) {
+      // the sequencer's own state for the screen: drum, drift, arpeggio
+      led[SBL.angle] = seq.drum.angle / TAU
+      for (let i = 0; i < SB_BALLS; i++) {
+        const b = seq.drum.balls[i]
+        led[SBL.balls + i * 2] = i < Math.round(p[q.tballs]) ? (b.x + 1) / 2 : -1
+        led[SBL.balls + i * 2 + 1] = (b.y + 1) / 2
+      }
+      for (let i = 0; i < SB_STEPS; i++) led[SBL.drift + i] = seq.drift[i]
+      led[SBL.arpCount] = seq.heldCount
+      for (let i = 0; i < SB_ARP_MAX; i++) led[SBL.arp + i] = Math.round(seq.held[i] * 12)
+    }
     led[SBL.pos] = this.tape.pos / this.tape.len
     led[SBL.rec] = this.tape.recording ? 1 : 0
     led[SBL.run] = running ? 1 : 0
