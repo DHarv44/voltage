@@ -1087,6 +1087,11 @@ button {
 .ctx-menu button.danger {
   color: #ff8a7e;
 }
+.ctx-menu button:disabled {
+  opacity: 0.4;
+  cursor: default;
+  background: none;
+}
 .ctx-sizes {
   display: flex;
   align-items: center;

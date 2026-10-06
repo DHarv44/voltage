@@ -5,6 +5,7 @@ import { defaultPatch } from './defaultPatch'
 import { makeModule, uid } from './factory'
 import { findSlot, placeWithPush, RAIL_SIZES, ROW_HP, usedHp } from './layout'
 import { loadSaved, sanitize, save } from './persist'
+import { withoutRow, withRowAt } from './rowOps'
 import type { Cable, JackRef, MorphSnapshot, Patch } from './types'
 
 type Listener = () => void
@@ -233,6 +234,20 @@ export const actions = {
     const last = state.rows - 1
     if (last < 1 || state.modules.some((m) => m.row === last)) return
     set({ ...state, rows: last })
+  },
+
+  /** A new empty row at `at` (the rows from there move down). */
+  insertRow(at: number): void {
+    set(withRowAt(state, at))
+  },
+
+  /** Remove any row: its modules move to free space in other rows (`move`)
+   *  or go with it (`delete`). False if it can't (they don't fit, or it's the
+   *  only row). One undo step either way. */
+  removeRowAt(row: number, keep: 'move' | 'delete'): boolean {
+    const next = withoutRow(state, row, keep)
+    if (next) set(next)
+    return !!next
   },
 
   /** Replace the rack. Input is validated; anything invalid is ignored. */

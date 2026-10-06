@@ -68,8 +68,10 @@ case. **Walkthrough** does each step for you; **Guided** lets you do it and move
   drop below the last row to start a new row.
 - **Rows and rails:** **+ Row / − Row**, and the **rails** selector (84 / 104 / 126 / 168 HP, the
   widths real cases come in).
+- **Right-click an empty part of a row:** add a row below it, or remove it. A row with modules in it
+  can move them into free space in the other rows first (if they fit), or remove them with it.
 - **Right-click a module:** Duplicate, Reset knobs, Export audio (for modules that record), **Size**
-  (for resizable screens) and Remove.
+  (for resizable screens), any deeper settings it has (VISION's garden), and Remove.
 
 ### Knobs, switches and cables
 | Do this | To |

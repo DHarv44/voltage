@@ -10,6 +10,7 @@ import { CableLayer } from './CableLayer'
 import { ContextMenu } from './ContextMenu'
 import { JackMenu } from './JackMenu'
 import { JackReadout } from './JackReadout'
+import { RowMenu, type RowMenuState } from './RowMenu'
 import { libraryPreview, placementOf } from './dragPreview'
 import { libraryDrag } from './libraryDrag'
 import { useRackInteractions } from './useRackInteractions'
@@ -36,6 +37,8 @@ export function Rack() {
   )
   const { cable, move, menu, setMenu, jackMenu, setJackMenu, handlers } = useRackInteractions(toLocal)
   const closeJackMenu = useCallback(() => setJackMenu(null), [setJackMenu])
+  const [rowMenu, setRowMenu] = useState<RowMenuState | null>(null)
+  const closeRowMenu = useCallback(() => setRowMenu(null), [])
 
   const libPreview = useMemo(
     () => (lib ? libraryPreview(lib.type, toLocal(lib), patch) : null),
@@ -68,6 +71,13 @@ export function Rack() {
               key={r}
               className={r >= patch.rows ? 'case-row new' : 'case-row'}
               style={{ left: SIDE, top: rowTop(r), width: rail * HP_PX, height: ROW_PX }}
+              onContextMenu={(e) => {
+                // empty rail: the row's own menu (modules have theirs)
+                e.preventDefault()
+                if (r >= patch.rows) return
+                setMenu(null)
+                setRowMenu({ row: r, x: e.clientX, y: e.clientY })
+              }}
             >
               <div className="rail top" />
               <div className="rail bottom" />
@@ -102,6 +112,7 @@ export function Rack() {
       )}
       {menu && <ContextMenu menu={menu} onClose={() => setMenu(null)} />}
       {jackMenu && <JackMenu menu={jackMenu} onClose={closeJackMenu} />}
+      {rowMenu && <RowMenu menu={rowMenu} onClose={closeRowMenu} />}
       {!cable && !move && <JackReadout />}
     </div>
   )
