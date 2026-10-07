@@ -932,12 +932,18 @@ button {
 .lib-item {
   touch-action: none;
 }
+/* Only the bare panel face moves a module (see grabbable()); controls and
+   screens on it keep their own cursor. */
 .module {
   position: absolute;
-  cursor: grab;
+  cursor: default;
   filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55));
 }
-.module.lifted {
+.module > svg {
+  cursor: grab;
+}
+.module.lifted,
+.module.lifted * {
   cursor: grabbing;
   filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.7));
   z-index: 5;

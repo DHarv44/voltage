@@ -23,6 +23,22 @@ export interface MenuState {
 
 type ClientPt = { clientX: number; clientY: number }
 
+/** How far (px) a press must travel before the panel lifts: a mouse, then a
+ *  finger or pen (they wobble more). */
+const MOVE_SLOP = 6
+const MOVE_SLOP_TOUCH = 12
+
+/** Panels move only by their bare face: the panel itself, its printed text
+ *  (title, labels) or the empty SVG. Anything else under the pointer is a
+ *  control (knob, jack, switch, screen, surface…), and pressing a control
+ *  never moves the module, even if the control lets the press through. */
+function grabbable(target: EventTarget, panel: EventTarget): boolean {
+  if (target === panel) return true
+  if (!(target instanceof Element)) return false
+  if (target instanceof SVGSVGElement && target.parentElement === panel) return true
+  return target instanceof SVGTextElement && target.classList.contains('silk')
+}
+
 /** Cable patching (drag from any jack; grabbing a patched input pulls that plug),
  *  module dragging (only the dragged panel moves; neighbours slide aside on drop),
  *  and the module context menu. */
@@ -86,7 +102,7 @@ export function useRackInteractions(toLocal: (e: ClientPt) => Pt) {
         jackHover.set(e ? { mod, jack, dir, x: e.clientX, y: e.clientY } : null)
       },
       panelDown(id, e) {
-        if (e.button !== 0) return
+        if (e.button !== 0 || !grabbable(e.target, e.currentTarget)) return
         const base = patchStore.get() // neighbours slide relative to where they were at grab time
         const m = base.modules.find((x) => x.id === id)
         if (!m) return
@@ -95,9 +111,18 @@ export function useRackInteractions(toLocal: (e: ClientPt) => Pt) {
         const dy = grab.y - rowTop(m.row)
         let cur: DragPreview = { id, type: m.type, row: m.row, hp: m.hp, targetHp: m.hp, moves: {} }
         let last = ''
-        setMove(cur)
+        let lifted = false
+        const sx = e.clientX
+        const sy = e.clientY
+        const slop = e.pointerType === 'mouse' ? MOVE_SLOP : MOVE_SLOP_TOUCH
         track(
           (ev) => {
+            // a press that barely moves is a click, not a move
+            if (!lifted) {
+              if (Math.hypot(ev.clientX - sx, ev.clientY - sy) < slop) return
+              lifted = true
+              setMove(cur)
+            }
             const t = slotAt(local.current(ev), dx, dy, base.rows)
             const key = `${t.row}:${t.hp}`
             if (key === last) return
@@ -109,6 +134,7 @@ export function useRackInteractions(toLocal: (e: ClientPt) => Pt) {
             }
           },
           () => {
+            if (!lifted) return
             const moved = cur.row !== m.row || cur.hp !== m.hp || Object.keys(cur.moves).length > 0
             if (moved) actions.placeModule(id, cur.row, cur.targetHp)
             setMove(null)

@@ -114,7 +114,7 @@ export function Library() {
         <div className="lib-help">
           <p>Search by name, by what you want (bass, reverb, beat…) or by the gear you know; every word must match. Enter adds the top result; / jumps to the search box. Tap tags to narrow the list; ☆ stars a module into Favourites.</p>
           <p>Drag a module onto the rack to place it; anything in the way slides aside on drop. Click to drop it in the first free slot.</p>
-          <p>Drag a panel to move it. Drop below the last row for a new row. Right-click a panel for more.</p>
+          <p>Move a panel by dragging its bare face (the title strip or any empty space); controls and screens never move it. Drop below the last row for a new row. Right-click a panel for more.</p>
           <p>Drag from a jack to patch. Drag a patched input to unplug it. Right-click a jack to pull its cables; Shift+right-click to recolour them.</p>
           <p>Knobs: scroll wheel up/down, or drag up/down with the left or middle button (Shift = fine). Double-click to reset. Click a switch to flip it.</p>
           <p>Keys A–K play notes (Z/X octave). Number keys 1–8 hit drum pads.</p>

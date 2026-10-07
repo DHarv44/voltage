@@ -100,7 +100,8 @@ extend VOLTAGE.
     spectrogram), **LIGHTS** (the music lights the whole rack: bass red, mids green, treble blue).
 
 ### Rack & workflow
-- Drag anywhere, slide-aside on drop, library drag-in, new-row drop.
+- Move a panel by its bare face (title strip, empty space; never from a control or screen), after a
+  6 px drag (12 px on touch) so clicks never nudge it; slide-aside on drop, library drag-in, new-row drop.
 - Library: every module in one of 20 categories by what it is (Systems, Instruments, Oscillators, CV
   Tools, Brains, Controllers, Output…), plus tags for what it's for (24: beat, bass, space, dirt,
   generative, plays itself…) and hidden "aka" search words for the gear it follows (mellotron, dfam,

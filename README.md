@@ -69,7 +69,9 @@ case. **Walkthrough** does each step for you; **Guided** lets you do it and move
   process, a voice for it to drive, the way out to the speakers). It goes in new rows below your rack,
   with a note on what to try; Ctrl+Z takes it away. Instruments you play yourself (keyboard, theremin,
   pads, mic…) come wired and waiting for you.
-- **Move a module:** drag its panel (not a knob or jack). Neighbours slide aside when you drop it;
+- **Move a module:** drag its bare face: the title strip or any empty space. Controls, screens and
+  played surfaces never move it, and a click doesn't nudge it (it lifts after a few pixels of drag,
+  a little more on touch). Neighbours slide aside when you drop it;
   drop below the last row to start a new row.
 - **Rows and rails:** **+ Row / − Row**, and the **rails** selector (84 / 104 / 126 / 168 HP, the
   widths real cases come in).
