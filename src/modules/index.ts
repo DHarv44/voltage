@@ -61,6 +61,7 @@ import { undertone } from './specs/undertone'
 import { lockstep } from './specs/lockstep'
 import { lattice } from './specs/lattice'
 import { console_, glue, master } from './specs/mixbus'
+import { lpg, vocoder } from './specs/voiceFx'
 import { orbit } from './specs/orbit'
 import { life } from './specs/life'
 import { flock } from './specs/flock'
@@ -134,6 +135,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   vcf,
   svf,
   ms,
+  lpg,
   vca,
   vcamix,
   adsr,
@@ -162,6 +164,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   ensemble,
   tune,
   chamber,
+  vocoder,
   fuzz,
   wah,
   octave,

@@ -16,7 +16,7 @@ extend VOLTAGE.
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (120)
+### Modules (122)
 (Grouped here by family; the library's own categories are in `modules/types.ts` CATEGORIES.)
 - **POCKET family**: POCKET (drums), POCKET BASS (16 note steps, slide/accent, SUB/SQUARE/ACID), POCKET
   MELODY (scale degrees, per-step NOTE/CHORD/ARP, BELL/PLUCK/LEAD, poly NOTES). Drag a step to set its
@@ -28,7 +28,8 @@ extend VOLTAGE.
   LOCKSTEP (FM groovebox: parameter locks, conditional trigs, polymeter), LATTICE (16×16 light grid).
 - **Polyphonic**: POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX.
 - **Sources**: VCO, COMPLEX (Buchla-style), WAVE (band-limited wavetable), SUB, NOISE.
-- **Filters**: LADDER, SVF, MS-12.
+- **Filters**: LADDER, SVF, MS-12, LPG (dual vactrol low-pass gate: fast to light, slow and slower to go
+  dark; STRIKE for the west-coast "bongo"; VCA / COMBO / LP).
 - **Amplifiers**: VCA, VCA×4.
 - **Modulation**: ADSR, FUNC (Maths-style), FOLLOW, LFO, S&H, XY (touch pad: X/Y/pressure/speed/
   distance/angle/scale-pitch out; free, spring and fling modes; clock-synced gesture looper; four-corner
@@ -46,7 +47,9 @@ extend VOLTAGE.
   (Rosenzweig–MacArthur limit cycle, boom/crash/extinct gates).
 - **Effects**: BBD, TAPE, SPRING, PLATE, PHASER, ENSEMBLE, TUNE (YIN pitch detection + delay-line
   shifter, key/scale or V/OCT target, hard-tune at SPEED 0), ECHO CHAMBER (drag speaker + mics;
-  image-source reflections, Sabine-sized FDN tail, Doppler when moving).
+  image-source reflections, Sabine-sized FDN tail, Doppler when moving), VOCODER (16 bands of
+  4th-order band-pass, followers with ATTACK/RELEASE, formant SHIFT, Q, SIBILANCE pass-through, NOISE,
+  FREEZE; a built-in carrier on V/OCT when CARRIER is empty; ENV out; band meter in dB).
 - **Studio tape**: TAPE KEYS (Mellotron-style: a strip per key, runs out at 8 s, spring rewind; synthesised
   strings/flute/choir), 4-TRACK (30 s × 4, punch in/out, bounce, varispeed, reverse, loop, reels).
 - **Pedals** (stompboxes, click-free footswitch): FUZZ (germanium, bias sputter), WAH (draggable treadle,
@@ -199,7 +202,7 @@ Our own versions throughout: inspired by the classics, our own names, panels and
 - **Suggested order**:
   1. ~~Mix bus~~ (done: CONSOLE with per-channel sidechain DUCK, GLUE bus compressor, MASTER EQ /
      width / limiter). Later: multiband ("OTT"-style), a channel compressor per strip.
-  2. Vocoder (band-filter) and low-pass gate (vactrol "bongo" for west-coast patches).
+  2. ~~Vocoder and low-pass gate~~ (done: VOCODER, LPG).
   3. FM voice (DX7-style EP/bass) and supersaw / unison voice stacking.
   4. Knob-motion recording (automation that loops) and resampling (record the master or any cable
      straight into SAMPLE / LOOP / CHOP).

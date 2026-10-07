@@ -8,7 +8,7 @@ pitch, ±5 V audio, 0–10 V control voltages, rails that saturate, components t
 up). There are no samples and no downloaded assets: every sound, from a ladder filter to a
 singing bowl to a vinyl record, is synthesised.
 
-- **120 modules**: oscillators, filters, envelopes, sequencers and drums; pedals, tape machines and
+- **122 modules**: oscillators, filters, envelopes, sequencers and drums; pedals, tape machines and
   played instruments; simulations that make music (bouncing balls, orbits, flocks, chaos); musical
   "brains" that jam with you; and **VISION**, living 3D scenes you patch like any other module.
 - **18 factory racks** to start from, and a **Learn** menu with a step-by-step course in synthesis.
@@ -109,7 +109,7 @@ Patch **MIDI·CV** (or use a module with a built-in keybed) and play:
 
 ## What's in the rack
 
-The full list, with what each module does, is in [ROADMAP.md](ROADMAP.md#modules-120). The module
+The full list, with what each module does, is in [ROADMAP.md](ROADMAP.md#modules-122). The module
 list on the left groups them by what they are (below); search finds them by name, by what you want
 ("bass", "reverb", "beat"…) or by the gear you know ("mellotron", "dfam", "op-1"); every word must
 match, Enter adds the top result and `/` jumps to the box. Tag chips narrow the list (all tags must
@@ -121,7 +121,7 @@ match), ☆ stars a module into Favourites, and the last few you added sit under
 | **Instruments** | Theremin, Omnichord, Chord Wheel, music box, handpan/steel pan/kalimba, tanpura, gamelan, singing bowl, harp, stylophone, TAPE KEYS (Mellotron-style) |
 | **Polyphonic** | POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX |
 | **Oscillators** | VCO, complex (west-coast) oscillator, wavetable, sub, noise |
-| **Filters** | Ladder, SVF, MS-12 |
+| **Filters** | Ladder, SVF, MS-12, LPG (vactrol low-pass gates: strike them for the west-coast "bongo") |
 | **Amps & Mixers** | VCA, VCA×4, mixer, stereo mixer, DJ mixer; the mix bus: CONSOLE (6 channels, sidechain DUCK per channel: feed it the kick for the pump), GLUE (bus compressor with KEY sidechain and GR out), MASTER (EQ, stereo width, look-ahead limiter) |
 | **Envelopes & LFOs** | ADSR, FUNC (Maths-style), follower, LFO |
 | **Shapers** | Wavefolder, ring modulator |
@@ -130,7 +130,7 @@ match), ☆ stars a module into Favourites, and the last few you added sit under
 | **Sequencers** | Clock, dividers, SEQ-8, TR-16, Euclid, Turing machine, arpeggiator |
 | **Brains** | GHOST (answers your phrases), PROGRESSION (chord progressions), BANDMATE (a drummer) |
 | **Simulations** | BOUNCE, TUMBLER, ORBIT, LIFE, FLOCK, CHAOS, ECOSYSTEM: physics and biology as sequencers |
-| **Effects** | BBD, tape echo, spring, plate, phaser, ensemble, pitch-correction, echo chamber |
+| **Effects** | BBD, tape echo, spring, plate, phaser, ensemble, pitch-correction, echo chamber, VOCODER (16 bands: make a synth talk, or a beat sing) |
 | **Pedals** | Fuzz, wah, octave, chorus, tape echo, looper, valve amp, talk box |
 | **Sampling & Tape** | LOOP, SAMPLE, TURNTABLE (scratchable), CHOP (MPC-style), 4-TRACK |
 | **Controllers** | MIDI·CV, pads, touch plates, XY pad, audio in (mic/line), camera (motion), gamepad |

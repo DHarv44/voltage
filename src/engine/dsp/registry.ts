@@ -72,6 +72,8 @@ import { LatticeDsp } from './lattice'
 import { ConsoleDsp } from './console'
 import { GlueDsp } from './glue'
 import { MasterDsp } from './master'
+import { VocoderDsp } from './vocoder'
+import { LpgDsp } from './lpg'
 import { OrbitDsp } from './orbit'
 import { LifeDsp } from './life'
 import { FlockDsp } from './flock'
@@ -190,6 +192,8 @@ const CIRCUITS: Record<string, DspCtor> = {
   console: ConsoleDsp,
   glue: GlueDsp,
   master: MasterDsp,
+  vocoder: VocoderDsp,
+  lpg: LpgDsp,
   orbit: OrbitDsp,
   life: LifeDsp,
   flock: FlockDsp,

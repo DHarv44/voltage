@@ -1,4 +1,4 @@
-import { melody, toOut, tune, voice, type Jack, type Kit } from './kit'
+import { beat, melody, toOut, tune, voice, type Jack, type Kit } from './kit'
 import type { Starter } from './types'
 
 /** The tune through one effect: `outs` are its output jacks (two = stereo). */
@@ -35,6 +35,31 @@ export const PROCESSOR_STARTERS: Record<string, Starter> = {
   vcf: { howTo: 'A sequenced voice through the LADDER filter. Turn CUTOFF and RESONANCE.', build: (k) => filtered(k, 'vcf', 'lp4', { cutoff: 600, res: 0.5 }) },
   svf: { howTo: 'A sequenced voice through the SVF. Try its LP, BP and HP outputs.', build: (k) => filtered(k, 'svf', 'lp', { cutoff: 700, res: 0.5 }) },
   ms: { howTo: 'A sequenced voice through the MS-12 filter. Push PEAK.', build: (k) => filtered(k, 'ms', 'lp', { cutoff: 900, peak: 0.5 }) },
+  lpg: {
+    howTo: 'A triangle wave struck through the LPG on every note: the west-coast "bongo". Turn DECAY; try the MODE switch.',
+    build(k) {
+      const m = melody(k, { notes: [0, 7, 3, 10, 12, 5, 7, 15], gates: [1, 1, 1, 1, 1, 1, 1, 1] })
+      const osc = k.add('vco', { coarse: 1 })
+      const g = k.add('lpg', { off1: 0, amt1: 0, dec1: 0.3 })
+      const plate = k.add('plate', { decay: 0.6, mix: 0.3 })
+      k.wire(m.pitch, [osc, 'voct'])
+      k.wire([osc, 'tri'], [g, 'in1'])
+      k.wire(m.trig, [g, 'strike1'])
+      k.wire([g, 'out1'], [plate, 'in'])
+      toOut(k, [plate, 'l'], [plate, 'r'])
+    },
+  },
+  vocoder: {
+    howTo: 'A beat vocoded onto the built-in carrier, which follows a bassline: the drums sing it. Turn SHIFT and Q; patch AUDIO IN to MOD to make it talk.',
+    build(k) {
+      const b = beat(k, { bpm: 108 })
+      const m = melody(k, { clock: b.clock, notes: [0, 0, 3, 3, 7, 7, 5, 5], rate: 'x1', octave: -1 })
+      const v = k.add('vocoder', { tune: 0, rel: 0.09, mix: 0.25, noise: 0.15 })
+      k.wire(b.out, [v, 'mod'])
+      k.wire(m.pitch, [v, 'voct'])
+      toOut(k, [v, 'out'])
+    },
+  },
   vca: { howTo: 'The VCA shapes each note with the envelope. Try GAIN for a drone.', build: (k) => toOut(k, tune(k).out) },
   vcamix: {
     howTo: 'Two voices, each through its own VCA in VCA×4, mixed. Turn the levels.',

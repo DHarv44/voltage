@@ -79,6 +79,7 @@ export const CATALOG: Record<string, Entry> = {
   vcf: { tags: ['bass', 'texture'], aka: ['moog ladder', 'ladder', 'lowpass', '24db', 'filter'] },
   svf: { tags: ['texture'], aka: ['sem', 'oberheim', 'bandpass', 'notch', 'state variable', 'filter'] },
   ms: { tags: ['dirt', 'texture'], aka: ['ms-20', 'korg', 'highpass', 'filter'] },
+  lpg: { tags: ['beat', 'texture', 'melody'], aka: ['low pass gate', 'vactrol', 'buchla 292', 'west coast', 'bongo', 'lxd', 'optomix', 'plucked'] },
   // Amps & Mixers
   vca: { tags: ['utility', 'mix'], aka: ['amplifier', 'volume'] },
   vcamix: { tags: ['mix'], aka: ['quad vca', 'vca mixer'] },
@@ -140,6 +141,7 @@ export const CATALOG: Record<string, Entry> = {
   ensemble: { tags: ['stereo', 'texture'], aka: ['solina', 'string ensemble', 'chorus'] },
   tune: { tags: ['melody'], aka: ['auto-tune', 'autotune', 'pitch correction', 'robot voice'] },
   chamber: { tags: ['space', 'ambient'], aka: ['room', 'reverb', 'echo chamber', 'acoustics'] },
+  vocoder: { tags: ['texture', 'melody'], aka: ['vocoder', 'talking synth', 'robot voice', 'daft punk', 'voice', 'formant', 'channel vocoder'] },
   // Pedals
   fuzz: { tags: ['dirt'], aka: ['fuzz face', 'distortion', 'germanium', 'guitar'] },
   wah: { tags: ['texture', 'touch'], aka: ['cry baby', 'wah-wah', 'auto wah', 'guitar'] },
