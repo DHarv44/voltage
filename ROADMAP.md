@@ -38,7 +38,8 @@ extend VOLTAGE.
 - **Musical brains**: GHOST (learns your intervals, rhythm and key as you play, answers when you pause),
   PROGRESSION (functional-harmony chord generator, borrowed chords, voice-led poly out), BANDMATE (a
   drummer: style groove maps, energy, humanised timing, fills at phrase ends, lays back when you're loud).
-- **Simulations**: BOUNCE (balls under gravity, accelerating bounces, throw them), ORBIT (Kepler orbits →
+- **Simulations**: BOUNCE (balls under gravity, accelerating bounces, throw them), TUMBLER (balls in a
+  spinning 3–8-sided drum; each wall plays its scale degree; drag to spin, click to kick), ORBIT (Kepler orbits →
   polyrhythms, eccentric swing, conjunction gate), LIFE (Conway scanned as a sequencer), FLOCK (24 boids →
   centre/spread/speed/heading CV), CHAOS (double pendulum or Lorenz; flip/wing gates), ECOSYSTEM
   (Rosenzweig–MacArthur limit cycle, boom/crash/extinct gates).
@@ -135,6 +136,10 @@ extend VOLTAGE.
 ## Waiting on a decision
 - **System direct output**: keep MONO-1 / GROOVE-1 / STUDIO-3 feeding the speakers directly until their
   main output is patched (switched direct out), or require patching to OUT like everything else.
+  Today MONO-1 and GROOVE-1's ready-to-play rigs also patch them to OUT, so they play twice there.
+  The newer systems (SKETCHBOOK, KIN-8, UNDERTONE, LOCKSTEP, LATTICE) all patch to OUT.
+- **Library organisation**: finding modules is getting hard at 117; recategorise and add tags + a
+  better search (under discussion).
 
 ## Up next
 - **Tutorial suite**: lessons for every module family (sequencing, drums, effects, systems, poly, the
@@ -274,7 +279,7 @@ material (no downloaded samples). Our own names; no Fairlight / Akai / MPC / SP 
 8. **Multisample instrument**: zones, velocity layers, round robin, filled from rack recordings.
 
 ## Pinned for later: Teenage Engineering-inspired (our own names, look and sounds)
-- ~~Spinning-shape physics sequencer~~ (TUMBLER: building now).
+- ~~Spinning-shape physics sequencer~~ (done: TUMBLER).
 - Retrospective recorder: the rack is always being recorded; scrub back and loop what just happened.
 - CHOIR: a row of little formant singers that sing notes, vowels or words and harmonise.
 - Step components on TR-16 / SEQ-8 (per-step probability, ratchets, pulse count, random) (OP-Z style).
