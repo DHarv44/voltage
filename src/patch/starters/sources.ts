@@ -42,7 +42,7 @@ export const SOURCE_STARTERS: Record<string, Starter> = {
       const mono = k.add('mono', { cutoff: 600, res: 0.6, envamt: 0.5, d: 0.25, s: 0.2 })
       k.wire(m.pitch, [mono, 'pitch'])
       k.wire(m.gate, [mono, 'gate'])
-      toOut(k, [mono, 'vca'])
+      toOut(k, [mono, 'vca'], undefined, 0.85)
     },
   },
   studio: {

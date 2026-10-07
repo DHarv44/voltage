@@ -16,7 +16,7 @@ extend VOLTAGE.
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (117)
+### Modules (120)
 (Grouped here by family; the library's own categories are in `modules/types.ts` CATEGORIES.)
 - **POCKET family**: POCKET (drums), POCKET BASS (16 note steps, slide/accent, SUB/SQUARE/ACID), POCKET
   MELODY (scale degrees, per-step NOTE/CHORD/ARP, BELL/PLUCK/LEAD, poly NOTES). Drag a step to set its
@@ -71,6 +71,11 @@ extend VOLTAGE.
   output follows stylus velocity, crackle/rumble WEAR; cut your own record or load a file; factory
   battle record is synthesised).
 - **Utilities / I/O**: MIX, STEREO, MULT, ATTN, LOGIC, SCOPE, MIDI·CV (aftertouch, bend range), OUT, MONITOR.
+- **Mix bus**: CONSOLE (6 channels: tilt-EQ TONE, PAN, post-fader SEND, LEVEL, MUTE, and a per-channel
+  DUCK from the DUCK IN sidechain with DUCK REL; stereo return, master), GLUE (SSL-style stereo bus
+  compressor: soft knee, 2/4/10:1, stepped attack, release with AUTO, makeup, parallel MIX, KEY
+  sidechain with HPF, GR out as CV, 5-LED meter), MASTER (low/high shelves + sweepable mid, mid/side
+  WIDTH, DRIVE into a 2 ms look-ahead limiter held under CEILING).
 - **Performance**: SCENES (8 whole-rack snapshots, glide recall, CV select/next), MACRO (four knobs that
   learn many moves each), ACCIDENT (roll random nudges, EVOLVE drift, undoable).
 - **Real-world inputs** (only on when you click ENABLE; nothing leaves the machine): AUDIO IN (mic/line
@@ -141,10 +146,9 @@ extend VOLTAGE.
   tooltips); tooltips on every control.
 
 ## Waiting on a decision
-- **System direct output**: keep MONO-1 / GROOVE-1 / STUDIO-3 feeding the speakers directly until their
-  main output is patched (switched direct out), or require patching to OUT like everything else.
-  Today MONO-1 and GROOVE-1's ready-to-play rigs also patch them to OUT, so they play twice there.
-  The newer systems (SKETCHBOOK, KIN-8, UNDERTONE, LOCKSTEP, LATTICE) all patch to OUT.
+- ~~System direct output~~ (decided: switched direct out). MONO-1, STUDIO-3 and GROOVE-1 feed the
+  speakers until their main output (VCA / OUT / MIX) is patched, then play only through the rack (no
+  more doubling in their rigs). The newer systems have no direct path: patch them to OUT.
 
 ## Up next
 - **Tutorial suite**: lessons for every module family (sequencing, drums, effects, systems, poly, the
@@ -193,7 +197,8 @@ sharing), which stays as the no-account option.
 ## Pinned for later: what big synth artists use (gap review)
 Our own versions throughout: inspired by the classics, our own names, panels and sounds.
 - **Suggested order**:
-  1. Mix bus: mixer console + sidechain compressor + limiter + EQ (the "produced" sound; EDM pump).
+  1. ~~Mix bus~~ (done: CONSOLE with per-channel sidechain DUCK, GLUE bus compressor, MASTER EQ /
+     width / limiter). Later: multiband ("OTT"-style), a channel compressor per strip.
   2. Vocoder (band-filter) and low-pass gate (vactrol "bongo" for west-coast patches).
   3. FM voice (DX7-style EP/bass) and supersaw / unison voice stacking.
   4. Knob-motion recording (automation that loops) and resampling (record the master or any cable

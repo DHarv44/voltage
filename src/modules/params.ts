@@ -32,6 +32,8 @@ export function formatParam(p: ParamSpec, v: number): string {
     case 'oct':
       return `${v >= 0 ? '+' : ''}${v.toFixed(2)} oct`
     case 'st':
+      // a fine-tune knob (±1 semitone) reads in cents; anything wider in semitones
+      if (p.stepped || p.max - p.min > 2) return `${v >= 0 ? '+' : ''}${p.stepped ? Math.round(v) : v.toFixed(1)} st`
       return `${v >= 0 ? '+' : ''}${(v * 100).toFixed(0)} ct`
     case '%':
       return `${(v * 100).toFixed(0)}%`
@@ -39,6 +41,8 @@ export function formatParam(p: ParamSpec, v: number): string {
       return `×${v.toFixed(2)}`
     case 'V':
       return `${v.toFixed(2)} V`
+    case 'dB':
+      return `${v > 0 && p.min < 0 ? '+' : ''}${v.toFixed(1)} dB`
     case 'V/div':
       return `${v.toFixed(2)} V/div`
     case 'bpm':

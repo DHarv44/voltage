@@ -69,6 +69,9 @@ import { KinDsp } from './kin'
 import { UndertoneDsp } from './undertone'
 import { LockstepDsp } from './lockstep'
 import { LatticeDsp } from './lattice'
+import { ConsoleDsp } from './console'
+import { GlueDsp } from './glue'
+import { MasterDsp } from './master'
 import { OrbitDsp } from './orbit'
 import { LifeDsp } from './life'
 import { FlockDsp } from './flock'
@@ -184,6 +187,9 @@ const CIRCUITS: Record<string, DspCtor> = {
   undertone: UndertoneDsp,
   lockstep: LockstepDsp,
   lattice: LatticeDsp,
+  console: ConsoleDsp,
+  glue: GlueDsp,
+  master: MasterDsp,
   orbit: OrbitDsp,
   life: LifeDsp,
   flock: FlockDsp,

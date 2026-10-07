@@ -11,7 +11,8 @@ const LED_DECAY = 0.9993
 
 /** GROOVE-1 drum machine. Trigger sources per voice: its sequencer track
  *  (normalled) or the patched trigger input, plus pads / MIDI ch 10 / keys
- *  at any time. In REC mode, live hits are written into the playing pattern. */
+ *  at any time. In REC mode, live hits are written into the playing pattern.
+ *  It feeds the speakers directly until its MIX output is patched. */
 export class GrooveDsp extends Dsp {
   sink = true
   private iClk = this.ii('clk')
@@ -153,9 +154,9 @@ export class GrooveDsp extends Dsp {
     o[O.acc] = this.accPulse > 0 ? 10 : 0
     if (this.accPulse > 0) this.accPulse--
 
+    // switched direct out: the speakers until MIX is patched somewhere
     const s = this.audio.process(mix, p[P.vol])
-    this.audioL = s
-    this.audioR = s
+    this.audioL = this.audioR = this.outPatched[O.mix] ? 0 : s
 
     this.led[0] = running ? this.seq.step : -1
     this.led[1] = this.playing

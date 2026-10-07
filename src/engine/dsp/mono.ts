@@ -7,7 +7,8 @@ import { power } from './power'
 
 /** MONO-1 semi-modular voice. The internal signal path is fixed, but every
  *  patch-bay input is a switched jack: patched, it replaces the internal signal.
- *  The unit has its own keyboard interface and feeds the audio interface directly. */
+ *  The unit has its own keyboard interface and feeds the audio interface
+ *  directly, until its VCA output is patched (then it plays through the rack). */
 export class MonoSystemDsp extends Dsp {
   sink = true
   private I = {
@@ -91,9 +92,9 @@ export class MonoSystemDsp extends Dsp {
     o[O.key] = keyV
     o[O.kgate] = gateV
 
+    // switched direct out: the speakers until VCA is patched somewhere
     const s = this.audio.process(vcaV, p[P.vol])
-    this.audioL = s
-    this.audioR = s
+    this.audioL = this.audioR = this.outPatched[O.vca] ? 0 : s
     this.led[0] = this.lfo.tri
     this.led[1] = env
   }

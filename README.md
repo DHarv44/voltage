@@ -8,7 +8,7 @@ pitch, ±5 V audio, 0–10 V control voltages, rails that saturate, components t
 up). There are no samples and no downloaded assets: every sound, from a ladder filter to a
 singing bowl to a vinyl record, is synthesised.
 
-- **117 modules**: oscillators, filters, envelopes, sequencers and drums; pedals, tape machines and
+- **120 modules**: oscillators, filters, envelopes, sequencers and drums; pedals, tape machines and
   played instruments; simulations that make music (bouncing balls, orbits, flocks, chaos); musical
   "brains" that jam with you; and **VISION**, living 3D scenes you patch like any other module.
 - **18 factory racks** to start from, and a **Learn** menu with a step-by-step course in synthesis.
@@ -109,7 +109,7 @@ Patch **MIDI·CV** (or use a module with a built-in keybed) and play:
 
 ## What's in the rack
 
-The full list, with what each module does, is in [ROADMAP.md](ROADMAP.md#modules-117). The module
+The full list, with what each module does, is in [ROADMAP.md](ROADMAP.md#modules-120). The module
 list on the left groups them by what they are (below); search finds them by name, by what you want
 ("bass", "reverb", "beat"…) or by the gear you know ("mellotron", "dfam", "op-1"); every word must
 match, Enter adds the top result and `/` jumps to the box. Tag chips narrow the list (all tags must
@@ -122,7 +122,7 @@ match), ☆ stars a module into Favourites, and the last few you added sit under
 | **Polyphonic** | POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX |
 | **Oscillators** | VCO, complex (west-coast) oscillator, wavetable, sub, noise |
 | **Filters** | Ladder, SVF, MS-12 |
-| **Amps & Mixers** | VCA, VCA×4, mixer, stereo mixer, DJ mixer |
+| **Amps & Mixers** | VCA, VCA×4, mixer, stereo mixer, DJ mixer; the mix bus: CONSOLE (6 channels, sidechain DUCK per channel: feed it the kick for the pump), GLUE (bus compressor with KEY sidechain and GR out), MASTER (EQ, stereo width, look-ahead limiter) |
 | **Envelopes & LFOs** | ADSR, FUNC (Maths-style), follower, LFO |
 | **Shapers** | Wavefolder, ring modulator |
 | **CV Tools** | Quantizer, slew, S&H, attenuverters, mult, logic, chord generator |

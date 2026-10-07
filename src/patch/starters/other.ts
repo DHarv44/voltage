@@ -37,6 +37,42 @@ export const OTHER_STARTERS: Record<string, Starter> = {
       toOut(k, [sm, 'l'], [sm, 'r'])
     },
   },
+  console: {
+    howTo: 'Drums, bass and a held pad on CONSOLE, the kick trigger on DUCK: the bass and pad pump. Turn their DUCK knobs and DUCK REL; try TONE.',
+    build(k) {
+      const b = beat(k, { bpm: 122 })
+      const bass = melody(k, { clock: b.clock, notes: [0, 0, 12, 0, 0, 10, 0, 7], gates: [1, 1, 1, 1, 1, 1, 1, 1], octave: -2 })
+      const pad = melody(k, { clock: b.clock, notes: [0, 3, 7, 5], gates: [1, 1, 1, 1], rate: 'x1' })
+      const bv = voice(k, bass.pitch, bass.gate, { env: { d: 0.2, s: 0.5, r: 0.1 } })
+      const pv = voice(k, pad.pitch, pad.gate, { osc: { type: 'vco', out: 'saw' }, env: { a: 0.02, d: 0.6, s: 0.85, r: 0.5 } })
+      const c = k.add('console', { lvl1: 0.8, lvl2: 0.75, duck2: 0.85, pan2: 0, lvl3: 0.6, duck3: 0.75, snd3: 0.4, pan3: 0.25, tone3: 0.3, rel: 0.22, ret: 0.5 })
+      const plate = k.add('plate', { mix: 1, decay: 0.7 })
+      k.wire(b.out, [c, 'in1'])
+      k.wire(bv.out, [c, 'in2'])
+      k.wire(pv.out, [c, 'in3'])
+      k.wire([b.tr, 't1'], [c, 'sc'])
+      k.wire([c, 'send'], [plate, 'in'])
+      k.wire([plate, 'l'], [c, 'retL'])
+      k.wire([plate, 'r'], [c, 'retR'])
+      toOut(k, [c, 'l'], [c, 'r'])
+    },
+  },
+  glue: {
+    howTo: 'A beat and a tune through GLUE. Lower THRESHOLD to squeeze it; watch the meter; try AUTO release and MIX.',
+    build(k) {
+      const g = k.add('glue', { thresh: -16, makeup: 5 })
+      k.wire(band(k, 118), [g, 'l'])
+      toOut(k, [g, 'l'], [g, 'r'])
+    },
+  },
+  master: {
+    howTo: 'A beat and a tune through MASTER. Push DRIVE into the limiter (the LEDs show it working); shape it with LOW / MID / HIGH.',
+    build(k) {
+      const m = k.add('master', { drive: 6, low: 2, high: 1.5 })
+      k.wire(band(k, 118), [m, 'l'])
+      toOut(k, [m, 'l'], [m, 'r'])
+    },
+  },
   djmix: {
     howTo: 'A beat on deck A and a tune on deck B. Slide the CROSSFADER; try the FILTER knobs.',
     build(k) {

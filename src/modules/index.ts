@@ -60,6 +60,7 @@ import { kin } from './specs/kin'
 import { undertone } from './specs/undertone'
 import { lockstep } from './specs/lockstep'
 import { lattice } from './specs/lattice'
+import { console_, glue, master } from './specs/mixbus'
 import { orbit } from './specs/orbit'
 import { life } from './specs/life'
 import { flock } from './specs/flock'
@@ -171,6 +172,9 @@ export const SPEC_LIST: ModuleSpec[] = [
   talkbox,
   mixer,
   smix,
+  console_,
+  glue,
+  master,
   djmix,
   mult,
   logic,

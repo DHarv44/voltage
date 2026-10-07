@@ -10,7 +10,8 @@ import { C4, TAU, fastTanh, rails } from './util'
  *  keys → VCO1/2/3 + VCF tracking · VCO2 sine → VCO1 FM · VCO1×VCO2 → ring ·
  *  mixer (V1 saw, V2 pulse, V3 saw, noise, ring) → VCF ← ADSR, VCO3, S&H ·
  *  VCF → VCA ← AR · LFO clocks S&H sampling noise · VCA → spring → output.
- *  Each patch-bay input is a switched jack replacing its internal source. */
+ *  Each patch-bay input is a switched jack replacing its internal source.
+ *  It feeds the speakers directly until its OUT is patched. */
 export class StudioDsp extends Dsp {
   sink = true
   private I = Object.fromEntries(this.spec.inputs.map((j, k) => [j.id, k])) as Record<string, number>
@@ -136,9 +137,9 @@ export class StudioDsp extends Dsp {
     o[O.lfo] = lfoV
     o[O.out] = outV
 
+    // switched direct out: the speakers until OUT is patched somewhere
     const s = this.audio.process(outV, p[P.vol])
-    this.audioL = s
-    this.audioR = s
+    this.audioL = this.audioR = this.outPatched[O.out] ? 0 : s
     this.led[0] = g
     this.led[1] = this.lfo.tri
     this.led[2] = this.audio.peak * 1.5

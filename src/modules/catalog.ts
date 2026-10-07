@@ -85,6 +85,9 @@ export const CATALOG: Record<string, Entry> = {
   mixer: { tags: ['mix', 'utility'], aka: ['sum', 'dc mixer'] },
   smix: { tags: ['mix', 'stereo'], aka: ['stereo mixer', 'pan', 'send', 'aux'] },
   djmix: { tags: ['mix', 'touch'], aka: ['dj', 'crossfader', 'kill eq', 'isolator'] },
+  console: { tags: ['mix', 'stereo', 'beat'], aka: ['mixing desk', 'mixer', 'sidechain', 'ducking', 'pumping', 'edm', 'channel strip'] },
+  glue: { tags: ['mix', 'stereo', 'dirt'], aka: ['ssl', 'bus compressor', 'compressor', 'sidechain', 'ducking', 'pumping', 'glue'] },
+  master: { tags: ['mix', 'stereo'], aka: ['mastering', 'limiter', 'eq', 'equalizer', 'stereo width', 'mid side', 'loudness'] },
   // Envelopes & LFOs
   adsr: { tags: ['modulation'], aka: ['envelope', 'eg', 'contour'] },
   func: { tags: ['modulation'], aka: ['maths', 'make noise', 'function generator', 'slew'] },

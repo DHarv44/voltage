@@ -4,7 +4,9 @@
 
 export type Curve = 'lin' | 'exp'
 
-export type Unit = 'Hz' | 's' | 'oct' | 'st' | '%' | 'x' | 'V' | 'V/div' | 's/scr' | 'bpm'
+/** 'st' = semitones: a ±1 fine-tune reads in cents, wider or stepped ranges
+ *  in semitones. 'dB' for levels and gains. */
+export type Unit = 'Hz' | 's' | 'oct' | 'st' | '%' | 'x' | 'V' | 'V/div' | 's/scr' | 'bpm' | 'dB'
 
 export interface ParamSpec {
   id: string
