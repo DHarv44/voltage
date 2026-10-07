@@ -6,7 +6,7 @@ export const monitor: ModuleSpec = {
   title: 'MONITOR',
   name: 'Monitor Section',
   tagline: 'Output with VU meters, clip lights, MONO check, DIM (−20 dB) and MUTE',
-  category: 'I/O',
+  category: 'Output',
   hp: 8,
   panel: BLUE,
   inputs: [

@@ -6,7 +6,7 @@ export const follow: ModuleSpec = {
   title: 'FOLLOW',
   name: 'Envelope Follower',
   tagline: 'Turns any signal into an envelope; comparator gate when it crosses the threshold',
-  category: 'Modulation',
+  category: 'Envelopes & LFOs',
   hp: 6,
   panel: CREAM,
   inputs: [
@@ -42,7 +42,7 @@ export const logic: ModuleSpec = {
   title: 'LOGIC',
   name: 'Logic',
   tagline: 'AND, OR, XOR, NOT and a toggle flip-flop for gates and clocks',
-  category: 'Utilities',
+  category: 'CV Tools',
   hp: 8,
   panel: BLACK,
   inputs: [
@@ -82,7 +82,7 @@ export const func: ModuleSpec = {
   title: 'FUNC',
   name: 'Function Generator',
   tagline: 'Maths-style rise/fall: envelope, slew, or cycling LFO with curve shaping',
-  category: 'Modulation',
+  category: 'Envelopes & LFOs',
   hp: 8,
   panel: CREAM,
   inputs: [

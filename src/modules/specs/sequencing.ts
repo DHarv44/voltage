@@ -7,7 +7,7 @@ export const clock: ModuleSpec = {
   title: 'CLOCK',
   name: 'Master Clock',
   tagline: 'Tempo source: 1/16 to bar outputs, run/stop, reset',
-  category: 'Sequencing',
+  category: 'Sequencers',
   hp: 8,
   panel: BLACK,
   inputs: [{ id: 'reset', label: 'RESET' }],
@@ -45,7 +45,7 @@ export const div: ModuleSpec = {
   title: 'DIV',
   name: 'Clock Divider',
   tagline: 'Divides a clock by 2, 3, 4, 5, 6 and 8',
-  category: 'Sequencing',
+  category: 'Sequencers',
   hp: 6,
   panel: BLACK,
   inputs: [
@@ -74,7 +74,7 @@ export const seq8: ModuleSpec = {
   title: 'SEQ-8',
   name: '8-Step Sequencer',
   tagline: 'Classic analog step sequencer: per-step pitch + gate, length, quantize',
-  category: 'Sequencing',
+  category: 'Sequencers',
   hp: 18,
   panel: SAND,
   inputs: [

@@ -8,7 +8,7 @@ export const touch: ModuleSpec = {
   title: 'TOUCH',
   name: 'Touch Plates',
   tagline: 'Buchla-style plates: drag for position, press higher for more pressure',
-  category: 'Drums',
+  category: 'Controllers',
   hp: 12,
   panel: CREAM,
   inputs: [],

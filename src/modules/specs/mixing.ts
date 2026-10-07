@@ -9,7 +9,7 @@ export const smix: ModuleSpec = {
   title: 'STEREO',
   name: 'Stereo Mixer',
   tagline: '4 channels with level, equal-power pan and FX send; stereo return; master',
-  category: 'Utilities',
+  category: 'Amps & Mixers',
   hp: 16,
   panel: BLACK,
   inputs: [...CH.map((n) => ({ id: `in${n}`, label: `IN ${n}` })), { id: 'retL', label: 'RET L' }, { id: 'retR', label: 'RET R' }],
@@ -47,7 +47,7 @@ export const vcamix: ModuleSpec = {
   title: 'VCA×4',
   name: 'Quad VCA Mixer',
   tagline: 'Four VCAs into a mix; patching a channel output takes it out of the mix',
-  category: 'Amplifiers',
+  category: 'Amps & Mixers',
   hp: 12,
   panel: ALU,
   inputs: CH.flatMap((n) => [

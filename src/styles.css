@@ -646,6 +646,72 @@ button {
 .lib-search input:focus {
   border-color: var(--accent);
 }
+.lib-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0 2px 8px;
+}
+.lib-chip {
+  padding: 2px 7px;
+  border-radius: 10px;
+  border: 1px solid #34363b;
+  background: #17181b;
+  color: var(--muted);
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.5;
+  cursor: pointer;
+}
+.lib-chip:hover {
+  color: var(--text);
+  border-color: #4a4c52;
+}
+.lib-chip.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #141414;
+}
+.lib-chip.empty {
+  opacity: 0.35;
+  cursor: default;
+}
+.lib-chip.clear {
+  border-style: dashed;
+}
+.lib-row {
+  position: relative;
+}
+.lib-row.top .lib-item {
+  border-color: var(--accent);
+}
+.lib-star {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 22px;
+  opacity: 0.35;
+  cursor: pointer;
+}
+.lib-row:hover .lib-star,
+.lib-star.on {
+  opacity: 1;
+}
+.lib-star.on {
+  color: #f2c53d;
+}
+.lib-row .lib-item {
+  padding-right: 28px;
+}
 .lib-section {
   border-bottom: 1px solid #24262a;
 }

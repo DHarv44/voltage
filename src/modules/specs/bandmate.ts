@@ -24,7 +24,7 @@ export const bandmate: ModuleSpec = {
   title: 'BANDMATE',
   name: 'Bandmate (Drummer)',
   tagline: 'A drummer brain: grooves in a style, varies every bar, fills at phrase ends, follows energy',
-  category: 'Sequencing',
+  category: 'Brains',
   hp: 20,
   panel: DRUM,
   inputs: [

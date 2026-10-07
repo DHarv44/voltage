@@ -8,7 +8,7 @@ export const arp: ModuleSpec = {
   title: 'ARP',
   name: 'Arpeggiator',
   tagline: 'Arpeggiates the notes you hold (keys/MIDI): 5 modes, 1–4 octaves, latch',
-  category: 'Sequencing',
+  category: 'Sequencers',
   hp: 10,
   panel: BLUE,
   inputs: [
@@ -51,7 +51,7 @@ export const chord: ModuleSpec = {
   title: 'CHORD',
   name: 'Chord Generator',
   tagline: 'One pitch in, four voices out: 8 chord qualities, inversions, open voicing',
-  category: 'Sequencing',
+  category: 'CV Tools',
   hp: 8,
   panel: SAND,
   inputs: [

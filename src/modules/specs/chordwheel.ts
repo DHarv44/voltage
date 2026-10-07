@@ -31,7 +31,7 @@ export const chordwheel: ModuleSpec = {
   title: 'CHORD WHEEL',
   name: 'Chord Wheel',
   tagline: 'Circle-of-fifths chord controller: majors, relative minors and diminished; chord on a poly cable + built-in pad',
-  category: 'Sources',
+  category: 'Instruments',
   hp: 30,
   panel: BLUE,
   inputs: [],

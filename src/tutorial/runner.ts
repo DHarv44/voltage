@@ -279,9 +279,9 @@ class TutorialRunner {
         // Show where it comes from: open its section in the library, let the
         // glowing row (and the popover) sit there a moment, then add it.
         const cat = SPECS[a.type]?.category
-        const open = settings.get().libOpen
-        if (cat && !open.includes(cat)) {
-          settings.set({ libOpen: [...open, cat] })
+        const { libOpen: open, libTags } = settings.get()
+        if (cat && (!open.includes(cat) || libTags.length)) {
+          settings.set({ libOpen: open.includes(cat) ? open : [...open, cat], libTags: [] }) // a tag filter would hide it
           await wait(700)
         }
         await wait(1100)

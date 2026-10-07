@@ -6,6 +6,8 @@ import { actions } from '../../patch/store'
 import { useMenuBox } from '../rack/useMenuBox'
 import { startItemDrag } from './itemDrag'
 import { loadStarter } from './loadStarter'
+import { shelf } from './shelf'
+import { catalogOf } from '../../modules/catalog'
 
 interface SectionProps {
   title: string
@@ -29,29 +31,43 @@ export function LibrarySection({ title, count, open, onToggle, children }: Secti
   )
 }
 
-/** One draggable module row: colour swatch, name, width, one-line description.
- *  Right-click for a ready-to-play version (the module wired up with
- *  everything it needs to make music). */
-export function LibraryItem({ spec }: { spec: ModuleSpec }) {
+/** One draggable module row: colour swatch, name, width, one-line description,
+ *  and a star for favourites. Right-click for a ready-to-play version (the
+ *  module wired up with everything it needs to make music). `top` marks the
+ *  best search match (Enter in the search box adds it). */
+export function LibraryItem({ spec, fav, top }: { spec: ModuleSpec; fav: boolean; top?: boolean }) {
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null)
   const close = useCallback(() => setMenu(null), [])
+  const tags = catalogOf(spec.type).tags
   return (
-    <>
+    <div className={top ? 'lib-row top' : 'lib-row'}>
       <button
         className="lib-item"
         data-lib-type={spec.type}
         onPointerDown={(e) => startItemDrag(spec.type, e)}
-        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && actions.addModule(spec.type)}
+        onKeyDown={(e) => {
+          if (e.key !== 'Enter' && e.key !== ' ') return
+          actions.addModule(spec.type)
+          shelf.added(spec.type)
+        }}
         onContextMenu={(e) => {
           e.preventDefault()
           setMenu({ x: e.clientX, y: e.clientY })
         }}
-        title={`${spec.name} (${spec.sizes ? `${spec.sizes[0]}–${spec.sizes[spec.sizes.length - 1]} HP, right-click a panel to resize` : `${spec.hp} HP`})\n${spec.tagline}\n\nDrag onto the rack, or click to add. Right-click for a ready-to-play version.`}
+        title={`${spec.name} (${spec.sizes ? `${spec.sizes[0]}–${spec.sizes[spec.sizes.length - 1]} HP, right-click a panel to resize` : `${spec.hp} HP`})\n${spec.tagline}\n${spec.category} · ${tags.join(', ')}\n\nDrag onto the rack, or click to add. Right-click for a ready-to-play version.`}
       >
         <LibraryItemFace spec={spec} />
       </button>
+      <button
+        className={fav ? 'lib-star on' : 'lib-star'}
+        title={fav ? 'Remove from favourites' : 'Add to favourites'}
+        aria-pressed={fav}
+        onClick={() => shelf.toggleFav(spec.type)}
+      >
+        {fav ? '★' : '☆'}
+      </button>
       {menu && <StarterMenu spec={spec} x={menu.x} y={menu.y} onClose={close} />}
-    </>
+    </div>
   )
 }
 
@@ -67,12 +83,25 @@ function StarterMenu({ spec, x, y, onClose }: { spec: ModuleSpec; x: number; y: 
     <div ref={box} className="ctx-menu" style={{ left: x, top: y }} onPointerDown={(e) => e.stopPropagation()}>
       <div className="ctx-title">{spec.name}</div>
       {STARTERS[spec.type] && (
-        <button onClick={run(() => loadStarter(spec.type))}>
+        <button
+          onClick={run(() => {
+            loadStarter(spec.type)
+            shelf.added(spec.type)
+          })}
+        >
           Add ready-to-play {spec.title}
           <span className="ctx-sub">{played ? 'wired up for you to play' : 'wired up with everything it needs to make music'}</span>
         </button>
       )}
-      <button onClick={run(() => actions.addModule(spec.type))}>Add {spec.title} on its own</button>
+      <button
+        onClick={run(() => {
+          actions.addModule(spec.type)
+          shelf.added(spec.type)
+        })}
+      >
+        Add {spec.title} on its own
+      </button>
+      <button onClick={run(() => shelf.toggleFav(spec.type))}>{shelf.isFav(spec.type) ? '★ Remove from favourites' : '☆ Add to favourites'}</button>
     </div>,
     document.body,
   )

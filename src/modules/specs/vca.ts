@@ -6,7 +6,7 @@ export const vca: ModuleSpec = {
   title: 'VCA',
   name: 'Amplifier',
   tagline: 'Voltage-controlled amp, lin/exp response, rail saturation',
-  category: 'Amplifiers',
+  category: 'Amps & Mixers',
   hp: 6,
   panel: ALU,
   inputs: [

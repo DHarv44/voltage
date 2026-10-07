@@ -6,7 +6,7 @@ export const adsr: ModuleSpec = {
   title: 'ADSR',
   name: 'Envelope',
   tagline: 'RC-curve envelope generator, 0–10 V, gate + retrigger',
-  category: 'Modulation',
+  category: 'Envelopes & LFOs',
   hp: 8,
   panel: CREAM,
   inputs: [

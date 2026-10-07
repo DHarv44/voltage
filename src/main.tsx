@@ -4,7 +4,8 @@ import { engine } from './audio/engine'
 import './audio/buffers' // persists and restores LOOP/SAMPLE audio
 import { initQwerty } from './audio/midi'
 import { telemetry } from './audio/telemetry'
-import { validateSpecs } from './modules'
+import { SPEC_LIST, validateSpecs } from './modules'
+import { validateCatalog } from './modules/catalog'
 import { actions, history, patchStore } from './patch/store'
 import { disableRackAutoscroll } from './ui/pointer'
 import { initShortcuts } from './ui/shortcuts'
@@ -16,8 +17,8 @@ import { bootShared } from './ui/share/sharedState'
 import './styles.css'
 
 if (import.meta.env.DEV) {
-  const errors = [...validateSpecs(), ...validatePresets(), ...validateStarters()]
-  if (errors.length) console.error('Module spec / preset / ready-to-play rig errors:\n' + errors.join('\n'))
+  const errors = [...validateSpecs(), ...validatePresets(), ...validateStarters(), ...validateCatalog(SPEC_LIST)]
+  if (errors.length) console.error('Module spec / preset / ready-to-play rig / catalog errors:\n' + errors.join('\n'))
   const layout = lintPanels()
   if (layout.length) console.warn('Panel layout problems (overlaps, alignment, screws):\n' + layout.join('\n'))
   Object.assign(window, { __voltage: { patchStore, actions, history, engine, telemetry } })

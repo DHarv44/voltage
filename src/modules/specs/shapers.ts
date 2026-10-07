@@ -34,7 +34,7 @@ export const sh: ModuleSpec = {
   title: 'S&H',
   name: 'Sample & Hold',
   tagline: 'Holds a voltage on each trigger; input normalled to noise; slow droop',
-  category: 'Modulation',
+  category: 'CV Tools',
   hp: 6,
   panel: BLACK,
   inputs: [
@@ -58,7 +58,7 @@ export const slew: ModuleSpec = {
   title: 'SLEW',
   name: 'Slew Limiter',
   tagline: 'Independent rise/fall lag: portamento, envelope follower, smoothing',
-  category: 'Shapers',
+  category: 'CV Tools',
   hp: 6,
   panel: CREAM,
   inputs: [{ id: 'in', label: 'IN' }],
@@ -84,7 +84,7 @@ export const quant: ModuleSpec = {
   title: 'QUANT',
   name: 'Quantizer',
   tagline: 'Snaps 1V/oct CV to a scale; optional clocked sampling',
-  category: 'Shapers',
+  category: 'CV Tools',
   hp: 8,
   panel: ALU,
   inputs: [
@@ -116,7 +116,7 @@ export const atten: ModuleSpec = {
   title: 'ATTN',
   name: 'Attenuverter',
   tagline: 'Two attenuverters; empty inputs read +5 V, so knobs become offsets',
-  category: 'Utilities',
+  category: 'CV Tools',
   hp: 6,
   panel: ALU,
   inputs: [

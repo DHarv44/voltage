@@ -107,25 +107,34 @@ Patch **MIDI·CV** (or use a module with a built-in keybed) and play:
 
 ## What's in the rack
 
-The full list, with what each module does, is in [ROADMAP.md](ROADMAP.md#modules-117). In short:
+The full list, with what each module does, is in [ROADMAP.md](ROADMAP.md#modules-117). The module
+list on the left groups them by what they are (below); search finds them by name, by what you want
+("bass", "reverb", "beat"…) or by the gear you know ("mellotron", "dfam", "op-1"); every word must
+match, Enter adds the top result and `/` jumps to the box. Tag chips narrow the list (all tags must
+match), ☆ stars a module into Favourites, and the last few you added sit under Recent.
 
-| Family | For example |
+| Category | For example |
 |---|---|
-| **Systems** | MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine), SKETCHBOOK (portable workstation: 7 four-knob synth engines with an effect and LFO each, a drum kit, pattern / arpeggio / tumbling-drum / drifting sequencers, 4-track loop tape with varispeed, reverse, loop points and lift/drop, mixer, keybed; kept with the patch), KIN-8 (DFAM-style percussion with an 8-step pitch/velocity sequencer), UNDERTONE (Subharmonicon-style: subharmonic oscillators, two 4-step sequencers, four polyrhythm dividers; clocks KIN-8), LOCKSTEP (FM groovebox: four tracks, per-step parameter locks and conditional trigs, per-track length and speed; right-click a step to lock knobs on it), LATTICE (16×16 light grid: four layers that SCORE, BOUNCE or play at RANDOM, notes rippling across the lights) |
-| **Sound sources** | VCO, complex (west-coast) oscillator, wavetable, sub, noise |
-| **Filters and amps** | Ladder, SVF, MS-12, VCAs |
-| **Modulation** | ADSR, FUNC (Maths-style), LFO, S&H, follower, the XY touch pad |
-| **Sequencing** | Clock, dividers, SEQ-8, TR-16, Euclid, Turing machine, arpeggiator, chords |
-| **Drums** | Analog kick/snare/clap/hats/toms/perc, pads, touch plates, the POCKET family |
-| **Musical brains** | GHOST (answers your phrases), PROGRESSION (chord progressions), BANDMATE (a drummer) |
-| **Simulations** | BOUNCE, ORBIT, LIFE, FLOCK, CHAOS, ECOSYSTEM: physics and biology as sequencers |
+| **Systems** | the POCKET family, MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine), SKETCHBOOK (portable workstation: 7 four-knob synth engines with an effect and LFO each, a drum kit, pattern / arpeggio / tumbling-drum / drifting sequencers, 4-track loop tape with varispeed, reverse, loop points and lift/drop, mixer, keybed; kept with the patch), KIN-8 (DFAM-style percussion with an 8-step pitch/velocity sequencer), UNDERTONE (Subharmonicon-style: subharmonic oscillators, two 4-step sequencers, four polyrhythm dividers; clocks KIN-8), LOCKSTEP (FM groovebox: four tracks, per-step parameter locks and conditional trigs, per-track length and speed; right-click a step to lock knobs on it), LATTICE (16×16 light grid: four layers that SCORE, BOUNCE or play at RANDOM, notes rippling across the lights) |
+| **Instruments** | Theremin, Omnichord, Chord Wheel, music box, handpan/steel pan/kalimba, tanpura, gamelan, singing bowl, harp, stylophone, TAPE KEYS (Mellotron-style) |
+| **Polyphonic** | POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX |
+| **Oscillators** | VCO, complex (west-coast) oscillator, wavetable, sub, noise |
+| **Filters** | Ladder, SVF, MS-12 |
+| **Amps & Mixers** | VCA, VCA×4, mixer, stereo mixer, DJ mixer |
+| **Envelopes & LFOs** | ADSR, FUNC (Maths-style), follower, LFO |
+| **Shapers** | Wavefolder, ring modulator |
+| **CV Tools** | Quantizer, slew, S&H, attenuverters, mult, logic, chord generator |
+| **Drums** | Analog kick, snare, clap, hats, toms, perc |
+| **Sequencers** | Clock, dividers, SEQ-8, TR-16, Euclid, Turing machine, arpeggiator |
+| **Brains** | GHOST (answers your phrases), PROGRESSION (chord progressions), BANDMATE (a drummer) |
+| **Simulations** | BOUNCE, TUMBLER, ORBIT, LIFE, FLOCK, CHAOS, ECOSYSTEM: physics and biology as sequencers |
 | **Effects** | BBD, tape echo, spring, plate, phaser, ensemble, pitch-correction, echo chamber |
 | **Pedals** | Fuzz, wah, octave, chorus, tape echo, looper, valve amp, talk box |
-| **Played instruments** | Theremin, Omnichord, Chord Wheel, music box, handpan/steel pan/kalimba, tanpura, gamelan, singing bowl, harp, stylophone |
-| **Sampling** | LOOP, SAMPLE, TURNTABLE (scratchable), CHOP (MPC-style), 4-TRACK, TAPE KEYS |
-| **Inputs** | Audio in (mic/line), camera (motion), gamepad |
-| **Visuals** | VISION, VISION CORE, VISION VIEW, vector CRT, spectrogram, light show |
+| **Sampling & Tape** | LOOP, SAMPLE, TURNTABLE (scratchable), CHOP (MPC-style), 4-TRACK |
+| **Controllers** | MIDI·CV, pads, touch plates, XY pad, audio in (mic/line), camera (motion), gamepad |
 | **Performance** | SCENES (rack snapshots), MACRO, ACCIDENT |
+| **Visuals** | VISION, VISION CORE, VISION VIEW, vector CRT, spectrogram, light show, scope |
+| **Output** | OUT, MONITOR |
 
 ---
 
@@ -248,8 +257,10 @@ src/
 ## Adding a module
 
 1. **Spec:** add `src/modules/specs/<name>.ts` exporting a `ModuleSpec` (type, title, HP, panel colours,
-   inputs, outputs, params, controls laid out in millimetres). Add it to `SPEC_LIST` in
-   `src/modules/index.ts`.
+   inputs, outputs, params, controls laid out in millimetres, and its one `category`: what it is,
+   from `CATEGORIES` in `types.ts`). Add it to `SPEC_LIST` in `src/modules/index.ts`, and give it an
+   entry in `src/modules/catalog.ts`: its tags (what it's for, from `TAGS`) and `aka` (search words:
+   the gear it's in the tradition of, jargon). Startup checks every module has one.
 2. **DSP:** add `src/engine/dsp/<name>.ts` with a class extending `Dsp`. Read params with
    `this.p[this.pi('id')]`, inputs with `this.in[...]`, write `this.out[...]` once per `tick()`.
    Register it in `src/engine/dsp/registry.ts`.

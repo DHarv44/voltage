@@ -9,7 +9,7 @@ export const pads: ModuleSpec = {
   title: 'PADS',
   name: 'Drum Pads',
   tagline: '8 velocity pads: click, number keys 1–8, or a MIDI pad controller (ch 10)',
-  category: 'Drums',
+  category: 'Controllers',
   hp: 16,
   panel: DRUM,
   inputs: [],
@@ -63,7 +63,7 @@ export const tr16: ModuleSpec = {
   title: 'TR-16',
   name: 'Drum Sequencer',
   tagline: '8 tracks × 16 steps + accent, swing, patterns A–D with song chains, live record',
-  category: 'Sequencing',
+  category: 'Sequencers',
   hp: 32,
   panel: DRUM,
   inputs: [

@@ -28,7 +28,7 @@ export const omnichord: ModuleSpec = {
   title: 'OMNICHORD',
   name: 'Omnichord',
   tagline: 'Electronic autoharp: chord buttons + strum plate, auto-bass pad, harp plucks, chord on a poly cable',
-  category: 'Sources',
+  category: 'Instruments',
   hp: 28,
   panel: CREAM,
   inputs: [],

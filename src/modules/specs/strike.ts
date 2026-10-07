@@ -101,7 +101,7 @@ export const strike: ModuleSpec = {
   title: 'STRIKE',
   name: 'Handpan · Steel Pan · Kalimba',
   tagline: 'Tap a handpan, steel pan or kalimba (or play it from CV): every note a ringing resonator',
-  category: 'Sources',
+  category: 'Instruments',
   hp: 20,
   panel: BLACK,
   inputs: [

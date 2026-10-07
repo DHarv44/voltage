@@ -6,7 +6,7 @@ export const loop: ModuleSpec = {
   title: 'LOOP',
   name: 'Tape Looper',
   tagline: '4 slots: record, overdub + undo, ½× record, reverse, varispeed; clock-synced; kept with the rack',
-  category: 'Sampling',
+  category: 'Sampling & Tape',
   hp: 12,
   panel: BLACK,
   inputs: [

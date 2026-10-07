@@ -90,23 +90,31 @@ export interface StepsControl {
   patternLed?: number
 }
 
-export type Category =
-  | 'Systems'
-  | 'Polyphonic'
-  | 'Sources'
-  | 'Filters'
-  | 'Amplifiers'
-  | 'Modulation'
-  | 'Shapers'
-  | 'Drums'
-  | 'Sequencing'
-  | 'Simulations'
-  | 'Effects'
-  | 'Pedals'
-  | 'Sampling'
-  | 'Utilities'
-  | 'Visuals'
-  | 'I/O'
+/** A module's one home in the library: what it is. (What it's for lives in
+ *  its tags, modules/catalog.ts.) In library order. */
+export const CATEGORIES = [
+  'Systems',
+  'Instruments',
+  'Polyphonic',
+  'Oscillators',
+  'Filters',
+  'Amps & Mixers',
+  'Envelopes & LFOs',
+  'Shapers',
+  'CV Tools',
+  'Drums',
+  'Sequencers',
+  'Brains',
+  'Simulations',
+  'Effects',
+  'Pedals',
+  'Sampling & Tape',
+  'Controllers',
+  'Performance',
+  'Visuals',
+  'Output',
+] as const
+export type Category = (typeof CATEGORIES)[number]
 
 export interface PanelStyle {
   bg: string

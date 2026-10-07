@@ -6,7 +6,7 @@ export const noise: ModuleSpec = {
   title: 'NOISE',
   name: 'Noise Source',
   tagline: 'White, pink and red noise',
-  category: 'Sources',
+  category: 'Oscillators',
   hp: 4,
   panel: BLACK,
   inputs: [],
@@ -28,7 +28,7 @@ export const mixer: ModuleSpec = {
   title: 'MIX',
   name: 'Mixer',
   tagline: 'Four-channel DC mixer with inverted output',
-  category: 'Utilities',
+  category: 'Amps & Mixers',
   hp: 8,
   panel: ALU,
   inputs: [
@@ -68,7 +68,7 @@ export const mult: ModuleSpec = {
   title: 'MULT',
   name: 'Buffered Multiple',
   tagline: 'Two 1→3 buffered mults; B input is normalled to A',
-  category: 'Utilities',
+  category: 'CV Tools',
   hp: 4,
   panel: BLACK,
   inputs: [

@@ -23,7 +23,7 @@ export const chop: ModuleSpec = {
   title: 'CHOP',
   name: 'Pad Sampler (MPC-style)',
   tagline: '16 pads chopped from a sample at its transients; note repeat with swing; 12-bit vintage grit',
-  category: 'Sampling',
+  category: 'Sampling & Tape',
   hp: 24,
   panel: DRUM,
   inputs: [

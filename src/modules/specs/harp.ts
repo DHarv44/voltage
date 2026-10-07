@@ -36,7 +36,7 @@ export const harp: ModuleSpec = {
   title: 'HARP',
   name: 'Concert Harp',
   tagline: '36 plucked strings: glissando by dragging across, pedals set the key, CV plays the nearest string',
-  category: 'Sources',
+  category: 'Instruments',
   hp: 22,
   panel: CREAM,
   inputs: [

@@ -15,7 +15,7 @@ export const tanpura: ModuleSpec = {
   title: 'TANPURA',
   name: 'Tanpura',
   tagline: 'Four-string drone with the buzzing jawari bridge; plucks itself in the classic cycle',
-  category: 'Sources',
+  category: 'Instruments',
   hp: 14,
   panel: SAND,
   inputs: [

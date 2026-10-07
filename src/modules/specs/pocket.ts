@@ -26,7 +26,7 @@ export const pocket: ModuleSpec = {
   title: 'POCKET',
   name: 'Pocket Groovebox',
   tagline: 'Calculator-sized groovebox: 8 sounds, 16 steps, per-step parameter locks, swing',
-  category: 'Drums',
+  category: 'Systems',
   hp: 16,
   panel: SAND,
   inputs: [{ id: 'clk', label: 'CLK' }],

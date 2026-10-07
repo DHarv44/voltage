@@ -52,7 +52,7 @@ export const musicbox: ModuleSpec = {
   title: 'MUSIC BOX',
   name: 'Music Box',
   tagline: '15-note paper-strip music box: crank it or wind it, punch your own strip, steel-comb tines',
-  category: 'Sources',
+  category: 'Instruments',
   hp: 24,
   panel: SAND,
   inputs: [

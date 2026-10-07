@@ -16,7 +16,7 @@ export const tapekeys: ModuleSpec = {
   title: 'TAPE KEYS',
   name: 'Tape Replay Keyboard',
   tagline: 'Mellotron-style: a strip of tape per key (8 s, then it runs out; rewinds on release); strings, flutes, choir',
-  category: 'Polyphonic',
+  category: 'Instruments',
   hp: 14,
   panel: CREAM,
   inputs: [

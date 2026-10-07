@@ -6,7 +6,7 @@ export const vco: ModuleSpec = {
   title: 'VCO',
   name: 'Oscillator',
   tagline: 'Analog-style VCO with thermal drift, hard sync, PWM',
-  category: 'Sources',
+  category: 'Oscillators',
   hp: 12,
   panel: ALU,
   inputs: [

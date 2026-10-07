@@ -6,7 +6,7 @@ export const midi: ModuleSpec = {
   title: 'MIDI·CV',
   name: 'MIDI to CV',
   tagline: 'Mono MIDI/keyboard interface: pitch, gate, velocity, mod wheel, aftertouch',
-  category: 'I/O',
+  category: 'Controllers',
   hp: 8,
   panel: BLUE,
   inputs: [],
@@ -45,7 +45,7 @@ export const output: ModuleSpec = {
   title: 'OUT',
   name: 'Audio Output',
   tagline: 'Stereo out to your speakers; AC or DC coupled; R normalled to L',
-  category: 'I/O',
+  category: 'Output',
   hp: 6,
   panel: BLUE,
   inputs: [
@@ -76,7 +76,7 @@ export const scope: ModuleSpec = {
   title: 'SCOPE',
   name: 'Oscilloscope',
   tagline: 'Dual-trace scope with trigger and auto mode',
-  category: 'Utilities',
+  category: 'Visuals',
   hp: 16,
   panel: BLACK,
   inputs: [

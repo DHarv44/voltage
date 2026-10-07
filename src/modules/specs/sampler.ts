@@ -6,7 +6,7 @@ export const sample: ModuleSpec = {
   title: 'SAMPLE',
   name: 'Sampler',
   tagline: 'Record from a jack or load your own audio file; slice, pitch, reverse, loop',
-  category: 'Sampling',
+  category: 'Sampling & Tape',
   hp: 12,
   panel: SAND,
   inputs: [

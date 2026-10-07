@@ -6,7 +6,7 @@ export const complexOsc: ModuleSpec = {
   title: 'COMPLEX',
   name: 'Complex Oscillator',
   tagline: 'Buchla-style: modulator phase-modulates the principal, then a timbre wavefolder',
-  category: 'Sources',
+  category: 'Oscillators',
   hp: 16,
   panel: RED,
   inputs: [
@@ -56,7 +56,7 @@ export const wave: ModuleSpec = {
   title: 'WAVE',
   name: 'Wavetable Oscillator',
   tagline: 'Morphs through 8 band-limited waves; morph position under CV',
-  category: 'Sources',
+  category: 'Oscillators',
   hp: 10,
   panel: BLACK,
   inputs: [
@@ -90,7 +90,7 @@ export const sub: ModuleSpec = {
   title: 'SUB',
   name: 'Sub-Oscillator',
   tagline: 'Flip-flop dividers: square waves one and two octaves below any input',
-  category: 'Sources',
+  category: 'Oscillators',
   hp: 4,
   panel: ALU,
   inputs: [{ id: 'in', label: 'IN' }],

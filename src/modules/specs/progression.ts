@@ -17,7 +17,7 @@ export const progression: ModuleSpec = {
   title: 'PROGRESSION',
   name: 'Chord Progression Generator',
   tagline: 'Harmony-rule chord progressions, voice-led on a poly cable, with root and function outs',
-  category: 'Sequencing',
+  category: 'Brains',
   hp: 14,
   panel: CREAM,
   inputs: [

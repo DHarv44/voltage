@@ -16,7 +16,7 @@ export const ghost: ModuleSpec = {
   title: 'GHOST',
   name: 'Ghost (Call & Response)',
   tagline: 'Learns your phrasing as you play, then answers back in your style when you pause',
-  category: 'Sequencing',
+  category: 'Brains',
   hp: 16,
   panel: BLACK,
   inputs: [

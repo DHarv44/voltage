@@ -14,7 +14,7 @@ export const stylophone: ModuleSpec = {
   title: 'STYLUS',
   name: 'Stylus Organ',
   tagline: 'Pocket stylus organ: drag the stylus along a metal keyboard; buzzy relaxation oscillator, vibrato',
-  category: 'Sources',
+  category: 'Instruments',
   hp: 16,
   panel: BLACK,
   inputs: [],

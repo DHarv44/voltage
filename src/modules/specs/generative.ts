@@ -6,7 +6,7 @@ export const euclid: ModuleSpec = {
   title: 'EUCLID',
   name: 'Euclidean Rhythms',
   tagline: 'Two channels spreading N hits as evenly as possible over M steps, with rotation',
-  category: 'Sequencing',
+  category: 'Sequencers',
   hp: 8,
   panel: BLACK,
   inputs: [
@@ -49,7 +49,7 @@ export const turing: ModuleSpec = {
   title: 'TURING',
   name: 'Turing Machine',
   tagline: 'Looping random shift register: lock a melody, or let it slowly mutate',
-  category: 'Sequencing',
+  category: 'Sequencers',
   hp: 8,
   panel: SAND,
   inputs: [

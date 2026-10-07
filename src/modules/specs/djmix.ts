@@ -21,7 +21,7 @@ export const djmix: ModuleSpec = {
   title: 'DJ MIXER',
   name: 'DJ Mixer',
   tagline: 'Two channels: trim, kill EQ, one-knob filter, faders and a crossfader with a scratch curve',
-  category: 'Utilities',
+  category: 'Amps & Mixers',
   hp: 20,
   panel: BLACK,
   inputs: [

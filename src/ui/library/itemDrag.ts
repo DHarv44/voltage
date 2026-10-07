@@ -2,6 +2,7 @@ import type { PointerEvent } from 'react'
 import { actions } from '../../patch/store'
 import { track } from '../pointer'
 import { libraryDrag } from '../rack/libraryDrag'
+import { shelf } from './shelf'
 
 const DRAG_THRESHOLD = 5
 
@@ -22,6 +23,7 @@ export function startItemDrag(type: string, e: PointerEvent) {
     (ev) => {
       if (dragging) libraryDrag.onDrop?.({ type, clientX: ev.clientX, clientY: ev.clientY })
       else if (ev.type === 'pointerup') actions.addModule(type)
+      if (dragging || ev.type === 'pointerup') shelf.added(type)
       libraryDrag.set(null)
     },
   )

@@ -17,6 +17,7 @@ extend VOLTAGE.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
 ### Modules (117)
+(Grouped here by family; the library's own categories are in `modules/types.ts` CATEGORIES.)
 - **POCKET family**: POCKET (drums), POCKET BASS (16 note steps, slide/accent, SUB/SQUARE/ACID), POCKET
   MELODY (scale degrees, per-step NOTE/CHORD/ARP, BELL/PLUCK/LEAD, poly NOTES). Drag a step to set its
   note, right-click for its flag; off WRITE the buttons are a keyboard. They follow each other's CLK.
@@ -100,7 +101,12 @@ extend VOLTAGE.
 
 ### Rack & workflow
 - Drag anywhere, slide-aside on drop, library drag-in, new-row drop.
-- Collapsible, searchable library.
+- Library: every module in one of 20 categories by what it is (Systems, Instruments, Oscillators, CV
+  Tools, Brains, Controllers, Output…), plus tags for what it's for (24: beat, bass, space, dirt,
+  generative, plays itself…) and hidden "aka" search words for the gear it follows (mellotron, dfam,
+  op-1, maths…), all in `modules/catalog.ts` and checked at startup. Search matches every word,
+  ranked (title, aka, tags, category, tagline); Enter adds the top result, `/` focuses it; tag chips
+  filter (all must match, empty ones dim); ☆ Favourites and Recent sections.
 - Knobs: scroll wheel, left-drag and middle-drag.
 - Cables: sag; right-click a jack pulls its cables, Shift+right-click recolours; Esc cancels a drag.
 - Eurorack mounting grid: panel screws land on the rail holes.
@@ -138,8 +144,6 @@ extend VOLTAGE.
   main output is patched (switched direct out), or require patching to OUT like everything else.
   Today MONO-1 and GROOVE-1's ready-to-play rigs also patch them to OUT, so they play twice there.
   The newer systems (SKETCHBOOK, KIN-8, UNDERTONE, LOCKSTEP, LATTICE) all patch to OUT.
-- **Library organisation**: finding modules is getting hard at 117; recategorise and add tags + a
-  better search (under discussion).
 
 ## Up next
 - **Tutorial suite**: lessons for every module family (sequencing, drums, effects, systems, poly, the

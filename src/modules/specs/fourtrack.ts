@@ -24,7 +24,7 @@ export const fourtrack: ModuleSpec = {
   title: '4-TRACK',
   name: '4-Track Tape Recorder',
   tagline: '30 s four-track tape: punch in/out, bounce, varispeed, reverse, loop; reels you can watch',
-  category: 'Sampling',
+  category: 'Sampling & Tape',
   hp: 28,
   panel: BLACK,
   inputs: Array.from({ length: FT_TRACKS }, (_, i) => ({ id: `in${i + 1}`, label: `IN ${i + 1}` })),

@@ -30,7 +30,7 @@ export const xy: ModuleSpec = {
   title: 'XY',
   name: 'XY Touch Pad',
   tagline: 'Drag a dot for X/Y/pressure/speed CV; spring and fling modes, gesture looper, corner morphing',
-  category: 'Modulation',
+  category: 'Controllers',
   hp: 20,
   panel: BLACK,
   inputs: [

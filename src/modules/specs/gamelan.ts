@@ -66,7 +66,7 @@ export const gamelan: ModuleSpec = {
   title: 'GAMELAN',
   name: 'Gamelan',
   tagline: 'Saron, bonang or gong in slendro or pelog; paired tuning beats (ombak); click or CV',
-  category: 'Sources',
+  category: 'Instruments',
   hp: 18,
   panel: RED,
   inputs: [

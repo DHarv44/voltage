@@ -23,7 +23,7 @@ export const theremin: ModuleSpec = {
   title: 'THEREMIN',
   name: 'Theremin',
   tagline: 'Play it without touching: hover for pitch and volume. Heterodyne tone, pitch-snap, CV outs',
-  category: 'Sources',
+  category: 'Instruments',
   hp: 16,
   panel: RED,
   inputs: [],

@@ -30,7 +30,7 @@ export const turntable: ModuleSpec = {
   title: 'TURNTABLE',
   name: 'Turntable',
   tagline: 'Scratch it: grab the platter, motor spin-up/brake, pitch fader, transformer CUT, cut your own record',
-  category: 'Sampling',
+  category: 'Sampling & Tape',
   hp: 24,
   panel: ALU,
   inputs: [

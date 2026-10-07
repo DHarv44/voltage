@@ -18,7 +18,7 @@ export const bowl: ModuleSpec = {
   title: 'SINGING BOWL',
   name: 'Singing Bowl',
   tagline: 'Bow the rim (circle it) or strike it; beating mode pairs, chatter if you rub too fast, water',
-  category: 'Sources',
+  category: 'Instruments',
   hp: 14,
   panel: CREAM,
   inputs: [

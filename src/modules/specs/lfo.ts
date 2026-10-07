@@ -6,7 +6,7 @@ export const lfo: ModuleSpec = {
   title: 'LFO',
   name: 'Low-Frequency Oscillator',
   tagline: 'Four ±5 V shapes, rate CV, reset, audio-range HI mode',
-  category: 'Modulation',
+  category: 'Envelopes & LFOs',
   hp: 8,
   panel: CREAM,
   inputs: [
