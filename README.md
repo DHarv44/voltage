@@ -85,7 +85,7 @@ case. **Walkthrough** does each step for you; **Guided** lets you do it and move
 |---|---|
 | Scroll over a knob, or drag it up/down (left or middle button) | Turn it (hold **Shift** for fine control) |
 | Double-click a knob | Reset it to its default |
-| Drag from a jack to another jack | Patch a cable (output → input); dropping on an input replaces its cable |
+| Drag from a jack to another jack | Patch a cable (output → input); dropping on an input replaces its cable. With **Jack hints** on (top bar), every jack the cable could go to pulses green while you drag (free inputs from an output, every output from an input); the rest dim |
 | Drag a cable's end out of an input | Unplug it |
 | Right-click a jack | Pull out all its cables |
 | Shift + right-click a jack | Jack menu: every cable on it, to pull or recolour one by one |

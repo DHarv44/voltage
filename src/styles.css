@@ -973,6 +973,34 @@ button {
 }
 .jack {
   cursor: crosshair;
+  transition: opacity 0.15s;
+}
+/* Patching hints (setting "Jack hints"): while a cable is dragged, ring every
+   jack it could go to (free inputs from an output, any output from an input)
+   and dim the rest. */
+.jack-hint {
+  visibility: hidden;
+  stroke: #3dffb0;
+  filter: drop-shadow(0 0 1.2px #3dffb0);
+}
+.rack.hint-from-out .jack.in:not(.patched) .jack-hint,
+.rack.hint-from-in .jack.out .jack-hint {
+  visibility: visible;
+  animation: jack-hint 1.1s ease-in-out infinite;
+}
+.rack.hint-from-out .jack.out,
+.rack.hint-from-out .jack.in.patched,
+.rack.hint-from-in .jack.in {
+  opacity: 0.4;
+}
+@keyframes jack-hint {
+  0%,
+  100% {
+    stroke-opacity: 0.35;
+  }
+  50% {
+    stroke-opacity: 1;
+  }
 }
 .switch,
 .plate,

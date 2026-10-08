@@ -37,9 +37,12 @@ interface Props {
   hp: number
   lifted: boolean
   handlers: PanelHandlers
+  /** The inputs with a cable in them, comma-separated (a string, so the memo
+   *  only re-renders a panel when its own plugs change). */
+  fed: string
 }
 
-export const ModulePanel = memo(function ModulePanel({ inst, row, hp, lifted, handlers }: Props) {
+export const ModulePanel = memo(function ModulePanel({ inst, row, hp, lifted, handlers, fed }: Props) {
   const spec = SPECS[inst.type]
   const panelHp = hpOf(inst)
   const w = panelHp * HP_MM
@@ -54,7 +57,7 @@ export const ModulePanel = memo(function ModulePanel({ inst, row, hp, lifted, ha
       <svg viewBox={`0 0 ${w} ${PANEL_H_MM}`} width="100%" height="100%">
         <PanelFace spec={spec} w={w} hp={panelHp} maker={makerClear(spec, controls, w)} />
         {controls.map((c, i) => (
-          <ControlView key={i} c={c} spec={spec} inst={inst} handlers={handlers} />
+          <ControlView key={i} c={c} spec={spec} inst={inst} handlers={handlers} fed={fed} />
         ))}
       </svg>
       {controls.map((c, i) =>
@@ -141,7 +144,7 @@ function Screw({ x, y }: { x: number; y: number }) {
   )
 }
 
-function ControlView({ c, spec, inst, handlers }: { c: Control; spec: ModuleSpec; inst: ModuleInst; handlers: PanelHandlers }) {
+function ControlView({ c, spec, inst, handlers, fed }: { c: Control; spec: ModuleSpec; inst: ModuleInst; handlers: PanelHandlers; fed: string }) {
   const { fg } = spec.panel
   switch (c.kind) {
     case 'knob': {
@@ -160,6 +163,7 @@ function ControlView({ c, spec, inst, handlers }: { c: Control; spec: ModuleSpec
           x={c.x}
           y={c.y}
           out={c.kind === 'out'}
+          patched={c.kind === 'in' && `,${fed},`.includes(`,${c.jack},`)}
           label={c.label ?? js.label}
           panel={spec.panel}
           onDown={(e) => handlers.jackDown(inst.id, c.jack, c.kind, e)}

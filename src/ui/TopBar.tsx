@@ -96,6 +96,10 @@ export function TopBar() {
           onChange={(e) => settings.set({ cableOpacity: Number(e.target.value) })}
         />
       </label>
+      <label className="ctl" title="While you drag a cable, ring every jack it could go to: free inputs from an output, every output from an input">
+        <input type="checkbox" checked={s.jackHints} onChange={(e) => settings.set({ jackHints: e.target.checked })} />
+        Jack hints
+      </label>
       <label className="ctl" title="Heavy load droops the ±12 V rails: outputs clip earlier, oscillators go slightly flat">
         <input type="checkbox" checked={s.psuSag} onChange={(e) => settings.set({ psuSag: e.target.checked })} />
         PSU sag

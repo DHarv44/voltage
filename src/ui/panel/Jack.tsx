@@ -12,6 +12,8 @@ interface Props {
   y: number
   label: string
   out: boolean
+  /** An input that already has a cable in it (inputs take one). */
+  patched?: boolean
   panel: PanelStyle
   onDown: (e: PointerEvent) => void
   onContext: (e: MouseEvent) => void
@@ -19,12 +21,14 @@ interface Props {
 }
 
 /** 3.5 mm jack with hex nut. Outputs sit on an inverted plate, as on most
- *  hardware. Hovering shows the live voltage (the rack's jack readout). */
-export function Jack({ x, y, label, out, panel, onDown, onContext, onHover }: Props) {
+ *  hardware. Hovering shows the live voltage (the rack's jack readout).
+ *  While a cable is being dragged, the rack's hint classes light the ring
+ *  round every jack it could go to (see .jack-hint in styles.css). */
+export function Jack({ x, y, label, out, patched, panel, onDown, onContext, onHover }: Props) {
   const p = JACK.plate
   return (
     <g
-      className="jack"
+      className={`jack ${out ? 'out' : 'in'}${patched ? ' patched' : ''}`}
       transform={`translate(${x} ${y})`}
       onPointerDown={(e) => {
         e.stopPropagation()
@@ -54,6 +58,7 @@ export function Jack({ x, y, label, out, panel, onDown, onContext, onHover }: Pr
           {label}
         </text>
       )}
+      <circle className="jack-hint" r={JACK.nut + 1.2} fill="none" strokeWidth={0.9} pointerEvents="none" />
       <polygon points={HEX} fill="url(#jack-nut)" stroke="#5a5d61" strokeWidth={0.15} />
       <circle r={2.3} fill="#2c2d30" />
       <circle r={1.55} fill="#050505" />

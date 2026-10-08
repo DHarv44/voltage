@@ -21,7 +21,7 @@ import { TutorialHighlight } from '../tutorial/TutorialHighlight'
 export function Rack() {
   const patch = useSyncExternalStore(patchStore.subscribe, patchStore.get)
   const lib = useSyncExternalStore(libraryDrag.subscribe, libraryDrag.get)
-  const { zoom: zoomSetting, cableOpacity } = useSettings()
+  const { zoom: zoomSetting, cableOpacity, jackHints } = useSettings()
   const scrollRef = useRef<HTMLDivElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
   const rail = railHp(patch)
@@ -49,6 +49,12 @@ export function Rack() {
   )
   const preview = move ?? libPreview
   const place = useCallback((m: ModuleInst) => placementOf(m, preview), [preview])
+  // which inputs already hold a cable, per module (for the patching hints)
+  const fed = useMemo(() => {
+    const by: Record<string, string[]> = {}
+    for (const c of patch.cables) (by[c.to.mod] ??= []).push(c.to.jack)
+    return by
+  }, [patch.cables])
 
   // Others (a rig just added from the library) can bring a row into view.
   useEffect(() => {
@@ -73,7 +79,11 @@ export function Rack() {
   return (
     <div className="rack-scroll" ref={scrollRef}>
       <div className="rack-sizer" style={{ width: W * zoom, height: H * zoom }}>
-        <div className="rack" ref={innerRef} style={{ width: W, height: H, transform: `scale(${zoom})` }}>
+        <div
+          className={cable && jackHints ? `rack hint-from-${cable.anchorDir}` : 'rack'}
+          ref={innerRef}
+          style={{ width: W, height: H, transform: `scale(${zoom})` }}
+        >
           {Array.from({ length: rows }, (_, r) => (
             <div
               key={r}
@@ -94,7 +104,9 @@ export function Rack() {
           ))}
           {patch.modules.map((m) => {
             const at = place(m)
-            return <ModulePanel key={m.id} inst={m} row={at.row} hp={at.hp} lifted={move?.id === m.id} handlers={handlers} />
+            return (
+              <ModulePanel key={m.id} inst={m} row={at.row} hp={at.hp} lifted={move?.id === m.id} handlers={handlers} fed={fed[m.id]?.join(',') ?? ''} />
+            )
           })}
           {libPreview && (
             <div

@@ -11,6 +11,8 @@ export interface Settings {
   recent: string[]
   /** Library tag filter (all must match). */
   libTags: string[]
+  /** While dragging a cable, light every jack it could go to. */
+  jackHints: boolean
   /** Analog imperfections (engine options). */
   psuSag: boolean
   crosstalk: boolean
@@ -24,6 +26,7 @@ const DEFAULTS: Settings = {
   favs: [],
   recent: [],
   libTags: [],
+  jackHints: true,
   psuSag: false,
   crosstalk: false,
 }
