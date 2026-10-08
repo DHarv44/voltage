@@ -166,6 +166,14 @@ extend VOLTAGE.
 - Resizable screens: right-click VISION / VISION VIEW → Size 12 / 20 / 28 / 40 HP.
 - Rail width: 84 / 104 / 126 / 168 HP cases (top bar); can't shrink past a module; saved and shared
   with the patch.
+- **Songs** (top-bar menu, `patch/songs/`): 11 whole tracks in the style of an era, oldest first:
+  Berlin School '75, Tape-Loop Ambient '78, Electro '82, Synth-Pop '83, Italo Disco '84, Acid House
+  '87, Detroit '88, Dub Techno '94, Filter House '97, Trance '99, Trap '12. Original notes; the era's
+  production tricks recreated. Built from song parts (`parts.ts`): `x...` drum-pattern strings with
+  A→B / A→D arrangements on TR-16, PROGRESSION harmony with bass and riffs following its root
+  (pitch sums through MIX), CHORD → POLY MIX for poly stabs, a CONSOLE desk (pan, send/return
+  effect, kick ducking), and MOTION lanes recorded in advance (filter builds and sweeps). Checked at
+  startup like the presets; levels matched headless.
 - 18 factory presets (incl. five POCKET racks: boom bap, electro, lo-fi, + bassline, the Pocket Band);
   Jellyfish Dream (the jelly plays the melody) is the first-run rack.
 - README with a user guide, architecture and a how-to for adding modules.
@@ -253,6 +261,8 @@ Our own versions throughout: inspired by the classics, our own names, panels and
     (Rings-style).
   - EDM: sidechain, multiband ("OTT"-style), supersaw.
   - Stereo: panner, mid/side widener, auto-pan, ping-pong delay (most of the rack is mono today).
+- **Songs, next**: more eras (Miami bass, jungle, UK garage, lo-fi hip-hop, synthwave, techno '92),
+  intros and breakdowns (MOTION lanes muting parts), a "what's going on" tour per song.
 - **Beyond modules**: per-module presets (save a module's settings), song mode / arranger (chain
   patterns and scenes), velocity + aftertouch routing and MPE input, Scala / just-intonation tunings.
 

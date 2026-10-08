@@ -560,6 +560,15 @@ button {
   text-transform: uppercase;
   color: var(--muted);
 }
+.song-list {
+  width: 380px;
+}
+.song-year {
+  display: inline-block;
+  min-width: 3.2em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
 .preset-item.save .preset-name {
   color: var(--accent);
   font-weight: 600;

@@ -4,6 +4,7 @@ import { recorder, useRecorder } from '../audio/recorder'
 import { SCRATCH } from '../patch/persist'
 import { RAIL_SIZES, railHp, usedHp } from '../patch/layout'
 import { PresetMenu } from './PresetMenu'
+import { SongMenu } from './SongMenu'
 import { LearnMenu } from './tutorial/LearnMenu'
 import { ShareMenu } from './share/ShareMenu'
 import { actions, history, patchStore } from '../patch/store'
@@ -139,6 +140,7 @@ export function TopBar() {
           New
         </button>
         <PresetMenu />
+        <SongMenu />
         <LearnMenu />
         <ShareMenu />
         <button onClick={exportPatch}>Export</button>

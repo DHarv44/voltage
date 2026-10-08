@@ -197,6 +197,12 @@ you built.
 - **Your rack saves itself** in the browser as you work.
 - **Patches → Save current rack…** keeps named racks in the browser; the same menu has the
   factory racks.
+- **Songs** loads a whole track in the style of an era, from 1975 Berlin School to 2012 trap:
+  Electro, Synth-Pop, Italo Disco, Acid House, Detroit, Dub Techno, Filter House, Trance and more.
+  Each is the rack that plays it, built on that era's signature trick (the 303-style squelch ridden
+  by hand, the octave-jumping Italo bass, the trance gate, the filter-house sweep, the 808 as a
+  bassline, loops of different lengths drifting apart). The notes are all our own. Loading replaces
+  the rack (Ctrl+Z brings yours back); power on, then pull it apart.
 - **Export / Import** writes and reads a `.json` patch file, for backups or moving to another computer.
 - **Share** copies a link to the rack, with an optional title and note for whoever you send it to.
   The whole patch is packed into the link (after the `#`), so nothing is uploaded anywhere. Links
