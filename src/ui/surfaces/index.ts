@@ -39,6 +39,7 @@ import { Accident, Macro, Scenes } from './Perform'
 import { Fm4Screen, SwarmScreen } from './SynthScreens'
 import { Motion } from './Motion'
 import { Grains } from './Grains'
+import { TallyFace } from './tally/Face'
 
 /** Played instrument surfaces, by the `name` a spec's surface control uses. */
 export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
@@ -87,4 +88,5 @@ export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
   swarm: SwarmScreen,
   motion: Motion,
   grains: Grains,
+  tally: TallyFace,
 }

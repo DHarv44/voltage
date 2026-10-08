@@ -201,6 +201,10 @@ OVERRIDES['grains:in:trig'] = { signal: 'trigger', what: 'Each pulse starts an e
 OVERRIDES['grains:in:voct'] = { signal: 'pitch', what: 'Pitches the grains (V/OCT, added to PITCH): play the cloud from a sequencer.' }
 OVERRIDES['grains:in:dens'] = { signal: 'cv', what: 'More grains a second with more volts (each 2 V doubles them).' }
 for (const v of ['a', 'b']) OVERRIDES[`shift:in:cv${v}`] = { signal: 'pitch', what: `Adds to SHIFT ${v.toUpperCase()} in V/OCT (1 V = an octave): a sequencer plays the harmony.` }
+OVERRIDES['tally:in:trig'] = { signal: 'gate', what: 'ONE KEY PLAY from the rack: each pulse plays the next remembered note (held while high). Patch a clock to play your melody in time.' }
+OVERRIDES['tally:in:gate'] = { signal: 'gate', what: 'Plays TALLY’s voice from a sequencer, at the pitch on V/OCT.' }
+OVERRIDES['tally:out:rhy'] = { signal: 'audio', what: 'The rhythm box on its own (for its own effects or channel).' }
+OVERRIDES['tally:in:clk'] = { signal: 'clock', what: 'Clock in (16ths, CLOCK’s ×4): the rhythm box steps with the rack.' }
 OVERRIDES['motion:in:clk'] = { signal: 'clock', what: 'Clock in, in 16ths (CLOCK’s ×4): keeps the loops in time with the music.' }
 OVERRIDES['echo:in:cv'] = { signal: 'cv', what: 'Moves the RATE (the tape speed): the repeats bend in pitch.' }
 

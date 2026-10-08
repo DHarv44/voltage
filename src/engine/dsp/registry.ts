@@ -79,6 +79,7 @@ import { SwarmDsp } from './swarm'
 import { MotionDsp } from './motion'
 import { GrainsDsp } from './grains'
 import { ShiftDsp, ShimmerDsp } from './ambient'
+import { TallyDsp } from './tally'
 import { OrbitDsp } from './orbit'
 import { LifeDsp } from './life'
 import { FlockDsp } from './flock'
@@ -206,6 +207,7 @@ const CIRCUITS: Record<string, DspCtor> = {
   grains: GrainsDsp,
   shimmer: ShimmerDsp,
   shift: ShiftDsp,
+  tally: TallyDsp,
   orbit: OrbitDsp,
   life: LifeDsp,
   flock: FlockDsp,

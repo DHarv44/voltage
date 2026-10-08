@@ -46,7 +46,7 @@ export function Switch({ mod, ps, value, x, y, fg }: Props) {
         </text>
       )}
       {steps === 3 && opts[1] && (
-        <text className="silk" x={SWITCH.labelSide} y={0.7} fill={fg} fontSize={SWITCH.labelSize} textAnchor="start">
+        <text className="silk" x={SWITCH.labelSide} y={0.7} fill={fg} fontSize={SWITCH.labelSize} style={{ textAnchor: 'start' }}>
           {opts[1]}
         </text>
       )}

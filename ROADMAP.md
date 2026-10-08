@@ -16,7 +16,7 @@ extend VOLTAGE.
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (129)
+### Modules (130)
 (Grouped here by family; the library's own categories are in `modules/types.ts` CATEGORIES.)
 - **POCKET family**: POCKET (drums), POCKET BASS (16 note steps, slide/accent, SUB/SQUARE/ACID), POCKET
   MELODY (scale degrees, per-step NOTE/CHORD/ARP, BELL/PLUCK/LEAD, poly NOTES). Drag a step to set its
@@ -82,7 +82,10 @@ extend VOLTAGE.
   face), TANPURA (waveguide strings over a jawari bridge, self-plucking cycle), GAMELAN (saron, bonang,
   gong; slendro/pelog; paired-tuning ombak; gong pitch sag), SINGING BOWL (bow the rim with stick-slip
   friction, chatter, split modes, water), HARP (36 waveguide strings, glissando, key pedals), STYLUS
-  (stylus organ: relaxation oscillator, tiny speaker, vibrato).
+  (stylus organ: relaxation oscillator, tiny speaker, vibrato), TALLY (calculator synth: five naive
+  digital sounds plus an ADSR voice programmed by an 8-digit code typed on its calculator; ten
+  rhythms on PO / PI / SHA blips; REC up to 100 notes, ONE KEY PLAY by button or the ONE KEY
+  input; a real chained 8-digit calculator; ♪ plays the display as a tune; 6-bit output).
 - **Performance boxes**: CHOP (MPC-style: 16 pads chopped at transients, note repeat + swing, 12-bit
   vintage), DJ MIXER (kill EQ isolator, one-knob filter, faders, crossfader with scratch curve). The
   drum POCKET (8 sounds, 16 steps, per-step parameter locks) is listed with its family above.
@@ -264,8 +267,6 @@ Our own versions throughout: inspired by the classics, our own names, panels and
     (Rings-style).
   - EDM: sidechain, multiband ("OTT"-style), supersaw.
   - Stereo: panner, mid/side widener, auto-pan, ping-pong delay (most of the rack is mono today).
-- **Songs, next**: more eras (Miami bass, minimal '05, dubstep '08, footwork, house piano '90),
-  intros and breakdowns (MOTION lanes muting parts), a "what's going on" tour per song.
 - **Beyond modules**: per-module presets (save a module's settings), song mode / arranger (chain
   patterns and scenes), velocity + aftertouch routing and MPE input, Scala / just-intonation tunings.
 
@@ -318,12 +319,19 @@ Have: MONO-1, STUDIO-3, GROOVE-1, SKETCHBOOK, KIN-8, UNDERTONE, LOCKSTEP, LATTIC
        RESET in, L1–L4 and L / R out.
      - Phase 2: PUSH and SOLO modes, DRAW (play what you trace, then loop it), more layers (8–16),
        per-layer swing, saved "pages" of the whole grid.
-  5. **VL-Tone-style calculator synth**: a POCKET-sized sibling.
+  5. ~~**VL-Tone-style calculator synth**~~ (done: **TALLY**, 32 HP). Later: auto-play of the
+     remembered tune with its note lengths, the calculator's memory keys.
 - **Also pinned**: OP-XY / OP-Z-style sequencer brain (could drive VISION), EP-133-style sampler-composer,
   Kaossilator / KAOSS-style XY performance system, Game Boy + LSDJ-style chiptune tracker, Roland MC-707 /
   Novation Circuit-style clip groovebox, Korg Volca-style stack, Juno-60/106-style poly, Model D-style
   mono, Buchla Easel-style west coast, Make Noise 0-Coast-style, DX7 / Casio CZ voices, Prophet-5-style
   poly; samplers per the sampler review (SP-404 / MPC, Octatrack, M8 / Polyend tracker).
+
+## Pinned for later: Songs
+- More eras: Miami bass '86, house piano '90, minimal '05, dubstep '08, footwork '10.
+- Intros and breakdowns: MOTION lanes muting and bringing in parts, so a song has sections.
+- A "how this song works" tour per song (tutorial runner: ring each part, say what the era's
+  trick is and which knob shows it off).
 
 ## Pinned for later: samplers (industry review)
 A sampler's sound is its hardware, so model the hardware: bits, rate, anti-alias filter (or none),

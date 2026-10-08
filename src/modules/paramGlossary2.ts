@@ -43,6 +43,14 @@ export const MORE_OVERRIDES: Record<string, string> = {
   'shift:size': 'The window the shifter works in: short is tight but buzzy, long is smooth but smears fast notes.',
   'shift:fb': 'Sends the shifted sound back through again: each repeat climbs (or falls) once more, the endless pitch spiral.',
   'shift:delay': 'How long before each feedback repeat comes round.',
+  // TALLY
+  'tally:mode': 'CAL: a calculator. PLAY: the keys play. REC: what you play is remembered (it starts afresh), for ONE KEY PLAY.',
+  'tally:sound': 'The voice: five tiny digital sounds, or ADSR, your own sound set by an eight-digit code typed on the calculator.',
+  'tally:oct': 'Moves the key strip down or up an octave.',
+  'tally:rhythm': 'Which of the ten rhythms the little drum box plays (▶ RHYTHM starts it).',
+  'tally:balance': 'The melody against the rhythm: left is all melody, right all rhythm.',
+  'tally:vol': 'How loud TALLY is.',
+  'tally:tempo': 'The rhythm’s speed (and how fast ♪ plays a number), when nothing is patched to CLK.',
   // TAP
   'tap:level': 'How loud the tapped mix comes out: 1 brings a usual mix back to normal audio level; raise it if your OUT is turned down low.',
   // MOTION

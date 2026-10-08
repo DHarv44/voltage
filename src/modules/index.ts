@@ -65,6 +65,7 @@ import { lpg, vocoder } from './specs/voiceFx'
 import { fm4, swarm } from './specs/synthVoices'
 import { motion } from './specs/motion'
 import { grains, shift, shimmer } from './specs/ambient'
+import { tally } from './specs/tally'
 import { orbit } from './specs/orbit'
 import { life } from './specs/life'
 import { flock } from './specs/flock'
@@ -106,6 +107,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   pocket,
   pocketbass,
   pocketmelody,
+  tally,
   touch,
   tr16,
   euclid,

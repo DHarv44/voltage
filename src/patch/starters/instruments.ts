@@ -1,10 +1,26 @@
 import { chords, melody, mix, roomy, toOut } from './kit'
 import { PHRASES } from './material'
 import type { Starter } from './types'
+import { MELODY_OFFSET } from '../../modules/specs/tallyDefs'
 
 /** The instruments: played ones wait for you, the rest play the music they
  *  come from (a handpan groove, a gamelan cycle, harp arpeggios…). */
 export const INSTRUMENT_STARTERS: Record<string, Starter> = {
+  tally: {
+    howTo:
+      'TALLY playing a remembered tune: a CLOCK presses ONE KEY PLAY every eighth, the rhythm box runs with it. Switch MODE to CAL and type a number, then ♪ to hear it; try the sounds, or type 8 digits and press ADSR.',
+    build(k) {
+      const clock = k.add('clock', { bpm: 116 })
+      // a D dorian tune, remembered as if played in REC
+      const tune = [2, 5, 9, 7, 5, 4, 2, 0, 2, 5, 7, 9, 12, 11, 9, 7]
+      const p: Record<string, number> = { mode: 1, sound: 1, rhythm: 4, run: 1, tempo: 116, balance: 0.45, mlen: tune.length }
+      tune.forEach((n, i) => (p[`m${i}`] = n + MELODY_OFFSET))
+      const t = k.add('tally', p)
+      k.wire([clock, 'x2'], [t, 'trig'])
+      k.wire([clock, 'x4'], [t, 'clk'])
+      roomy(k, [t, 'out'], 0.2)
+    },
+  },
   tapekeys: {
     howTo: 'Tape strings playing a chord progression. Try FLUTE and CHOIR, and WOW.',
     build(k) {
