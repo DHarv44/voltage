@@ -33,6 +33,7 @@ export const visioncore: ModuleSpec = {
     { kind: 'in', jack: 'glow', x: C3[2], y: 70 },
     { kind: 'in', jack: 'hue', x: C3[0], y: 85 },
     { kind: 'in', jack: 'move', x: C3[1], y: 85 },
+    { kind: 'in', jack: 'rst', x: C3[2], y: 85 },
     { kind: 'out', jack: 'gate', x: C3[0], y: 100 },
     { kind: 'out', jack: 'sway', x: C3[1], y: 100 },
     { kind: 'out', jack: 'grow', x: C3[2], y: 100 },

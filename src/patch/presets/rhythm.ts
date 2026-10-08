@@ -79,6 +79,7 @@ export function loopJam(): Patch {
   b.wire(clock, 'x4', groove, 'clk')
   b.wire(clock, 'rst', groove, 'rst')
   b.wire(clock, 'bar', loop, 'clk')
+  b.wire(clock, 'rst', loop, 'rst')
   b.wire(groove, 'mix', mix, 'in1')
   b.wire(mono, 'vca', mix, 'in2')
   b.wire(mix, 'out', loop, 'in')

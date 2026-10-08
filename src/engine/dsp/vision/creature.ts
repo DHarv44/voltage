@@ -38,6 +38,9 @@ export interface CreatureOutput {
 
 export interface Creature {
   step(i: CreatureInput, o: CreatureOutput, led: Float32Array): void
+  /** RST: start the scene over, as when it was first put in the tank (no
+   *  allocation: it runs on the audio thread). */
+  reset(): void
 }
 
 /** Damped spring (second-order system): tentacles trailing, a stem in the wind. */

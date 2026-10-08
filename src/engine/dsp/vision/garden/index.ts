@@ -19,7 +19,7 @@ import { Bugs } from './bugs'
 import { CLOCK, DEAD, GROWING, Plant, SEED, WILTING } from './plant'
 import { Seeds } from './seeds'
 import { Sky } from './sky'
-import { Tree } from './tree'
+import { T_SEED, Tree } from './tree'
 
 /** Food when FEED is unpatched: a sunny bed. */
 const SUNLIGHT = 0.5
@@ -66,6 +66,25 @@ export class Garden implements Creature {
     this.trees.forEach((t, k) => t.sow(this.trees, k === 0 ? 0 : 25 + k * 35 + rng.next() * 20))
     this.bugs = new Bugs(rng)
     this.seeds = new Seeds(rng)
+  }
+
+  /** Bare soil at dusk again: the first flower and sapling up at once, the
+   *  rest seeds waiting their turn (as when it was planted). */
+  reset(): void {
+    const plants = this.plants
+    const trees = this.trees
+    for (let k = 0; k < plants.length; k++) plants[k].phase = SEED
+    for (let k = 0; k < plants.length; k++) plants[k].sow(plants, k === 0 ? 0 : 3 + (k % 5) * 5 + this.rng.next() * 4, this.pick(0))
+    for (let k = 0; k < trees.length; k++) trees[k].phase = T_SEED
+    for (let k = 0; k < trees.length; k++) trees[k].sow(trees, k === 0 ? 0 : 25 + k * 35 + this.rng.next() * 20)
+    this.bugs.reset()
+    this.seeds.reset()
+    this.sky.tod = 0.765
+    this.flown.fill(0)
+    this.health = SUNLIGHT
+    this.trigT = this.flick = this.breath = 0
+    this.wind.v = 0
+    this.stem.pos = this.stem.vel = 0
   }
 
   /** A species for a new plant under the FLOWERS setting. */

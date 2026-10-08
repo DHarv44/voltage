@@ -17,8 +17,10 @@ export const vector: ModuleSpec = {
     { id: 'x', label: 'X' },
     { id: 'y', label: 'Y' },
     { id: 'z', label: 'Z' },
+    { id: 'rst', label: 'RST' },
   ],
   outputs: [],
+  leds: 1,
   params: [
     { id: 'scale', label: 'SCALE', min: 0.05, max: 2, def: 0.2, curve: 'exp', unit: 'V/div' },
     { id: 'persist', label: 'PERSIST', min: 0, max: 0.97, def: 0.75, unit: '%' },
@@ -29,6 +31,7 @@ export const vector: ModuleSpec = {
     { kind: 'knob', param: 'scale', x: 12, y: 98, size: 'S' },
     { kind: 'knob', param: 'persist', x: 26, y: 98, size: 'S' },
     { kind: 'knob', param: 'focus', x: 40, y: 98, size: 'S' },
+    { kind: 'in', jack: 'rst', x: 12, y: 113 },
     { kind: 'in', jack: 'x', x: 40, y: 113 },
     { kind: 'in', jack: 'y', x: 54, y: 113 },
     { kind: 'in', jack: 'z', x: 68, y: 113 },
@@ -46,8 +49,12 @@ export const waterfall: ModuleSpec = {
   category: 'Visuals',
   hp: 20,
   panel: BLACK,
-  inputs: [{ id: 'in', label: 'IN' }],
+  inputs: [
+    { id: 'in', label: 'IN' },
+    { id: 'rst', label: 'RST' },
+  ],
   outputs: [],
+  leds: 1,
   params: [
     { id: 'range', label: 'RANGE', min: 30, max: 100, def: 70, unit: '%' },
     { id: 'gain', label: 'GAIN', min: -20, max: 30, def: 0, unit: '%' },
@@ -57,6 +64,7 @@ export const waterfall: ModuleSpec = {
     { kind: 'knob', param: 'range', x: 50, y: 108, size: 'S' },
     { kind: 'knob', param: 'gain', x: 68, y: 108, size: 'S' },
     { kind: 'in', jack: 'in', x: 14, y: 110 },
+    { kind: 'in', jack: 'rst', x: 32, y: 110 },
   ],
 }
 

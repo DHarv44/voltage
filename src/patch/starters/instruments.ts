@@ -18,6 +18,7 @@ export const INSTRUMENT_STARTERS: Record<string, Starter> = {
       const t = k.add('tally', p)
       k.wire([clock, 'x2'], [t, 'trig'])
       k.wire([clock, 'x4'], [t, 'clk'])
+      k.wire([clock, 'rst'], [t, 'rst'])
       roomy(k, [t, 'out'], 0.2)
     },
   },

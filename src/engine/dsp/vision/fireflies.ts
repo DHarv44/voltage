@@ -31,6 +31,13 @@ export class Fireflies implements Creature {
     this.drift = new Wander(rng, 0.2, 0.3)
   }
 
+  /** Dusk again: every fly on its own clock, out of step. */
+  reset(): void {
+    for (let k = 0; k < FIREFLIES; k++) this.ph[k] = this.rng.next()
+    this.gate = this.lastMean = this.herd = 0
+    this.drift.v = 0
+  }
+
   step(i: CreatureInput, o: CreatureOutput, led: Float32Array): void {
     const dt = i.dt
     // COUNT: how many are flying tonight (the rest publish −1: not drawn)

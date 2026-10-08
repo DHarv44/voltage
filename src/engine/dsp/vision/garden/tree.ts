@@ -1,7 +1,7 @@
 import type { Rng } from '../../util'
 import { smoothstep } from '../creature'
 
-const T_SEED = 0
+export const T_SEED = 0
 const T_GROW = 1
 const T_MATURE = 2
 const T_AUTUMN = 3

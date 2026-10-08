@@ -64,11 +64,14 @@ export class LockstepDsp extends Dsp {
   private since = 0
   private period = 0
   private wasRunning = false
+  private rstOut = 0
+  private oRst = this.oi('rsto')
 
   private restart(): void {
     this.phase = 0
     this.edges = 0
     this.pos.fill(-1)
+    this.rstOut = Math.round(0.003 * this.fs) // followers start over too
   }
 
   private passes(cond: number, loop: number, fill: boolean): boolean {
@@ -153,6 +156,8 @@ export class LockstepDsp extends Dsp {
     this.out[this.oL] = rails((mixL + this.delay.l[0] - send) * gain)
     this.out[this.oR] = rails((mixR + this.delay.r[0] - send) * gain)
     this.out[this.oClk] = running && this.phase % 1 < 0.5 ? 10 : 0
+    this.out[this.oRst] = this.rstOut > 0 ? 10 : 0
+    if (this.rstOut > 0) this.rstOut--
     this.led[LSL.beat] = running && this.phase % 4 < 0.5 ? 1 : 0
     this.led[LSL.fill] = fill ? 1 : 0
   }

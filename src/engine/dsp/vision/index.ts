@@ -47,8 +47,10 @@ export class VisionDsp extends Dsp {
   private readonly iGlow = this.ii('glow')
   private readonly iHue = this.ii('hue')
   private readonly iMove = this.ii('move')
+  private readonly iRst = this.ii('rst')
   private readonly creatures: Creature[]
   private readonly trig = new Schmitt()
+  private readonly rst = new Schmitt()
   private readonly ci: CreatureInput
   private readonly co: CreatureOutput = { gate: 0, sway: 0, grow: 0, light: 0 }
   /** Where the scenes not on the jacks put their outputs (nobody reads them). */
@@ -98,6 +100,8 @@ export class VisionDsp extends Dsp {
 
   tick(): void {
     const x = this.in
+    // RST: every scene in the tank starts over (so the visuals can begin with the song)
+    if (this.rst.rise(x[this.iRst])) for (let k = 0; k < this.creatures.length; k++) this.creatures[k].reset()
     if (this.trig.rise(x[this.iTrig])) this.edge = true
     const a = Math.abs(x[this.iFeed])
     this.feedEnv += (a - this.feedEnv) * (a > this.feedEnv ? this.envUp : this.envDown)

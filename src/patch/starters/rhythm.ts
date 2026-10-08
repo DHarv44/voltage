@@ -24,6 +24,7 @@ function pocketBand(k: Kit, with_?: 'pocketbass' | 'pocketmelody'): void {
   if (!with_) return void toOut(k, [p, 'out'])
   const other = k.add(with_, { write: 0 })
   k.wire([p, 'clko'], [other, 'clk'])
+  k.wire([p, 'rsto'], [other, 'rst'])
   toOut(k, mix(k, [[p, 'out'], [other, 'out']], [0.75, 0.75]))
 }
 

@@ -113,6 +113,7 @@ const inputs: ModuleSpec['inputs'] = [
 /** T1–T4: each track's voice on its own (after LEVEL, before PAN and delay). */
 const outputs: ModuleSpec['outputs'] = [
   { id: 'clko', label: 'CLK' },
+  { id: 'rsto', label: 'RST' },
   ...[1, 2, 3, 4].map((i) => ({ id: `t${i}`, label: `T${i}` })),
   { id: 'l', label: 'L' },
   { id: 'r', label: 'R' },

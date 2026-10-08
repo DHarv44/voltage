@@ -78,6 +78,7 @@ export const SOURCE_STARTERS: Record<string, Starter> = {
       const u = k.add('undertone', { run: 1 })
       const d = k.add('kin', { vol: 0.45, vcadec: 0.18 })
       k.wire([u, 'clk'], [d, 'adv'])
+      k.wire([u, 'rsto'], [d, 'rst'])
       const plate = k.add('plate', { decay: 0.55, mix: 0.25 })
       k.wire(mix(k, [[u, 'vca'], [d, 'vca']], [0.9, 0.75]), [plate, 'in'])
       toOut(k, [plate, 'l'], [plate, 'r'], 0.65)

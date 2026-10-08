@@ -47,6 +47,17 @@ export class Bugs {
     })
   }
 
+  /** Nobody here yet. */
+  reset(): void {
+    for (let k = 0; k < this.bugs.length; k++) {
+      const b = this.bugs[k]
+      b.here = b.leaving = false
+      b.x = b.target = b.pollen = -1
+      b.y = 0.6
+      b.z = b.vx = b.vy = b.vz = b.land = b.stay = b.idle = b.t = 0
+    }
+  }
+
   /** Returns how many flowers were pollinated this tick. */
   step(dt: number, light: number, plants: Plant[], wind: number, bees: number, flies: number, flick: number): number {
     let pollinated = 0

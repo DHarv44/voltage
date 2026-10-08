@@ -19,6 +19,12 @@ export class Seeds {
 
   constructor(private readonly rng: Rng) {}
 
+  /** No seeds in the air. */
+  reset(): void {
+    this.y.fill(-1)
+    this.landed.fill(-1)
+  }
+
   /** Let one go from a dandelion's head; false if the air is full. */
   launch(x: number, y: number, z: number): boolean {
     for (let k = 0; k < GARDEN_SEEDS; k++) {

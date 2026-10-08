@@ -85,6 +85,8 @@ export class UndertoneDsp extends Dsp {
   private step1 = UT_STEPS - 1
   private step2 = UT_STEPS - 1
   private wasRunning = false
+  private rstOut = 0
+  private readonly oRst = this.oi('rsto')
   private pendReset = false
 
   onUi(ev: UiEvent): void {
@@ -115,8 +117,11 @@ export class UndertoneDsp extends Dsp {
     if ((running && !this.wasRunning) || this.rstIn.rise(i[I.reset]) || this.pendReset) {
       this.reset()
       this.pendReset = false
+      this.rstOut = Math.round(0.003 * this.fs) // followers start over too
     }
     this.wasRunning = running
+    this.out[this.oRst] = this.rstOut > 0 ? 10 : 0
+    if (this.rstOut > 0) this.rstOut--
 
     // Base clock → rhythm dividers (a patched RHY input replaces its divider).
     const clkEdge = this.clkIn.rise(i[I.clock])

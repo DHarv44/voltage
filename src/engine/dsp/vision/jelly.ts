@@ -54,6 +54,21 @@ export class Jelly implements Creature {
     this.z = 0.3 + rng.next() * 0.4
   }
 
+  reset(): void {
+    this.timer = this.rng.next()
+    this.period = 1
+    this.stroking = false
+    this.strokeT = this.c = 0
+    this.x = 0.5
+    this.y = 0.45
+    this.vx = this.vy = this.vz = this.tilt = this.pitch = this.flash = 0
+    this.z = 0.3 + this.rng.next() * 0.4
+    this.size = 0.5
+    this.fleeT = this.fleeTilt = this.stir = 0
+    this.current.v = this.currentZ.v = 0
+    this.trail.pos = this.trail.vel = 0
+  }
+
   private pulse(): void {
     if (this.c > 0.6) return // still mid-stroke: the bell can't fire again yet
     this.stroking = true

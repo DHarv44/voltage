@@ -1,6 +1,21 @@
 import type { ModuleSpec } from '../../modules/types'
 import { Dsp } from './base'
 import { Biquad } from './biquad'
+import { Schmitt } from './cores'
+
+/** RST for the screens: the page owns the picture, so the engine counts the
+ *  reset pulses on LED 0 and the screen wipes itself when the count moves. */
+class ResetCount {
+  private readonly trig = new Schmitt()
+  private count = 0
+  constructor(
+    private readonly dsp: { in: Float64Array; led: Float32Array },
+    private readonly i: number,
+  ) {}
+  tick(): void {
+    if (this.trig.rise(this.dsp.in[this.i])) this.dsp.led[0] = ++this.count
+  }
+}
 
 /** Points per telemetry frame the vector display keeps (decimated by 2). */
 const VEC_POINTS = 1200
@@ -14,8 +29,10 @@ export class VectorDsp extends Dsp {
   private readonly buf = new Float32Array(VEC_POINTS * 3)
   private n = 0
   private skip = 0
+  private readonly rst = new ResetCount(this, this.ii('rst'))
 
   tick(): void {
+    this.rst.tick()
     if (++this.skip < 2) return
     this.skip = 0
     if (this.n >= VEC_POINTS) return
@@ -38,8 +55,10 @@ export class WaterfallDsp extends Dsp {
   private readonly iIn = this.ii('in')
   private readonly ring = new Float32Array(FFT)
   private w = 0
+  private readonly rst = new ResetCount(this, this.ii('rst'))
 
   tick(): void {
+    this.rst.tick()
     this.ring[this.w] = this.in[this.iIn]
     this.w = (this.w + 1) % FFT
   }

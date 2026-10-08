@@ -5,6 +5,14 @@ import { RES, useFrame, type SurfaceProps } from './common'
 
 /** VECTOR: an XY CRT. The beam's brightness falls with its speed, and the
  *  phosphor fades by PERSIST each frame (drawn onto itself, never cleared). */
+/** Has RST fired since we last looked? (The engine counts pulses on LED 0.) */
+function wiped(mod: string, seen: { current: number }): boolean {
+  const n = telemetry.leds[mod]?.[0] ?? 0
+  if (n === seen.current) return false
+  seen.current = n
+  return true
+}
+
 export function Vector({ inst, x, y, w, h }: SurfaceProps) {
   const mod = inst.id
   const ref = useRef<HTMLCanvasElement>(null)
@@ -13,6 +21,7 @@ export function Vector({ inst, x, y, w, h }: SurfaceProps) {
   const params = useRef(inst.params)
   params.current = inst.params
   const frames = useRef(-1)
+  const resets = useRef(0)
 
   useFrame(ref, () => {
     const ctx = ref.current?.getContext('2d')
@@ -20,7 +29,8 @@ export function Vector({ inst, x, y, w, h }: SurfaceProps) {
     frames.current = telemetry.frames
     const p = params.current
     ctx.globalCompositeOperation = 'source-over'
-    ctx.fillStyle = `rgba(2,8,4,${1 - p.persist})`
+    // RST wipes the phosphor clean
+    ctx.fillStyle = wiped(mod, resets) ? 'rgb(2,8,4)' : `rgba(2,8,4,${1 - p.persist})`
     ctx.fillRect(0, 0, W, H)
     const f = telemetry.scopes[mod]
     if (!f) return
@@ -108,12 +118,15 @@ export function Waterfall({ inst, x, y, w, h }: SurfaceProps) {
   const frames = useRef(-1)
   const re = useRef(new Float32Array(2048))
   const im = useRef(new Float32Array(2048))
+  const resets = useRef(0)
 
   useFrame(ref, () => {
     const ctx = ref.current?.getContext('2d')
     const f = telemetry.scopes[mod]
     if (!ctx || !f || telemetry.frames === frames.current) return
     frames.current = telemetry.frames
+    // RST wipes the history: the picture starts again from the right
+    if (wiped(mod, resets)) ctx.clearRect(0, 0, W, H)
     const n = f.length
     const R = re.current
     const I = im.current

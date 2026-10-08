@@ -21,7 +21,7 @@ const R3 = 80
 const R4 = 102
 const PATCH_X = [248, 259, 270, 281, 292]
 const IN_ROWS = [31, 45, 59]
-const OUT_ROWS = [84, 101]
+const OUT_ROWS = [80, 94.5, 109]
 
 const inputs = [
   { id: 'vco1', label: 'VCO 1' },
@@ -48,6 +48,7 @@ const outputs = [
   { id: 'seq1', label: 'SEQ 1' },
   { id: 'seq2', label: 'SEQ 2' },
   { id: 'clk', label: 'CLK' },
+  { id: 'rsto', label: 'RST' },
 ]
 
 const time = (id: string, label: string, def: number): ParamSpec => ({ id, label, min: 0.001, max: 10, def, curve: 'exp', unit: 's' })
@@ -209,11 +210,12 @@ export const undertone: ModuleSpec = {
     sw('run', COL[12], R4),
     { kind: 'button', name: 'reset', x: COL[13], y: R4, label: 'RESET' },
 
-    { kind: 'section', x: 239, y: 16, w: 62, h: 101, label: 'PATCH BAY' },
+    { kind: 'section', x: 239, y: 16, w: 62, h: 105, label: 'PATCH BAY' },
     { kind: 'text', text: 'INPUTS', x: 270, y: 21.5, size: 1.8 },
     ...inputs.map((j, i): Control => ({ kind: 'in', jack: j.id, x: PATCH_X[i % 5], y: IN_ROWS[Math.floor(i / 5)] })),
     { kind: 'text', text: 'OUTPUTS', x: 270, y: 69, size: 1.8 },
     ...outputs.map((j, i): Control => ({ kind: 'out', jack: j.id, x: PATCH_X[i % 5], y: OUT_ROWS[Math.floor(i / 5)] })),
-    { kind: 'text', text: 'PATCHING AN INPUT BREAKS ITS NORMAL', x: 270, y: 112.5, size: 1.4 },
+    { kind: 'text', text: 'PATCHING AN INPUT', x: 281, y: 116.5, size: 1.4 },
+    { kind: 'text', text: 'BREAKS ITS NORMAL', x: 281, y: 118.8, size: 1.4 },
   ],
 }

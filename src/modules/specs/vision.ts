@@ -54,6 +54,7 @@ export const VISION_INPUTS: ModuleSpec['inputs'] = [
   { id: 'glow', label: 'GLOW' },
   { id: 'hue', label: 'PITCH' },
   { id: 'move', label: 'MOVE' },
+  { id: 'rst', label: 'RST' },
 ]
 export const VISION_OUTPUTS: ModuleSpec['outputs'] = [
   { id: 'gate', label: 'GATE' },
@@ -91,7 +92,7 @@ const PITCH = 11.5
 /** VISION's controls, in reading order: knobs, then inputs, then outputs. */
 const VISION_CONTROLS: Control[] = [
   ...(['scene', 'rate', 'hue', 'glow', 'count'] as const).map((param): Control => ({ kind: 'knob', param, x: 0, y: 0, size: 'S' })),
-  ...(['trig', 'feed', 'glow', 'hue', 'move'] as const).map((jack): Control => ({ kind: 'in', jack, x: 0, y: 0 })),
+  ...(['trig', 'feed', 'glow', 'hue', 'move', 'rst'] as const).map((jack): Control => ({ kind: 'in', jack, x: 0, y: 0 })),
   ...(['gate', 'sway', 'grow', 'light', 'link'] as const).map((jack): Control => ({ kind: 'out', jack, x: 0, y: 0 })),
 ]
 

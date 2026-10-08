@@ -205,6 +205,15 @@ OVERRIDES['tally:in:trig'] = { signal: 'gate', what: 'ONE KEY PLAY from the rack
 OVERRIDES['tally:in:gate'] = { signal: 'gate', what: 'Plays TALLY’s voice from a sequencer, at the pitch on V/OCT.' }
 OVERRIDES['tally:out:rhy'] = { signal: 'audio', what: 'The rhythm box on its own (for its own effects or channel).' }
 OVERRIDES['tally:in:clk'] = { signal: 'clock', what: 'Clock in (16ths, CLOCK’s ×4): the rhythm box steps with the rack.' }
+// resets that mean something particular
+for (const t of ['vision', 'visioncore']) OVERRIDES[`${t}:in:rst`] = { signal: 'reset', what: 'A pulse starts every scene in the tank over (patch CLOCK’s RST so the visuals begin with the song).' }
+for (const t of ['vector', 'waterfall']) OVERRIDES[`${t}:in:rst`] = { signal: 'reset', what: 'A pulse wipes the screen clean.' }
+OVERRIDES['loop:in:rst'] = { signal: 'reset', what: 'A pulse sends the loop back to its start, on the downbeat.' }
+OVERRIDES['life:in:rst'] = { signal: 'reset', what: 'A pulse sends the scan back to the first column (the colony keeps its shape).' }
+OVERRIDES['bandmate:in:rst'] = { signal: 'reset', what: 'A pulse starts bar one of a phrase, so the fills land where your song’s phrases end.' }
+OVERRIDES['tally:in:rst'] = { signal: 'reset', what: 'A pulse sends the rhythm to its first beat and ONE KEY PLAY to the tune’s first note.' }
+for (const t of ['groove', 'sketchbook', 'undertone', 'lockstep', 'pocket', 'pocketbass', 'pocketmelody'])
+  OVERRIDES[`${t}:out:rsto`] = { signal: 'reset', what: 'A pulse whenever it starts (or is reset): patch it to followers’ RST so everything starts on beat one together.' }
 OVERRIDES['motion:in:clk'] = { signal: 'clock', what: 'Clock in, in 16ths (CLOCK’s ×4): keeps the loops in time with the music.' }
 OVERRIDES['echo:in:cv'] = { signal: 'cv', what: 'Moves the RATE (the tape speed): the repeats bend in pitch.' }
 

@@ -23,6 +23,11 @@ export class Cymatics implements Creature {
 
   constructor(_rng: Rng) {}
 
+  reset(): void {
+    this.mode = -1
+    this.gate = this.ph = this.knock = 0
+  }
+
   step(i: CreatureInput, o: CreatureOutput, led: Float32Array): void {
     const dt = i.dt
     const tc = i.touch

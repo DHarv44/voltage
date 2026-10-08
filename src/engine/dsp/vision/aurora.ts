@@ -20,6 +20,13 @@ export class Aurora implements Creature {
     this.wind = new Wander(rng, 0.15, 0.25)
   }
 
+  reset(): void {
+    this.activity = 0.2
+    this.energy = this.gate = this.push = 0
+    this.wind.v = 0
+    this.curtain.pos = this.curtain.vel = 0
+  }
+
   private substorm(): void {
     this.activity = 1
     this.gate = 0.012

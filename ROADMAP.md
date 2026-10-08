@@ -132,6 +132,12 @@ extend VOLTAGE.
     spectrogram), **LIGHTS** (the music lights the whole rack: bass red, mids green, treble blue).
 
 ### Rack & workflow
+- Reset everywhere it matters: every module with a position in a cycle has a RST input (back before
+  step 1, the next clock plays it): sequencers, the systems, POCKETs, BANDMATE (phrase count), TALLY,
+  LOOP, LIFE; VISION / VISION CORE (every scene starts over, so the visuals begin with the song;
+  creatures reset in place, no allocation) and VECTOR / WATERFALL (the screen wipes). Every clock
+  source has a RST out (a 3 ms pulse on start or reset): CLOCK, GROOVE-1, SKETCHBOOK, UNDERTONE,
+  LOCKSTEP and the POCKETs, wired into the rigs and presets that follow them.
 - Jack hints (top-bar setting, on by default): while a cable is dragged, every jack it could go to rings
   (free inputs from an output, any output from an input), the occupied / wrong-way ones dim, jacks of the
   same signal family (audio / pitch / timing / CV) ring strongly in that family's colour, and the jack
