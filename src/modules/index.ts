@@ -77,6 +77,7 @@ import { bandmate } from './specs/bandmate'
 import { audioin, camera, gamepad } from './specs/inputs'
 import { lightshow, vector, waterfall } from './specs/visualOut'
 import { accident, macro, scenes } from './specs/perform'
+import { coach, maelzel, metronome } from './specs/metronomes'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -156,6 +157,9 @@ export const SPEC_LIST: ModuleSpec[] = [
   slew,
   quant,
   clock,
+  metronome,
+  maelzel,
+  coach,
   div,
   seq8,
   arp,

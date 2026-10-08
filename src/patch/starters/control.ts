@@ -112,6 +112,39 @@ export const CONTROL_STARTERS: Record<string, Starter> = {
       toOut(k, mix(k, [[kick, 'out'], [snare, 'out'], [hats, 'mix'], bass.out], [0.8, 0.5, 0.35, 0.6]))
     },
   },
+  metronome: {
+    howTo:
+      'METRONOME clicking along with a bassline: it follows CLOCK at its CLK, so turn CLOCK’s TEMPO and the click follows. Unpatch CLK and it keeps its own TEMPO: tap the screen in time to set it. Try SUBDIV for 8ths or triplets.',
+    build(k) {
+      const c = k.add('clock', { bpm: 100 })
+      const m = melody(k, { clock: c, phrase: PHRASES.dub, rate: 'x2' })
+      const bass = voice(k, m.pitch, m.gate, { env: { d: 0.25, s: 0.5 } })
+      const met = k.add('metronome', { sound: 1 })
+      k.wire([c, 'x4'], [met, 'clk'])
+      k.wire([c, 'rst'], [met, 'rst'])
+      toOut(k, mix(k, [bass.out, [met, 'out']], [0.55, 0.8]))
+    },
+  },
+  maelzel: {
+    howTo:
+      'Two clockwork metronomes on one plank (left and right), set going at different moments: each one’s SWING sways the other’s PLANK, and over half a minute they fall into step. Turn PLANK down on both and they drift apart. Drag a weight to retune one; tilt one for a lopsided tick-tock.',
+    build(k) {
+      const a = k.add('maelzel', { bpm: 96, couple: 0.6, bell: 3 })
+      const b = k.add('maelzel', { bpm: 96, couple: 0.6 })
+      k.wire([a, 'swing'], [b, 'plank'])
+      k.wire([b, 'swing'], [a, 'plank'])
+      toOut(k, [a, 'out'], [b, 'out'], 0.6)
+    },
+  },
+  coach: {
+    howTo:
+      'A practice session: COACH starts at 92 and climbs 4 bpm every 2 bars to 124, and a drum machine follows its 1/16 out. Every fourth bar the click drops out (GAP): keep time and see if you land with it. Turn POLY for 3 over 4.',
+    build(k) {
+      const c = k.add('coach', { start: 92, target: 124, step: 4, every: 2, play: 3, gap: 1 })
+      const d = beat(k, { clock: c, level: 0.45 })
+      toOut(k, mix(k, [d.out, [c, 'out']], [0.6, 0.8]))
+    },
+  },
   div: {
     howTo: 'One clock divided into polyrhythms: ÷2 kicks, ÷3 snares, every beat on the hats.',
     build(k) {

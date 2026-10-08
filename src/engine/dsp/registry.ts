@@ -91,6 +91,8 @@ import { BandmateDsp } from './bandmate'
 import { AudioInDsp, CameraDsp, GamepadDsp } from './inputs'
 import { LightShowDsp, VectorDsp, WaterfallDsp } from './visualOut'
 import { AccidentDsp, MacroDsp, ScenesDsp } from './perform'
+import { CoachDsp, MetronomeDsp } from './metronome'
+import { MaelzelDsp } from './maelzel'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -115,6 +117,9 @@ const CIRCUITS: Record<string, DspCtor> = {
   svf: SvfDsp,
   ms: MsFilterDsp,
   clock: ClockDsp,
+  metronome: MetronomeDsp,
+  maelzel: MaelzelDsp,
+  coach: CoachDsp,
   div: DividerDsp,
   seq8: Seq8Dsp,
   mono: MonoSystemDsp,

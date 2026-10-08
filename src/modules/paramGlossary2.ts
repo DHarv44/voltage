@@ -54,6 +54,34 @@ export const MORE_OVERRIDES: Record<string, string> = {
   // CLOCK and MIDI
   'clock:sync': 'INT: its own TEMPO. MIDI IN: follows MIDI clock from a DAW or a drum machine (tempo, START and STOP); the TEMPO knob shows what it hears.',
   'clock:mout': 'MIDI OUT: sends MIDI clock, START and STOP to your MIDI outputs, so a DAW or other gear follows the rack.',
+  // METRONOME
+  'metronome:bpm': 'The tempo in beats a minute (tap the screen in time to set it), when nothing is patched to CLK.',
+  'metronome:beats': 'Beats in a bar: beat 1 of each is the accented click (3 for a waltz, 4 for most music).',
+  'metronome:sub': 'Quieter clicks between the beats: 8ths, triplets or 16ths, to practise the subdivisions.',
+  'metronome:sound': 'The click: a quartz TICK, a WOODblock, CLAVEs, or a digital BEEP.',
+  'metronome:accent': 'How much beat 1 stands out: higher and louder than the rest (none at zero).',
+  'metronome:level': 'How loud the click is.',
+  'metronome:run': 'Starts and stops the click (starting again begins on beat 1).',
+  // MAELZEL
+  'maelzel:bpm': 'Where the weight sits on the rod: higher is slower (40–208, as on the real thing). Drag the weight on the face, it clicks into the notches.',
+  'maelzel:bell': 'Rings a bell on beat 1 of every 2, 3, 4 or 6 ticks (the bell on old clockwork metronomes), or never.',
+  'maelzel:tilt': 'Stands it off level: the tick and the tock come unevenly, long-short (a swing feel). Level in the middle.',
+  'maelzel:couple': 'How much the shared plank (PLANK in) pulls this pendulum toward the other: higher syncs sooner, and holds two set further apart.',
+  'maelzel:level': 'How loud the clockwork is.',
+  'maelzel:run': 'GO lets the rod go from the side; STOP latches it upright.',
+  'maelzel:spring': 'WIND-UP runs down after a few minutes (the swing shrinks, then stops: click the key to wind it). ELECTRIC never stops.',
+  // COACH
+  'coach:start': 'The tempo it starts at (and goes back to on reset).',
+  'coach:target': 'The tempo it climbs (or falls) to, then stays at.',
+  'coach:step': 'How many bpm each ramp step adds (zero: a steady tempo).',
+  'coach:every': 'How many bars at each tempo before the next step.',
+  'coach:sound': 'The click: TICK, WOOD, CLAVE or BEEP.',
+  'coach:beats': 'Beats in a bar: beat 1 is the accented click.',
+  'coach:play': 'Gap click: bars of click before the silence.',
+  'coach:gap': 'Gap click: bars of silence after the click (zero: never silent). Keep time through them; does the click come back with you?',
+  'coach:poly': 'A second click, N even hits across each bar against the beat: 3 over 4, 5 over 4… (OFF: none).',
+  'coach:level': 'How loud the clicks are.',
+  'coach:run': 'Starts and stops it (each start begins the ramp again from START).',
   // TAP
   'tap:level': 'How loud the tapped mix comes out: 1 brings a usual mix back to normal audio level; raise it if your OUT is turned down low.',
   // MOTION

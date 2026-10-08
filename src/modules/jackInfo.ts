@@ -220,7 +220,27 @@ OVERRIDES['tumbler:in:rst'] = { signal: 'reset', what: 'A pulse puts the drum an
 OVERRIDES['chaos:in:rst'] = { signal: 'reset', what: 'A pulse restarts from the very same point: chaos is deterministic, so the same “random” phrase plays again.' }
 OVERRIDES['ecosystem:in:rst'] = { signal: 'reset', what: 'A pulse brings back the starting populations: the boom-and-crash cycle starts over.' }
 OVERRIDES['tally:in:rst'] = { signal: 'reset', what: 'A pulse sends the rhythm to its first beat and ONE KEY PLAY to the tune’s first note.' }
-for (const t of ['groove', 'sketchbook', 'undertone', 'lockstep', 'pocket', 'pocketbass', 'pocketmelody'])
+// the metronomes
+OVERRIDES['metronome:in:clk'] = { signal: 'clock', what: 'Clock in, in 16ths (CLOCK’s 1/16): it clicks the rack’s beats instead of its own TEMPO, and shows the tempo it hears.' }
+OVERRIDES['metronome:in:run'] = { signal: 'gate', what: 'Clicks while high (overrides RUN): patch CLOCK’s run or a footswitch gate.' }
+OVERRIDES['metronome:out:beat'] = { signal: 'gate', what: 'High for the first half of every beat.' }
+OVERRIDES['metronome:out:bar'] = { signal: 'gate', what: 'High on beat 1 of each bar only.' }
+OVERRIDES['metronome:out:sub'] = { signal: 'gate', what: 'A gate per subdivision click (8ths, triplets or 16ths; with SUBDIV off, every beat).' }
+OVERRIDES['metronome:out:out'] = { signal: 'audio', what: 'The click.' }
+OVERRIDES['maelzel:in:plank'] = { signal: 'cv', what: 'The shared plank: patch another MAELZEL’s SWING here (and this one’s SWING into it) and the two drift into step. A slow LFO here entrains it too.' }
+OVERRIDES['maelzel:in:rst'] = { signal: 'reset', what: 'A pulse pulls the rod aside and lets go: it ticks a quarter swing later, on the bell’s first beat.' }
+OVERRIDES['maelzel:out:tick'] = { signal: 'trigger', what: 'A short pulse on every tick and every tock (one per beat).' }
+OVERRIDES['maelzel:out:bell'] = { signal: 'trigger', what: 'A pulse when the bell rings: beat 1, when BELL is set.' }
+OVERRIDES['maelzel:out:swing'] = { signal: 'cv', what: 'The rod’s angle (about ±5 V): a sine LFO at half the tempo, swaying with the pendulum. Into another MAELZEL’s PLANK to sync them.' }
+OVERRIDES['maelzel:out:out'] = { signal: 'audio', what: 'The clockwork: the tick and tock, and the bell.' }
+OVERRIDES['coach:in:run'] = { signal: 'gate', what: 'Runs while high (overrides RUN); each start begins the ramp again from START.' }
+OVERRIDES['coach:in:rst'] = { signal: 'reset', what: 'A pulse starts over: bar 1, back at START tempo.' }
+OVERRIDES['coach:out:x4'] = { signal: 'clock', what: '16ths at the tempo it’s at now: a drum machine or sequencer patched here speeds up with the ramp.' }
+OVERRIDES['coach:out:beat'] = { signal: 'gate', what: 'High for the first half of every beat (silent bars too).' }
+OVERRIDES['coach:out:bar'] = { signal: 'gate', what: 'High on beat 1 of each bar.' }
+OVERRIDES['coach:out:poly'] = { signal: 'trigger', what: 'A pulse on each POLY click (N even pulses per bar): a cross-rhythm for another voice.' }
+OVERRIDES['coach:out:out'] = { signal: 'audio', what: 'The click, and the polyrhythm click.' }
+for (const t of ['groove', 'sketchbook', 'undertone', 'lockstep', 'pocket', 'pocketbass', 'pocketmelody', 'metronome', 'maelzel', 'coach'])
   OVERRIDES[`${t}:out:rsto`] = { signal: 'reset', what: 'A pulse whenever it starts (or is reset): patch it to followers’ RST so everything starts on beat one together.' }
 OVERRIDES['motion:in:clk'] = { signal: 'clock', what: 'Clock in, in 16ths (CLOCK’s ×4): keeps the loops in time with the music.' }
 OVERRIDES['echo:in:cv'] = { signal: 'cv', what: 'Moves the RATE (the tape speed): the repeats bend in pitch.' }

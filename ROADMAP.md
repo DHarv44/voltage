@@ -16,7 +16,7 @@ extend VOLTAGE.
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (130)
+### Modules (133)
 (Grouped here by family; the library's own categories are in `modules/types.ts` CATEGORIES.)
 - **POCKET family**: POCKET (drums), POCKET BASS (16 note steps, slide/accent, SUB/SQUARE/ACID), POCKET
   MELODY (scale degrees, per-step NOTE/CHORD/ARP, BELL/PLUCK/LEAD, poly NOTES). Drag a step to set its
@@ -47,6 +47,21 @@ extend VOLTAGE.
 - **Shapers**: FOLD, RING, SLEW, QUANT.
 - **Drums**: KICK, SNARE, CLAP, HATS, TOM, PERC, PADS, TOUCH (plates).
 - **Sequencing**: CLOCK, DIV, SEQ-8, TR-16 (A–D + song chains), EUCLID, TURING, ARP, CHORD.
+- **Metronomes** (shared click voice: TICK / WOOD / CLAVE / BEEP, the escapement CLACK, a bell):
+  - METRONOME: beat 1 accented (higher, louder: ACCENT), 1–12 beats, 8ths / triplets / 16ths between,
+    tap the screen for tempo (average of the last four taps), or follows CLK in 16ths (the gaps filled
+    in, so triplets land right; the screen shows the tempo it hears). BEAT / BAR / SUB gates, RST in/out.
+  - MAELZEL: a simulated clockwork pendulum (40–208, the sliding weight dragged into the scale's
+    notches). Gravity with the large-swing correction, friction, and an escapement that ticks and pushes
+    as the rod passes; WIND-UP runs down over ~420 ticks (the swing shrinks, runs a touch fast, stops;
+    click the key) or ELECTRIC. TILT moves the escapement off centre: uneven tick-tock, up to a triplet
+    shuffle. Tick and tock sound slightly different; BELL every 2/3/4/6. SWING out = the rod's angle (a
+    half-tempo sine). PLANK in: another's SWING draws this one's phase toward it (frequency-neutral, so
+    a locked pair keeps its tempo and only settles in step); each powers up at its own point in the
+    swing, so two on a plank start out of step and fall in within half a minute.
+  - COACH: speed trainer (START → TARGET by STEP bpm every EVERY bars), gap click (PLAY bars on, GAP bars
+    silent; gates and 1/16 keep going), POLY (2/3/5/7 even clicks per bar); 1/16 out carries the ramping
+    tempo (its rig drives a TR-16 beat).
 - **Musical brains**: GHOST (learns your intervals, rhythm and key as you play, answers when you pause),
   PROGRESSION (functional-harmony chord generator, borrowed chords, voice-led poly out), BANDMATE (a
   drummer: style groove maps, energy, humanised timing, fills at phrase ends, lays back when you're loud).

@@ -8,7 +8,7 @@ pitch, ±5 V audio, 0–10 V control voltages, rails that saturate, components t
 up). There are no samples and no downloaded assets: every sound, from a ladder filter to a
 singing bowl to a vinyl record, is synthesised.
 
-- **130 modules**: oscillators, filters, envelopes, sequencers and drums; pedals, tape machines and
+- **133 modules**: oscillators, filters, envelopes, sequencers and drums; pedals, tape machines and
   played instruments; simulations that make music (bouncing balls, orbits, flocks, chaos); musical
   "brains" that jam with you; and **VISION**, living 3D scenes you patch like any other module.
 - **18 factory racks** to start from, and a **Learn** menu with a step-by-step course in synthesis.
@@ -119,7 +119,7 @@ Patch **MIDI·CV** (or use a module with a built-in keybed) and play:
 
 ## What's in the rack
 
-The full list, with what each module does, is in [ROADMAP.md](ROADMAP.md#modules-130). The module
+The full list, with what each module does, is in [ROADMAP.md](ROADMAP.md#modules-133). The module
 list on the left groups them by what they are (below); search finds them by name, by what you want
 ("bass", "reverb", "beat"…) or by the gear you know ("mellotron", "dfam", "op-1"); every word must
 match, Enter adds the top result and `/` jumps to the box. Tag chips narrow the list (all tags must
@@ -137,7 +137,7 @@ match), ☆ stars a module into Favourites, and the last few you added sit under
 | **Shapers** | Wavefolder, ring modulator |
 | **CV Tools** | Quantizer, slew, S&H, attenuverters, mult, logic, chord generator |
 | **Drums** | Analog kick, snare, clap, hats, toms, perc |
-| **Sequencers** | Clock, dividers, SEQ-8, TR-16, Euclid, Turing machine, arpeggiator |
+| **Sequencers** | Clock, dividers, SEQ-8, TR-16, Euclid, Turing machine, arpeggiator; three metronomes: METRONOME (accented click, subdivisions, tap tempo, follows CLK), **MAELZEL** (a simulated clockwork pendulum: winds down, ticks unevenly off level, and two on a shared plank fall into step), **COACH** (practice: tempo ramps to a target, gap-click silent bars, polyrhythm click; clocks a drum machine along) |
 | **Brains** | GHOST (answers your phrases), PROGRESSION (chord progressions), BANDMATE (a drummer) |
 | **Simulations** | BOUNCE, TUMBLER, ORBIT, LIFE, FLOCK, CHAOS, ECOSYSTEM: physics and biology as sequencers |
 | **Effects** | BBD, tape echo, spring, plate, phaser, ensemble, pitch-correction, echo chamber, VOCODER (16 bands: make a synth talk, or a beat sing); for ambient: **GRAINS** (granular clouds from the last 4 s, FREEZE a moment), **SHIMMER** (a reverb whose tail climbs in octaves), **SHIFT** (two-voice harmoniser with a feedback spiral) |

@@ -127,6 +127,9 @@ export const CATALOG: Record<string, Entry> = {
   // Sequencers
   clock: { tags: ['clock'], aka: ['tempo', 'bpm', 'master clock', 'midi clock', 'sync', 'daw', 'external clock'] },
   div: { tags: ['clock'], aka: ['clock divider', 'divider'] },
+  metronome: { tags: ['clock', 'utility'], aka: ['click', 'click track', 'tap tempo', 'count', 'practice', 'time signature'] },
+  maelzel: { tags: ['clock', 'plays itself'], aka: ['metronome', 'wind-up', 'pendulum', 'wittner', 'clockwork', 'huygens', 'sync', 'swing', 'mechanical'] },
+  coach: { tags: ['clock', 'utility'], aka: ['metronome', 'practice', 'speed trainer', 'tempo ramp', 'gap click', 'polyrhythm', 'click track', 'drummer'] },
   seq8: { tags: ['sequence', 'melody'], aka: ['step sequencer', 'analog sequencer'] },
   tr16: { tags: ['beat', 'sequence'], aka: ['drum sequencer', 'trigger sequencer', '808', 'song mode'] },
   euclid: { tags: ['beat', 'generative', 'sequence'], aka: ['euclidean', 'bjorklund', 'polyrhythm'] },
