@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { SPECS } from '../../modules'
 import type { ModuleInst, Patch } from '../../patch/types'
 import { jackPos, type Placement, type Pt } from '../geometry'
@@ -32,10 +33,10 @@ export function CableLayer({ patch, place, drag, opacity, width, height }: Props
           const b = pos(c.to.mod, c.to.jack, 'in')
           const src = byId.get(c.from.mod)
           const poly = !!src && !!SPECS[src.type]?.outputs.find((j) => j.id === c.from.jack)?.poly
-          return a && b ? <Cable key={c.id} a={a} b={b} color={c.color} poly={poly} /> : null
+          return a && b ? <Cable key={c.id} ax={a.x} ay={a.y} bx={b.x} by={b.y} color={c.color} poly={poly} /> : null
         })}
       </g>
-      {drag && dragStart && <Cable a={dragStart} b={drag} color={drag.color} />}
+      {drag && dragStart && <Cable ax={dragStart.x} ay={dragStart.y} bx={drag.x} by={drag.y} color={drag.color} />}
     </svg>
   )
 }
@@ -48,8 +49,12 @@ export function cablePath(a: Pt, b: Pt): string {
   return `M ${a.x} ${a.y} C ${a.x + dx / 3} ${a.y + dy / 3 + sag} ${a.x + (2 * dx) / 3} ${a.y + (2 * dy) / 3 + sag} ${b.x} ${b.y}`
 }
 
-/** Poly cables are drawn thicker with a dark core stripe, like a ribbon of voices. */
-function Cable({ a, b, color, poly = false }: { a: Pt; b: Pt; color: string; poly?: boolean }) {
+/** Poly cables are drawn thicker with a dark core stripe, like a ribbon of voices.
+ *  Memoised on its ends (plain numbers): dragging a module redraws only the
+ *  cables plugged into it, not every cable in the rack. */
+const Cable = memo(function Cable({ ax, ay, bx, by, color, poly = false }: { ax: number; ay: number; bx: number; by: number; color: string; poly?: boolean }) {
+  const a = { x: ax, y: ay }
+  const b = { x: bx, y: by }
   const d = cablePath(a, b)
   return (
     <g>
@@ -61,7 +66,7 @@ function Cable({ a, b, color, poly = false }: { a: Pt; b: Pt; color: string; pol
       <Plug p={b} color={color} />
     </g>
   )
-}
+})
 
 function Plug({ p, color }: { p: Pt; color: string }) {
   return (

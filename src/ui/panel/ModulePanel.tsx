@@ -43,11 +43,10 @@ interface Props {
   fed: string
 }
 
+/** A panel in the rack. Only this outer box knows where it sits, so moving a
+ *  panel (every pointer move of a drag) re-renders one div, not its controls. */
 export const ModulePanel = memo(function ModulePanel({ inst, row, hp, lifted, handlers, fed }: Props) {
-  const spec = SPECS[inst.type]
-  const panelHp = hpOf(inst)
-  const w = panelHp * HP_MM
-  const controls = controlsOf(inst)
+  const w = hpOf(inst) * HP_MM
   return (
     <div
       className={lifted ? 'module lifted' : 'module'}
@@ -55,6 +54,19 @@ export const ModulePanel = memo(function ModulePanel({ inst, row, hp, lifted, ha
       onPointerDown={(e) => handlers.panelDown(inst.id, e)}
       onContextMenu={(e) => handlers.panelContext(inst.id, e)}
     >
+      <PanelBody inst={inst} handlers={handlers} fed={fed} />
+    </div>
+  )
+})
+
+/** The panel itself: face, controls, screens and surfaces. */
+const PanelBody = memo(function PanelBody({ inst, handlers, fed }: { inst: ModuleInst; handlers: PanelHandlers; fed: string }) {
+  const spec = SPECS[inst.type]
+  const panelHp = hpOf(inst)
+  const w = panelHp * HP_MM
+  const controls = controlsOf(inst)
+  return (
+    <>
       <svg viewBox={`0 0 ${w} ${PANEL_H_MM}`} width="100%" height="100%">
         <PanelFace spec={spec} w={w} hp={panelHp} maker={makerClear(spec, controls, w)} />
         {controls.map((c, i) => (
@@ -105,7 +117,7 @@ export const ModulePanel = memo(function ModulePanel({ inst, row, hp, lifted, ha
           <SurfaceView key={i} name={c.name} inst={inst} spec={spec} x={c.x} y={c.y} w={c.w} h={c.h} />
         ) : null,
       )}
-    </div>
+    </>
   )
 })
 

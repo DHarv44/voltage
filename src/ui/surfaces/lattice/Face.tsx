@@ -134,12 +134,18 @@ export function LatticeFace({ inst, spec, x, y, w, h }: SurfaceProps) {
         ctx.fill()
         const r = ripples.current.at(cx, cy, t)
         if (r.v > 0.02) {
+          // a halo in the layer's colour, then the lit lamp (no canvas shadow
+          // blur: it's slow enough per cell to drag the whole page down)
+          ctx.globalAlpha = r.v * 0.45
+          ctx.fillStyle = r.color
+          ctx.beginPath()
+          ctx.arc(px, py, pitch * 0.5, 0, Math.PI * 2)
+          ctx.fill()
           ctx.globalAlpha = r.v
           ctx.fillStyle = '#ffffff'
-          ctx.shadowColor = r.color
-          ctx.shadowBlur = pitch * 0.6
+          ctx.beginPath()
+          ctx.arc(px, py, pitch * 0.38, 0, Math.PI * 2)
           ctx.fill()
-          ctx.shadowBlur = 0
         }
       }
     // BOUNCE balls on the selected layer
