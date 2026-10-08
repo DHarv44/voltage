@@ -1,54 +1,64 @@
-import { chords, melody, mix, toOut, tune, voice, type Jack, type Kit } from './kit'
+import { chords, melody, mix, toOut, voice, type Jack, type Kit } from './kit'
+import { PHRASES } from './material'
 import type { Starter } from './types'
 
-/** Self-playing poly chords (see chords()) through a poly voice. */
-function polyRig(k: Kit) {
-  const c = chords(k)
-  const vco = k.add('pvco', { fine: 0.05 })
-  const vcf = k.add('pvcf', { cutoff: 1400, res: 0.2, cv: 0.35 })
+/** Self-playing poly chords (see chords()) through a poly voice; each poly
+ *  module's rig turns up the part that module plays. */
+function polyRig(
+  k: Kit,
+  o: { vco?: Record<string, number>; vcf?: Record<string, number>; env?: Record<string, number>; wave?: string; sweep?: number; tremolo?: number; bpm?: number } = {},
+): string {
+  const c = chords(k, { bpm: o.bpm })
+  const vco = k.add('pvco', { fine: 0.05, ...o.vco })
+  const vcf = k.add('pvcf', { cutoff: 1400, res: 0.2, cv: 0.35, ...o.vcf })
   const vca = k.add('pvca', { gain: 0, cv: 1 })
-  const env = k.add('padsr', { a: 0.03, d: 0.6, s: 0.5, r: 0.5 })
+  const env = k.add('padsr', { a: 0.03, d: 0.6, s: 0.5, r: 0.5, ...o.env })
   const pm = k.add('polymix', { level: 0.7 })
   const plate = k.add('plate', { decay: 0.7, mix: 0.3 })
   k.wire(c.notes, [vco, 'voct'])
   k.wire(c.gate, [env, 'gate'])
-  k.wire([vco, 'saw'], [vcf, 'in'])
+  k.wire([vco, o.wave ?? 'saw'], [vcf, 'in'])
   k.wire([vcf, 'lp'], [vca, 'in'])
   k.wire([env, 'env'], [vca, 'cv'])
-  k.wire([env, 'env'], [vcf, 'cv'])
+  // the filter follows the envelope, or a slow sweep
+  if (o.sweep) {
+    const lfo = k.add('lfo', { rate: o.sweep })
+    k.wire([lfo, 'tri'], [vcf, 'cv'])
+  } else k.wire([env, 'env'], [vcf, 'cv'])
   k.wire([vca, 'out'], [pm, 'in'])
-  k.wire([pm, 'sum'], [plate, 'in'])
+  if (o.tremolo) {
+    const lfo = k.add('lfo', { rate: o.tremolo })
+    const trem = k.add('vca', { gain: 0.8, cv: 0.3 })
+    k.wire([pm, 'sum'], [trem, 'in'])
+    k.wire([lfo, 'sin'], [trem, 'cv'])
+    k.wire([trem, 'out'], [plate, 'in'])
+  } else k.wire([pm, 'sum'], [plate, 'in'])
   toOut(k, [plate, 'l'], [plate, 'r'])
+  return pm
 }
 
 /** A source that makes its own notes (or is played), into a plate and out. */
-function roomy(k: Kit, src: Jack, plate = 0.3) {
+function roomy(k: Kit, src: Jack, plate = 0.3, vol?: number) {
   const p = k.add('plate', { decay: 0.6, mix: plate })
   k.wire(src, [p, 'in'])
-  toOut(k, [p, 'l'], [p, 'r'])
-}
-
-/** A free-running oscillator gated by a sequenced envelope through a VCA. */
-function gatedOsc(k: Kit, type: string, out: string, params: Record<string, number> = {}, voct = 'voct') {
-  const m = melody(k)
-  return voice(k, m.pitch, m.gate, { osc: { type, params, voct, out }, env: { d: 0.4, s: 0.3 } }).out
+  toOut(k, [p, 'l'], [p, 'r'], vol)
 }
 
 export const SOURCE_STARTERS: Record<string, Starter> = {
   mono: {
-    howTo: 'A sequenced bassline on MONO-1. Turn CUTOFF and RESONANCE.',
+    howTo: 'An acid line on MONO-1 with its own GLIDE on: every note slides into the next. Turn CUTOFF, RESONANCE and ENV AMT while it plays.',
     build(k) {
-      const m = melody(k, { octave: -1 })
-      const mono = k.add('mono', { cutoff: 600, res: 0.6, envamt: 0.5, d: 0.25, s: 0.2 })
+      const m = melody(k, { phrase: PHRASES.acid })
+      const mono = k.add('mono', { cutoff: 320, res: 0.75, envamt: 0.65, d: 0.18, s: 0.1, glide: 0.06, wave: 0 })
       k.wire(m.pitch, [mono, 'pitch'])
       k.wire(m.gate, [mono, 'gate'])
-      toOut(k, [mono, 'vca'], undefined, 0.85)
+      toOut(k, [mono, 'vca'], undefined, 0.6)
     },
   },
   studio: {
-    howTo: 'STUDIO-3 playing a sequenced line. Try its three VCO levels and the filter.',
+    howTo: 'STUDIO-3 singing a lead line through its own spring. Try its three VCO levels (detune them), the ring modulator and the filter.',
     build(k) {
-      const m = melody(k)
+      const m = melody(k, { phrase: PHRASES.lead })
       const s = k.add('studio', { vol: 0.3 })
       k.wire(m.pitch, [s, 'pitch'])
       k.wire(m.gate, [s, 'gate'])
@@ -124,11 +134,44 @@ export const SOURCE_STARTERS: Record<string, Starter> = {
       roomy(k, [pm, 'sum'])
     },
   },
-  pvco: { howTo: 'Chords that play themselves on a poly voice. Try P-VCO FINE for detune.', build: (k) => polyRig(k) },
-  pvcf: { howTo: 'Self-playing poly chords. Sweep P-LADDER CUTOFF.', build: (k) => polyRig(k) },
-  padsr: { howTo: 'Self-playing poly chords. Shape them with P-ADSR (try a slow ATTACK).', build: (k) => polyRig(k) },
-  pvca: { howTo: 'Self-playing poly chords through P-VCA.', build: (k) => polyRig(k) },
-  polymix: { howTo: 'Self-playing poly chords summed to mono by POLY MIX.', build: (k) => polyRig(k) },
+  pvco: {
+    howTo: 'Brassy chords: every P-VCO voice drifts on its own and FINE pulls them apart, so each chord beats and spreads. Turn FINE; try the PULSE output and WIDTH.',
+    build: (k) => void polyRig(k, { vco: { fine: 0.16 }, vcf: { cutoff: 1800 }, env: { a: 0.06, d: 0.4, s: 0.6, r: 0.3 } }),
+  },
+  pvcf: {
+    howTo: 'A ladder on every voice, all swept together by a slow LFO: the chords open and close like a breathing pad. Turn CUTOFF and RESONANCE on P-LADDER.',
+    build: (k) => void polyRig(k, { vcf: { cutoff: 1000, res: 0.6, cv: 0.45 }, sweep: 0.1, env: { a: 0.2, s: 0.8, r: 0.8 } }),
+  },
+  padsr: {
+    howTo: 'P-ADSR with a slow ATTACK and long RELEASE: each chord swells in and the last one rings under the next. Turn ATTACK down for plucked chords.',
+    build: (k) => void polyRig(k, { env: { a: 1.4, d: 1, s: 0.8, r: 2.2 }, bpm: 72 }),
+  },
+  pvca: {
+    howTo: 'Chords through P-VCA (one VCA per voice, each with its own envelope), then a tremolo on the sum. Turn P-VCA LEVEL up to hold the chords open.',
+    build: (k) => void polyRig(k, { tremolo: 4.5, env: { a: 0.02, s: 0.7, r: 0.6 } }),
+  },
+  polymix: {
+    howTo: 'Two POLY MIXes, two jobs: one SUMS the chord’s voices to mono for the reverb; the other SPLITS the chord’s pitch cable, and V1 (the root) plays a bass two octaves down.',
+    build(k) {
+      const c = chords(k, { bpm: 84 })
+      const vco = k.add('pvco', { fine: 0.06 })
+      const vca = k.add('pvca', { gain: 0, cv: 1 })
+      const env = k.add('padsr', { a: 0.1, d: 0.8, s: 0.7, r: 0.8 })
+      const sum = k.add('polymix', { level: 0.55 })
+      const split = k.add('polymix')
+      k.wire(c.notes, [vco, 'voct'])
+      k.wire(c.gate, [env, 'gate'])
+      k.wire([vco, 'saw'], [vca, 'in'])
+      k.wire([env, 'env'], [vca, 'cv'])
+      k.wire([vca, 'out'], [sum, 'in'])
+      k.wire(c.notes, [split, 'in'])
+      const bass = voice(k, null, c.gate, { osc: { type: 'vco', params: { coarse: -2 }, out: 'saw' }, env: { d: 0.4, s: 0.6, r: 0.3 } })
+      k.wire([split, 'c1'], [bass.osc, 'voct'])
+      const plate = k.add('plate', { decay: 0.7, mix: 0.3 })
+      k.wire([sum, 'sum'], [plate, 'in'])
+      toOut(k, mix(k, [[plate, 'l'], bass.out], [0.7, 0.6]))
+    },
+  },
   tapekeys: {
     howTo: 'Tape strings playing a chord progression. Try FLUTE and CHOIR, and WOW.',
     build(k) {
@@ -139,7 +182,19 @@ export const SOURCE_STARTERS: Record<string, Starter> = {
       roomy(k, [keys, 'out'])
     },
   },
-  vco: { howTo: 'A sequenced VCO through a filter and VCA. Try its SAW, SQUARE and PWM.', build: (k) => toOut(k, tune(k).out) },
+  vco: {
+    howTo: 'Two VCOs a few cents apart, one saw and one pulse whose width an LFO slowly sweeps (PWM): the raw, moving sound of analog. Turn FINE, WIDTH and PWM.',
+    build(k) {
+      const m = melody(k, { phrase: { ...PHRASES.slow, octave: -1 } })
+      const a = k.add('vco', { fine: 0.06 })
+      const b = k.add('vco', { pwm: 0.6, pw: 0.4 })
+      const lfo = k.add('lfo', { rate: 0.3 })
+      k.wire(m.pitch, [a, 'voct'])
+      k.wire(m.pitch, [b, 'voct'])
+      k.wire([lfo, 'tri'], [b, 'pwm'])
+      toOut(k, voice(k, null, m.gate, { audio: mix(k, [[a, 'saw'], [b, 'sqr']], [0.5, 0.5]), env: { a: 0.02, d: 0.5, s: 0.8, r: 0.6 }, filter: { type: 'vcf', params: { cutoff: 1600, res: 0.2, cv: 0.3 }, out: 'lp4' } }).out)
+    },
+  },
   theremin: {
     howTo: 'Move the pointer over the THEREMIN: across for pitch, up for volume.',
     played: true,
@@ -154,9 +209,9 @@ export const SOURCE_STARTERS: Record<string, Starter> = {
   chordwheel: { howTo: 'Click a chord on the wheel to play it.', played: true, build: (k) => roomy(k, [k.add('chordwheel'), 'out']) },
   musicbox: { howTo: 'The music box plays its tune. Click the drum to change the notes.', build: (k) => roomy(k, [k.add('musicbox'), 'out'], 0.35) },
   strike: {
-    howTo: 'A handpan playing a sequenced phrase. Try STEEL PAN and KALIMBA.',
+    howTo: 'A handpan groove in D Kurd: low ding, the ring of notes around it, space between. Click the face to join in; try STEEL PAN and KALIMBA.',
     build(k) {
-      const m = melody(k, { bpm: 96 })
+      const m = melody(k, { notes: [2, 9, 10, 2, 12, 9, 7, 5], gates: [1, 0, 1, 1, 0, 1, 1, 0], rate: 'x2', bpm: 92 })
       const s = k.add('strike')
       k.wire(m.pitch, [s, 'voct'])
       k.wire(m.trig, [s, 'trig'])
@@ -165,13 +220,15 @@ export const SOURCE_STARTERS: Record<string, Starter> = {
   },
   tanpura: { howTo: 'The tanpura drones on its own. Try SA (the key) and JAWARI.', build: (k) => roomy(k, [k.add('tanpura'), 'out'], 0.2) },
   gamelan: {
-    howTo: 'A saron playing a sequenced phrase. Try BONANG and GONG.',
+    howTo: 'A small gamelan: a saron plays the balungan (the core melody, one note a beat) and the big gong closes every phrase. Switch LARAS between slendro and pelog; feel the OMBAK beating.',
     build(k) {
-      const m = melody(k, { bpm: 90 })
-      const g = k.add('gamelan')
-      k.wire(m.pitch, [g, 'voct'])
-      k.wire(m.trig, [g, 'trig'])
-      roomy(k, [g, 'out'])
+      const m = melody(k, { notes: [0, 2, 4, 7, 9, 7, 4, 2], rate: 'x1', bpm: 80 })
+      const saron = k.add('gamelan', { inst: 0 })
+      const gong = k.add('gamelan', { inst: 2, level: 0.9 })
+      k.wire(m.pitch, [saron, 'voct'])
+      k.wire(m.trig, [saron, 'trig'])
+      k.wire([m.clock, 'bar'], [gong, 'trig'])
+      roomy(k, mix(k, [[saron, 'out'], [gong, 'out']], [0.7, 0.8]))
     },
   },
   bowl: {
@@ -184,10 +241,10 @@ export const SOURCE_STARTERS: Record<string, Starter> = {
     },
   },
   harp: {
-    howTo: 'A harp playing a sequenced phrase. Strum the strings too.',
+    howTo: 'Broken chords running up and down the HARP in 16ths. Drag across the strings for a glissando; change KEY with the pedals.',
     build(k) {
-      const m = melody(k, { bpm: 100 })
-      const h = k.add('harp')
+      const m = melody(k, { phrase: PHRASES.arpeggio })
+      const h = k.add('harp', { sustain: 1.4 })
       k.wire(m.pitch, [h, 'voct'])
       k.wire(m.trig, [h, 'trig'])
       roomy(k, [h, 'out'])
@@ -203,31 +260,62 @@ export const SOURCE_STARTERS: Record<string, Starter> = {
       toOut(k, [sp, 'out'])
     },
   },
-  complex: { howTo: 'A west-coast complex oscillator under an envelope. Turn INDEX and TIMBRE.', build: (k) => toOut(k, gatedOsc(k, 'complex', 'out', { index: 0.4 })) },
-  wave: { howTo: 'A wavetable oscillator under an envelope. Turn WAVE to morph.', build: (k) => toOut(k, gatedOsc(k, 'wave', 'out', { wamt: 0.6 })) },
-  sub: {
-    howTo: 'A VCO with SUB adding octaves below. Turn SUB LEVEL.',
+  complex: {
+    howTo: 'A Music-Easel patch: COMPLEX’s modulator sweeping its FM INDEX from a slow LFO, notes from a Turing machine, struck through an LPG. Turn INDEX, TIMBRE and MOD FREQ.',
     build(k) {
-      const m = melody(k, { octave: -1 })
-      const vco = k.add('vco')
+      const c = k.add('clock', { bpm: 100 })
+      const t = k.add('turing', { change: 0.12 })
+      const att = k.add('atten', { a: 0.2 })
+      const q = k.add('quant', { scale: 3, trans: 2 })
+      const osc = k.add('complex', { index: 1.2, timbre: 0.35, mfreq: 330 })
+      const lfo = k.add('lfo', { rate: 0.15 })
+      const g = k.add('lpg', { dec1: 0.45 })
+      k.wire([c, 'x2'], [t, 'clk'])
+      k.wire([t, 'cv'], [att, 'a'])
+      k.wire([att, 'a'], [q, 'in'])
+      k.wire([q, 'out'], [osc, 'voct'])
+      k.wire([lfo, 'tri'], [osc, 'idx'])
+      k.wire([osc, 'out'], [g, 'in1'])
+      k.wire([t, 'gate'], [g, 'strike1'])
+      roomy(k, [g, 'out1'], 0.25)
+    },
+  },
+  wave: {
+    howTo: 'Long notes slowly morphing through WAVE’s eight tables, an LFO on its WAVE CV: a pad that never sits still. Turn WAVE and CV AMT.',
+    build(k) {
+      const m = melody(k, { phrase: PHRASES.slow, rate: 'x1' })
+      const lfo = k.add('lfo', { rate: 0.08 })
+      const v = voice(k, m.pitch, m.gate, { osc: { type: 'wave', params: { wave: 2, wamt: 0.8 }, out: 'out' }, filter: { type: 'vcf', params: { cutoff: 2400, res: 0.15, cv: 0.2 }, out: 'lp2' }, env: { a: 0.4, d: 1, s: 0.8, r: 1.2 } })
+      k.wire([lfo, 'tri'], [v.osc, 'wcv'])
+      roomy(k, v.out, 0.3)
+    },
+  },
+  sub: {
+    howTo: 'A techno bass: a pulse an octave down, SUB adding square waves one and two octaves below it, a kick on the beat. Turn the SUB mix to feel the floor shake.',
+    build(k) {
+      const m = melody(k, { notes: [0, 0, 0, 0, 0, 0, 3, 0], gates: [0, 1, 1, 0, 1, 1, 0, 1], rate: 'x4', octave: -1, bpm: 126 })
+      const vco = k.add('vco', { pw: 0.3 })
       const sub = k.add('sub', { lvl: 0.7 })
       k.wire(m.pitch, [vco, 'voct'])
       k.wire([vco, 'sqr'], [sub, 'in'])
-      toOut(k, voice(k, null, m.gate, { audio: [sub, 'mix'] }).out)
+      const bass = voice(k, null, m.gate, { audio: [sub, 'mix'], env: { d: 0.12, s: 0.3, r: 0.06 } })
+      const kick = k.add('kick', { decay: 0.4, punch: 0.7 })
+      k.wire([m.clock, 'x1'], [kick, 'trig'])
+      toOut(k, mix(k, [bass.out, [kick, 'out']], [0.7, 0.75]))
     },
   },
   noise: {
-    howTo: 'Noise through a resonant band-pass that follows the melody: pitched wind.',
+    howTo: 'Surf: pink noise swelling and falling through a filter, one slow LFO opening both the filter and the level, like waves breaking. Turn the LFO RATE.',
     build(k) {
-      const m = melody(k, { bpm: 90 })
       const n = k.add('noise')
-      const v = voice(k, null, m.gate, {
-        audio: [n, 'white'],
-        filter: { type: 'svf', params: { cutoff: 400, res: 0.9, cv: 0.2 }, out: 'bp' },
-        env: { a: 0.02, d: 0.4, s: 0.4, r: 0.4 },
-      })
-      k.wire(m.pitch, [v.filter, 'voct'])
-      toOut(k, v.out)
+      const lfo = k.add('lfo', { rate: 0.09 })
+      const f = k.add('svf', { cutoff: 900, res: 0.15, cv: 0.45 })
+      const vca = k.add('vca', { gain: 0.65, cv: 0.4 })
+      k.wire([n, 'pink'], [f, 'in'])
+      k.wire([lfo, 'sin'], [f, 'cv'])
+      k.wire([f, 'lp'], [vca, 'in'])
+      k.wire([lfo, 'sin'], [vca, 'cv'])
+      roomy(k, [vca, 'out'], 0.35, 0.85)
     },
   },
 }

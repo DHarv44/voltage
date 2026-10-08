@@ -4,6 +4,7 @@ import { fits } from '../layout'
 import { sanitize } from '../persist'
 import type { Patch } from '../types'
 import { CONTROL_STARTERS } from './control'
+import { EFFECT_STARTERS } from './effects'
 import { Kit } from './kit'
 import { OTHER_STARTERS } from './other'
 import { PROCESSOR_STARTERS } from './processors'
@@ -17,6 +18,7 @@ export type { Starter } from './types'
 export const STARTERS: Record<string, Starter> = {
   ...SOURCE_STARTERS,
   ...PROCESSOR_STARTERS,
+  ...EFFECT_STARTERS,
   ...CONTROL_STARTERS,
   ...RHYTHM_STARTERS,
   ...OTHER_STARTERS,

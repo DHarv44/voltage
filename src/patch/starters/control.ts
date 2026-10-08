@@ -1,10 +1,12 @@
-import { band, beat, chords, melody, mix, toOut, tune, voice, type Jack, type Kit } from './kit'
+import { beat, bits, chords, melody, mix, toOut, voice, type Jack, type Kit } from './kit'
+import { GROOVES, PHRASES } from './material'
 import type { Starter } from './types'
 
-/** Random notes in a scale: a CV (0..~1 V) quantised to a pentatonic. */
-function inKey(k: Kit, cv: Jack, scale = 4, depth = 0.25): Jack {
+/** Random notes in a key: a CV (0..~1 V) quantised to D dorian (minor with a
+ *  bright sixth: never the pentatonic "pop hook"). */
+function inKey(k: Kit, cv: Jack, depth = 0.25): Jack {
   const att = k.add('atten', { a: depth })
-  const q = k.add('quant', { scale })
+  const q = k.add('quant', { scale: 3, trans: 2 })
   k.wire(cv, [att, 'a'])
   k.wire([att, 'a'], [q, 'in'])
   return [q, 'out']
@@ -34,7 +36,7 @@ function drums(k: Kit, kick?: Jack, snare?: Jack, hat?: Jack): Jack {
 /** A sound that a simulation's x / gate plays: notes in key on a pluck. */
 function played(k: Kit, pitch: Jack, gate: Jack) {
   const h = k.add('harp', { sustain: 1.2 })
-  k.wire(inKey(k, pitch, 4, 0.12), [h, 'voct'])
+  k.wire(inKey(k, pitch, 0.12), [h, 'voct'])
   k.wire(gate, [h, 'trig'])
   const p = k.add('plate', { mix: 0.3 })
   k.wire([h, 'out'], [p, 'in'])
@@ -42,7 +44,13 @@ function played(k: Kit, pitch: Jack, gate: Jack) {
 }
 
 export const CONTROL_STARTERS: Record<string, Starter> = {
-  adsr: { howTo: 'The ADSR shapes every note. Try a slow ATTACK and long RELEASE.', build: (k) => toOut(k, tune(k).out) },
+  adsr: {
+    howTo: 'Long notes with a slow ATTACK and a long RELEASE, so you hear the ADSR’s whole shape. Turn A, D, S and R and listen to each part change.',
+    build(k) {
+      const m = melody(k, { phrase: PHRASES.slow, gates: [1, 1, 0, 1, 1, 0, 1, 0] })
+      toOut(k, voice(k, m.pitch, m.gate, { env: { a: 0.35, d: 0.6, s: 0.55, r: 1.2 }, filter: { type: 'vcf', params: { cutoff: 900, res: 0.25, cv: 0.4 }, out: 'lp4' } }).out)
+    },
+  },
   func: {
     howTo: 'FUNCTION as the envelope: each note rises and falls. Turn RISE, FALL and SHAPE.',
     build(k) {
@@ -66,7 +74,7 @@ export const CONTROL_STARTERS: Record<string, Starter> = {
   lfo: {
     howTo: 'An LFO sweeping the filter: a wobble bass. Turn RATE.',
     build(k) {
-      const m = melody(k, { octave: -1, gates: [1, 1, 1, 1, 1, 1, 1, 1] })
+      const m = melody(k, { phrase: PHRASES.dub, gates: [1, 1, 1, 1, 1, 1, 1, 1], rate: 'x1' })
       const lfo = k.add('lfo', { rate: 3 })
       toOut(k, voice(k, m.pitch, m.gate, { filterCv: [lfo, 'sin'], filter: { type: 'vcf', params: { cutoff: 500, res: 0.6, cv: 0.5 }, out: 'lp4' }, env: { s: 0.8 } }).out)
     },
@@ -80,17 +88,40 @@ export const CONTROL_STARTERS: Record<string, Starter> = {
     },
   },
   sh: {
-    howTo: 'SAMPLE & HOLD picks a random note on every clock: the classic computer bleeps.',
+    howTo: 'SAMPLE & HOLD sets the filter to a new random cutoff on every 16th: the bubbling seventies "computer" sound. Turn the filter’s RESONANCE and the CLOCK.',
     build(k) {
-      const c = k.add('clock', { bpm: 120 })
+      const c = k.add('clock', { bpm: 112 })
       const n = k.add('noise')
       const sh = k.add('sh')
       k.wire([n, 'white'], [sh, 'in'])
-      k.wire([c, 'x2'], [sh, 'trig'])
-      toOut(k, voice(k, inKey(k, [sh, 'out'], 4, 0.2), [c, 'x2']).out)
+      k.wire([c, 'x4'], [sh, 'trig'])
+      const v = voice(k, null, [c, 'x4'], {
+        osc: { type: 'vco', params: { coarse: -1 }, out: 'saw' },
+        filter: { type: 'vcf', params: { cutoff: 700, res: 0.78, cv: 0.55 }, out: 'lp4' },
+        filterCv: [sh, 'out'],
+        env: { d: 0.12, s: 0.35, r: 0.08 },
+      })
+      const d = k.add('bbd', { time: 0.4, fb: 0.35, mix: 0.25 })
+      k.wire(v.out, [d, 'in'])
+      toOut(k, [d, 'out'], undefined, 0.75)
     },
   },
-  clock: { howTo: 'CLOCK drives a sequence and a beat. Turn BPM.', build: (k) => toOut(k, band(k)) },
+  clock: {
+    howTo: 'Each CLOCK output drives a part: 1/4 the kick, 1/16 the hats, 1/8 the bassline, 1/2 a half-time snare, BAR an open hat. Turn TEMPO; everything follows.',
+    build(k) {
+      const c = k.add('clock', { bpm: 118 })
+      const kick = k.add('kick', { decay: 0.45 })
+      const snare = k.add('snare')
+      const hats = k.add('hats', { chd: 0.03, ohd: 0.6 })
+      k.wire([c, 'x1'], [kick, 'trig'])
+      k.wire([c, 'd2'], [snare, 'trig'])
+      k.wire([c, 'x4'], [hats, 'ch'])
+      k.wire([c, 'bar'], [hats, 'oh'])
+      const m = melody(k, { clock: c, phrase: PHRASES.dub, rate: 'x2' })
+      const bass = voice(k, m.pitch, m.gate, { env: { d: 0.2, s: 0.4 } })
+      toOut(k, mix(k, [[kick, 'out'], [snare, 'out'], [hats, 'mix'], bass.out], [0.8, 0.5, 0.35, 0.6]))
+    },
+  },
   div: {
     howTo: 'One clock divided into polyrhythms: ÷2 kicks, ÷3 snares, every beat on the hats.',
     build(k) {
@@ -100,7 +131,17 @@ export const CONTROL_STARTERS: Record<string, Starter> = {
       toOut(k, drums(k, [d, 'd2'], [d, 'd3'], [c, 'x2']))
     },
   },
-  seq8: { howTo: 'SEQ-8 plays the melody. Turn the step knobs and gate switches.', build: (k) => toOut(k, tune(k).out) },
+  seq8: {
+    howTo: 'SEQ-8 running a Berlin-school sequence in 16ths, a slow LFO opening the filter, a dotted echo behind it. Turn a step knob while it plays; flip the gate switches; shorten LENGTH.',
+    build(k) {
+      const m = melody(k, { phrase: PHRASES.berlin })
+      const lfo = k.add('lfo', { rate: 0.07 })
+      const v = voice(k, m.pitch, m.gate, { filter: { type: 'vcf', params: { cutoff: 1100, res: 0.55, cv: 0.3 }, out: 'lp4' }, filterCv: [lfo, 'tri'], env: { d: 0.15, s: 0.45, r: 0.1 } })
+      const d = k.add('bbd', { time: 0.4, fb: 0.45, mix: 0.3 })
+      k.wire(v.out, [d, 'in'])
+      toOut(k, [d, 'out'], undefined, 0.8)
+    },
+  },
   arp: {
     howTo: 'Hold a chord on your keyboard (keys A–K): the ARP plays it up and down. Try LATCH.',
     played: true,
@@ -171,7 +212,19 @@ export const CONTROL_STARTERS: Record<string, Starter> = {
       toOut(k, mix(k, [[kick, 'out'], [snare, 'out'], [hats, 'mix'], [tom, 'out']], [0.8, 0.6, 0.45, 0.6]))
     },
   },
-  tr16: { howTo: 'TR-16 sequencing a kit. Click steps to edit; try SWING.', build: (k) => toOut(k, beat(k).out) },
+  tr16: {
+    howTo: 'TR-16 chaining two patterns (A→B): a house groove, then its fill. Click steps to edit; switch PATTERN; try SWING and the ACC row.',
+    build(k) {
+      const g = GROOVES.house
+      const b = beat(k, {
+        groove: g,
+        swing: 0.15,
+        // pattern B: the same groove, the last beat broken into a snare roll
+        tracks: { pat: 2, b0: bits(0, 4, 8, 11), b1: bits(4, 12, 13, 14, 15), b2: bits(2, 6, 10), b8: bits(0, 15) },
+      })
+      toOut(k, b.out)
+    },
+  },
   euclid: {
     howTo: 'Two Euclidean rhythms on kick and hats. Turn the HITS knobs.',
     build(k) {
@@ -187,7 +240,7 @@ export const CONTROL_STARTERS: Record<string, Starter> = {
       const c = k.add('clock', { bpm: 110 })
       const t = k.add('turing', { change: 0.2 })
       k.wire([c, 'x2'], [t, 'clk'])
-      toOut(k, voice(k, inKey(k, [t, 'cv'], 4, 0.25), [t, 'gate']).out)
+      toOut(k, voice(k, inKey(k, [t, 'cv'], 0.25), [t, 'gate']).out)
     },
   },
   bounce: {
@@ -221,7 +274,7 @@ export const CONTROL_STARTERS: Record<string, Starter> = {
     howTo: 'The Game of Life plays a melody from its living cells. Reseed it by clicking.',
     build(k) {
       const c = k.add('clock', { bpm: 100 })
-      const l = k.add('life', { scale: 4 })
+      const l = k.add('life', { scale: 3 })
       k.wire([c, 'x2'], [l, 'clk'])
       const h = k.add('harp')
       k.wire([l, 'pitch'], [h, 'voct'])
@@ -234,13 +287,14 @@ export const CONTROL_STARTERS: Record<string, Starter> = {
     build(k) {
       const c = k.add('clock', { bpm: 104 })
       const f = k.add('flock')
-      toOut(k, voice(k, inKey(k, [f, 'x'], 4, 0.15), [c, 'x2'], { filterCv: [f, 'spread'] }).out)
+      toOut(k, voice(k, inKey(k, [f, 'x'], 0.15), [c, 'x2'], { filterCv: [f, 'spread'] }).out)
     },
   },
   chaos: {
     howTo: 'A double pendulum plays: its swing picks notes, its crossings trigger them. Kick it.',
     build(k) {
-      const c = k.add('chaos', { energy: 0.8 })
+      // fast and energetic, so the pendulum flips (and plays) from the first second
+      const c = k.add('chaos', { energy: 0.95, rate: 1.6 })
       played(k, [c, 'x'], [c, 'gate'])
     },
   },
@@ -250,7 +304,7 @@ export const CONTROL_STARTERS: Record<string, Starter> = {
       const c = k.add('clock', { bpm: 96 })
       const e = k.add('ecosystem', { rate: 1 })
       const h = k.add('harp')
-      k.wire(inKey(k, [e, 'prey'], 4, 0.1), [h, 'voct'])
+      k.wire(inKey(k, [e, 'prey'], 0.1), [h, 'voct'])
       k.wire([c, 'x2'], [h, 'trig'])
       const d = drums(k, [e, 'boom'], [e, 'crash'])
       toOut(k, mix(k, [[h, 'out'], d], [0.7, 0.7]))

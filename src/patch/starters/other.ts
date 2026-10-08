@@ -1,4 +1,5 @@
 import { band, beat, melody, mix, toOut, tune, voice, type Kit } from './kit'
+import { GROOVES, PHRASES } from './material'
 import type { Starter } from './types'
 
 /** The tune, plus a module that does its job beside it (no audio of its own). */
@@ -20,7 +21,19 @@ function visionRig(k: Kit, type: 'vision' | 'visioncore'): string {
 }
 
 export const OTHER_STARTERS: Record<string, Starter> = {
-  mixer: { howTo: 'A beat and a tune mixed together. Turn the channel levels.', build: (k) => toOut(k, band(k)) },
+  mixer: {
+    howTo: 'Three parts on MIX: drums on 1, a dub bass on 2, a slow lead on 3. Balance them with the channel levels; INV is the whole mix upside down.',
+    build(k) {
+      const b = beat(k, { groove: GROOVES.onedrop, level: 0.9 })
+      const bass = melody(k, { clock: b.clock, phrase: PHRASES.dub })
+      const lead = melody(k, { clock: b.clock, phrase: PHRASES.slow, rate: 'x2' })
+      const m = k.add('mixer', { l1: 0.75, l2: 0.7, l3: 0.45, l4: 0 })
+      k.wire(b.out, [m, 'in1'])
+      k.wire(voice(k, bass.pitch, bass.gate, { env: { d: 0.3, s: 0.6 } }).out, [m, 'in2'])
+      k.wire(voice(k, lead.pitch, lead.gate, { osc: { type: 'vco', out: 'tri' }, env: { a: 0.02, s: 0.6, r: 0.4 } }).out, [m, 'in3'])
+      toOut(k, [m, 'out'])
+    },
+  },
   smix: {
     howTo: 'A beat and a tune on the stereo mixer, with a plate on the send. Pan them; turn SEND.',
     build(k) {
@@ -58,10 +71,10 @@ export const OTHER_STARTERS: Record<string, Starter> = {
     },
   },
   glue: {
-    howTo: 'A beat and a tune through GLUE. Lower THRESHOLD to squeeze it; watch the meter; try AUTO release and MIX.',
+    howTo: 'GLUE on the drum bus: a breakbeat squeezed so the kit hits as one. Lower THRESHOLD and watch the meter; slow ATTACK lets the transients punch through; MIX blends it in parallel.',
     build(k) {
-      const g = k.add('glue', { thresh: -16, makeup: 5 })
-      k.wire(band(k, 118), [g, 'l'])
+      const g = k.add('glue', { thresh: -20, ratio: 1, att: 3, rel: 4, makeup: 6 })
+      k.wire(beat(k, { groove: GROOVES.breakbeat, level: 0.85 }).out, [g, 'l'])
       toOut(k, [g, 'l'], [g, 'r'])
     },
   },
@@ -74,15 +87,18 @@ export const OTHER_STARTERS: Record<string, Starter> = {
     },
   },
   djmix: {
-    howTo: 'A beat on deck A and a tune on deck B. Slide the CROSSFADER; try the FILTER knobs.',
+    howTo: 'Two tracks in sync: a house groove with a dub bass on deck A, an acid breakbeat on deck B. Slide the CROSSFADER to mix from one to the other; kill the LOW on one while you bring the other in.',
     build(k) {
-      const b = beat(k)
-      const m = melody(k, { clock: b.clock })
-      const v = voice(k, m.pitch, m.gate)
+      const a = beat(k, { groove: GROOVES.house })
+      const dub = melody(k, { clock: a.clock, phrase: PHRASES.dub, octave: -1 })
+      const deckA = mix(k, [a.out, voice(k, dub.pitch, dub.gate, { env: { d: 0.3, s: 0.5 } }).out], [0.8, 0.6])
+      const b = beat(k, { clock: a.clock, groove: GROOVES.breakbeat })
+      const acid = melody(k, { clock: a.clock, phrase: PHRASES.acid })
+      const deckB = mix(k, [b.out, voice(k, acid.pitch, acid.gate, { filter: { type: 'vcf', params: { cutoff: 300, res: 0.8, cv: 0.7 }, out: 'lp4' }, env: { d: 0.15, s: 0.05 } }).out], [0.8, 0.6])
       const dj = k.add('djmix')
-      k.wire(b.out, [dj, 'a'])
-      k.wire(v.out, [dj, 'b'])
-      toOut(k, [dj, 'l'], [dj, 'r'])
+      k.wire(deckA, [dj, 'a'])
+      k.wire(deckB, [dj, 'b'])
+      toOut(k, [dj, 'l'], [dj, 'r'], 0.75)
     },
   },
   mult: {
@@ -128,13 +144,17 @@ export const OTHER_STARTERS: Record<string, Starter> = {
   macro: { howTo: 'Press LEARN on a macro, turn some knobs on the tune, LEARN again: now one knob moves them all.', build: (k) => void beside(k, 'macro') },
   accident: { howTo: 'Press ROLL for a happy accident on the tune’s knobs (Ctrl+Z if you hate it). Try EVOLVE.', build: (k) => void beside(k, 'accident', { evolve: 0.2 }) },
   scope: {
-    howTo: 'The tune’s audio (CH1) and its envelope (CH2) on the scope.',
+    howTo: 'A pulse wave on CH1 whose width an LFO sweeps (watch the high part grow and shrink), and the LFO itself on CH2. Change TIME to zoom; turn the LFO RATE.',
     build(k) {
-      const t = tune(k)
+      const osc = k.add('vco', { coarse: -1, pw: 0.5, pwm: 0.8 })
+      const lfo = k.add('lfo', { rate: 0.25 })
+      k.wire([lfo, 'tri'], [osc, 'pwm'])
       const s = k.add('scope', { time: 0.02 })
-      k.wire(t.out, [s, 'ch1'])
-      k.wire([t.voice.env, 'env'], [s, 'ch2'])
-      toOut(k, t.out)
+      k.wire([osc, 'sqr'], [s, 'ch1'])
+      k.wire([lfo, 'tri'], [s, 'ch2'])
+      const vca = k.add('vca', { gain: 0.35 })
+      k.wire([osc, 'sqr'], [vca, 'in'])
+      toOut(k, [vca, 'out'])
     },
   },
   vision: { howTo: 'The tune plays the jellyfish: every note is a bell stroke, the pitch is its colour.', build: (k) => void visionRig(k, 'vision') },
@@ -169,12 +189,16 @@ export const OTHER_STARTERS: Record<string, Starter> = {
     },
   },
   waterfall: {
-    howTo: 'The band’s spectrum scrolling down the WATERFALL.',
+    howTo: 'A held saw through a resonant filter that a slow LFO sweeps up and down: each harmonic lights up in turn as the peak passes it, in the WATERFALL.',
     build(k) {
-      const b = band(k)
+      const osc = k.add('vco', { coarse: -2 })
+      const f = k.add('vcf', { cutoff: 400, res: 0.9, cv: 0.7 })
+      const lfo = k.add('lfo', { rate: 0.06 })
+      k.wire([osc, 'saw'], [f, 'in'])
+      k.wire([lfo, 'tri'], [f, 'cv'])
       const w = k.add('waterfall')
-      k.wire(b, [w, 'in'])
-      toOut(k, b)
+      k.wire([f, 'lp4'], [w, 'in'])
+      toOut(k, [f, 'lp4'])
     },
   },
   lightshow: {

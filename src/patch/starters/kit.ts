@@ -1,6 +1,7 @@
 import { SPECS } from '../../modules'
 import { RackBuilder, st } from '../presets/builder'
 import type { Patch } from '../types'
+import type { Groove, Phrase } from './material'
 
 /** A jack on a module in the rig: [module id, jack id]. */
 export type Jack = readonly [string, string]
@@ -36,9 +37,10 @@ export class Kit {
   }
 }
 
-/** A minor-pentatonic phrase (semitones), and which steps play. */
-export const PHRASE = [0, 3, 7, 10, 12, 10, 7, 3]
-export const PHRASE_GATES = [1, 1, 1, 0, 1, 1, 0, 1]
+/** The default phrase: a natural-minor line that walks (semitones), and
+ *  which steps play. Rigs with a job of their own pick from material.ts. */
+export const PHRASE = [0, 2, 3, 5, 7, 5, 3, 2]
+export const PHRASE_GATES = [1, 1, 1, 0, 1, 1, 1, 0]
 
 export interface Melody {
   clock: string
@@ -52,8 +54,9 @@ export interface Melody {
  *  semitones). `rate`: which clock output steps it (x2 = eighths). */
 export function melody(
   k: Kit,
-  o: { bpm?: number; notes?: number[]; gates?: number[]; rate?: 'x1' | 'x2' | 'x4'; octave?: number; clock?: string } = {},
+  opts: { bpm?: number; notes?: number[]; gates?: number[]; rate?: 'x1' | 'x2' | 'x4'; octave?: number; clock?: string; phrase?: Phrase } = {},
 ): Melody {
+  const o = { ...opts.phrase, ...opts }
   const clock = o.clock ?? k.add('clock', { bpm: o.bpm ?? 110 })
   const notes = o.notes ?? PHRASE
   const gates = o.gates ?? PHRASE_GATES
@@ -65,6 +68,16 @@ export function melody(
   const seq = k.add('seq8', p)
   k.wire([clock, o.rate ?? 'x2'], [seq, 'clk'])
   return { clock, seq, pitch: [seq, 'cv'], gate: [seq, 'gate'], trig: [seq, 'trig'] }
+}
+
+/** SEQ-8 step params for a list of semitones (every step's gate on). */
+export function steps(notes: number[], octave = 0): Record<string, number> {
+  const p: Record<string, number> = {}
+  notes.forEach((n, i) => {
+    p[`s${i + 1}`] = st(n + 12 * octave)
+    p[`g${i + 1}`] = 1
+  })
+  return p
 }
 
 export interface VoiceOpts {
@@ -137,19 +150,46 @@ export const EIGHTHS = bits(2, 6, 10, 14)
 /** A beat: CLOCK (16ths) → TR-16 → kick, snare, hats → mixer. Tracks 4–8 are
  *  silent unless `tracks` gives them a pattern (a3…a7 → T4…T8), for extra
  *  drums patched from `tr`. Pass a clock to share one. */
-export function beat(k: Kit, o: { bpm?: number; clock?: string; level?: number; tracks?: Record<string, number> } = {}) {
-  const clock = o.clock ?? k.add('clock', { bpm: o.bpm ?? 110 })
-  const tr = k.add('tr16', { a0: FOUR, a1: BACKBEAT, a2: EIGHTHS, a3: 0, a4: 0, a5: 0, a6: 0, a7: 0, a8: FOUR, ...o.tracks })
-  const kick = k.add('kick', { decay: 0.55, punch: 0.6 })
-  const snare = k.add('snare')
-  const hats = k.add('hats', { chd: 0.04 })
+export function beat(
+  k: Kit,
+  o: {
+    bpm?: number
+    clock?: string
+    level?: number
+    tracks?: Record<string, number>
+    groove?: Groove
+    swing?: number
+    kick?: Record<string, number>
+    snare?: Record<string, number>
+    hats?: Record<string, number>
+  } = {},
+) {
+  const g = o.groove
+  const clock = o.clock ?? k.add('clock', { bpm: o.bpm ?? g?.bpm ?? 110 })
+  const tr = k.add('tr16', {
+    a0: g?.kick ?? FOUR,
+    a1: g?.snare ?? BACKBEAT,
+    a2: g?.hat ?? EIGHTHS,
+    a3: 0,
+    a4: 0,
+    a5: 0,
+    a6: 0,
+    a7: 0,
+    a8: g?.accent ?? FOUR,
+    swing: o.swing ?? 0,
+    ...o.tracks,
+  })
+  const kick = k.add('kick', { decay: 0.55, punch: 0.6, ...o.kick })
+  const snare = k.add('snare', o.snare)
+  const hats = k.add('hats', { chd: 0.04, ...o.hats })
   k.wire([clock, 'x4'], [tr, 'clk'])
   k.wire([tr, 't1'], [kick, 'trig'])
   k.wire([tr, 't2'], [snare, 'trig'])
   k.wire([tr, 't3'], [hats, 'ch'])
   k.wire([tr, 'acc'], [kick, 'acc'])
+  k.wire([tr, 'acc'], [snare, 'acc'])
   const l = o.level ?? 0.7
-  return { clock, tr, out: mix(k, [[kick, 'out'], [snare, 'out'], [hats, 'mix']], [l, l * 0.8, l * 0.5]) }
+  return { clock, tr, kick, snare, hats, out: mix(k, [[kick, 'out'], [snare, 'out'], [hats, 'mix']], [l, l * 0.8, l * 0.5]) }
 }
 
 /** Chords that play themselves: PROGRESSION moves to a new chord every bar

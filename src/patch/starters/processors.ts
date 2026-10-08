@@ -1,76 +1,94 @@
-import { beat, melody, toOut, tune, voice, type Jack, type Kit } from './kit'
+import { melody, mix, toOut, voice, type Jack, type Kit } from './kit'
+import { PHRASES } from './material'
+import { pad } from './effects'
 import type { Starter } from './types'
 
-/** The tune through one effect: `outs` are its output jacks (two = stereo). */
-function through(k: Kit, type: string, params: Record<string, number> = {}, outs: string[] = ['out'], input = 'in'): string {
-  const t = tune(k)
-  const fx = k.add(type, params)
-  k.wire(t.out, [fx, input])
-  toOut(k, [fx, outs[0]], outs[1] ? [fx, outs[1]] : undefined)
-  return fx
+/** Three oscillators holding an A-minor chord (A, C, E), mixed: a drone for
+ *  modules that shape a steady sound rather than notes. */
+function heldChord(k: Kit, wave = 'saw'): Jack {
+  const oscs = [-3, 0, 4].map((semi, i): Jack => {
+    const o = k.add('vco', { coarse: semi / 12 - 1, fine: (i - 1) * 0.04 })
+    return [o, wave]
+  })
+  return mix(k, oscs, [0.4, 0.4, 0.4])
 }
 
-/** The voice rig with a different filter in it. */
-function filtered(k: Kit, type: string, out: string, params: Record<string, number>): void {
-  const m = melody(k)
-  toOut(k, voice(k, m.pitch, m.gate, { filter: { type, params, out } }).out)
-}
-
-/** A sustained, brighter line (for pedals that want a guitar-ish signal). */
-function lead(k: Kit): Jack {
-  const m = melody(k, { bpm: 100 })
-  return voice(k, m.pitch, m.gate, { osc: { type: 'vco', out: 'sqr' }, filter: { type: 'vcf', params: { cutoff: 1800, res: 0.2 }, out: 'lp2' }, env: { s: 0.7, r: 0.3 } }).out
-}
-
-/** A pedal on the lead. Pedals run hot (guitar level, gain stages), so the
- *  output sits lower to land near the other rigs' loudness. */
-function pedal(k: Kit, type: string, params: Record<string, number> = {}, vol = 0.4): void {
-  const src = lead(k)
-  const p = k.add(type, params)
-  k.wire(src, [p, 'in'])
-  toOut(k, [p, 'out'], undefined, vol)
+/** Notes a Turing machine invents in D dorian, with its gate: endless, but looping. */
+function wandering(k: Kit, bpm: number, change = 0.15): { pitch: Jack; gate: Jack; clock: string } {
+  const c = k.add('clock', { bpm })
+  const t = k.add('turing', { change })
+  const att = k.add('atten', { a: 0.22 })
+  const q = k.add('quant', { scale: 3, trans: 2 })
+  k.wire([c, 'x2'], [t, 'clk'])
+  k.wire([t, 'cv'], [att, 'a'])
+  k.wire([att, 'a'], [q, 'in'])
+  return { pitch: [q, 'out'], gate: [t, 'gate'], clock: c }
 }
 
 export const PROCESSOR_STARTERS: Record<string, Starter> = {
-  vcf: { howTo: 'A sequenced voice through the LADDER filter. Turn CUTOFF and RESONANCE.', build: (k) => filtered(k, 'vcf', 'lp4', { cutoff: 600, res: 0.5 }) },
-  svf: { howTo: 'A sequenced voice through the SVF. Try its LP, BP and HP outputs.', build: (k) => filtered(k, 'svf', 'lp', { cutoff: 700, res: 0.5 }) },
-  ms: { howTo: 'A sequenced voice through the MS-12 filter. Push PEAK.', build: (k) => filtered(k, 'ms', 'lp', { cutoff: 900, peak: 0.5 }) },
-  lpg: {
-    howTo: 'A triangle wave struck through the LPG on every note: the west-coast "bongo". Turn DECAY; try the MODE switch.',
+  vcf: {
+    howTo: 'An acid bassline through the LADDER: high resonance, a big envelope sweep and a touch of glide. Turn CUTOFF and RESONANCE while it plays.',
     build(k) {
-      const m = melody(k, { notes: [0, 7, 3, 10, 12, 5, 7, 15], gates: [1, 1, 1, 1, 1, 1, 1, 1] })
+      const m = melody(k, { phrase: PHRASES.acid })
+      const glide = k.add('slew', { rise: 0.035, fall: 0.035 })
+      k.wire(m.pitch, [glide, 'in'])
+      const v = voice(k, [glide, 'out'], m.gate, { filter: { type: 'vcf', params: { cutoff: 260, res: 0.82, cv: 0.75, drive: 1.6 }, out: 'lp4' }, env: { d: 0.18, s: 0.05, r: 0.08 } })
+      const kick = k.add('kick', { decay: 0.4 })
+      k.wire([m.clock, 'x1'], [kick, 'trig'])
+      toOut(k, mix(k, [v.out, [kick, 'out']], [0.75, 0.7]))
+    },
+  },
+  svf: {
+    howTo: 'A chord pad through the SVF’s BAND-PASS, a slow LFO sweeping it: almost a vowel. Try the LP, HP and NOTCH outputs, and RESONANCE.',
+    build(k) {
+      const f = k.add('svf', { cutoff: 700, res: 0.75, cv: 0.6 })
+      const lfo = k.add('lfo', { rate: 0.12 })
+      k.wire(pad(k, { a: 0.2 }), [f, 'in'])
+      k.wire([lfo, 'tri'], [f, 'cv'])
+      toOut(k, [f, 'bp'])
+    },
+  },
+  ms: {
+    howTo: 'A growling bass through the MS-12 with PEAK near self-oscillation: it screams on every note. Push PEAK further; try the HP output.',
+    build(k) {
+      const m = melody(k, { phrase: { ...PHRASES.dub, octave: -1 } })
+      toOut(k, voice(k, m.pitch, m.gate, { filter: { type: 'ms', params: { cutoff: 420, peak: 1.05, cv: 0.65 }, out: 'lp' }, env: { d: 0.3, s: 0.2, r: 0.15 } }).out)
+    },
+  },
+  lpg: {
+    howTo: 'A Turing machine invents notes in D dorian and strikes the LPG on each: the woody west-coast "bongo". Turn DECAY; try the MODE switch.',
+    build(k) {
+      const w = wandering(k, 108)
       const osc = k.add('vco', { coarse: 1 })
       const g = k.add('lpg', { off1: 0, amt1: 0, dec1: 0.3 })
       const plate = k.add('plate', { decay: 0.6, mix: 0.3 })
-      k.wire(m.pitch, [osc, 'voct'])
+      k.wire(w.pitch, [osc, 'voct'])
       k.wire([osc, 'tri'], [g, 'in1'])
-      k.wire(m.trig, [g, 'strike1'])
+      k.wire(w.gate, [g, 'strike1'])
       k.wire([g, 'out1'], [plate, 'in'])
       toOut(k, [plate, 'l'], [plate, 'r'])
     },
   },
-  vocoder: {
-    howTo: 'A beat vocoded onto the built-in carrier, which follows a bassline: the drums sing it. Turn SHIFT and Q; patch AUDIO IN to MOD to make it talk.',
+  vca: {
+    howTo: 'A held chord through the VCA, an LFO on its CV: tremolo. Turn the LFO RATE; LEVEL sets how far it closes; RESPONSE changes the throb.',
     build(k) {
-      const b = beat(k, { bpm: 108 })
-      const m = melody(k, { clock: b.clock, notes: [0, 0, 3, 3, 7, 7, 5, 5], rate: 'x1', octave: -1 })
-      const v = k.add('vocoder', { tune: 0, rel: 0.09, mix: 0.25, noise: 0.15 })
-      k.wire(b.out, [v, 'mod'])
-      k.wire(m.pitch, [v, 'voct'])
-      toOut(k, [v, 'out'])
+      const vca = k.add('vca', { gain: 0.5, cv: 0.5 })
+      const lfo = k.add('lfo', { rate: 5 })
+      k.wire(heldChord(k, 'tri'), [vca, 'in'])
+      k.wire([lfo, 'sin'], [vca, 'cv'])
+      toOut(k, [vca, 'out'])
     },
   },
-  vca: { howTo: 'The VCA shapes each note with the envelope. Try GAIN for a drone.', build: (k) => toOut(k, tune(k).out) },
   vcamix: {
-    howTo: 'Two voices, each through its own VCA in VCA×4, mixed. Turn the levels.',
+    howTo: 'A lead and a bass, each through its own VCA in VCA×4 with its own envelope, mixed. Turn the levels; unplug a CV to hold one open.',
     build(k) {
-      const m = melody(k)
-      const lo = melody(k, { clock: m.clock, notes: [0, 0, 7, 7, 5, 5, 3, 3], gates: [1, 0, 1, 0, 1, 0, 1, 0], rate: 'x1', octave: -1 })
+      const m = melody(k, { phrase: PHRASES.lead })
+      const lo = melody(k, { clock: m.clock, phrase: PHRASES.dub, rate: 'x1' })
       const a = k.add('vco')
       const b = k.add('vco')
-      const ea = k.add('adsr', { d: 0.25, s: 0.2 })
+      const ea = k.add('adsr', { d: 0.25, s: 0.4 })
       const eb = k.add('adsr', { d: 0.5, s: 0.5 })
-      const vm = k.add('vcamix', { lvl1: 0.35, lvl2: 0.4 })
+      const vm = k.add('vcamix', { lvl1: 0.12, lvl2: 0.16 })
       k.wire(m.pitch, [a, 'voct'])
       k.wire(lo.pitch, [b, 'voct'])
       k.wire(m.gate, [ea, 'gate'])
@@ -79,101 +97,69 @@ export const PROCESSOR_STARTERS: Record<string, Starter> = {
       k.wire([ea, 'env'], [vm, 'cv1'])
       k.wire([b, 'sqr'], [vm, 'in2'])
       k.wire([eb, 'env'], [vm, 'cv2'])
-      const f = k.add('vcf', { cutoff: 1200, res: 0.3 })
+      const f = k.add('vcf', { cutoff: 1400, res: 0.3 })
       k.wire([vm, 'mix'], [f, 'in'])
       toOut(k, [f, 'lp4'])
     },
   },
   fold: {
-    howTo: 'A sine folded by its own envelope: west-coast plucks. Turn FOLD.',
+    howTo: 'A sine bass folded harder by a slow LFO: the west-coast way to make harmonics without a filter. Turn FOLDS and SYMMETRY.',
     build(k) {
-      const m = melody(k)
+      const m = melody(k, { phrase: { ...PHRASES.dub, octave: -1 } })
       const osc = k.add('vco')
-      const fold = k.add('fold', { fold: 2, cv: 0.5 })
+      const lfo = k.add('lfo', { rate: 0.2 })
+      const fold = k.add('fold', { fold: 1.8, cv: 0.6 })
       const vca = k.add('vca', { gain: 0, cv: 1 })
-      const env = k.add('adsr', { d: 0.3, s: 0.1, r: 0.3 })
+      const env = k.add('adsr', { d: 0.5, s: 0.4, r: 0.3 })
       k.wire(m.pitch, [osc, 'voct'])
       k.wire(m.gate, [env, 'gate'])
       k.wire([osc, 'sin'], [fold, 'in'])
-      k.wire([env, 'env'], [fold, 'cv'])
+      k.wire([lfo, 'tri'], [fold, 'cv'])
       k.wire([fold, 'out'], [vca, 'in'])
       k.wire([env, 'env'], [vca, 'cv'])
       toOut(k, [vca, 'out'])
     },
   },
   ring: {
-    howTo: 'A voice ring-modulated by RING’s own oscillator, which follows the melody. Turn FREQ.',
+    howTo: 'Sine notes ring-modulated against RING’s own oscillator at an unrelated ratio: bells and gongs. Turn FREQ for different metals.',
     build(k) {
-      const m = melody(k)
+      const m = melody(k, { phrase: PHRASES.slow })
       const osc = k.add('vco')
-      const ring = k.add('ring', { freq: 330 })
+      const ring = k.add('ring', { freq: 615 })
       k.wire(m.pitch, [osc, 'voct'])
       k.wire(m.pitch, [ring, 'voct'])
-      k.wire([osc, 'tri'], [ring, 'x'])
-      toOut(k, voice(k, null, m.gate, { audio: [ring, 'out'] }).out)
+      k.wire([osc, 'sin'], [ring, 'x'])
+      const v = voice(k, null, m.trig, { audio: [ring, 'out'], filter: { type: 'vcf', params: { cutoff: 6000, res: 0 }, out: 'lp2' }, env: { a: 0.001, d: 1.6, s: 0, r: 1.6 } })
+      const p = k.add('plate', { decay: 0.7, mix: 0.3 })
+      k.wire(v.out, [p, 'in'])
+      toOut(k, [p, 'l'], [p, 'r'])
     },
   },
   slew: {
-    howTo: 'SLEW glides between the notes (portamento). Turn RISE and FALL.',
+    howTo: 'A lead with wide leaps, SLEW gliding between the notes (portamento). Turn RISE and FALL separately: slow up, quick down.',
     build(k) {
-      const m = melody(k)
-      const s = k.add('slew', { rise: 0.12, fall: 0.12 })
+      const m = melody(k, { phrase: PHRASES.lead })
+      const s = k.add('slew', { rise: 0.15, fall: 0.15 })
       k.wire(m.pitch, [s, 'in'])
-      toOut(k, voice(k, [s, 'out'], m.gate, { env: { s: 0.6 } }).out)
+      toOut(k, voice(k, [s, 'out'], m.gate, { filter: { type: 'vcf', params: { cutoff: 1800, res: 0.3 }, out: 'lp2' }, env: { s: 0.7 } }).out)
     },
   },
   quant: {
-    howTo: 'Random voltages snapped to a scale by QUANT. Change SCALE.',
+    howTo: 'Random voltages on every 16th, snapped into D dorian by QUANT: bleeps that always fit. Change SCALE; TRANSPOSE moves the key.',
     build(k) {
-      const c = k.add('clock', { bpm: 110 })
+      const c = k.add('clock', { bpm: 116 })
       const n = k.add('noise')
       const sh = k.add('sh')
-      const att = k.add('atten', { a: 0.15 })
-      const q = k.add('quant', { scale: 4 })
+      const att = k.add('atten', { a: 0.18 })
+      const q = k.add('quant', { scale: 3, trans: 2 })
       k.wire([n, 'white'], [sh, 'in'])
-      k.wire([c, 'x2'], [sh, 'trig'])
+      k.wire([c, 'x4'], [sh, 'trig'])
       k.wire([sh, 'out'], [att, 'a'])
       k.wire([att, 'a'], [q, 'in'])
-      toOut(k, voice(k, [q, 'out'], [c, 'x2']).out)
-    },
-  },
-  bbd: { howTo: 'The tune through the BBD echo. Turn TIME and FEEDBACK.', build: (k) => void through(k, 'bbd', { time: 0.36, fb: 0.5, mix: 0.4 }) },
-  tape: { howTo: 'The tune through the tape echo. Turn AGE and WOW.', build: (k) => void through(k, 'tape', { time: 0.36, fb: 0.5, mix: 0.4 }) },
-  spring: { howTo: 'The tune through the spring tank. Turn DECAY.', build: (k) => void through(k, 'spring', { decay: 0.6, mix: 0.4 }) },
-  plate: { howTo: 'The tune through the plate reverb, in stereo. Turn DECAY.', build: (k) => void through(k, 'plate', { decay: 0.7, mix: 0.4 }, ['l', 'r']) },
-  phaser: { howTo: 'The tune through the phaser. Turn RATE and FEEDBACK.', build: (k) => void through(k, 'phaser', { rate: 0.3, fb: 0.6 }) },
-  ensemble: { howTo: 'The tune through the string ensemble chorus, in stereo.', build: (k) => void through(k, 'ensemble', {}, ['l', 'r']) },
-  tune: {
-    howTo: 'A wobbly, out-of-tune voice pulled into key by TUNE. Turn SPEED: slow is natural, fast is robotic.',
-    build(k) {
-      const m = melody(k)
-      const lfo = k.add('lfo', { rate: 5 })
-      const osc = k.add('vco', { fm: 0.08 })
-      k.wire(m.pitch, [osc, 'voct'])
-      k.wire([lfo, 'sin'], [osc, 'fm'])
-      const v = voice(k, null, m.gate, { audio: [osc, 'saw'], env: { s: 0.6 } })
-      const t = k.add('tune', { scale: 4, speed: 0.05 })
-      k.wire(v.out, [t, 'in'])
-      toOut(k, [t, 'out'])
-    },
-  },
-  chamber: { howTo: 'The tune in the echo chamber. Drag the speaker and mic around the room.', build: (k) => void through(k, 'chamber', {}, ['l', 'r']) },
-  fuzz: { howTo: 'A lead through the FUZZ pedal. Stomp to bypass; turn FUZZ.', build: (k) => pedal(k, 'fuzz') },
-  wah: { howTo: 'A lead through the WAH in AUTO mode. Switch to FOOT and rock the treadle.', build: (k) => pedal(k, 'wah', { mode: 1, sens: 0.7 }, 0.28) },
-  octave: { howTo: 'A lead through the OCTAVE pedal. Turn UP and DOWN.', build: (k) => pedal(k, 'octave') },
-  chorus: { howTo: 'A lead through the CHORUS pedal.', build: (k) => pedal(k, 'chorus') },
-  echo: { howTo: 'A lead through the TAPE ECHO pedal. Turn RATE and FEEDBACK.', build: (k) => pedal(k, 'echo') },
-  lpedal: { howTo: 'A lead through the LOOPER pedal: stomp to record, stomp to loop, overdub.', build: (k) => pedal(k, 'lpedal') },
-  amp: { howTo: 'A lead through the VALVE AMP. Turn GAIN up for crunch.', build: (k) => pedal(k, 'amp', { gain: 0.6 }, 0.32) },
-  talkbox: {
-    howTo: 'A lead through the TALK BOX, its vowel swept by an LFO. Drag the mouth.',
-    build(k) {
-      const src = lead(k)
-      const lfo = k.add('lfo', { rate: 0.6 })
-      const tb = k.add('talkbox')
-      k.wire(src, [tb, 'in'])
-      k.wire([lfo, 'tri'], [tb, 'vowel'])
-      toOut(k, [tb, 'out'])
+      const v = voice(k, [q, 'out'], [c, 'x4'], { env: { d: 0.09, s: 0, r: 0.06 } })
+      const d = k.add('bbd', { time: 0.39, fb: 0.4, mix: 0.3 })
+      k.wire(v.out, [d, 'in'])
+      toOut(k, [d, 'out'], undefined, 0.85)
     },
   },
 }

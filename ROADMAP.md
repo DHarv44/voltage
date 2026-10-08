@@ -137,10 +137,14 @@ extend VOLTAGE.
   Jellyfish Dream (the jelly plays the melody) is the first-run rack.
 - README with a user guide, architecture and a how-to for adding modules.
 - **Ready-to-play rigs**: right-click any module in the library → that module wired up with everything
-  it needs to make music, added below the rack with a how-to toast (one undo step). All 111 modules;
-  built from shared blocks (melody, voice, beat, chords…) with auto-layout; startup checks every module
-  has one, and a headless check plays each and confirms sound reaches the speakers (played
-  instruments excepted).
+  it needs to make music, added below the rack with a how-to toast (one undo step). Every module, each
+  rig built around what that module is for: effects get material that shows them off (dub stabs into
+  the BBD, a string machine into ENSEMBLE, a breakbeat in the ECHO CHAMBER), pedals a plucked-string
+  "guitar" riff, drums a groove that features that drum (a trap 808 walking a bassline, disco hats,
+  a son clave on the rim), filters their signature sound (acid into the LADDER, a screaming MS-12, LPG
+  bongos). Phrases and grooves live in `starters/material.ts` (natural minor and dorian, no pentatonic
+  hooks). Startup checks every module has one; a headless check plays each and confirms sound reaches
+  the speakers at a sane level (played instruments excepted).
 - Row menu (right-click an empty rail → Remove row, with a move/remove/cancel prompt if it has modules).
 - **UI pass, standardised panels**: one metrics file for every control's geometry; stepped knobs show
   one tick per position; `packRows`/`spread` layout helpers; a dev-startup panel linter (overlaps,

@@ -1,13 +1,21 @@
-import { beat, bits, melody, mix, toOut, tune, voice, type Jack, type Kit } from './kit'
+import { beat, bits, melody, mix, steps, toOut, tune, voice, type Jack, type Kit } from './kit'
+import { GROOVES, type Groove } from './material'
 import type { Starter } from './types'
 
-/** The kit beat with one more drum: `tracks` are its TR-16 patterns (a3…a7 =
+/** A groove with one more drum: `tracks` are its TR-16 patterns (a3…a7 =
  *  T4…T8), `inputs` the drum's trigger inputs fed from those tracks in order. */
-function kitWith(k: Kit, type: string, tracks: Record<string, number>, inputs: string[], out = 'out', params: Record<string, number> = {}): void {
-  const b = beat(k, { tracks })
-  const d = k.add(type, params)
+function kitWith(
+  k: Kit,
+  type: string,
+  groove: Groove,
+  tracks: Record<string, number>,
+  inputs: string[],
+  o: { out?: string; params?: Record<string, number>; level?: number; mute?: Record<string, number> } = {},
+): void {
+  const b = beat(k, { groove, tracks: { ...tracks, ...o.mute } })
+  const d = k.add(type, o.params)
   Object.keys(tracks).forEach((a, i) => k.wire([b.tr, `t${Number(a.slice(1)) + 1}`], [d, inputs[i]]))
-  toOut(k, mix(k, [b.out, [d, out]], [0.8, 0.6]))
+  toOut(k, mix(k, [b.out, [d, o.out ?? 'out']], [0.8, o.level ?? 0.65]))
 }
 
 /** A POCKET drum machine running; the others follow its CLK. */
@@ -20,15 +28,40 @@ function pocketBand(k: Kit, with_?: 'pocketbass' | 'pocketmelody'): void {
 }
 
 export const RHYTHM_STARTERS: Record<string, Starter> = {
-  kick: { howTo: 'A kick on the beat with snare and hats. Turn TUNE, DECAY and PUNCH.', build: (k) => toOut(k, beat(k).out) },
-  snare: { howTo: 'A backbeat snare with kick and hats. Turn TONE and SNAPPY.', build: (k) => toOut(k, beat(k).out) },
-  hats: { howTo: 'Offbeat hats with kick and snare. Turn CLOSED and OPEN decay.', build: (k) => toOut(k, beat(k).out) },
-  clap: { howTo: 'A clap on the backbeat over the kit. Turn SPREAD.', build: (k) => kitWith(k, 'clap', { a3: bits(4, 12) }, ['trig']) },
-  // a fill on the last beat of the bar
-  tom: { howTo: 'A tom fill at the end of each bar. Switch to CONGA.', build: (k) => kitWith(k, 'tom', { a3: bits(12, 14, 15) }, ['trig'], 'out', { decay: 0.35 }) },
+  kick: {
+    howTo: 'A trap 808: a long, booming KICK whose TUNE input walks a bassline, one note per hit, under rattling hats. Turn DECAY and DRIVE.',
+    build(k) {
+      const b = beat(k, { groove: GROOVES.trap, kick: { decay: 1.4, punch: 0.3, drive: 0.35, tune: 44 }, hats: { chd: 0.03 } })
+      // each kick steps the next note of the 808 line
+      const notes = k.add('seq8', { len: 8, quant: 1, ...steps([0, 0, 3, -2, 0, 0, 5, 3]) })
+      k.wire([b.tr, 't1'], [notes, 'clk'])
+      k.wire([notes, 'cv'], [b.kick, 'tune'])
+      toOut(k, b.out)
+    },
+  },
+  snare: {
+    howTo: 'A breakbeat where the SNARE carries the groove: accented backbeats, quieter ghost notes between. Turn TONE and SNAPPY.',
+    build: (k) => toOut(k, beat(k, { groove: GROOVES.breakbeat, swing: 0.12, snare: { snappy: 0.75, tone: 0.5, decay: 0.2 }, level: 0.8 }).out),
+  },
+  hats: {
+    howTo: 'Disco hats: closed 16ths, an OPEN hat on every off-beat, each closed hit choking the open one. Turn CH and OH DECAY and METAL.',
+    build(k) {
+      const b = beat(k, { groove: { ...GROOVES.house, hat: bits(0, 1, 3, 4, 5, 7, 8, 9, 11, 12, 13, 15) }, tracks: { a3: bits(2, 6, 10, 14) }, hats: { ohd: 0.32, chd: 0.035 } })
+      k.wire([b.tr, 't4'], [b.hats, 'oh'])
+      toOut(k, b.out)
+    },
+  },
+  clap: {
+    howTo: 'A house groove with the CLAP on two and four instead of a snare. Turn SPREAD (how ragged the hands are) and DECAY.',
+    build: (k) => kitWith(k, 'clap', GROOVES.house, { a3: bits(4, 12) }, ['trig'], { mute: { a1: 0 }, params: { spread: 0.011 } }),
+  },
+  tom: {
+    howTo: 'The TOM in CONGA mode playing a tumbao over a four-to-the-floor: afro-house. Switch to TOM; turn TUNE and SWEEP.',
+    build: (k) => kitWith(k, 'tom', GROOVES.techno, { a3: bits(3, 6, 7, 11, 14, 15) }, ['trig'], { params: { mode: 1, tune: 210, decay: 0.3 } }),
+  },
   perc: {
-    howTo: 'Rimshots and cowbell over the kit. Turn the tunings.',
-    build: (k) => kitWith(k, 'perc', { a3: bits(3, 7, 11), a4: bits(6, 14) }, ['rim', 'bell'], 'mix'),
+    howTo: 'Latin percussion: the RIM plays a son clave, the COWBELL the off-beats. Turn the tunings and BELL DECAY.',
+    build: (k) => kitWith(k, 'perc', { ...GROOVES.house, bpm: 112 }, { a3: bits(0, 3, 6, 10, 12), a4: bits(2, 6, 10, 14) }, ['rim', 'bell'], { out: 'mix', mute: { a1: 0 } }),
   },
   pads: {
     howTo: 'Click (or tap) the pads to play kick, snare, clap and hats.',
