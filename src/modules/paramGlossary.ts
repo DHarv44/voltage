@@ -59,6 +59,7 @@ export const MODULE_TERMS: Record<string, ParamTerm[]> = {
   lattice: [
     { match: /^LOOP$/, what: 'How many columns this layer loops over before going round again.' },
     { match: /^RATE$/, what: 'How fast this layer steps (or its balls fall), against the tempo.' },
+    { match: /^SWING$/, what: 'Swings this layer: every other step comes late, for a shuffle (the other layers keep straight).' },
   ],
   pocket: [{ match: /^A PITCH$/, what: 'The selected sound’s pitch (hold a step to lock it there only).' }],
   pocketbass: [{ match: /^A TONE$/, what: 'Brightness: opens the filter (hold a step to lock it there only).' }],

@@ -371,8 +371,14 @@ Have: MONO-1, STUDIO-3, GROOVE-1, SKETCHBOOK, KIN-8, UNDERTONE, LOCKSTEP, LATTIC
        from SKETCHBOOK's engines; DRUMS: rows are its kit), OCTAVE, LOOP, RATE (1/4…1/32), VOLUME;
        rows follow SCALE in KEY; every note ripples out across the lights; drag to draw; CLK / RUN /
        RESET in, L1–L4 and L / R out.
-     - Phase 2: PUSH and SOLO modes, DRAW (play what you trace, then loop it), more layers (8–16),
-       per-layer swing, saved "pages" of the whole grid.
+     - Phase 2, first part (done): eight layers (L1–L4 keep their own outs; 5–8 only in L / R; the
+       layer buttons in two rows), per-layer SWING, and three modes: HOLD (our take on "push": every
+       lit dot is a held note, struck again each LOOP, dots lit meanwhile join in), SOLO (play the
+       lights by hand: row the note, across the velocity, held till the finger lifts or moves) and
+       DRAW (hold and trace: one cell per step of the layer from the moment you press, rests off the
+       lights, up to 32; plays as you draw, then loops; the trace's cells light up). Factory layer 5
+       is a drawn hill on GLASS, swung.
+     - Phase 2, still to do: saved "pages" of the whole grid.
   5. ~~**VL-Tone-style calculator synth**~~ (done: **TALLY**, 32 HP). Later: auto-play of the
      remembered tune with its note lengths, the calculator's memory keys.
 - **Also pinned**: OP-XY / OP-Z-style sequencer brain (could drive VISION), EP-133-style sampler-composer,

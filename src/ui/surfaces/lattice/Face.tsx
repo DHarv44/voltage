@@ -1,31 +1,22 @@
 import { useMemo, useRef, type PointerEvent } from 'react'
 import { telemetry } from '../../../audio/telemetry'
-import { BOUNCE, cellId, layerParams, LT_COLORS, LT_LAYERS, LT_MODES, LT_SIZE, LT_SOUNDS, LTL } from '../../../modules/specs/lattice'
+import { BOUNCE, cellId, DRAW, LT_COLORS, LT_LAYERS, LT_SIZE, LTL, SOLO } from '../../../modules/specs/lattice'
 import { actions, patchStore } from '../../../patch/store'
 import { PX } from '../../geometry'
 import { track } from '../../pointer'
-import { drawCanvasKnob, useCanvasKnobs, type CanvasKnob } from '../canvasKnob'
-import { RES, useFrame, type SurfaceProps } from '../common'
+import { drawCanvasKnob, useCanvasKnobs } from '../canvasKnob'
+import { RES, sendSurface, useFrame, type SurfaceProps } from '../common'
 import { Ripples } from './lights'
+import { sideButtons, sideHint, sideKnobs } from './side'
 
 const FAMILY = "Bahnschrift, 'Arial Narrow', sans-serif"
 const OFF = '#1a2430'
 
-interface Button {
-  label: string
-  x: number
-  y: number
-  w: number
-  h: number
-  color?: string
-  lit?: boolean
-  press: () => void
-}
-
 /** LATTICE's face: the 16 × 16 lights, then the selected layer's settings.
  *  Click (or drag across) lights to draw on the selected layer; in BOUNCE a
- *  click sets that column's drop height. Every layer shows, the selected one
- *  brightest; notes ripple out across the grid. */
+ *  click sets that column's drop height; in SOLO the lights are played; in
+ *  DRAW a held trace is recorded and looped. Every layer shows, the selected
+ *  one brightest; notes ripple out across the grid. */
 export function LatticeFace({ inst, spec, x, y, w, h }: SurfaceProps) {
   const mod = inst.id
   const ref = useRef<HTMLCanvasElement>(null)
@@ -42,56 +33,11 @@ export function LatticeFace({ inst, spec, x, y, w, h }: SurfaceProps) {
   const pitch = side / LT_SIZE
   const sx = g0 + side + H * 0.06
   const sw = W - sx - H * 0.02
-  const fx = (px: number) => px / W
-  const fy = (py: number) => py / H
+  const panel = { sx, sw, W, H }
 
-  const knobs = (): CanvasKnob[] => {
-    const p = live()
-    const lp = layerParams(Math.round(p.layer))
-    const ids = [lp.oct, lp.len, lp.rate, lp.vol]
-    const names = ['OCTAVE', 'LOOP', 'RATE', 'VOLUME']
-    return ids.map((id, i) => {
-      const ps = byId.get(id)!
-      return { fx: fx(sx + sw * (0.125 + i * 0.25)), fy: 0.6, fr: 0.07, ps, value: p[id] ?? ps.def, set: (v) => set(id, v), label: names[i] }
-    })
-  }
+  const knobs = () => sideKnobs(mod, live(), panel, (id) => byId.get(id)!)
   const pressKnob = useCanvasKnobs(ref, mod, knobs)
-
-  const buttons = (): Button[] => {
-    const p = live()
-    const l = Math.round(p.layer)
-    const lp = layerParams(l)
-    const bw = sw / 4 - H * 0.02
-    const col = (i: number) => sx + (sw / 4) * (i + 0.5)
-    return [
-      ...LT_COLORS.map((color, k) => ({ label: `${k + 1}`, x: col(k), y: H * 0.1, w: bw, h: H * 0.11, color, lit: l === k, press: () => set('layer', k) })),
-      {
-        label: LT_MODES[Math.round(p[lp.mode])],
-        x: sx + sw * 0.25,
-        y: H * 0.29,
-        w: sw / 2 - H * 0.02,
-        h: H * 0.11,
-        press: () => set(lp.mode, (Math.round(p[lp.mode]) + 1) % LT_MODES.length),
-      },
-      {
-        label: LT_SOUNDS[Math.round(p[lp.snd])],
-        x: sx + sw * 0.75,
-        y: H * 0.29,
-        w: sw / 2 - H * 0.02,
-        h: H * 0.11,
-        press: () => set(lp.snd, (Math.round(p[lp.snd]) + 1) % LT_SOUNDS.length),
-      },
-      { label: p.run >= 0.5 ? '■ STOP' : '▶ PLAY', x: sx + sw * 0.25, y: H * 0.88, w: sw / 2 - H * 0.02, h: H * 0.13, lit: p.run >= 0.5, press: () => set('run', p.run >= 0.5 ? 0 : 1) },
-      {
-        label: 'CLEAR',
-        x: sx + sw * 0.75,
-        y: H * 0.88,
-        w: sw / 2 - H * 0.02,
-        h: H * 0.13,
-        press: () => actions.setParams(Array.from({ length: LT_SIZE }, (_, c) => [mod, cellId(l, c), 0] as [string, string, number]), `clear:${mod}`),
-      },
-    ]
-  }
+  const buttons = () => sideButtons(mod, live(), panel)
 
   useFrame(ref, (now) => {
     const ctx = ref.current?.getContext('2d')
@@ -180,8 +126,14 @@ export function LatticeFace({ inst, spec, x, y, w, h }: SurfaceProps) {
     for (const k of knobs()) {
       drawCanvasKnob(ctx, k, W, H, { body: '#2b3440', pointer: LT_COLORS[sel], ticks: 'rgba(20,32,44,0.55)' })
       ctx.fillStyle = '#14202c'
-      ctx.font = `600 ${Math.round(H * 0.045)}px ${FAMILY}`
-      ctx.fillText(k.label ?? '', k.fx * W, H * 0.73)
+      ctx.font = `600 ${Math.round(H * 0.04)}px ${FAMILY}`
+      ctx.fillText(k.label ?? '', k.fx * W, H * 0.63)
+    }
+    const hint = sideHint(Math.round(p[`mode${sel}`]))
+    if (hint) {
+      ctx.fillStyle = '#22344c'
+      ctx.font = `700 ${Math.round(H * 0.042)}px ${FAMILY}`
+      ctx.fillText(hint, sx + sw / 2, H * 0.73)
     }
   })
 
@@ -214,7 +166,26 @@ export function LatticeFace({ inst, spec, x, y, w, h }: SurfaceProps) {
     e.preventDefault()
     const l = Math.round(live().layer)
     const mask = (cx: number) => Math.round(live()[cellId(l, cx)] ?? 0)
-    if (Math.round(live()[`mode${l}`]) === BOUNCE) {
+    const mode = Math.round(live()[`mode${l}`])
+    if (mode === SOLO || mode === DRAW) {
+      // the hand goes to the engine: SOLO plays each light it enters, DRAW records the path
+      const name = mode === SOLO ? 'solo' : 'draw'
+      let at = c[0] * LT_SIZE + c[1]
+      sendSurface(mod, name, l * LT_SIZE + c[0], c[1], true)
+      track(
+        (ev) => {
+          const [mx, my] = local(ev, el)
+          const n = cellAt(mx, my)
+          const k = n ? n[0] * LT_SIZE + n[1] : -1
+          if (k === at) return
+          at = k
+          sendSurface(mod, name, l * LT_SIZE + (n ? n[0] : 0), n ? n[1] : -1, true)
+        },
+        () => sendSurface(mod, name, l * LT_SIZE, 0, false),
+      )
+      return
+    }
+    if (mode === BOUNCE) {
       // one ball per column: the click sets its height (again: removes it)
       set(cellId(l, c[0]), mask(c[0]) === 1 << c[1] ? 0 : 1 << c[1])
       return

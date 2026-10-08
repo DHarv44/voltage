@@ -63,6 +63,14 @@ export class LayerSound {
     v.start(volts, vel, hold, this.born++, this.knobs, this.fs)
   }
 
+  /** Let every note go (SOLO lifting a finger). */
+  releaseAll(): void {
+    for (const v of this.voices) {
+      v.hold = 0
+      v.gate = 0
+    }
+  }
+
   /** One sample of everything sounding (≈ ±1). */
   step(snd: number): number {
     // the kit only runs once this layer has played it
