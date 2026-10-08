@@ -76,7 +76,7 @@ export function LockstepFace({ inst, spec, x, y, w, h }: SurfaceProps) {
       ]
     })
   }
-  const pressKnob = useCanvasKnobs(ref, knobs)
+  const pressKnob = useCanvasKnobs(ref, mod, knobs)
 
   const buttons = (): Button[] => {
     const p = live()

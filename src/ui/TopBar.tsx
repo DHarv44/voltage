@@ -100,7 +100,7 @@ export function TopBar() {
         <input type="checkbox" checked={s.jackHints} onChange={(e) => settings.set({ jackHints: e.target.checked })} />
         Jack hints
       </label>
-      <label className="ctl" title="Plain-words explanations when you hover a jack: what a gate, a trigger or V/OCT is, and what to patch there. Turn off once you know your way around.">
+      <label className="ctl" title="Plain-words explanations when you hover a jack or a knob: what a gate or V/OCT is, what CUTOFF or RESONANCE does. Turn off once you know your way around.">
         <input type="checkbox" checked={s.explain} onChange={(e) => settings.set({ explain: e.target.checked })} />
         Explain
       </label>

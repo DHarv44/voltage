@@ -1,6 +1,7 @@
 import { useEffect, useRef, type RefObject } from 'react'
 import type { ParamSpec } from '../../modules/types'
-import { dragKnob, knobAngle, knobTicks, knobTooltip, turnsKnob, wheelTurner } from '../panel/knobModel'
+import { dragKnob, knobAngle, knobHow, knobTicks, turnsKnob, wheelTurner } from '../panel/knobModel'
+import { controlHover } from '../rack/controlHover'
 
 /** A knob painted on a surface canvas (the POCKETs' A/B knobs, …). It looks
  *  like its surface, but behaves exactly like a panel knob: the same ticks,
@@ -70,8 +71,8 @@ function knobAt(knobs: CanvasKnob[], canvas: HTMLCanvasElement, clientX: number,
 /** Wire a surface's canvas knobs: wheel and double-click are handled here;
  *  call the returned `pressKnob` first in the surface's pointerdown, and it
  *  returns true if it took the press (left or middle button on a knob). Also
- *  keeps the canvas tooltip on whichever knob the pointer is over. */
-export function useCanvasKnobs(canvas: RefObject<HTMLCanvasElement | null>, knobs: () => CanvasKnob[]) {
+ *  reports the knob under the pointer to the control readout (the tooltip). */
+export function useCanvasKnobs(canvas: RefObject<HTMLCanvasElement | null>, mod: string, knobs: () => CanvasKnob[]) {
   const latest = useRef(knobs)
   latest.current = knobs
 
@@ -85,7 +86,7 @@ export function useCanvasKnobs(canvas: RefObject<HTMLCanvasElement | null>, knob
       e.preventDefault()
       e.stopPropagation()
       const next = turn(e, k.ps, k.value)
-      if (next !== null) k.set(next)
+      if (next !== null) k.set(next) // the readout follows (it reads the value live)
     }
     const dbl = (e: MouseEvent) => {
       const k = knobAt(latest.current(), el, e.clientX, e.clientY)
@@ -95,19 +96,24 @@ export function useCanvasKnobs(canvas: RefObject<HTMLCanvasElement | null>, knob
       else k.set(k.ps.def)
     }
     const hover = (e: PointerEvent) => {
-      const k = knobAt(latest.current(), el, e.clientX, e.clientY)
-      const tip = k ? knobTooltip(k.ps, k.value, k.label) : ''
-      if (el.title !== tip) el.title = tip
+      const k = e.buttons ? null : knobAt(latest.current(), el, e.clientX, e.clientY)
+      if (!k) return controlHover.set(null)
+      const id = k.ps.id
+      const read = () => latest.current().find((n) => n.ps.id === id)?.value ?? k.value
+      controlHover.set({ mod, ps: k.ps, label: k.label, read, how: knobHow(k.ps), x: e.clientX, y: e.clientY })
     }
+    const leave = () => controlHover.set(null)
     el.addEventListener('wheel', wheel, { passive: false })
     el.addEventListener('dblclick', dbl)
     el.addEventListener('pointermove', hover)
+    el.addEventListener('pointerleave', leave)
     return () => {
       el.removeEventListener('wheel', wheel)
       el.removeEventListener('dblclick', dbl)
       el.removeEventListener('pointermove', hover)
+      el.removeEventListener('pointerleave', leave)
     }
-  }, [canvas])
+  }, [canvas, mod])
 
   return (e: { button: number; clientX: number; clientY: number; stopPropagation(): void; preventDefault(): void }): boolean => {
     const el = canvas.current
@@ -116,6 +122,7 @@ export function useCanvasKnobs(canvas: RefObject<HTMLCanvasElement | null>, knob
     if (!k) return false
     e.stopPropagation()
     e.preventDefault()
+    controlHover.set(null)
     dragKnob(e, k.ps, k.value, k.set)
     return true
   }

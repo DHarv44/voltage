@@ -75,7 +75,7 @@ export function SketchFace({ inst, spec, x, y, w, h }: SurfaceProps) {
       return { fx: ENC_X[i], fy: ENC_Y, fr: ENC_R, ps, value: p[id] ?? ps.def, set: (v) => set(id, v), label: labels[i] }
     })
   }
-  const pressKnob = useCanvasKnobs(ref, knobs)
+  const pressKnob = useCanvasKnobs(ref, mod, knobs)
 
   /** SEQ's action button, by sequencer type. */
   const seqAction = (type: number, len: number): Button | null => {

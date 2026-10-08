@@ -115,6 +115,11 @@ extend VOLTAGE.
 - Jack tooltips: every jack's kind of signal and what it does (`modules/jackInfo.ts`: a glossary by
   name, per-module overrides, and "turns <knob> for you" for inputs named after a knob), with the live
   voltage. "Explain" (top-bar setting, on by default) adds a plain-words explanation of the signal kind.
+- Knob and switch tooltips (panel knobs, switches and the knobs painted on surfaces alike): name, value,
+  how to use it, and with "Explain" what it does (`modules/paramInfo.ts`: common words like CUTOFF,
+  DECAY, SWING matched whole and then without leading words, so KICK DECAY reads as DECAY;
+  `modules/paramGlossary.ts`: a module's own meanings and single controls). A dev-startup check lists
+  any panel control without an explanation, and glossary entries for params that don't exist.
 - Move a panel by its bare face (title strip, empty space; never from a control or screen), after a
   6 px drag (12 px on touch) so clicks never nudge it; slide-aside on drop, library drag-in, new-row drop.
 - Library: every module in one of 20 categories by what it is (Systems, Instruments, Oscillators, CV

@@ -55,7 +55,7 @@ export function LatticeFace({ inst, spec, x, y, w, h }: SurfaceProps) {
       return { fx: fx(sx + sw * (0.125 + i * 0.25)), fy: 0.6, fr: 0.07, ps, value: p[id] ?? ps.def, set: (v) => set(id, v), label: names[i] }
     })
   }
-  const pressKnob = useCanvasKnobs(ref, knobs)
+  const pressKnob = useCanvasKnobs(ref, mod, knobs)
 
   const buttons = (): Button[] => {
     const p = live()

@@ -6,6 +6,7 @@ import { initQwerty } from './audio/midi'
 import { telemetry } from './audio/telemetry'
 import { SPEC_LIST, validateSpecs } from './modules'
 import { validateCatalog } from './modules/catalog'
+import { paramGaps } from './modules/paramInfo'
 import { actions, history, patchStore } from './patch/store'
 import { disableRackAutoscroll } from './ui/pointer'
 import { initShortcuts } from './ui/shortcuts'
@@ -21,6 +22,8 @@ if (import.meta.env.DEV) {
   if (errors.length) console.error('Module spec / preset / ready-to-play rig / catalog errors:\n' + errors.join('\n'))
   const layout = lintPanels()
   if (layout.length) console.warn('Panel layout problems (overlaps, alignment, screws):\n' + layout.join('\n'))
+  const gaps = paramGaps(SPEC_LIST)
+  if (gaps.length) console.warn('Knobs with no explanation (modules/paramGlossary.ts):\n' + gaps.join('\n'))
   Object.assign(window, { __voltage: { patchStore, actions, history, engine, telemetry } })
 }
 

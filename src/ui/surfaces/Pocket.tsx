@@ -58,7 +58,7 @@ export function Pocket({ inst, spec, x, y, w, h }: SurfaceProps) {
         reset: locking ? () => actions.setParam(mod, id, -1) : undefined, // clear the lock
       }
     })
-  const pressKnob = useCanvasKnobs(ref, knobs)
+  const pressKnob = useCanvasKnobs(ref, mod, knobs)
 
   useFrame(ref, (now) => {
     const ctx = ref.current?.getContext('2d')

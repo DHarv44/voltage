@@ -72,10 +72,10 @@ export function wheelTurner() {
   }
 }
 
-/** The tooltip every knob shows: what it is, where it is, and how to use it. */
-export function knobTooltip(ps: ParamSpec, value: number, label = ps.label): string {
+/** How to use a knob, for its tooltip (the control readout). */
+export function knobHow(ps: ParamSpec): string {
   const how = ps.stepped
     ? `Scroll or drag to choose${ps.options ? ` (${ps.options.join(' / ')})` : ''}`
     : 'Scroll or drag to turn (Shift: fine)'
-  return `${label || ps.label}: ${formatParam(ps, value)}\n${how} · double-click: ${formatParam(ps, ps.def)}`
+  return `${how} · double-click: ${formatParam(ps, ps.def)}`
 }

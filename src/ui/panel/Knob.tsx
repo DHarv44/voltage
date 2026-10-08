@@ -2,8 +2,9 @@ import { useEffect, useRef, useState, type PointerEvent } from 'react'
 import type { KnobSize, ParamSpec } from '../../modules/types'
 import { formatParam } from '../../modules/params'
 import { actions, patchStore } from '../../patch/store'
-import { dragKnob, knobAngle, knobTicks, knobTooltip, turnsKnob, wheelTurner } from './knobModel'
+import { dragKnob, knobAngle, knobHow, knobTicks, turnsKnob, wheelTurner } from './knobModel'
 import { KNOB } from '../../modules/panelMetrics'
+import { controlHover } from '../rack/controlHover'
 
 interface Props {
   mod: string
@@ -40,6 +41,7 @@ export function Knob({ mod, ps, value, x, y, size = 'M', label, fg }: Props) {
       const value = patchStore.get().modules.find((m) => m.id === mod)?.params[ps.id] ?? latest.current.value
       const next = turn(e, ps, value)
       if (next !== null) actions.setParam(mod, ps.id, next)
+      controlHover.set(null) // the knob's own readout shows the value now
       setActive(true)
       window.clearTimeout(hide)
       hide = window.setTimeout(() => setActive(false), 700)
@@ -51,9 +53,17 @@ export function Knob({ mod, ps, value, x, y, size = 'M', label, fg }: Props) {
     }
   }, [])
 
+  const hover = (e: PointerEvent<SVGGElement>) => {
+    if (e.buttons) return // mid-drag: the knob's own readout is up
+    const { mod, ps } = latest.current
+    const read = () => patchStore.get().modules.find((m) => m.id === mod)?.params[ps.id] ?? latest.current.value
+    controlHover.set({ mod, ps, label: text, read, how: knobHow(ps), x: e.clientX, y: e.clientY })
+  }
+
   const down = (e: PointerEvent<SVGGElement>) => {
     if (!turnsKnob(e)) return
     e.stopPropagation()
+    controlHover.set(null)
     setActive(true)
     dragKnob(e, ps, value, (v) => actions.setParam(mod, ps.id, v), () => setActive(false))
   }
@@ -65,12 +75,14 @@ export function Knob({ mod, ps, value, x, y, size = 'M', label, fg }: Props) {
       className="knob"
       transform={`translate(${x} ${y})`}
       onPointerDown={down}
+      onPointerEnter={hover}
+      onPointerMove={hover}
+      onPointerLeave={() => controlHover.set(null)}
       onDoubleClick={(e) => {
         e.stopPropagation()
         actions.setParam(mod, ps.id, ps.def)
       }}
     >
-      <title>{knobTooltip(ps, value, text)}</title>
       {knobTicks(ps).map((t) => (
         <line
           key={t.angle}

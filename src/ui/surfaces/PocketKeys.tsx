@@ -53,7 +53,7 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
       set: (v: number) => actions.setParam(mod, id, v),
       label: k === 0 ? 'A · TONE' : 'B · DECAY',
     }))
-  const pressKnob = useCanvasKnobs(ref, knobs)
+  const pressKnob = useCanvasKnobs(ref, mod, knobs)
 
   useFrame(ref, () => {
     const ctx = ref.current?.getContext('2d')

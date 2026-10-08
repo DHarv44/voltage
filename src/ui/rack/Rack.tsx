@@ -11,6 +11,7 @@ import { CableLayer } from './CableLayer'
 import { ContextMenu } from './ContextMenu'
 import { JackMenu } from './JackMenu'
 import { JackReadout } from './JackReadout'
+import { ControlReadout } from './ControlReadout'
 import { RemoveRowDialog, RowMenu, type RowMenuState } from './RowMenu'
 import { rackView } from './rackView'
 import { libraryPreview, placementOf } from './dragPreview'
@@ -149,6 +150,7 @@ export function Rack() {
       {rowMenu && <RowMenu menu={rowMenu} onClose={closeRowMenu} onAsk={setRemoving} />}
       {removing !== null && <RemoveRowDialog row={removing} onClose={closeRemoving} />}
       {!cable && !move && <JackReadout />}
+      {!cable && !move && <ControlReadout />}
     </div>
   )
 }

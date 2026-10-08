@@ -1,6 +1,8 @@
+import type { PointerEvent } from 'react'
 import type { ParamSpec } from '../../modules/types'
-import { actions } from '../../patch/store'
+import { actions, patchStore } from '../../patch/store'
 import { SWITCH } from '../../modules/panelMetrics'
+import { controlHover } from '../rack/controlHover'
 
 interface Props {
   mod: string
@@ -19,18 +21,24 @@ export function Switch({ mod, ps, value, x, y, fg }: Props) {
   const up = steps === 1 ? 0 : pos / (steps - 1)
   const tip = 3.6 - up * 7.2
   const opts = ps.options ?? []
-  const next = opts[(pos + 1) % steps]
+  const hover = (e: PointerEvent) => {
+    const read = () => patchStore.get().modules.find((m) => m.id === mod)?.params[ps.id] ?? value
+    const how = opts.length ? `Click to switch (${opts.filter(Boolean).join(' / ')})` : 'Click to switch'
+    controlHover.set({ mod, ps, read, how, x: e.clientX, y: e.clientY })
+  }
   return (
     <g
       className="switch"
       transform={`translate(${x} ${y})`}
       onPointerDown={(e) => e.stopPropagation()}
+      onPointerEnter={hover}
+      onPointerMove={hover}
+      onPointerLeave={() => controlHover.set(null)}
       onClick={(e) => {
         e.stopPropagation()
         actions.setParam(mod, ps.id, ps.min + ((pos + 1) % steps))
       }}
     >
-      <title>{`${ps.label}: ${opts[pos] ?? value}${next ? `\nClick for ${next}` : ''}`}</title>
       <rect x={-SWITCH.half} y={-SWITCH.halfH} width={SWITCH.half * 2} height={SWITCH.halfH * 2} fill="transparent" />
       {opts[steps - 1] && (
         <text className="silk" y={SWITCH.labelTop} fill={fg} fontSize={SWITCH.labelSize}>

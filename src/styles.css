@@ -1509,3 +1509,24 @@ button {
   color: #9dff9a;
   font-variant-numeric: tabular-nums;
 }
+/* knobs and switches: the same card, after a short pause so sweeping across
+   a panel doesn't flicker one up under every knob */
+.control-readout {
+  animation: control-readout-in 0.12s ease-out 0.35s both;
+}
+.control-readout .jr-value {
+  color: #ffd25a;
+}
+.jr-how {
+  font-size: 10.5px;
+  color: var(--muted);
+  opacity: 0.8;
+}
+@keyframes control-readout-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
