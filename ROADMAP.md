@@ -356,8 +356,13 @@ Have: MONO-1, STUDIO-3, GROOVE-1, SKETCHBOOK, KIN-8, UNDERTONE, LOCKSTEP, LATTIC
        tap CHAIN to play / stop it, hold it to write a new one by tapping patterns, tap to finish; the
        header shows the chain with the slot playing; factory A A B C) and PAT in (0–10 V picks A–D in
        2.5 V bands, cued for the bar). Both move the PATTERN param, so the face follows.
-     - Phase 2, still to do: slides, a reverb send, per-track LFO; then the sampler voice (with the
-       sampler core).
+     - Phase 2, fourth part (done): an LFO page (lockable like the others): SPEED (4 bars … 1/16,
+       locked to the master clock), AMOUNT (bipolar), DEST (pitch ±6 st, FM depth, cutoff, level,
+       pan, delay send) and REVERB, a per-track send to a shared plate. Per-step SLIDE (on the
+       picked-step row; keys show ~): glides from the last note's pitch over half a step, legato if
+       it still sounds, else a fresh attack that swoops in. Factory: bass breathes and slides up to
+       its octave, hats auto-pan, the bell swells over four bars in plenty of reverb.
+     - Phase 2 is done; next for LOCKSTEP: the sampler voice (with the sampler core).
   4. **Tenori-on-style light grid: LATTICE** (40 HP).
      - ~~Phase 1~~ (done): 16×16 lights, four layers drawn on the same grid (selected layer bright,
        the others dim, each its own colour); per layer MODE (SCORE: columns are time, rows pitch, a

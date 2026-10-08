@@ -1,4 +1,4 @@
-import { chainId, LOCK_PAGES, lockId, LS_CHAIN, LS_PAGES, LS_PATTERNS, LS_TRACK_COLORS, muteId } from '../../../modules/specs/lockstepDefs'
+import { chainId, LOCK_PAGES, lockId, LS_CHAIN, LS_PAGES, LS_PATTERNS, LS_TRACK_COLORS, muteId, slideId } from '../../../modules/specs/lockstepDefs'
 import { actions } from '../../../patch/store'
 import { lsClip, lsNote } from './clipboard'
 import { chainRec, CLUSTER_X, lockstepSel, PAGE_X, PAGE_Y, ROW_Y } from './layout'
@@ -21,7 +21,7 @@ const PAT_COLOR = '#c9cbd1'
 /** LOCKSTEP's buttons: the pages; tracks (hold to mute); patterns A–D (a
  *  pattern picked while playing waits for the bar, and blinks till then) and
  *  CHAIN; PLAY, FILL, COPY, PASTE. With a step picked the pattern row
- *  becomes UNLOCK, CLEAR and DONE, and COPY / PASTE work on that step. */
+ *  becomes UNLOCK, CLEAR, SLIDE and DONE, and COPY / PASTE work on that step. */
 export function lsButtons(mod: string, p: Record<string, number>, playing: number): Button[] {
   const set = (id: string, v: number) => actions.setParam(mod, id, v)
   const write = (writes: [string, number][], label: string) =>
@@ -110,6 +110,8 @@ export function lsButtons(mod: string, p: Record<string, number>, playing: numbe
         press: () => write(Array.from({ length: LOCK_PAGES }, (_, pg) => [lockId(t, s, pg, pat), 0]), 'unlock'),
       },
       { label: 'CLEAR', x: CLUSTER_X[1], y: ROW_Y[1], press: () => write(lsClip.clearStep(p, t, s, pat), 'clear') },
+      // a slide glides into this step's note from the one before
+      { label: 'SLIDE', x: CLUSTER_X[2], y: ROW_Y[1], lit: (p[slideId(t, s, pat)] ?? 0) >= 0.5, press: () => set(slideId(t, s, pat), (p[slideId(t, s, pat)] ?? 0) >= 0.5 ? 0 : 1) },
       { label: 'DONE', x: CLUSTER_X[3], y: ROW_Y[1], lit: true, press: () => lockstepSel.set(mod, -1) },
     )
   return out

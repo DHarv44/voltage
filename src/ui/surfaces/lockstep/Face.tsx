@@ -14,6 +14,7 @@ import {
   LSL,
   microId,
   retrigId,
+  slideId,
   trigsId,
   withLock,
 } from '../../../modules/specs/lockstep'
@@ -161,13 +162,14 @@ export function LockstepFace({ inst, spec, x, y, w, h }: SurfaceProps) {
         ctx.font = `700 ${Math.round(Math.min(kh * 0.2, kw * 0.22))}px ${FAMILY}`
         ctx.fillText(LS_CONDS[cond], kx + kw / 2, ky + kh * 0.75)
       }
-      // a ratchet (×2…×4) and a nudge (◂ early, ▸ late)
+      // a slide (~), a ratchet (×2…×4) and a nudge (◂ early, ▸ late)
       const rt = Math.round(p[retrigId(t, st, pat)] ?? 0)
       const mt = Math.round(p[microId(t, st, pat)] ?? 0)
-      if (rt > 0 || mt !== 0) {
+      const sl = (p[slideId(t, st, pat)] ?? 0) >= 0.5
+      if (rt > 0 || mt !== 0 || sl) {
         ctx.textAlign = 'left'
         ctx.font = `700 ${Math.round(Math.min(kh * 0.18, kw * 0.2))}px ${FAMILY}`
-        ctx.fillText(`${mt < 0 ? '◂' : ''}${rt > 0 ? LS_RETRIGS[rt] : ''}${mt > 0 ? '▸' : ''}`, kx + kw * 0.12, ky + kh * 0.48)
+        ctx.fillText(`${sl ? '~' : ''}${mt < 0 ? '◂' : ''}${rt > 0 ? LS_RETRIGS[rt] : ''}${mt > 0 ? '▸' : ''}`, kx + kw * 0.12, ky + kh * 0.48)
       }
       ctx.globalAlpha = 1
     }

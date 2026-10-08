@@ -19,6 +19,7 @@ import {
   muteId,
   noteId,
   retrigId,
+  slideId,
   LS_SPEEDS,
   LS_STEPS,
   LSL,
@@ -53,6 +54,7 @@ const partParams = (d: PartDef, t: number, pat: number): ParamSpec[] => {
       opt(condId(t, s, pat), `${name} STEP ${s + 1} COND`, LS_CONDS, d.trigs[s]?.[1] ?? 0),
       opt(retrigId(t, s, pat), `${name} STEP ${s + 1} RETRIG`, LS_RETRIGS, d.ratchets?.[s] ?? 0),
       { id: microId(t, s, pat), label: `${name} STEP ${s + 1} MICRO`, min: -LS_MICRO, max: LS_MICRO, def: d.nudges?.[s] ?? 0, stepped: true },
+      opt(slideId(t, s, pat), `${name} STEP ${s + 1} SLIDE`, ['OFF', 'SLIDE'], d.slides?.includes(s) ? 1 : 0),
       ...Array.from({ length: LOCK_PAGES }, (_, page): ParamSpec => {
         const def = (d.locks ?? []).filter(([ls, j]) => ls === s && Math.floor(j / 4) === page).reduce((w, [, j, v]) => withLock(w, j % 4, v), 0)
         return { id: lockId(t, s, page, pat), label: `${name} STEP ${s + 1} LOCKS ${page + 1}`, min: 0, max: 0xffffffff, def, stepped: true }

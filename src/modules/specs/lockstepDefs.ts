@@ -2,20 +2,32 @@
 
 export const LS_TRACKS = 4
 export const LS_STEPS = 16
-export const LS_PAGES = ['FM', 'AMP', 'FX', 'TRIG', 'TRACK', 'TEMPO']
+export const LS_PAGES = ['FM', 'AMP', 'FX', 'LFO', 'TRIG', 'TRACK', 'TEMPO']
 export const FM = 0
 export const AMP = 1
 export const FX = 2
-export const TRIG = 3
-export const TRACK = 4
-export const TEMPO = 5
+export const LFO = 3
+export const TRIG = 4
+export const TRACK = 5
+export const TEMPO = 6
 /** Pages whose knobs can be locked per step (four knobs each). */
-export const LOCK_PAGES = 3
+export const LOCK_PAGES = 4
 export const LS_KNOBS = [
   ['RATIO', 'DEPTH', 'FEEDBK', 'MOD DEC'],
   ['ATTACK', 'DECAY', 'SWEEP', 'LEVEL'],
   ['CUTOFF', 'RESO', 'PAN', 'DELAY'],
+  ['LFO SPD', 'LFO AMT', 'LFO DEST', 'REVERB'],
 ]
+/** Knob indices the engine treats specially. */
+export const K = { level: 7, cutoff: 8, pan: 10, delay: 11, lfoSpd: 12, lfoAmt: 13, lfoDest: 14, reverb: 15 } as const
+/** Each track's LFO: a triangle locked to the tempo, one cycle per this many 16ths. */
+export const LS_LFO_RATES = ['4 BARS', '2 BARS', '1 BAR', '1/2', '1/4', '1/8', '1/16']
+export const LS_LFO_SIXTEENTHS = [64, 32, 16, 8, 4, 2, 1]
+export const lfoRateIndex = (v: number) => Math.min(LS_LFO_RATES.length - 1, Math.floor(v * LS_LFO_RATES.length))
+/** What it moves (a knob index, or −1 for the pitch). */
+export const LS_LFO_DESTS = ['PITCH', 'FM DEPTH', 'CUTOFF', 'LEVEL', 'PAN', 'DELAY']
+export const LS_LFO_KNOB = [-1, 1, K.cutoff, K.level, K.pan, K.delay]
+export const lfoDestIndex = (v: number) => Math.min(LS_LFO_DESTS.length - 1, Math.floor(v * LS_LFO_DESTS.length))
 export const LS_ALGOS = ['PARALLEL', 'STACK', 'TWO', 'SPLIT', 'ORGAN', 'BRANCH']
 /** Operator ratios C : A : B, picked by the RATIO knob. */
 export const LS_RATIOS = [
@@ -61,6 +73,8 @@ export const noteId = (t: number, s: number, pat = 0) => `${pre(pat)}n${t}_${s}`
 export const condId = (t: number, s: number, pat = 0) => `${pre(pat)}c${t}_${s}`
 export const retrigId = (t: number, s: number, pat = 0) => `${pre(pat)}rt${t}_${s}`
 export const microId = (t: number, s: number, pat = 0) => `${pre(pat)}mt${t}_${s}`
+/** A slide: the step glides into its note from the last one (no new attack). */
+export const slideId = (t: number, s: number, pat = 0) => `${pre(pat)}sl${t}_${s}`
 
 /** LED layout: each track's step (−1 stopped) and trig flash, the beat, FILL,
  *  the pattern playing (a cued one waits for the bar), the chain slot playing (−1: none). */
@@ -80,6 +94,7 @@ export const stepIds = (t: number, s: number, pat: number): string[] => [
   condId(t, s, pat),
   retrigId(t, s, pat),
   microId(t, s, pat),
+  slideId(t, s, pat),
   ...Array.from({ length: LOCK_PAGES }, (_, page) => lockId(t, s, page, pat)),
 ]
 

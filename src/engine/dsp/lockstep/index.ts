@@ -2,56 +2,35 @@ import { Dsp } from '../base'
 import { Schmitt } from '../cores'
 import { FX_DELAY, SketchFx } from '../sketchbook/fx'
 import { rails } from '../util'
+import { PlateCore } from '../plate'
 import {
   chainId,
-  condId,
+  K,
   knobId,
+  lfoDestIndex,
+  lfoRateIndex,
+  LS_LFO_KNOB,
+  LS_LFO_SIXTEENTHS,
   LOCK_PAGES,
-  lockId,
   lockValue,
   LS_BAR,
   LS_CHAIN,
   LS_PAT_VOLTS,
   LS_PATTERNS,
   LS_SPEED_X,
-  LS_STEPS,
   LS_TRACKS,
   LSL,
-  microId,
   muteId,
-  noteId,
-  retrigId,
-  trigsId,
 } from '../../../modules/specs/lockstepDefs'
+import { condHolds, patternTables, swungPos, type PatIdx } from './tables'
 import { FmVoice } from './voice'
 
-/** One pattern's param indices, per track (steps × fields). */
-interface PatIdx {
-  tr: Int32Array
-  note: Int32Array[]
-  cond: Int32Array[]
-  rt: Int32Array[]
-  mt: Int32Array[]
-  /** step × LOCK_PAGES + page */
-  lock: Int32Array[]
-}
-
-/** A:B conditions (index 1..9): play on the A-th of every B times round. */
-const COND_A = [0, 1, 2, 1, 2, 3, 1, 2, 3, 4]
-const COND_B = [0, 2, 2, 3, 3, 3, 4, 4, 4, 4]
-const CHANCE = [0.75, 0.5, 0.25, 0.1]
 const KNOBS = LOCK_PAGES * 4
-const PAN = 10
-const SEND = 11
 const LED_DECAY = 0.9992
-
-/** Where a swung clock is, in steps (continuous): in each pair of steps the
- *  first lasts 1 + swing, the second 1 − swing. */
-function swungPos(x: number, swing: number): number {
-  const pair = Math.floor(x / 2)
-  const r = x - 2 * pair
-  return r < 1 + swing ? 2 * pair + r / (1 + swing) : 2 * pair + 1 + (r - 1 - swing) / (1 - swing)
-}
+/** The LFO's furthest reach: half a knob's travel, or half an octave. */
+const LFO_REACH = 0.5
+/** A slide takes this share of a step. */
+const SLIDE = 0.5
 
 /** LOCKSTEP: one master clock in 16ths (TEMPO, or CLK in, with the time
  *  between edges filled in so faster tracks land between them); each track
@@ -83,20 +62,7 @@ export class LockstepDsp extends Dsp {
   private lenIdx = Int32Array.from({ length: LS_TRACKS }, (_, t) => this.pi(`len${t}`))
   private spdIdx = Int32Array.from({ length: LS_TRACKS }, (_, t) => this.pi(`spd${t}`))
   private muteIdx = Int32Array.from({ length: LS_TRACKS }, (_, t) => this.pi(muteId(t)))
-  private pats: PatIdx[] = LS_PATTERNS.map((_, pat) => {
-    const steps = (id: (t: number, s: number, pat: number) => string) =>
-      Array.from({ length: LS_TRACKS }, (_, t) => Int32Array.from({ length: LS_STEPS }, (_, s) => this.pi(id(t, s, pat))))
-    return {
-      tr: Int32Array.from({ length: LS_TRACKS }, (_, t) => this.pi(trigsId(t, pat))),
-      note: steps(noteId),
-      cond: steps(condId),
-      rt: steps(retrigId),
-      mt: steps(microId),
-      lock: Array.from({ length: LS_TRACKS }, (_, t) =>
-        Int32Array.from({ length: LS_STEPS * LOCK_PAGES }, (_, i) => this.pi(lockId(t, Math.floor(i / LOCK_PAGES), i % LOCK_PAGES, pat))),
-      ),
-    }
-  })
+  private pats: PatIdx[] = patternTables((id) => this.pi(id))
   /** The pattern playing, and the master position its bar 1 began at. */
   private playing = 0
   private origin = 0
@@ -115,6 +81,7 @@ export class LockstepDsp extends Dsp {
   /** Each track's absolute step count since PLAY (−1 = not started). */
   private readonly pos = new Float64Array(LS_TRACKS).fill(-1)
   private readonly delay = new SketchFx(this.fs)
+  private readonly plate = new PlateCore(this.fs)
   private readonly clkIn = new Schmitt()
   private readonly rstIn = new Schmitt()
   /** Master clock position in 16ths. */
@@ -166,15 +133,6 @@ export class LockstepDsp extends Dsp {
     this.rtLeft.fill(0)
   }
 
-  private passes(cond: number, loop: number, fill: boolean): boolean {
-    if (cond === 0) return true
-    if (cond <= 9) return loop % COND_B[cond] === COND_A[cond] - 1
-    if (cond <= 13) return this.rng.next() < CHANCE[cond - 10]
-    if (cond === 14) return fill
-    if (cond === 15) return !fill
-    return cond === 16 ? loop === 0 : loop > 0
-  }
-
   /** Step s of track t comes round: play it if it's lit, passes its
    *  condition and the track isn't muted; a ratchet re-strikes the same note
    *  evenly through the step (`stepSamples` long). */
@@ -183,19 +141,26 @@ export class LockstepDsp extends Dsp {
     const d = this.cur
     if (((p[d.tr[t]] >>> s) & 1) === 0) return
     if (p[this.muteIdx[t]] >= 0.5) return
-    if (!this.passes(Math.round(p[d.cond[t][s]]), loop, fill)) return
-    const hits = 1 + Math.round(p[d.rt[t][s]])
-    this.rtLeft[t] = hits - 1
-    this.rtGap[t] = stepSamples / hits
-    this.rtWait[t] = this.rtGap[t]
+    if (!condHolds(Math.round(p[d.cond[t][s]]), loop, fill, this.rng)) return
     const v = this.voices[t]
     const li = d.lock[t]
     for (let page = 0; page < LOCK_PAGES; page++) {
       const word = p[li[s * LOCK_PAGES + page]]
       for (let k = 0; k < 4; k++) v.locks[page * 4 + k] = lockValue(word, k)
     }
-    v.start((p[this.rootIdx[t]] + p[d.note[t][s]]) / 12)
+    const volts = (p[this.rootIdx[t]] + p[d.note[t][s]]) / 12
     this.led[LSL.flash + t] = 1
+    // a slide glides in from the last note (no ratchet)
+    if (p[d.sl[t][s]] >= 0.5) {
+      this.rtLeft[t] = 0
+      v.slide(volts, stepSamples * SLIDE)
+      return
+    }
+    const hits = 1 + Math.round(p[d.rt[t][s]])
+    this.rtLeft[t] = hits - 1
+    this.rtGap[t] = stepSamples / hits
+    this.rtWait[t] = this.rtGap[t]
+    v.start(volts)
   }
 
   tick(): void {
@@ -252,6 +217,7 @@ export class LockstepDsp extends Dsp {
     let mixL = 0
     let mixR = 0
     let send = 0
+    let verb = 0
     for (let t = 0; t < LS_TRACKS; t++) {
       const len = Math.max(1, Math.round(p[this.lenIdx[t]]))
       const v = this.voices[t]
@@ -281,12 +247,23 @@ export class LockstepDsp extends Dsp {
       const vals = this.vals[t]
       const ki = this.kIdx[t]
       for (let j = 0; j < KNOBS; j++) vals[j] = v.locks[j] >= 0 ? v.locks[j] : p[ki[j]]
+      // the LFO: a triangle in time with the master clock, onto one knob (or the pitch)
+      const amt = (vals[K.lfoAmt] - 0.5) * 2 * LFO_REACH
+      v.bend = 0
+      if (amt !== 0) {
+        const c = this.phase / LS_LFO_SIXTEENTHS[lfoRateIndex(vals[K.lfoSpd])]
+        const tri = 1 - 4 * Math.abs(c - Math.floor(c) - 0.5)
+        const dest = LS_LFO_KNOB[lfoDestIndex(vals[K.lfoDest])]
+        if (dest < 0) v.bend = amt * tri
+        else vals[dest] = Math.max(0, Math.min(1, vals[dest] + amt * tri))
+      }
       v.step(vals, Math.round(p[this.algoIdx[t]]))
       const x = v.out
-      const pan = vals[PAN]
+      const pan = vals[K.pan]
       mixL += x * Math.sqrt(1 - pan)
       mixR += x * Math.sqrt(pan)
-      send += x * vals[SEND]
+      send += x * vals[K.delay]
+      verb += x * vals[K.reverb]
       this.out[this.oT[t]] = x * 5
       this.led[LSL.step + t] = running && this.pos[t] >= 0 ? this.pos[t] % len : -1
       this.led[LSL.flash + t] *= LED_DECAY
@@ -294,9 +271,11 @@ export class LockstepDsp extends Dsp {
 
     // ping-pong delay send: the effect returns dry + wet, keep the wet
     this.delay.process(send, FX_DELAY, 1, p[P.dtime], p[P.dfb], stepLen)
+    // the reverb send: a plate, wet only
+    this.plate.process(verb, 0.62, 0.35, 0.012)
     const gain = 10 * p[P.master]
-    this.out[this.oL] = rails((mixL + this.delay.l[0] - send) * gain)
-    this.out[this.oR] = rails((mixR + this.delay.r[0] - send) * gain)
+    this.out[this.oL] = rails((mixL + this.delay.l[0] - send + this.plate.l * 0.6) * gain)
+    this.out[this.oR] = rails((mixR + this.delay.r[0] - send + this.plate.r * 0.6) * gain)
     this.out[this.oClk] = running && this.phase % 1 < 0.5 ? 10 : 0
     this.out[this.oRst] = this.rstOut > 0 ? 10 : 0
     if (this.rstOut > 0) this.rstOut--

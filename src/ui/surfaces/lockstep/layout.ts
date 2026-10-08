@@ -9,7 +9,7 @@ export const ENC_Y = 0.2
 export const ENC_R = 0.085
 export const LABEL_Y = 0.355
 export const PAGE_Y = 0.5
-export const PAGE_X = [0.385, 0.442, 0.499, 0.556, 0.613, 0.67]
+export const PAGE_X = [0.37, 0.4195, 0.469, 0.5185, 0.568, 0.6175, 0.667]
 export const CLUSTER_X = [0.725, 0.7785, 0.832, 0.8855, 0.939]
 /** Cluster rows: tracks, patterns, transport. */
 export const ROW_Y = [0.2, 0.35, 0.5]

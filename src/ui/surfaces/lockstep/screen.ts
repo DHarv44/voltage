@@ -1,5 +1,10 @@
 import {
   chainId,
+  K,
+  lfoDestIndex,
+  lfoRateIndex,
+  LS_LFO_DESTS,
+  LS_LFO_RATES,
   encoderLabels,
   encoderParams,
   LOCK_PAGES,
@@ -59,6 +64,10 @@ export const hasLocks = (p: Record<string, number>, t: number, s: number, pat: n
 /** A knob's value as the screen shows it. */
 function show(id: string, v: number, ps: ParamSpec, p: Record<string, number>): string {
   if (id.startsWith('k') && id.endsWith('_0')) return LS_RATIOS[ratioIndex(v)].join(':')
+  // the LFO page: rate, bipolar amount, destination
+  if (id.startsWith('k') && id.endsWith(`_${K.lfoSpd}`)) return LS_LFO_RATES[lfoRateIndex(v)]
+  if (id.startsWith('k') && id.endsWith(`_${K.lfoAmt}`)) return `${v > 0.5 ? '+' : ''}${Math.round((v - 0.5) * 200)}`
+  if (id.startsWith('k') && id.endsWith(`_${K.lfoDest}`)) return LS_LFO_DESTS[lfoDestIndex(v)]
   if (/^([A-D]\.)?n\d/.test(id)) return noteName(Math.round(p[`root${Math.round(p.trk)}`]) + Math.round(v))
   if (ps.options) return ps.options[Math.round(v)] ?? ''
   if (ps.unit === 'bpm') return String(Math.round(v))

@@ -1,7 +1,8 @@
 /** LOCKSTEP's factory content: the four track sounds, and patterns A–D
  *  written for them (C minor; the bass counts from C1, the bell from C3). */
 
-/** A track's sound: its twelve knobs, algorithm, root and length. */
+/** A track's sound: its sixteen knobs (FM, AMP, FX, LFO pages), algorithm,
+ *  root and length. */
 export interface SoundDef {
   name: string
   knobs: number[]
@@ -18,13 +19,20 @@ export interface PartDef {
   locks?: [number, number, number][]
   ratchets?: Record<number, number>
   nudges?: Record<number, number>
+  /** Steps that glide into their note. */
+  slides?: number[]
 }
 
+// the LFO page: speed, amount (0.5 = none), destination, reverb send
+const NO_LFO = [0.5, 0.5, 0, 0]
 export const SOUNDS: SoundDef[] = [
-  { name: 'KICK', knobs: [0, 0.15, 0, 0.05, 0, 0.35, 0.6, 0.9, 0.4, 0, 0.5, 0], algo: 1, root: -24, len: 16 },
-  { name: 'BASS', knobs: [0.19, 0.35, 0.15, 0.3, 0, 0.3, 0, 0.75, 0.5, 0.35, 0.5, 0], algo: 1, root: -24, len: 16 },
-  { name: 'HATS', knobs: [0.56, 0.9, 0.85, 0.1, 0, 0.05, 0, 0.35, 0.95, 0, 0.65, 0], algo: 1, root: 24, len: 16 },
-  { name: 'BELL', knobs: [0.94, 0.45, 0, 0.25, 0, 0.45, 0, 0.5, 0.8, 0.1, 0.35, 0.4], algo: 0, root: 0, len: 12 },
+  { name: 'KICK', knobs: [0, 0.15, 0, 0.05, 0, 0.35, 0.6, 0.9, 0.4, 0, 0.5, 0, ...NO_LFO], algo: 1, root: -24, len: 16 },
+  // the filter breathes every half bar
+  { name: 'BASS', knobs: [0.19, 0.35, 0.15, 0.3, 0, 0.3, 0, 0.75, 0.5, 0.35, 0.5, 0, 0.45, 0.62, 0.4, 0], algo: 1, root: -24, len: 16 },
+  // auto-pan once a bar, a little room
+  { name: 'HATS', knobs: [0.56, 0.9, 0.85, 0.1, 0, 0.05, 0, 0.35, 0.95, 0, 0.65, 0, 0.3, 0.8, 0.75, 0.1], algo: 1, root: 24, len: 16 },
+  // a slow four-bar swell of brightness, and plenty of reverb
+  { name: 'BELL', knobs: [0.94, 0.45, 0, 0.25, 0, 0.45, 0, 0.5, 0.8, 0.1, 0.35, 0.4, 0.05, 0.7, 0.4, 0.45], algo: 0, root: 0, len: 12 },
 ]
 
 // conditions by name (indices into LS_CONDS)
@@ -43,8 +51,8 @@ export const PATTERNS: PartDef[][] = [
   // A: the groove
   [
     { trigs: { 0: [0], 4: [0], 8: [0], 12: [0], 14: [0, P10] } },
-    // the octave and the fourth land a touch late: a lazier bass
-    { trigs: { 2: [0], 3: [12], 6: [0], 10: [3], 11: [5, P50], 14: [7, HALF] }, nudges: { 3: 5, 11: 4 } },
+    // the octave slides up and lands a touch late, as does the fourth: a lazier bass
+    { trigs: { 2: [0], 3: [12], 6: [0], 10: [3], 11: [5, P50], 14: [7, HALF] }, nudges: { 3: 5, 11: 4 }, slides: [3] },
     // an open hat on 15 (DECAY locked longer), the last hat a quick triple roll
     { trigs: { 2: [0], 6: [0], 10: [0], 14: [0], 15: [0, P25] }, locks: [[14, DECAY, 0.42]], ratchets: { 15: 2 } },
     { trigs: { 2: [7], 7: [10, P50], 10: [3] } },
@@ -52,7 +60,7 @@ export const PATTERNS: PartDef[][] = [
   // B: the variation, busier everywhere
   [
     { trigs: { 0: [0], 4: [0], 8: [0], 10: [0, HALF], 12: [0] } },
-    { trigs: { 0: [0], 2: [12], 3: [10], 6: [0], 8: [3], 10: [5], 11: [7, P75], 14: [10] }, nudges: { 3: 4 } },
+    { trigs: { 0: [0], 2: [12], 3: [10], 6: [0], 8: [3], 10: [5], 11: [7, P75], 14: [10] }, nudges: { 3: 4 }, slides: [3, 11] },
     {
       trigs: { 2: [0], 5: [0, P25], 6: [0], 10: [0], 13: [0, C3OF4], 14: [0] },
       locks: [

@@ -35,6 +35,10 @@ export const MODULE_TERMS: Record<string, ParamTerm[]> = {
     { match: /^SPEED$/, what: 'How fast this track steps compared with the others (half, double…): for polyrhythms.' },
     { match: /^RETRIG$/, what: 'A ratchet: the selected step fires 2, 3 or 4 quick hits instead of one (rolls, stutters).' },
     { match: /^MICRO$/, what: 'Nudges the selected step early or late, in 24ths of a step: lazy bass, pushed hats, human feel.' },
+    { match: /^LFO SPD$/, what: 'How fast the track’s LFO sweeps, in time with the tempo: once every 4 bars up to every 16th.' },
+    { match: /^LFO AMT$/, what: 'How far the LFO moves its destination, either way from the middle (none at 0).' },
+    { match: /^LFO DEST$/, what: 'What the LFO moves: the pitch (vibrato, sirens), FM depth, cutoff (wobble), level (tremolo), pan (auto-pan) or the delay send.' },
+    { match: /^REVERB$/, what: 'How much of this track goes to the shared plate reverb.' },
   ],
   sketchbook: [
     ...FM_KNOBS,

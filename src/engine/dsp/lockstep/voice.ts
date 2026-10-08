@@ -1,4 +1,4 @@
-import { LS_RATIOS, ratioIndex } from '../../../modules/specs/lockstepDefs'
+import { LOCK_PAGES, LS_RATIOS, ratioIndex } from '../../../modules/specs/lockstepDefs'
 import { Svf } from '../drumVoices'
 import { C4, TAU } from '../util'
 
@@ -25,8 +25,12 @@ export class FmVoice {
   amp = 0
   volts = 0
   out = 0
+  /** Added to the pitch (the LFO), in volts. */
+  bend = 0
+  private glideStep = 0
+  private glideLeft = 0
   /** The playing note's locked knobs (−1 = follows the knob). */
-  readonly locks = new Float64Array(12).fill(-1)
+  readonly locks = new Float64Array(LOCK_PAGES * 4).fill(-1)
 
   constructor(private readonly fs: number) {
     this.sweepK = Math.exp(-1 / (SWEEP_S * fs))
@@ -34,9 +38,19 @@ export class FmVoice {
 
   start(volts: number): void {
     this.volts = volts
+    this.glideLeft = 0
     this.rising = true
     this.mod = 1
     this.sweep = 1
+  }
+
+  /** Glide from the last note's pitch to `volts` over `samples` (a slide):
+   *  legato while that note still sounds, else a new attack that swoops in. */
+  slide(volts: number, samples: number): void {
+    const from = this.volts
+    if (!this.rising && this.amp < 0.01) this.start(from)
+    this.glideLeft = Math.max(1, Math.round(samples))
+    this.glideStep = (volts - from) / this.glideLeft
   }
 
   /** One sample with the knobs `v` (locks already applied). */
@@ -56,9 +70,13 @@ export class FmVoice {
     } else this.amp *= Math.exp(-T60 / (0.02 * Math.pow(200, v[5]) * fs))
     this.mod *= Math.exp(-T60 / (0.01 * Math.pow(300, v[3]) * fs))
     this.sweep *= this.sweepK
+    if (this.glideLeft > 0) {
+      this.volts += this.glideStep
+      this.glideLeft--
+    }
 
     const r = LS_RATIOS[ratioIndex(v[0])]
-    const f = C4 * Math.pow(2, this.volts + v[6] * 5 * this.sweep)
+    const f = C4 * Math.pow(2, this.volts + this.bend + v[6] * 5 * this.sweep)
     const dt = f / fs
     const I = v[1] * v[1] * 8 * this.mod
     const fb = v[2] * 1.4 * this.b1
