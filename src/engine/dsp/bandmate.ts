@@ -18,6 +18,8 @@ export class BandmateDsp extends Dsp {
   private readonly iClk = this.ii('clk')
   private readonly iEnergy = this.ii('energy')
   private readonly iListen = this.ii('listen')
+  private readonly iRst = this.ii('rst')
+  private readonly rst = new Schmitt()
   private readonly pStyle = this.pi('style')
   private readonly pTempo = this.pi('tempo')
   private readonly pEnergy = this.pi('energy')
@@ -114,6 +116,12 @@ export class BandmateDsp extends Dsp {
     const p = this.p
     const a = Math.abs(this.in[this.iListen]) / 5
     this.loud += (a - this.loud) * (a > this.loud ? 0.01 : 0.00005)
+    // RST: back to the top of bar one of a phrase, so fills land where the song's phrases end
+    if (this.rst.rise(this.in[this.iRst])) {
+      this.step = -1
+      this.ph = 1
+      this.barN = 0
+    }
     if (p[this.pRun] >= 0.5) {
       if (this.patched[this.iClk]) {
         if (this.clk.rise(this.in[this.iClk])) this.advance()

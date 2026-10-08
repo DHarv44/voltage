@@ -28,6 +28,7 @@ export class LooperDsp extends Dsp {
   private iClear = this.ii('clear')
   private iClk = this.ii('clk')
   private iSpeed = this.ii('speed')
+  private iRst = this.ii('rst')
   private pLevel = this.pi('level')
   private pSpeed = this.pi('speed')
   private pFb = this.pi('fb')
@@ -57,6 +58,7 @@ export class LooperDsp extends Dsp {
   private readonly trigPlay = new Schmitt()
   private readonly trigClear = new Schmitt()
   private readonly clk = new Schmitt()
+  private readonly rst = new Schmitt()
   private eol = 0
   private wowPh = 0
   private flutPh = 0
@@ -205,6 +207,8 @@ export class LooperDsp extends Dsp {
       this.act(this.pending)
       this.pending = null
     }
+    // RST: the loop goes back to its start (its end, playing backwards), on the downbeat
+    if (this.rst.rise(i[this.iRst]) && this.len > 0) this.pos = p[this.pDir] >= 0.5 ? this.len - 1 : 0
 
     let wet = 0
     if (this.state === S.Rec) this.record(x, p[this.pRspeed] >= 0.5)

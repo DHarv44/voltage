@@ -17,6 +17,8 @@ const BASE = -24
  *  are a keyboard (semitones up from C). */
 export class PocketBassDsp extends Dsp {
   private readonly iClk = this.ii('clk')
+  private readonly iRst = this.ii('rst')
+  private readonly oRst = this.oi('rsto')
   private readonly pTempo = this.pi('tempo')
   private readonly pSwing = this.pi('swing')
   private readonly pVol = this.pi('vol')
@@ -84,7 +86,9 @@ export class PocketBassDsp extends Dsp {
     const p = this.p
     const fs = this.fs
     const c = this.clock
-    if (c.tick(p[this.pRun] >= 0.5, this.patched[this.iClk] === 1, this.in[this.iClk], p[this.pTempo], p[this.pSwing])) {
+    const stepped = c.tick(p[this.pRun] >= 0.5, this.patched[this.iClk] === 1, this.in[this.iClk], p[this.pTempo], p[this.pSwing], this.in[this.iRst])
+    this.out[this.oRst] = c.rstSample()
+    if (stepped) {
       const s = c.step
       if (p[this.pMask] & (1 << s)) {
         const next = (s + 1) % PSTEPS

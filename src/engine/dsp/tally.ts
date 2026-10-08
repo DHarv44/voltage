@@ -46,6 +46,8 @@ export class TallyDsp extends Dsp {
   private readonly iGate = this.ii('gate')
   private readonly iTrig = this.ii('trig')
   private readonly iClk = this.ii('clk')
+  private readonly iRst = this.ii('rst')
+  private readonly rst = new Schmitt()
   private readonly P = {
     mode: this.pi('mode'),
     sound: this.pi('sound'),
@@ -226,6 +228,12 @@ export class TallyDsp extends Dsp {
       if (mode === REC && this.lastMode >= 0) this.writeParam(this.P.mlen, 0) // REC starts a fresh melody
       if (mode !== REC) this.mpos = 0
       this.lastMode = mode
+    }
+    // RST: the rhythm back to its first beat, the tune back to its first note
+    if (this.rst.rise(this.in[this.iRst])) {
+      this.step = -1
+      this.stepAcc = 0
+      this.mpos = 0
     }
     if (this.trig.rise(this.in[this.iTrig])) this.oneKeyDown()
     else if (this.oneKey && this.patched[this.iTrig] && this.in[this.iTrig] < 1) this.oneKey = false

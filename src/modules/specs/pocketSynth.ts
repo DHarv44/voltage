@@ -59,12 +59,16 @@ function pocketLayout(hp: number, spec: SpecLabels, rows: (Control | null)[][]):
   return [{ kind: 'surface', name: 'pocketkeys', x: 4, y: 14, w: w - 8, h: top - BEZEL - 0.8 - 14 }, ...controls]
 }
 
-const CLK_IN: ModuleSpec['inputs'] = [{ id: 'clk', label: 'CLK' }]
+const CLK_IN: ModuleSpec['inputs'] = [
+  { id: 'clk', label: 'CLK' },
+  { id: 'rst', label: 'RST' },
+]
 const SYNTH_OUTS: ModuleSpec['outputs'] = [
   { id: 'out', label: 'OUT' },
   { id: 'clko', label: 'CLK' },
   { id: 'pitch', label: 'PITCH' },
   { id: 'gate', label: 'GATE' },
+  { id: 'rsto', label: 'RST' },
 ]
 const BASS_OUTS = SYNTH_OUTS
 const MELODY_OUTS: ModuleSpec['outputs'] = [...SYNTH_OUTS, { id: 'notes', label: 'NOTES', poly: true }]
@@ -98,8 +102,8 @@ export const pocketbass: ModuleSpec = {
   params: BASS_PARAMS,
   leds: 3,
   controls: pocketLayout(16, { params: BASS_PARAMS, inputs: CLK_IN, outputs: BASS_OUTS }, [
-    [knob('tempo'), knob('swing'), knob('vol'), jack('in', 'clk'), jack('out', 'pitch')],
-    [knob('voice'), knob('oct'), jack('out', 'gate'), jack('out', 'clko'), jack('out', 'out')],
+    [knob('tempo'), knob('swing'), knob('vol'), jack('in', 'clk'), jack('in', 'rst'), jack('out', 'pitch')],
+    [knob('voice'), knob('oct'), jack('out', 'gate'), jack('out', 'clko'), jack('out', 'rsto'), jack('out', 'out')],
   ]),
 }
 
@@ -118,7 +122,7 @@ export const pocketmelody: ModuleSpec = {
   params: MELODY_PARAMS,
   leds: 3,
   controls: pocketLayout(24, { params: MELODY_PARAMS, inputs: CLK_IN, outputs: MELODY_OUTS }, [
-    [knob('tempo'), knob('swing'), knob('vol'), knob('scale'), knob('root'), jack('in', 'clk'), jack('out', 'notes')],
-    [knob('voice'), knob('oct'), null, jack('out', 'clko'), jack('out', 'pitch'), jack('out', 'gate'), jack('out', 'out')],
+    [knob('tempo'), knob('swing'), knob('vol'), knob('scale'), knob('root'), jack('in', 'clk'), jack('in', 'rst'), jack('out', 'notes')],
+    [knob('voice'), knob('oct'), null, jack('out', 'clko'), jack('out', 'rsto'), jack('out', 'pitch'), jack('out', 'gate'), jack('out', 'out')],
   ]),
 }

@@ -44,6 +44,8 @@ export class GrooveDsp extends Dsp {
   private playing = 0
   private lastFired = -1
   private wasRunning = false
+  private rstOut = 0
+  private readonly oRst = this.oi('rsto')
   private accPulse = 0
   /** Live hits arrive between audio blocks; they're played on the next sample. */
   private queued: { voice: number; level: number }[] = []
@@ -103,8 +105,11 @@ export class GrooveDsp extends Dsp {
       this.tempo.reset()
       this.lastFired = -1
       if (pat === 2) this.playing = 0
+      this.rstOut = Math.round(0.003 * this.fs) // followers start over too
     }
     this.wasRunning = running
+    this.out[this.oRst] = this.rstOut > 0 ? 10 : 0
+    if (this.rstOut > 0) this.rstOut--
 
     const external = this.patched[this.iClk] === 1
     const extEdge = this.clkIn.rise(i[this.iClk])

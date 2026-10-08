@@ -22,7 +22,7 @@ export class KinDsp extends Dsp {
     trig: this.ii('trig'), vcacv: this.ii('vcacv'), vel: this.ii('vel'), vcadec: this.ii('vcadec'),
     ext: this.ii('ext'), vcfdec: this.ii('vcfdec'), noise: this.ii('noise'), vcodec: this.ii('vcodec'),
     vcfmod: this.ii('vcfmod'), vco1: this.ii('vco1'), fm: this.ii('fm'), vco2: this.ii('vco2'),
-    tempo: this.ii('tempo'), run: this.ii('run'), adv: this.ii('adv'),
+    tempo: this.ii('tempo'), run: this.ii('run'), adv: this.ii('adv'), rst: this.ii('rst'),
   }
   private O = {
     vca: this.oi('vca'), vcfeg: this.oi('vcfeg'), vcoeg: this.oi('vcoeg'), vco1: this.oi('vco1'),
@@ -46,6 +46,7 @@ export class KinDsp extends Dsp {
   private readonly clock = new TempoClock(this.fs)
   private readonly trigIn = new Schmitt()
   private readonly advIn = new Schmitt()
+  private readonly rstIn = new Schmitt()
   private readonly drift1 = new Drift(this.rng, this.fs)
   private readonly drift2 = new Drift(this.rng, this.fs)
   private readonly tol1 = this.tol(0.01)
@@ -100,7 +101,8 @@ export class KinDsp extends Dsp {
 
     // Transport: RUN (gate when patched), ADV clocks it when patched, else the tempo.
     const running = pt[I.run] ? i[I.run] > 1.2 : p[P.run] >= 0.5
-    if (running && !this.wasRunning) {
+    // starting, or RST: the next advance plays step 1
+    if ((running && !this.wasRunning) || this.rstIn.rise(i[I.rst])) {
       this.clock.reset()
       this.step = KIN_STEPS - 1
     }

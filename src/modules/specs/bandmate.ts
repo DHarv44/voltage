@@ -31,6 +31,7 @@ export const bandmate: ModuleSpec = {
     { id: 'clk', label: 'CLK' },
     { id: 'energy', label: 'ENERGY' },
     { id: 'listen', label: 'LISTEN' },
+    { id: 'rst', label: 'RST' },
   ],
   outputs: [
     ...BAND_ROWS.map((r) => ({ id: r.toLowerCase(), label: r })),
@@ -57,6 +58,7 @@ export const bandmate: ModuleSpec = {
     // everything on one 16 mm column grid: 12, 28, 44, 60, 76, 92
     { kind: 'switch', param: 'run', x: 92, y: 60 },
     { kind: 'in', jack: 'clk', x: 12, y: 84.3 },
+    { kind: 'in', jack: 'rst', x: 12, y: 98.6 },
     { kind: 'in', jack: 'energy', x: 28, y: 84.3 },
     { kind: 'in', jack: 'listen', x: 44, y: 84.3 },
     { kind: 'out', jack: 'acc', x: 60, y: 84.3 },

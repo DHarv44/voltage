@@ -11,18 +11,27 @@ export class PocketClock {
   private wasRunning = false
   private sinceEdge = 0
   private clkOut = 0
+  private rstOut = 0
+  /** True on the sample it started over (RST in, or starting to run). */
+  restarted = false
   private readonly clk = new Schmitt()
+  private readonly rst = new Schmitt()
 
   constructor(
     private readonly steps: number,
     private readonly fs: number,
   ) {}
 
-  /** Call once per sample; true when a new step starts (`step` is updated). */
-  tick(running: boolean, patched: boolean, clkIn: number, tempo: number, swing: number): boolean {
-    if (running && !this.wasRunning) {
+  /** Call once per sample; true when a new step starts (`step` is updated).
+   *  RST in: back before step 1 (the next clock plays it; on its own tempo,
+   *  at once). RST out pulses whenever it starts over, so followers do too. */
+  tick(running: boolean, patched: boolean, clkIn: number, tempo: number, swing: number, rstIn = 0): boolean {
+    const rst = this.rst.rise(rstIn)
+    this.restarted = (running && !this.wasRunning) || rst
+    if (this.restarted) {
       this.step = -1
       this.ph = 1
+      this.rstOut = Math.round(0.003 * this.fs)
     }
     this.wasRunning = running
     if (!running) {
@@ -51,6 +60,13 @@ export class PocketClock {
       this.clkOut = Math.round(0.005 * this.fs)
     }
     return advance
+  }
+
+  /** The RST out jack for this sample. */
+  rstSample(): number {
+    if (this.rstOut <= 0) return 0
+    this.rstOut--
+    return 10
   }
 
   /** The CLK out jack for this sample (a 5 ms pulse per step). */

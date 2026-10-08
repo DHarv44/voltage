@@ -23,6 +23,7 @@ const inputs: ModuleSpec['inputs'] = [
   { id: 'gate', label: 'GATE' },
   { id: 'trig', label: 'ONE KEY' },
   { id: 'clk', label: 'CLK' },
+  { id: 'rst', label: 'RST' },
 ]
 const outputs: ModuleSpec['outputs'] = [
   { id: 'out', label: 'OUT' },
@@ -38,7 +39,7 @@ const sw = (param: string): Control => ({ kind: 'switch', param, x: 0, y: 0 })
 const jack = (kind: 'in' | 'out', id: string): Control => ({ kind, jack: id, x: 0, y: 0 })
 const layout = packRows(
   [
-    [sw('mode'), knob('sound'), sw('oct'), knob('rhythm'), knob('tempo'), knob('balance'), knob('vol'), null],
+    [sw('mode'), knob('sound'), sw('oct'), knob('rhythm'), knob('tempo'), knob('balance'), knob('vol'), null, null],
     [...inputs.map((j) => jack('in', j.id)), ...outputs.map((j) => jack('out', j.id))],
   ],
   { params, inputs, outputs },

@@ -23,6 +23,7 @@ export const life: ModuleSpec = {
   inputs: [
     { id: 'clk', label: 'CLK' },
     { id: 'reseed', label: 'RESEED' },
+    { id: 'rst', label: 'RST' },
   ],
   outputs: [
     ...Array.from({ length: LIFE_H }, (_, i) => ({ id: `r${i + 1}`, label: `R${i + 1}` })),
@@ -47,6 +48,7 @@ export const life: ModuleSpec = {
     ...Array.from({ length: LIFE_H }, (_, i) => ({ kind: 'out' as const, jack: `r${i + 1}`, x: 12 + (i % 4) * 14, y: i < 4 ? 98.9 : 113.5 })),
     { kind: 'out', jack: 'pitch', x: 68, y: 98.9 },
     { kind: 'out', jack: 'pop', x: 82, y: 98.9 },
+    { kind: 'in', jack: 'rst', x: 68, y: 113.5 },
     { kind: 'out', jack: 'eoc', x: 82, y: 113.5 },
   ],
 }

@@ -20,6 +20,8 @@ const TAU = Math.PI * 2
  *  everything you hear can go onto the 4-track loop tape. */
 export class SketchbookDsp extends Dsp implements Player {
   private readonly iClk = this.ii('clk')
+  private readonly iRst = this.ii('rst')
+  private readonly O = { clk: this.oi('clko'), rst: this.oi('rsto'), pitch: this.oi('pitch'), gate: this.oi('gateo'), l: this.oi('l'), r: this.oi('r') }
   private readonly iVoct = this.ii('voct')
   private readonly iGate = this.ii('gate')
   private readonly iAudio = this.ii('audio')
@@ -158,11 +160,6 @@ export class SketchbookDsp extends Dsp implements Player {
     const q = this.p0
     const fs = this.fs
     const running = p[q.run] >= 0.5
-    if (running && !this.wasRunning) {
-      this.tape.rewind(p[q.tin], p[q.tout], p[q.tspd])
-      this.seq.step = -1
-      this.drumStep = -1
-    }
     this.wasRunning = running
     const c = this.clock
     const seq = this.seq
@@ -170,7 +167,14 @@ export class SketchbookDsp extends Dsp implements Player {
     const len = Math.max(1, Math.round(p[q.len]))
     const clocked = this.patched[this.iClk] === 1
     // PATTERN / DRIFT: one step per 16th (or per CLK edge)
-    if (c.tick(running, clocked, this.in[this.iClk], p[q.tempo], p[q.swing])) {
+    const stepped = c.tick(running, clocked, this.in[this.iClk], p[q.tempo], p[q.swing], this.in[this.iRst])
+    // starting, or RST: pattern, drums and tape all go back to the top
+    if (c.restarted) {
+      this.tape.rewind(p[q.tin], p[q.tout], p[q.tspd])
+      seq.step = -1
+      this.drumStep = -1
+    }
+    if (stepped) {
       seq.onStep(type, p, q.n, len, p[q.glen], p[q.dchange], c.stepLen, fs)
       // the drums have their own 16 steps per sound
       this.drumStep = (this.drumStep + 1) % SB_STEPS
@@ -238,11 +242,13 @@ export class SketchbookDsp extends Dsp implements Player {
     }
     const gain = p[q.master] * 2
 
-    o[0] = c.clkSample()
-    o[1] = this.lastVolts
-    o[2] = gates > 0 ? 10 : 0
-    o[3] = Math.tanh((fx.l[0] + tape) * gain) * 5
-    o[4] = Math.tanh((fx.r[0] + tape) * gain) * 5
+    const O = this.O
+    o[O.clk] = c.clkSample()
+    o[O.rst] = c.rstSample()
+    o[O.pitch] = this.lastVolts
+    o[O.gate] = gates > 0 ? 10 : 0
+    o[O.l] = Math.tanh((fx.l[0] + tape) * gain) * 5
+    o[O.r] = Math.tanh((fx.r[0] + tape) * gain) * 5
 
     const a = Math.abs(synth)
     this.livePeak = a > this.livePeak ? a : this.livePeak * 0.99995

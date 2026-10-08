@@ -12,6 +12,8 @@ const N = POCKET_SOUNDS.length
  *  with each step able to override the sound's A/B knobs (parameter locks). */
 export class PocketDsp extends Dsp {
   private readonly iClk = this.ii('clk')
+  private readonly iRst = this.ii('rst')
+  private readonly oRst = this.oi('rsto')
   private readonly pTempo = this.pi('tempo')
   private readonly pSwing = this.pi('swing')
   private readonly pVol = this.pi('vol')
@@ -34,9 +36,11 @@ export class PocketDsp extends Dsp {
   private zapEnv = 0
   private zapT = 0
   private readonly clk = new Schmitt()
+  private readonly rst = new Schmitt()
   private step = -1
   private ph = 1
   private clkOut = 0
+  private rstOut = 0
   private wasRunning = false
 
   constructor(spec: ModuleSpec, fs: number, seed: number) {
@@ -92,9 +96,11 @@ export class PocketDsp extends Dsp {
   tick(): void {
     const p = this.p
     const running = p[this.pRun] >= 0.5
-    if (running && !this.wasRunning) {
+    // starting, or RST: back before step 1 (and tell followers: RST out)
+    if ((running && !this.wasRunning) || this.rst.rise(this.in[this.iRst])) {
       this.step = -1
       this.ph = 1
+      this.rstOut = Math.round(0.003 * this.fs)
     }
     this.wasRunning = running
     if (running) {
@@ -138,6 +144,8 @@ export class PocketDsp extends Dsp {
     this.out[0] = Math.tanh(y * 0.9) * 5 * p[this.pVol]
     this.out[1] = this.clkOut > 0 ? 10 : 0
     if (this.clkOut > 0) this.clkOut--
+    this.out[this.oRst] = this.rstOut > 0 ? 10 : 0
+    if (this.rstOut > 0) this.rstOut--
     this.led[POCKETL.step] = this.step
     for (let s = 0; s < N; s++) this.led[POCKETL.hit0 + s] *= 0.9996
   }

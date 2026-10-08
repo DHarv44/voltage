@@ -36,6 +36,7 @@ const outputs = [
   { id: 'mix', label: 'MIX' },
   { id: 'clk', label: 'CLK' },
   { id: 'acc', label: 'ACC' },
+  { id: 'rsto', label: 'RST' },
 ]
 
 /** Drum-machine system unit: five analog voices, pads, a 16-step sequencer

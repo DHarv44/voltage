@@ -22,6 +22,8 @@ export class LifeDsp extends Dsp {
   private next = new Uint8Array(LIFE_W * LIFE_H)
   private readonly clk = new Schmitt()
   private readonly reseedIn = new Schmitt()
+  private readonly iRst = this.ii('rst')
+  private readonly rstIn = new Schmitt()
   private col = -1
   private ph = 1
   private readonly gate = new Int32Array(LIFE_H)
@@ -104,6 +106,11 @@ export class LifeDsp extends Dsp {
 
   tick(): void {
     if (this.reseedIn.rise(this.in[this.iReseed])) this.reseed()
+    // RST: the scan goes back before the first column (the colony keeps its shape)
+    if (this.rstIn.rise(this.in[this.iRst])) {
+      this.col = -1
+      this.ph = 1
+    }
     if (this.patched[this.iClk]) {
       if (this.clk.rise(this.in[this.iClk])) this.advance()
     } else {

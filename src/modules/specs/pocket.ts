@@ -29,10 +29,14 @@ export const pocket: ModuleSpec = {
   category: 'Systems',
   hp: 16,
   panel: SAND,
-  inputs: [{ id: 'clk', label: 'CLK' }],
+  inputs: [
+    { id: 'clk', label: 'CLK' },
+    { id: 'rst', label: 'RST' },
+  ],
   outputs: [
     { id: 'out', label: 'OUT' },
     { id: 'clko', label: 'CLK' },
+    { id: 'rsto', label: 'RST' },
   ],
   params: [
     { id: 'tempo', label: 'BPM', min: 60, max: 200, def: 112, unit: 'bpm' },
@@ -55,6 +59,8 @@ export const pocket: ModuleSpec = {
     { kind: 'knob', param: 'swing', x: 26, y: 99, size: 'S' },
     { kind: 'knob', param: 'vol', x: 40, y: 99, size: 'S' },
     { kind: 'in', jack: 'clk', x: 54, y: 99 },
+    { kind: 'out', jack: 'rsto', x: 69, y: 99 },
+    { kind: 'in', jack: 'rst', x: 40, y: 113.5 },
     { kind: 'out', jack: 'clko', x: 54, y: 113.5 },
     { kind: 'out', jack: 'out', x: 69, y: 113.5 },
   ],

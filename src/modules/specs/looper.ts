@@ -16,6 +16,7 @@ export const loop: ModuleSpec = {
     { id: 'clear', label: 'CLR' },
     { id: 'clk', label: 'CLK' },
     { id: 'speed', label: 'SPD' },
+    { id: 'rst', label: 'RST' },
   ],
   outputs: [
     { id: 'out', label: 'OUT' },
@@ -51,6 +52,7 @@ export const loop: ModuleSpec = {
     { kind: 'in', jack: 'clear', x: 35.4, y: 89 },
     { kind: 'in', jack: 'clk', x: 45.2, y: 89 },
     { kind: 'in', jack: 'speed', x: 55, y: 89 },
+    { kind: 'in', jack: 'rst', x: 6, y: 108 },
     { kind: 'out', jack: 'out', x: 15.8, y: 108 },
     { kind: 'out', jack: 'wet', x: 30.5, y: 108 },
     { kind: 'out', jack: 'eol', x: 45.2, y: 108 },

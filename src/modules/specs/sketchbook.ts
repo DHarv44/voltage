@@ -207,6 +207,7 @@ const params: ParamSpec[] = [
 /** K1–K4 move the sound's four knobs (±5 V = ± half their travel). */
 const inputs: ModuleSpec['inputs'] = [
   { id: 'clk', label: 'CLK' },
+  { id: 'rst', label: 'RST' },
   { id: 'voct', label: 'V/OCT' },
   { id: 'gate', label: 'GATE' },
   { id: 'audio', label: 'AUDIO' },
@@ -215,6 +216,7 @@ const inputs: ModuleSpec['inputs'] = [
 /** T1–T4: each tape track on its own (after its level). */
 const outputs: ModuleSpec['outputs'] = [
   { id: 'clko', label: 'CLK' },
+  { id: 'rsto', label: 'RST' },
   { id: 'pitch', label: 'PITCH' },
   { id: 'gateo', label: 'GATE' },
   { id: 'l', label: 'L' },

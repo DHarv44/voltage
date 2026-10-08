@@ -37,6 +37,7 @@ const inputs = [
   { id: 'tempo', label: 'TEMPO' },
   { id: 'run', label: 'RUN' },
   { id: 'adv', label: 'ADV' },
+  { id: 'rst', label: 'RST' },
 ]
 const outputs = [
   { id: 'vca', label: 'VCA' },
