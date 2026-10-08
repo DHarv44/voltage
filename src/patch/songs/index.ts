@@ -6,12 +6,13 @@ import { Kit } from '../starters/kit'
 import type { Patch } from '../types'
 import { EARLY_SONGS } from './early'
 import { LATER_SONGS } from './later'
+import { MORE_SONGS } from './more'
 import type { Song } from './types'
 
 export type { Song } from './types'
 
 /** The Songs menu: whole tracks in the style of an era, oldest first. */
-export const SONGS: Song[] = [...EARLY_SONGS, ...LATER_SONGS].sort((a, b) => a.year - b.year)
+export const SONGS: Song[] = [...EARLY_SONGS, ...LATER_SONGS, ...MORE_SONGS].sort((a, b) => a.year - b.year)
 
 /** A song's rack (a whole patch, laid out for a 104 HP case). */
 export function buildSong(song: Song): Patch {
