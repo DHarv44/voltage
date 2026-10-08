@@ -196,7 +196,9 @@ Band** rack.
 ### Learn
 **Learn → Synth fundamentals** is one continuous course, from an empty case to a whole track
 (oscillators → filters → envelopes and VCAs → modulation → sequencing → drums → effects). Each
-lesson picks up where the last ended, and **Finish** leaves you with the rack you built.
+lesson picks up where the last ended, and **Finish** leaves you with the rack you built. **Beyond the
+basics** has lessons on their own (polyphony and chords; a semi-modular and its normals), and **Tours**
+take a factory rack apart module by module (Acid House: who keeps time, who plays, what squelches).
 
 ---
 

@@ -3,14 +3,14 @@ import { SPECS } from '../modules'
 import { fromNorm, toNorm } from '../modules/params'
 import { actions, patchStore } from '../patch/store'
 import { rackMatches } from './continuity'
-import { FUNDAMENTALS } from './lessons/fundamentals'
+import { COURSES, courseOf } from './lessons/courses'
 import type { Patch } from '../patch/types'
 import { settings } from '../ui/settings'
 
 const wait = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms))
 import type { Action, Lesson, Step, Target, TutorialMode } from './types'
 
-export const LESSONS: Lesson[] = [...FUNDAMENTALS]
+export const LESSONS: Lesson[] = COURSES.flatMap((c) => c.lessons)
 
 export interface TutorialState {
   lesson: Lesson | null
@@ -89,10 +89,13 @@ class TutorialRunner {
     void this.enter()
   }
 
-  /** The lesson after this one, if any. */
+  /** The lesson after this one in a continuous course, if any (lessons that
+   *  stand alone have none). */
   get nextLesson(): Lesson | null {
-    const i = this.state.lesson ? LESSONS.indexOf(this.state.lesson) : -1
-    return i >= 0 ? (LESSONS[i + 1] ?? null) : null
+    const lesson = this.state.lesson
+    const course = lesson && courseOf(lesson)
+    if (!lesson || !course?.continuous) return null
+    return course.lessons[course.lessons.indexOf(lesson) + 1] ?? null
   }
 
   /** Carry straight on into the next lesson with the rack you built (or, if
@@ -144,6 +147,7 @@ class TutorialRunner {
         { target: { mod: a.to[0], jack: a.to[1], dir: 'in' }, label: '2' },
       ]
     if (a?.kind === 'add') return [{ target: { lib: a.type } }]
+    if (a?.kind === 'disconnect') return [{ target: { mod: a.to[0], jack: a.to[1], dir: 'in' } }]
     return step.target ? [{ target: step.target }] : []
   }
 
@@ -207,6 +211,8 @@ class TutorialRunner {
         return patchStore
           .get()
           .cables.some((c) => c.from.mod === this.id(a.from[0]) && c.from.jack === a.from[1] && c.to.mod === this.id(a.to[0]) && c.to.jack === a.to[1])
+      case 'disconnect':
+        return !patchStore.get().cables.some((c) => c.to.mod === this.id(a.to[0]) && c.to.jack === a.to[1])
       case 'set': {
         if (atStart) return false
         const m = this.module(a.mod)
@@ -291,6 +297,9 @@ class TutorialRunner {
       }
       case 'connect':
         actions.connect({ mod: this.id(a.from[0]), jack: a.from[1], dir: 'out' }, { mod: this.id(a.to[0]), jack: a.to[1], dir: 'in' }, '#ffb347')
+        return
+      case 'disconnect':
+        actions.removeCablesAt(this.id(a.to[0]), a.to[1])
         return
       case 'set': {
         const m = this.module(a.mod)

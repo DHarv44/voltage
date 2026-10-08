@@ -3,14 +3,18 @@ import { makeModule } from '../patch/factory'
 import { findSlot } from '../patch/layout'
 import type { Patch } from '../patch/types'
 import { rackMatches } from './continuity'
-import { FUNDAMENTALS } from './lessons/fundamentals'
+import { COURSES } from './lessons/courses'
 import type { Action, Lesson, Target } from './types'
 
 /** Dev-time check of the course: play every lesson's steps on its starting
  *  rack (adding modules where the library would put them), and check every
  *  module type, jack and knob a step names exists, and that each lesson ends
  *  with the rack the next one starts from. */
-export function validateLessons(lessons: Lesson[] = FUNDAMENTALS): string[] {
+export function validateCourses(): string[] {
+  return COURSES.flatMap((c) => validateLessons(c.lessons, c.continuous))
+}
+
+export function validateLessons(lessons: Lesson[], continuous = true): string[] {
   const errors: string[] = []
   lessons.forEach((lesson, n) => {
     const start = lesson.build()
@@ -44,6 +48,11 @@ export function validateLessons(lessons: Lesson[] = FUNDAMENTALS): string[] {
         const to = { mod: mods[a.to[0]], jack: a.to[1] }
         patch.cables = patch.cables.filter((c) => !(c.to.mod === to.mod && c.to.jack === to.jack))
         patch.cables.push({ id: `v${patch.cables.length}_${i}`, from: { mod: mods[a.from[0]], jack: a.from[1] }, to, color: '#fff' })
+      } else if (a.kind === 'disconnect') {
+        if (!hasJack(a.to[0], a.to[1], 'in')) errors.push(`${where(i)}: no input ${a.to.join('.')}`)
+        const to = mods[a.to[0]]
+        if (!patch.cables.some((c) => c.to.mod === to && c.to.jack === a.to[1])) errors.push(`${where(i)}: nothing patched into ${a.to.join('.')} to pull out`)
+        patch.cables = patch.cables.filter((c) => !(c.to.mod === to && c.to.jack === a.to[1]))
       } else if (a.kind === 'set') {
         const m = patch.modules.find((x) => x.id === mods[a.mod])
         if (!m || !SPECS[m.type].params.some((p) => p.id === a.param)) errors.push(`${where(i)}: no knob ${a.mod}.${a.param}`)
@@ -55,7 +64,7 @@ export function validateLessons(lessons: Lesson[] = FUNDAMENTALS): string[] {
       if (s.action) apply(s.action, i)
       for (const t of s.then ?? []) apply(t, i)
     })
-    const next = lessons[n + 1]
+    const next = continuous ? lessons[n + 1] : undefined
     if (next && !rackMatches(patch, mods, next.build())) errors.push(`${lesson.id}: doesn't end with the rack “${next.id}” starts from`)
   })
   return errors

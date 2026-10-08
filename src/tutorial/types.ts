@@ -15,6 +15,8 @@ export type Action =
   /** Add a module from the library; later steps call it by `as`. */
   | { kind: 'add'; type: string; as: string }
   | { kind: 'connect'; from: [string, string]; to: [string, string] }
+  /** Pull the cable out of an input (right-click the jack). */
+  | { kind: 'disconnect'; to: [string, string] }
   | { kind: 'set'; mod: string; param: string; value: number }
   /** Notes in semitones from C4 (played for you, or: play any key yourself). */
   | { kind: 'play'; notes: number[]; spacing?: number; hold?: number }
