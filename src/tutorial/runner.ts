@@ -83,6 +83,13 @@ class TutorialRunner {
       if (ev.kind === 'on' || ev.kind === 'off') this.lastNote = performance.now()
       this.check()
     })
+    // a surface played (strummed, waved over…) counts as playing too
+    engine.uiListeners.add((id, ev) => {
+      if (ev.kind !== 'surface') return
+      if (ev.down) this.touched.add(`${id}:${ev.name}`).add(id)
+      this.lastNote = performance.now()
+      this.check()
+    })
     window.addEventListener('pointerdown', () => (this.pointerDown = true), true)
     window.addEventListener('pointerup', () => (this.pointerDown = false), true)
     window.addEventListener('pointercancel', () => (this.pointerDown = false), true)
@@ -120,6 +127,8 @@ class TutorialRunner {
   }
 
   private played = false
+  /** Surfaces played during this step: module ids, and `id:gesture`. */
+  private readonly touched = new Set<string>()
 
   get step(): Step | null {
     return this.state.lesson?.steps[this.state.index] ?? null
@@ -148,6 +157,7 @@ class TutorialRunner {
       ]
     if (a?.kind === 'add') return [{ target: { lib: a.type } }]
     if (a?.kind === 'disconnect') return [{ target: { mod: a.to[0], jack: a.to[1], dir: 'in' } }]
+    if (a?.kind === 'touch') return [{ target: { mod: a.mod, surface: true } }]
     return step.target ? [{ target: step.target }] : []
   }
 
@@ -197,6 +207,7 @@ class TutorialRunner {
     const a = this.step?.action
     if (a?.kind === 'set') this.from = this.module(a.mod)?.params[a.param] ?? 0
     this.played = false
+    this.touched.clear()
     this.state.playPrompt = false
     this.state.done = !a || this.satisfied(a, true)
     this.emit()
@@ -226,6 +237,8 @@ class TutorialRunner {
       }
       case 'play':
         return this.played
+      case 'touch':
+        return this.touched.has(a.name ? `${this.id(a.mod)}:${a.name}` : this.id(a.mod))
       case 'add': {
         // whichever module of that type you added (click or drag) gets the name
         if (this.state.mods[a.as] && this.module(a.as)) return true
@@ -266,7 +279,8 @@ class TutorialRunner {
       if (this.state.index !== index) return
     }
     // let them (or Show me) finish playing, and the last note ring out
-    if (this.state.playPrompt || this.step?.action?.kind === 'play') while (performance.now() - this.lastNote < 2000) await wait(100)
+    const kind = this.step?.action?.kind
+    if (this.state.playPrompt || kind === 'play' || kind === 'touch') while (performance.now() - this.lastNote < 2000) await wait(100)
     await wait(450)
     if (this.state.index === index && this.state.done) await this.next()
   }
@@ -318,6 +332,17 @@ class TutorialRunner {
             else resolve()
           }
           tick()
+        })
+        return
+      }
+      case 'touch': {
+        // the demo gesture, on the module itself
+        const id = this.id(a.mod)
+        const end = Math.max(0, ...a.demo.map((d) => d.at))
+        await new Promise<void>((resolve) => {
+          for (const d of a.demo)
+            this.playTimers.push(window.setTimeout(() => engine.ui(id, { kind: 'surface', name: d.name, x: d.x, y: d.y, down: d.down }), d.at * 1000))
+          this.playTimers.push(window.setTimeout(resolve, end * 1000 + 50))
         })
         return
       }

@@ -7,6 +7,17 @@ export type Target =
   | { ui: 'power' }
   /** A module in the library list (by type). */
   | { lib: string }
+  /** A module's played surface (strings, plate, antennas…). */
+  | { mod: string; surface: true }
+
+/** One gesture of a demo on a played surface, `at` seconds in. */
+export interface SurfaceDemo {
+  name: string
+  x: number
+  y: number
+  down: boolean
+  at: number
+}
 
 /** What a step does. In WALKTHROUGH mode the tutorial performs it; in GUIDED
  *  mode you do it and the tutorial notices. */
@@ -20,6 +31,9 @@ export type Action =
   | { kind: 'set'; mod: string; param: string; value: number }
   /** Notes in semitones from C4 (played for you, or: play any key yourself). */
   | { kind: 'play'; notes: number[]; spacing?: number; hold?: number }
+  /** Play a module's surface (`name`: only that gesture counts); walkthrough
+   *  and Show me play `demo` on it. */
+  | { kind: 'touch'; mod: string; name?: string; demo: SurfaceDemo[] }
 
 export interface Step {
   /** The explanation (a few short sentences). */

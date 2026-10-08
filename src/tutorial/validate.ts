@@ -27,6 +27,8 @@ export function validateLessons(lessons: Lesson[], continuous = true): string[] 
       if (!t || 'ui' in t) return
       if ('lib' in t) {
         if (!SPECS[t.lib]) errors.push(`${where(i)}: no module type ${t.lib}`)
+      } else if ('surface' in t) {
+        if (!spec(t.mod)?.controls.some((c) => c.kind === 'surface')) errors.push(`${where(i)}: ${t.mod} has no surface`)
       } else if ('param' in t) {
         if (!spec(t.mod)?.params.some((p) => p.id === t.param)) errors.push(`${where(i)}: no knob ${t.mod}.${t.param}`)
       } else if (!hasJack(t.mod, t.jack, t.dir)) errors.push(`${where(i)}: no jack ${t.mod}.${t.jack}`)
@@ -48,6 +50,8 @@ export function validateLessons(lessons: Lesson[], continuous = true): string[] 
         const to = { mod: mods[a.to[0]], jack: a.to[1] }
         patch.cables = patch.cables.filter((c) => !(c.to.mod === to.mod && c.to.jack === to.jack))
         patch.cables.push({ id: `v${patch.cables.length}_${i}`, from: { mod: mods[a.from[0]], jack: a.from[1] }, to, color: '#fff' })
+      } else if (a.kind === 'touch') {
+        if (!spec(a.mod)?.controls.some((c) => c.kind === 'surface')) errors.push(`${where(i)}: ${a.mod} has no surface to play`)
       } else if (a.kind === 'disconnect') {
         if (!hasJack(a.to[0], a.to[1], 'in')) errors.push(`${where(i)}: no input ${a.to.join('.')}`)
         const to = mods[a.to[0]]

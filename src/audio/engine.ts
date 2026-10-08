@@ -135,8 +135,12 @@ class AudioEngine {
   }
 
   /** A pad hit or button press on a module's panel. */
+  /** Surfaces being played (the tutorial notices you strum or wave). */
+  readonly uiListeners = new Set<(id: string, ev: UiEvent) => void>()
+
   ui(id: string, ev: UiEvent): void {
     if (this.status.power) this.send({ type: 'ui', id, ev })
+    this.uiListeners.forEach((f) => f(id, ev))
   }
 
   /** Values the engine changed itself (live-recorded steps) go back into the patch. */

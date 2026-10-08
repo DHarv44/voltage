@@ -1,5 +1,6 @@
 import type { Lesson } from '../types'
 import { FUNDAMENTALS } from './fundamentals'
+import { omnichordLesson, thereminLesson } from './instruments'
 import { polyphony } from './polyphony'
 import { semimodular } from './semimodular'
 import { acidTour } from './tours'
@@ -24,7 +25,7 @@ export const COURSES: Course[] = [
   {
     title: 'Beyond the basics',
     note: 'Lessons on their own, each starting from an empty case.',
-    lessons: [polyphony, semimodular],
+    lessons: [polyphony, semimodular, thereminLesson, omnichordLesson],
     continuous: false,
   },
   {

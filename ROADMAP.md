@@ -240,8 +240,10 @@ extend VOLTAGE.
   semi-modular normals, a tour of Acid House~~ (done: the Learn menu is now three courses: Synth
   fundamentals (continuous), Beyond the basics, Tours of the factory racks; a `disconnect` step pulls a
   cable). Tours: Acid House, Jellyfish Dream, Poly Strings, West Coast (`type#n` names the n-th of a
-  type). Still: the played instruments (surfaces can't be watched by the runner yet), the drum machine
-  and the groovebox systems, tours of the POCKET racks.
+  type). Played instruments: the theremin and the omnichord (a `touch` step notices a surface being
+  played, via engine.uiListeners, and walkthrough / Show me replays a demo gesture on it; the surface
+  gets a ring). Still: the drum machine and the groovebox systems, tours of the POCKET racks, more
+  instruments.
 - **XY pad extras**: multi-touch → poly cables on tablets; save the recorded gesture with the patch.
 - **POCKET family** (calculator-sized grooveboxes that clock each other over CLK; our own names, look and
   sounds; no third-party trademarks, artwork, LCD characters or samples):
