@@ -16,7 +16,7 @@ extend VOLTAGE.
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (122)
+### Modules (124)
 (Grouped here by family; the library's own categories are in `modules/types.ts` CATEGORIES.)
 - **POCKET family**: POCKET (drums), POCKET BASS (16 note steps, slide/accent, SUB/SQUARE/ACID), POCKET
   MELODY (scale degrees, per-step NOTE/CHORD/ARP, BELL/PLUCK/LEAD, poly NOTES). Drag a step to set its
@@ -27,6 +27,16 @@ extend VOLTAGE.
   two 4-step sequencers clocked by four polyrhythm dividers, OR/XOR, 12/8-tone equal or just quantizing),
   LOCKSTEP (FM groovebox: parameter locks, conditional trigs, polymeter), LATTICE (16×16 light grid).
 - **Polyphonic**: POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX.
+  - **FM-4** (four-operator FM voice, 8 notes): nine factory voices (E.PIANO, BASS, BELL, BRASS, ORGAN,
+    MARIMBA, CLAV, PAD, LEAD) as operator recipes, reshaped by macro knobs (BRIGHT scales the
+    modulators, DECAY stretches the envelopes, FEEDBK, DETUNE, ATTACK, RELEASE, VEL SENS) and an ALGO
+    override (eight 4-op algorithms). Key sync, keyboard-scaled decays. A screen draws the algorithm
+    with each operator lit by its envelope.
+  - **SWARM** (supersaw, 8 notes × 7 saws): the original's detune law and centre/side mix curves,
+    equal-power stereo fan (SPREAD), sub, a 12 dB filter per note and side, AR envelope; V/OCT alone
+    makes it a drone. A screen shows the saws fanned in pitch and stereo.
+  - Both play from the keys when GATE is empty (their own voice allocator), from POLY·CV when patched
+    (a mono gate over a poly V/OCT gates the whole chord), and have a POLY out per note.
 - **Sources**: VCO, COMPLEX (Buchla-style), WAVE (band-limited wavetable), SUB, NOISE.
 - **Filters**: LADDER, SVF, MS-12, LPG (dual vactrol low-pass gate: fast to light, slow and slower to go
   dark; STRIKE for the west-coast "bongo"; VCA / COMBO / LP).
@@ -219,7 +229,7 @@ Our own versions throughout: inspired by the classics, our own names, panels and
   1. ~~Mix bus~~ (done: CONSOLE with per-channel sidechain DUCK, GLUE bus compressor, MASTER EQ /
      width / limiter). Later: multiband ("OTT"-style), a channel compressor per strip.
   2. ~~Vocoder and low-pass gate~~ (done: VOCODER, LPG).
-  3. FM voice (DX7-style EP/bass) and supersaw / unison voice stacking.
+  3. ~~FM voice and supersaw~~ (done: FM-4, SWARM). Still open: unison stacking for the analog poly voice.
   4. Knob-motion recording (automation that loops) and resampling (record the master or any cable
      straight into SAMPLE / LOOP / CHOP).
   5. Ambient toolkit: granular (Clouds/Morphagene-style), shimmer reverb, pitch shifter / harmoniser.

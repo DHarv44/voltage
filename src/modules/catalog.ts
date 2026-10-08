@@ -69,6 +69,14 @@ export const CATALOG: Record<string, Entry> = {
   padsr: { tags: ['poly', 'modulation'], aka: ['polyphonic envelope'] },
   pvca: { tags: ['poly'], aka: ['polyphonic vca'] },
   polymix: { tags: ['poly', 'mix'], aka: ['poly merge', 'poly split'] },
+  fm4: {
+    tags: ['poly', 'chords', 'melody', 'bass'],
+    aka: ['fm', 'dx7', 'dx', 'yamaha', 'tx81z', 'operator', 'frequency modulation', 'electric piano', 'rhodes', 'e.piano', 'bell', 'synth voice'],
+  },
+  swarm: {
+    tags: ['poly', 'chords', 'melody', 'stereo'],
+    aka: ['supersaw', 'jp-8000', 'trance', 'edm', 'unison', 'detune', 'hoover', 'saw stack', 'synth voice'],
+  },
   // Oscillators
   vco: { tags: ['bass', 'melody'], aka: ['oscillator', 'saw', 'square', 'pwm', 'sync'] },
   complex: { tags: ['melody', 'texture'], aka: ['buchla 259', 'west coast', 'complex oscillator', 'fm', 'wavefolder'] },

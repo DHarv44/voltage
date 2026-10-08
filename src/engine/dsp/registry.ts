@@ -74,6 +74,8 @@ import { GlueDsp } from './glue'
 import { MasterDsp } from './master'
 import { VocoderDsp } from './vocoder'
 import { LpgDsp } from './lpg'
+import { Fm4Dsp } from './fm4'
+import { SwarmDsp } from './swarm'
 import { OrbitDsp } from './orbit'
 import { LifeDsp } from './life'
 import { FlockDsp } from './flock'
@@ -194,6 +196,8 @@ const CIRCUITS: Record<string, DspCtor> = {
   master: MasterDsp,
   vocoder: VocoderDsp,
   lpg: LpgDsp,
+  fm4: Fm4Dsp,
+  swarm: SwarmDsp,
   orbit: OrbitDsp,
   life: LifeDsp,
   flock: FlockDsp,

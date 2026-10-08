@@ -187,6 +187,12 @@ for (let n = 1; n <= 8; n++) {
   OVERRIDES[`life:out:r${n}`] = { signal: 'gate', what: `Row ${n}: high while the scanned cell in that row is alive.` }
 }
 for (const m of ['a', 'b']) for (let n = 1; n <= 3; n++) OVERRIDES[`mult:out:${m}${n}`] = { signal: 'cv', what: `A copy of input ${m.toUpperCase()}.` }
+for (const t of ['fm4', 'swarm']) {
+  OVERRIDES[`${t}:in:gate`] = { signal: 'gate', what: 'Poly gate (from POLY·CV): each voice plays while its gate is high. Leave it empty to play from the keys.' }
+  OVERRIDES[`${t}:out:poly`] = { signal: 'audio', what: 'Each note on its own wire (a poly cable): for a P-VCA or P-LADDER per note.' }
+}
+OVERRIDES['fm4:in:vel'] = { signal: 'cv', what: 'Velocity per note (from POLY·CV): harder notes are louder and brighter.' }
+OVERRIDES['swarm:in:voct'] = { signal: 'pitch', what: 'The notes (V/OCT, poly or mono). With no GATE patched, it drones on these notes.' }
 OVERRIDES['echo:in:cv'] = { signal: 'cv', what: 'Moves the RATE (the tape speed): the repeats bend in pitch.' }
 
 export interface JackInfo {

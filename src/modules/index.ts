@@ -62,6 +62,7 @@ import { lockstep } from './specs/lockstep'
 import { lattice } from './specs/lattice'
 import { console_, glue, master } from './specs/mixbus'
 import { lpg, vocoder } from './specs/voiceFx'
+import { fm4, swarm } from './specs/synthVoices'
 import { orbit } from './specs/orbit'
 import { life } from './specs/life'
 import { flock } from './specs/flock'
@@ -90,6 +91,8 @@ export const SPEC_LIST: ModuleSpec[] = [
   padsr,
   pvca,
   polymix,
+  fm4,
+  swarm,
   tapekeys,
   kick,
   snare,

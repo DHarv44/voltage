@@ -13,12 +13,14 @@ import { PROCESSOR_STARTERS } from './processors'
 import { RHYTHM_STARTERS } from './rhythm'
 import { SOURCE_STARTERS } from './sources'
 import type { Starter } from './types'
+import { VOICE_STARTERS } from './voices'
 
 export type { Starter } from './types'
 
 /** Every module's ready-to-play rig, by module type. */
 export const STARTERS: Record<string, Starter> = {
   ...SOURCE_STARTERS,
+  ...VOICE_STARTERS,
   ...INSTRUMENT_STARTERS,
   ...PROCESSOR_STARTERS,
   ...EFFECT_STARTERS,

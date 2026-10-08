@@ -36,6 +36,7 @@ import { Bandmate } from './Bandmate'
 import { AudioIn, Camera, Gamepad } from './Inputs'
 import { Vector, Waterfall } from './VisualOut'
 import { Accident, Macro, Scenes } from './Perform'
+import { Fm4Screen, SwarmScreen } from './SynthScreens'
 
 /** Played instrument surfaces, by the `name` a spec's surface control uses. */
 export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
@@ -80,4 +81,6 @@ export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
   scenes: Scenes,
   macro: Macro,
   accident: Accident,
+  fm4: Fm4Screen,
+  swarm: SwarmScreen,
 }
