@@ -1,4 +1,4 @@
-import { chords, melody, mix, toOut, voice, type Jack, type Kit } from './kit'
+import { chords, melody, mix, roomy, toOut, voice, type Kit } from './kit'
 import { PHRASES } from './material'
 import type { Starter } from './types'
 
@@ -35,13 +35,6 @@ function polyRig(
   } else k.wire([pm, 'sum'], [plate, 'in'])
   toOut(k, [plate, 'l'], [plate, 'r'])
   return pm
-}
-
-/** A source that makes its own notes (or is played), into a plate and out. */
-function roomy(k: Kit, src: Jack, plate = 0.3, vol?: number) {
-  const p = k.add('plate', { decay: 0.6, mix: plate })
-  k.wire(src, [p, 'in'])
-  toOut(k, [p, 'l'], [p, 'r'], vol)
 }
 
 export const SOURCE_STARTERS: Record<string, Starter> = {
@@ -172,16 +165,6 @@ export const SOURCE_STARTERS: Record<string, Starter> = {
       toOut(k, mix(k, [[plate, 'l'], bass.out], [0.7, 0.6]))
     },
   },
-  tapekeys: {
-    howTo: 'Tape strings playing a chord progression. Try FLUTE and CHOIR, and WOW.',
-    build(k) {
-      const c = chords(k, { bpm: 80 })
-      const keys = k.add('tapekeys')
-      k.wire(c.notes, [keys, 'voct'])
-      k.wire(c.gate, [keys, 'gate'])
-      roomy(k, [keys, 'out'])
-    },
-  },
   vco: {
     howTo: 'Two VCOs a few cents apart, one saw and one pulse whose width an LFO slowly sweeps (PWM): the raw, moving sound of analog. Turn FINE, WIDTH and PWM.',
     build(k) {
@@ -193,71 +176,6 @@ export const SOURCE_STARTERS: Record<string, Starter> = {
       k.wire(m.pitch, [b, 'voct'])
       k.wire([lfo, 'tri'], [b, 'pwm'])
       toOut(k, voice(k, null, m.gate, { audio: mix(k, [[a, 'saw'], [b, 'sqr']], [0.5, 0.5]), env: { a: 0.02, d: 0.5, s: 0.8, r: 0.6 }, filter: { type: 'vcf', params: { cutoff: 1600, res: 0.2, cv: 0.3 }, out: 'lp4' } }).out)
-    },
-  },
-  theremin: {
-    howTo: 'Move the pointer over the THEREMIN: across for pitch, up for volume.',
-    played: true,
-    build(k) {
-      const t = k.add('theremin')
-      const echo = k.add('bbd', { time: 0.35, fb: 0.35, mix: 0.3 })
-      k.wire([t, 'out'], [echo, 'in'])
-      roomy(k, [echo, 'out'], 0.25)
-    },
-  },
-  omnichord: { howTo: 'Click a chord button, then strum the plate.', played: true, build: (k) => roomy(k, [k.add('omnichord'), 'out']) },
-  chordwheel: { howTo: 'Click a chord on the wheel to play it.', played: true, build: (k) => roomy(k, [k.add('chordwheel'), 'out']) },
-  musicbox: { howTo: 'The music box plays its tune. Click the drum to change the notes.', build: (k) => roomy(k, [k.add('musicbox'), 'out'], 0.35) },
-  strike: {
-    howTo: 'A handpan groove in D Kurd: low ding, the ring of notes around it, space between. Click the face to join in; try STEEL PAN and KALIMBA.',
-    build(k) {
-      const m = melody(k, { notes: [2, 9, 10, 2, 12, 9, 7, 5], gates: [1, 0, 1, 1, 0, 1, 1, 0], rate: 'x2', bpm: 92 })
-      const s = k.add('strike')
-      k.wire(m.pitch, [s, 'voct'])
-      k.wire(m.trig, [s, 'trig'])
-      roomy(k, [s, 'out'])
-    },
-  },
-  tanpura: { howTo: 'The tanpura drones on its own. Try SA (the key) and JAWARI.', build: (k) => roomy(k, [k.add('tanpura'), 'out'], 0.2) },
-  gamelan: {
-    howTo: 'A small gamelan: a saron plays the balungan (the core melody, one note a beat) and the big gong closes every phrase. Switch LARAS between slendro and pelog; feel the OMBAK beating.',
-    build(k) {
-      const m = melody(k, { notes: [0, 2, 4, 7, 9, 7, 4, 2], rate: 'x1', bpm: 80 })
-      const saron = k.add('gamelan', { inst: 0 })
-      const gong = k.add('gamelan', { inst: 2, level: 0.9 })
-      k.wire(m.pitch, [saron, 'voct'])
-      k.wire(m.trig, [saron, 'trig'])
-      k.wire([m.clock, 'bar'], [gong, 'trig'])
-      roomy(k, mix(k, [[saron, 'out'], [gong, 'out']], [0.7, 0.8]))
-    },
-  },
-  bowl: {
-    howTo: 'A singing bowl struck once a bar. Click it to strike, drag round the rim to sing.',
-    build(k) {
-      const c = k.add('clock', { bpm: 60 })
-      const b = k.add('bowl')
-      k.wire([c, 'bar'], [b, 'strike'])
-      roomy(k, [b, 'out'], 0.35)
-    },
-  },
-  harp: {
-    howTo: 'Broken chords running up and down the HARP in 16ths. Drag across the strings for a glissando; change KEY with the pedals.',
-    build(k) {
-      const m = melody(k, { phrase: PHRASES.arpeggio })
-      const h = k.add('harp', { sustain: 1.4 })
-      k.wire(m.pitch, [h, 'voct'])
-      k.wire(m.trig, [h, 'trig'])
-      roomy(k, [h, 'out'])
-    },
-  },
-  stylophone: {
-    howTo: 'Touch the metal keyboard with the stylus (drag along it).',
-    played: true,
-    build(k) {
-      const s = k.add('stylophone')
-      const sp = k.add('spring', { mix: 0.25 })
-      k.wire([s, 'out'], [sp, 'in'])
-      toOut(k, [sp, 'out'])
     },
   },
   complex: {

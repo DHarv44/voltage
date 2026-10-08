@@ -132,6 +132,14 @@ export function mix(k: Kit, ins: Jack[], levels: number[] = []): Jack {
   return [m, 'out']
 }
 
+/** A source into a plate and out (stereo): for anything that sounds better
+ *  in a room. */
+export function roomy(k: Kit, src: Jack, plate = 0.3, vol?: number): void {
+  const p = k.add('plate', { decay: 0.6, mix: plate })
+  k.wire(src, [p, 'in'])
+  toOut(k, [p, 'l'], [p, 'r'], vol)
+}
+
 /** To the speakers (stereo if given a right channel). */
 export function toOut(k: Kit, l: Jack, r?: Jack, vol = 0.55): string {
   const out = k.add('output', { vol })

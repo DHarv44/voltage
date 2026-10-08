@@ -5,6 +5,8 @@ import { sanitize } from '../persist'
 import type { Patch } from '../types'
 import { CONTROL_STARTERS } from './control'
 import { EFFECT_STARTERS } from './effects'
+import { INSTRUMENT_STARTERS } from './instruments'
+import { SIMULATION_STARTERS } from './simulations'
 import { Kit } from './kit'
 import { OTHER_STARTERS } from './other'
 import { PROCESSOR_STARTERS } from './processors'
@@ -17,9 +19,11 @@ export type { Starter } from './types'
 /** Every module's ready-to-play rig, by module type. */
 export const STARTERS: Record<string, Starter> = {
   ...SOURCE_STARTERS,
+  ...INSTRUMENT_STARTERS,
   ...PROCESSOR_STARTERS,
   ...EFFECT_STARTERS,
   ...CONTROL_STARTERS,
+  ...SIMULATION_STARTERS,
   ...RHYTHM_STARTERS,
   ...OTHER_STARTERS,
 }
