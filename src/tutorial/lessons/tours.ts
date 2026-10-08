@@ -2,16 +2,17 @@ import { PRESETS } from '../../patch/presets'
 import type { Lesson } from '../types'
 import { powerStep } from './common'
 
-/** A factory rack, with names for the modules a tour talks about (each the
- *  first module of its type). */
-function presetRack(id: string, names: Record<string, string>) {
+/** A factory rack, with names for the modules a tour talks about: each the
+ *  first module of its type, or `type#n` for the n-th. */
+export function presetRack(id: string, names: Record<string, string>) {
   return () => {
     const preset = PRESETS.find((p) => p.id === id)
     if (!preset) throw new Error(`no preset ${id}`)
     const patch = preset.build()
     const mods: Record<string, string> = {}
-    for (const [name, type] of Object.entries(names)) {
-      const m = patch.modules.find((x) => x.type === type)
+    for (const [name, key] of Object.entries(names)) {
+      const [type, nth = '1'] = key.split('#')
+      const m = patch.modules.filter((x) => x.type === type)[Number(nth) - 1]
       if (m) mods[name] = m.id
     }
     return { patch, mods }

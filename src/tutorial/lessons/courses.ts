@@ -3,6 +3,7 @@ import { FUNDAMENTALS } from './fundamentals'
 import { polyphony } from './polyphony'
 import { semimodular } from './semimodular'
 import { acidTour } from './tours'
+import { jellyTour, stringsTour, westTour } from './tours2'
 
 export interface Course {
   title: string
@@ -29,7 +30,7 @@ export const COURSES: Course[] = [
   {
     title: 'Tours of the factory racks',
     note: 'A factory rack, module by module: who does what, and the knobs to play.',
-    lessons: [acidTour],
+    lessons: [acidTour, jellyTour, stringsTour, westTour],
     continuous: false,
   },
 ]
