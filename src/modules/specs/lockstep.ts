@@ -2,8 +2,10 @@ import { packRows } from '../panelMetrics'
 import { HP_MM, type Control, type ModuleSpec, type ParamSpec } from '../types'
 import { GRAPHITE } from './panels'
 import {
+  chainId,
   condId,
   knobId,
+  LS_CHAIN,
   LOCK_PAGES,
   lockId,
   LS_ALGOS,
@@ -63,6 +65,10 @@ const params: ParamSpec[] = [
   opt('page', 'PAGE', LS_PAGES, 0),
   opt('trk', 'TRACK', ['1', '2', '3', '4'], 0),
   opt('pat', 'PATTERN', LS_PATTERNS, 0),
+  // the chain: CHAIN on plays slots 1..length, a bar each (factory: A A B C)
+  opt('chon', 'CHAIN', ['OFF', 'ON'], 0),
+  { id: 'chlen', label: 'CHAIN LENGTH', min: 0, max: LS_CHAIN, def: 4, stepped: true },
+  ...Array.from({ length: LS_CHAIN }, (_, i) => opt(chainId(i), `CHAIN ${i + 1}`, LS_PATTERNS, [0, 0, 1, 2][i] ?? 0)),
   opt('run', 'PLAY', ['STOP', 'PLAY'], 0),
   opt('fill', 'FILL', ['OFF', 'FILL'], 0),
   { id: 'tempo', label: 'TEMPO', min: 40, max: 240, def: 122, unit: 'bpm' },
@@ -100,6 +106,7 @@ const inputs: ModuleSpec['inputs'] = [
   { id: 'run', label: 'RUN' },
   { id: 'fill', label: 'FILL' },
   { id: 'reset', label: 'RESET' },
+  { id: 'pat', label: 'PAT' },
 ]
 /** T1–T4: each track's voice on its own (after LEVEL, before PAN and delay). */
 const outputs: ModuleSpec['outputs'] = [
@@ -126,7 +133,8 @@ const FACE_Y = 14
  *  ratio sets) through a filter; sixteen steps per track with its own length
  *  and speed; every step can lock any of the twelve sound knobs (a
  *  parameter lock), carry its own note, and a condition (1:2, 50%, FILL…).
- *  Four patterns A–D share the sounds; a new one cues for the end of the bar. */
+ *  Four patterns A–D share the sounds; a new one cues for the end of the bar;
+ *  a CHAIN plays up to eight in turn; PAT in picks one by voltage. */
 export const lockstep: ModuleSpec = {
   type: 'lockstep',
   title: 'LOCKSTEP',

@@ -352,8 +352,12 @@ Have: MONO-1, STUDIO-3, GROOVE-1, SKETCHBOOK, KIN-8, UNDERTONE, LOCKSTEP, LATTIC
        and PASTE (one undo); with a step picked the pattern row becomes UNLOCK / CLEAR / DONE.
        Factory: A the groove, B a busier variation, C a breakdown (the kick only with FILL held),
        D blank.
-     - Phase 2, still to do: pattern chaining, a PATTERN CV in, slides, a reverb send, per-track
-       LFO; then the sampler voice (with the sampler core).
+     - Phase 2, third part (done): CHAIN (up to eight patterns, a bar each, each starting from step 1;
+       tap CHAIN to play / stop it, hold it to write a new one by tapping patterns, tap to finish; the
+       header shows the chain with the slot playing; factory A A B C) and PAT in (0–10 V picks A–D in
+       2.5 V bands, cued for the bar). Both move the PATTERN param, so the face follows.
+     - Phase 2, still to do: slides, a reverb send, per-track LFO; then the sampler voice (with the
+       sampler core).
   4. **Tenori-on-style light grid: LATTICE** (40 HP).
      - ~~Phase 1~~ (done): 16×16 lights, four layers drawn on the same grid (selected layer bright,
        the others dim, each its own colour); per layer MODE (SCORE: columns are time, rows pitch, a

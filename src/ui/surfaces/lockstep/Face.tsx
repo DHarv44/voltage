@@ -24,7 +24,7 @@ import { drawCanvasKnob, useCanvasKnobs, type CanvasKnob } from '../canvasKnob'
 import { RES, useFrame, type SurfaceProps } from '../common'
 import { lsButtons } from './buttons'
 import { lsNote } from './clipboard'
-import { BTN, ENC_R, ENC_X, ENC_Y, keyAt, keyRect, LABEL_Y, lockstepSel, SCREEN } from './layout'
+import { BTN, chainRec, ENC_R, ENC_X, ENC_Y, keyAt, keyRect, LABEL_Y, lockstepSel, SCREEN } from './layout'
 import { drawLsScreen, hasLocks } from './screen'
 
 const LOCK = '#ff8a2b'
@@ -86,7 +86,7 @@ export function LockstepFace({ inst, spec, x, y, w, h }: SurfaceProps) {
     ctx.beginPath()
     ctx.roundRect(0, 0, W, H, H * 0.04)
     ctx.fill()
-    drawLsScreen(ctx, { x: SCREEN.x * W, y: SCREEN.y * H, w: SCREEN.w * W, h: SCREEN.h * H }, { p, led, sel: s, spec: specOf, note: lsNote.get(mod) })
+    drawLsScreen(ctx, { x: SCREEN.x * W, y: SCREEN.y * H, w: SCREEN.w * W, h: SCREEN.h * H }, { p, led, sel: s, spec: specOf, note: lsNote.get(mod), writing: chainRec.has(mod) })
     const page = Math.round(p.page)
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'

@@ -1,7 +1,7 @@
-import { LOCK_PAGES, lockId, LS_PAGES, LS_PATTERNS, LS_TRACK_COLORS, muteId } from '../../../modules/specs/lockstepDefs'
+import { chainId, LOCK_PAGES, lockId, LS_CHAIN, LS_PAGES, LS_PATTERNS, LS_TRACK_COLORS, muteId } from '../../../modules/specs/lockstepDefs'
 import { actions } from '../../../patch/store'
 import { lsClip, lsNote } from './clipboard'
-import { CLUSTER_X, lockstepSel, PAGE_X, PAGE_Y, ROW_Y } from './layout'
+import { chainRec, CLUSTER_X, lockstepSel, PAGE_X, PAGE_Y, ROW_Y } from './layout'
 
 export interface Button {
   label: string
@@ -19,9 +19,9 @@ export interface Button {
 const PAT_COLOR = '#c9cbd1'
 
 /** LOCKSTEP's buttons: the pages; tracks (hold to mute); patterns A–D (a
- *  pattern picked while playing waits for the bar, and blinks till then);
- *  PLAY, FILL, COPY, PASTE. With a step picked the pattern row becomes
- *  UNLOCK, CLEAR and DONE, and COPY / PASTE work on that step. */
+ *  pattern picked while playing waits for the bar, and blinks till then) and
+ *  CHAIN; PLAY, FILL, COPY, PASTE. With a step picked the pattern row
+ *  becomes UNLOCK, CLEAR and DONE, and COPY / PASTE work on that step. */
 export function lsButtons(mod: string, p: Record<string, number>, playing: number): Button[] {
   const set = (id: string, v: number) => actions.setParam(mod, id, v)
   const write = (writes: [string, number][], label: string) =>
@@ -67,13 +67,40 @@ export function lsButtons(mod: string, p: Record<string, number>, playing: numbe
       },
     },
   ]
-  if (s < 0)
+  if (s < 0) {
+    const writing = chainRec.has(mod)
+    const len = Math.round(p.chlen ?? 0)
     out.push(
       ...LS_PATTERNS.map((label, k) => {
         const cued = run && k === pat && k !== playing
-        return { label, x: CLUSTER_X[k], y: ROW_Y[1], color: PAT_COLOR, lit: k === pat && (!cued || blink), press: () => set('pat', k) }
+        // writing a chain, a tap adds the pattern to it
+        const press = writing
+          ? () => len < LS_CHAIN && write([[chainId(len), k], ['chlen', len + 1]], 'chain')
+          : () => set('pat', k)
+        return { label, x: CLUSTER_X[k], y: ROW_Y[1], color: PAT_COLOR, lit: k === pat && (!cued || blink), press }
       }),
+      // CHAIN: tap plays the chain (or stops it); hold writes a new one, tap to finish
+      {
+        label: writing ? (blink ? '● CHAIN' : 'CHAIN') : 'CHAIN',
+        x: CLUSTER_X[4],
+        y: ROW_Y[1],
+        lit: writing ? blink : (p.chon ?? 0) >= 0.5,
+        press: () => {
+          if (writing) {
+            chainRec.delete(mod)
+            set('chon', len > 0 ? 1 : 0)
+          } else if (len === 0) {
+            chainRec.add(mod)
+          } else set('chon', (p.chon ?? 0) >= 0.5 ? 0 : 1)
+        },
+        hold: () => {
+          chainRec.add(mod)
+          write([['chon', 0], ['chlen', 0]], 'chain')
+          lsNote.say(mod, 'TAP PATTERNS, THEN CHAIN')
+        },
+      },
     )
+  }
   else
     out.push(
       {

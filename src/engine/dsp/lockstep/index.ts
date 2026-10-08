@@ -3,12 +3,15 @@ import { Schmitt } from '../cores'
 import { FX_DELAY, SketchFx } from '../sketchbook/fx'
 import { rails } from '../util'
 import {
+  chainId,
   condId,
   knobId,
   LOCK_PAGES,
   lockId,
   lockValue,
   LS_BAR,
+  LS_CHAIN,
+  LS_PAT_VOLTS,
   LS_PATTERNS,
   LS_SPEED_X,
   LS_STEPS,
@@ -67,7 +70,13 @@ export class LockstepDsp extends Dsp {
   private P = {
     run: this.pi('run'), fill: this.pi('fill'), tempo: this.pi('tempo'), swing: this.pi('swing'),
     dtime: this.pi('dtime'), dfb: this.pi('dfb'), master: this.pi('master'), pat: this.pi('pat'),
+    chon: this.pi('chon'), chlen: this.pi('chlen'),
   }
+  private iPat = this.ii('pat')
+  private chIdx = Int32Array.from({ length: LS_CHAIN }, (_, i) => this.pi(chainId(i)))
+  /** The chain slot playing (−1: the chain starts at the next bar). */
+  private slot = -1
+  private chainWas = false
   private kIdx = Array.from({ length: LS_TRACKS }, (_, t) => Int32Array.from({ length: KNOBS }, (_, j) => this.pi(knobId(t, j))))
   private algoIdx = Int32Array.from({ length: LS_TRACKS }, (_, t) => this.pi(`algo${t}`))
   private rootIdx = Int32Array.from({ length: LS_TRACKS }, (_, t) => this.pi(`root${t}`))
@@ -122,12 +131,30 @@ export class LockstepDsp extends Dsp {
     this.edges = 0
     this.origin = 0
     this.bar = 0
+    this.chainWas = this.chaining()
+    if (this.chainWas) {
+      this.slot = 0
+      this.show(this.chainPat(0))
+    }
     this.begin(this.cued())
     this.rstOut = Math.round(0.003 * this.fs) // followers start over too
   }
 
   private cued(): number {
     return Math.max(0, Math.min(LS_PATTERNS.length - 1, Math.round(this.p[this.P.pat])))
+  }
+
+  private chaining(): boolean {
+    return this.p[this.P.chon] >= 0.5 && Math.round(this.p[this.P.chlen]) > 0
+  }
+
+  private chainPat(i: number): number {
+    return Math.round(this.p[this.chIdx[i]])
+  }
+
+  /** The face follows the pattern a chain or PAT in picked. */
+  private show(pat: number): void {
+    if (pat !== Math.round(this.p[this.P.pat])) this.writeParam(this.P.pat, pat)
   }
 
   /** Pattern `pat` from its first step. */
@@ -194,12 +221,26 @@ export class LockstepDsp extends Dsp {
       if (this.period > 0) stepLen = this.period / this.fs
     } else if (running) this.phase += p[P.tempo] / 15 / this.fs
 
+    // the chain (from slot 1 at the next bar when it's switched on), or PAT in
+    const chain = this.chaining()
+    if (chain !== this.chainWas) {
+      this.chainWas = chain
+      this.slot = -1
+    }
+    if (!chain && this.patched[this.iPat]) this.show(Math.max(0, Math.min(LS_PATTERNS.length - 1, Math.floor(i[this.iPat] / LS_PAT_VOLTS))))
     // a new pattern: straight away when stopped, else from the next bar
     const want = this.cued()
     if (running) {
       while (this.phase - this.bar >= LS_BAR) {
         this.bar += LS_BAR
-        if (want !== this.playing) {
+        if (chain) {
+          // every bar the chain moves on, and its pattern starts from step 1
+          this.slot = (this.slot + 1) % Math.round(p[P.chlen])
+          const next = this.chainPat(this.slot)
+          this.show(next)
+          this.origin = this.bar
+          this.begin(next)
+        } else if (want !== this.playing) {
           this.origin = this.bar
           this.begin(want)
         }
@@ -262,5 +303,6 @@ export class LockstepDsp extends Dsp {
     this.led[LSL.beat] = running && this.phase % 4 < 0.5 ? 1 : 0
     this.led[LSL.fill] = fill ? 1 : 0
     this.led[LSL.pat] = this.playing
+    this.led[LSL.chain] = chain && running ? this.slot : -1
   }
 }

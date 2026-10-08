@@ -10,10 +10,10 @@ export const ENC_R = 0.085
 export const LABEL_Y = 0.355
 export const PAGE_Y = 0.5
 export const PAGE_X = [0.385, 0.442, 0.499, 0.556, 0.613, 0.67]
-export const CLUSTER_X = [0.745, 0.805, 0.865, 0.925]
+export const CLUSTER_X = [0.725, 0.7785, 0.832, 0.8855, 0.939]
 /** Cluster rows: tracks, patterns, transport. */
 export const ROW_Y = [0.2, 0.35, 0.5]
-export const BTN = { w: 0.05, h: 0.13 }
+export const BTN = { w: 0.047, h: 0.13 }
 export const KEYS = { x0: 0.012, x1: 0.988, y: 0.68, h: 0.28 }
 
 /** Step key s's rectangle (fractions), with a wider gap between beats. */
@@ -37,6 +37,9 @@ export function keyAt(fx: number, fy: number): number {
 
 /** The selected step per module (−1 = none): the step whose locks, note and
  *  condition the encoders edit. UI state only; the steps are params. */
+/** Modules whose chain is being written (pattern taps add to it). UI state. */
+export const chainRec = new Set<string>()
+
 const selected = new Map<string, number>()
 export const lockstepSel = {
   get: (mod: string): number => selected.get(mod) ?? -1,

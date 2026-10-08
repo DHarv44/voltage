@@ -50,6 +50,11 @@ export const muteId = (t: number) => `mute${t}`
 export const LS_PATTERNS = ['A', 'B', 'C', 'D']
 /** A pattern change waits for the end of the bar: this many master 16ths. */
 export const LS_BAR = 16
+/** A chain: up to this many patterns played in turn, a bar each. */
+export const LS_CHAIN = 8
+export const chainId = (i: number) => `ch${i}`
+/** PAT in: each pattern's share of 0–10 V. */
+export const LS_PAT_VOLTS = 2.5
 const pre = (pat: number) => (pat > 0 ? `${LS_PATTERNS[pat]}.` : '')
 export const trigsId = (t: number, pat = 0) => `${pre(pat)}tr${t}`
 export const noteId = (t: number, s: number, pat = 0) => `${pre(pat)}n${t}_${s}`
@@ -58,8 +63,8 @@ export const retrigId = (t: number, s: number, pat = 0) => `${pre(pat)}rt${t}_${
 export const microId = (t: number, s: number, pat = 0) => `${pre(pat)}mt${t}_${s}`
 
 /** LED layout: each track's step (−1 stopped) and trig flash, the beat, FILL,
- *  the pattern playing (a cued one waits for the bar). */
-export const LSL = { step: 0, flash: LS_TRACKS, beat: LS_TRACKS * 2, fill: LS_TRACKS * 2 + 1, pat: LS_TRACKS * 2 + 2, end: LS_TRACKS * 2 + 3 } as const
+ *  the pattern playing (a cued one waits for the bar), the chain slot playing (−1: none). */
+export const LSL = { step: 0, flash: LS_TRACKS, beat: LS_TRACKS * 2, fill: LS_TRACKS * 2 + 1, pat: LS_TRACKS * 2 + 2, chain: LS_TRACKS * 2 + 3, end: LS_TRACKS * 2 + 4 } as const
 
 // ---- parameter locks ----
 // A step keeps one param per lockable page: four knobs × one byte

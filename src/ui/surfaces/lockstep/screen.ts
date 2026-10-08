@@ -1,4 +1,5 @@
 import {
+  chainId,
   encoderLabels,
   encoderParams,
   LOCK_PAGES,
@@ -17,13 +18,15 @@ import {
   TRIG,
 } from '../../../modules/specs/lockstep'
 import type { ParamSpec } from '../../../modules/types'
+import { fitFont } from '../common'
 
 const BG = '#101114'
 const INK = '#e6e3dc'
 const DIM = 'rgba(230,227,220,0.35)'
 const LOCK = '#ff8a2b'
 const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-const font = (px: number, weight = 600) => `${weight} ${Math.round(px)}px Bahnschrift, 'Arial Narrow', sans-serif`
+const FAMILY = "Bahnschrift, 'Arial Narrow', sans-serif"
+const font = (px: number, weight = 600) => `${weight} ${Math.round(px)}px ${FAMILY}`
 
 export interface LsScreen {
   p: Record<string, number>
@@ -32,6 +35,19 @@ export interface LsScreen {
   spec: (id: string) => ParamSpec
   /** A passing message (after a copy or paste) for the header. */
   note: string
+  /** A chain is being written. */
+  writing: boolean
+}
+
+/** The chain as letters, the slot playing in brackets. */
+function chainText(p: Record<string, number>, slot: number): string {
+  const len = Math.round(p.chlen ?? 0)
+  const out: string[] = []
+  for (let i = 0; i < len; i++) {
+    const l = LS_PATTERNS[Math.round(p[chainId(i)] ?? 0)]
+    out.push(i === slot ? `[${l}]` : l)
+  }
+  return out.join(' ')
 }
 
 const noteName = (semis: number) => `${NOTES[((semis % 12) + 12) % 12]}${Math.floor(semis / 12) + 4}`
@@ -75,12 +91,17 @@ export function drawLsScreen(ctx: CanvasRenderingContext2D, r: { x: number; y: n
   ctx.fillText(`T${t + 1}`, r.x + pad + head * 0.8, r.y + pad + head / 2)
   ctx.fillStyle = INK
   const algo = `${LS_ALGOS[Math.round(p[`algo${t}`])]}`
-  ctx.fillText(`${LS_PAGES[page]} · ${algo}`, r.x + pad + head * 2, r.y + pad + head / 2)
+  const leftText = `${LS_PAGES[page]} · ${algo}`
+  ctx.fillText(leftText, r.x + pad + head * 2, r.y + pad + head / 2)
+  const room = r.w - pad * 2 - head * 2.6 - ctx.measureText(leftText).width
   ctx.textAlign = 'right'
   const run = p.run >= 0.5
-  // a message, the picked step, the pattern still to come, or the transport
-  const right = s.note || (sel >= 0 ? `STEP ${sel + 1}` : run && playing !== pat ? `${LS_PATTERNS[playing]} → ${LS_PATTERNS[pat]}` : `${run ? '▶' : '■'} ${Math.round(p.tempo)}`)
-  ctx.fillStyle = s.note || sel >= 0 || (run && playing !== pat) ? LOCK : run ? INK : DIM
+  // a message, the picked step, the chain, the pattern still to come, or the transport
+  const chain = s.writing || (p.chon ?? 0) >= 0.5 ? `CHAIN ${chainText(p, s.writing ? -1 : Math.round(led?.[LSL.chain] ?? -1))}${s.writing ? ' _' : ''}` : ''
+  const right =
+    s.note || (sel >= 0 ? `STEP ${sel + 1}` : chain || (run && playing !== pat ? `${LS_PATTERNS[playing]} → ${LS_PATTERNS[pat]}` : `${run ? '▶' : '■'} ${Math.round(p.tempo)}`))
+  ctx.fillStyle = s.note || sel >= 0 || chain || (run && playing !== pat) ? LOCK : run ? INK : DIM
+  fitFont(ctx, right, room, head * 0.72, FAMILY, '700')
   ctx.fillText(right, r.x + r.w - pad, r.y + pad + head / 2)
 
   // the four encoders' values
