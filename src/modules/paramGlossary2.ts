@@ -18,4 +18,10 @@ export const MORE_OVERRIDES: Record<string, string> = {
   'swarm:sub': 'A square wave an octave down: weight under the chord.',
   'swarm:cvamt': 'How far the CUTOFF input opens the filter.',
   'swarm:att': 'How long each note takes to swell in: zero for stabs, longer for pads.',
+  // TAP
+  'tap:level': 'How loud the tapped mix comes out: 1 brings a usual mix back to normal audio level; raise it if your OUT is turned down low.',
+  // MOTION
+  'motion:tempo': 'The loop’s speed, when nothing is patched to CLK.',
+  'motion:bars': 'How long each lane’s loop is, in bars: the length you record, and the length that repeats.',
+  'motion:smooth': 'How smoothly playback glides: left follows your hand exactly (steps and all), right rounds it into slow curves.',
 }

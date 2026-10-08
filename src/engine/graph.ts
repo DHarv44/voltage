@@ -3,7 +3,7 @@ import { createDsp } from './dsp/registry'
 import type { MidiEvent, TelemetryMsg, ToEngine, UiEvent } from './protocol'
 import { Probe } from './probe'
 import { CROSSTALK, NOMINAL_RAIL, power } from './dsp/power'
-import { external } from './dsp/external'
+import { external, masterBus } from './dsp/external'
 
 type PatchMsg = Extract<ToEngine, { type: 'patch' }>
 
@@ -93,6 +93,8 @@ export class Graph {
       }
       L[s] = l
       if (R) R[s] = r
+      masterBus.l = l
+      masterBus.r = r
       this.probe?.sample()
     }
     const dt = n / this.fs

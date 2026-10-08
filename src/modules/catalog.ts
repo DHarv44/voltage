@@ -176,6 +176,10 @@ export const CATALOG: Record<string, Entry> = {
   // Performance
   scenes: { tags: ['utility'], aka: ['snapshot', 'preset', 'morph'] },
   macro: { tags: ['modulation', 'utility'], aka: ['macro knob', 'learn'] },
+  motion: {
+    tags: ['modulation', 'record', 'sequence'],
+    aka: ['motion recording', 'automation', 'knob recording', 'parameter automation', 'elektron', 'motion sequence', 'gesture', 'looper'],
+  },
   accident: { tags: ['generative'], aka: ['randomise', 'randomize', 'happy accident', 'variation'] },
   // Visuals
   vision: { tags: ['visual', 'generative'], aka: ['jellyfish', 'garden', 'fireflies', 'aurora', 'cymatics', '3d'] },
@@ -188,6 +192,7 @@ export const CATALOG: Record<string, Entry> = {
   // Output
   output: { tags: ['utility'], aka: ['speakers', 'audio out', 'master'] },
   monitor: { tags: ['utility', 'stereo'], aka: ['vu meter', 'metering', 'mute'] },
+  tap: { tags: ['record', 'utility', 'stereo'], aka: ['resample', 'resampling', 'master', 'bounce', 'mixdown', 'record the mix', 'bus'] },
 }
 
 const NONE: Entry = { tags: [] }

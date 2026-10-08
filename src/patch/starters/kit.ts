@@ -32,6 +32,11 @@ export class Kit {
     this.b.wire(from[0], from[1], to[0], to[1])
   }
 
+  /** Point a module's slot at another module's knob (MOTION lanes, …). */
+  target(id: string, slot: number, mod: string, param: string): void {
+    this.b.setMorph(id, slot, { [`${mod}/${param}`]: 1 })
+  }
+
   build(): Patch {
     return this.b.build(1)
   }

@@ -5,7 +5,7 @@ import { VcoDsp } from './vco'
 import { LadderDsp } from './ladder'
 import { AdsrDsp, LfoDsp } from './modulation'
 import { VcaDsp, MixerDsp, MultDsp, NoiseDsp } from './utilities'
-import { MidiCvDsp, OutputDsp, ScopeDsp } from './io'
+import { MidiCvDsp, OutputDsp, ScopeDsp, TapDsp } from './io'
 import { AttenDsp, FolderDsp, QuantizerDsp, SampleHoldDsp, SlewDsp } from './shapers'
 import { MsFilterDsp, SvfDsp } from './filters2'
 import { ClockDsp, DividerDsp, Seq8Dsp } from './sequencing'
@@ -76,6 +76,7 @@ import { VocoderDsp } from './vocoder'
 import { LpgDsp } from './lpg'
 import { Fm4Dsp } from './fm4'
 import { SwarmDsp } from './swarm'
+import { MotionDsp } from './motion'
 import { OrbitDsp } from './orbit'
 import { LifeDsp } from './life'
 import { FlockDsp } from './flock'
@@ -101,6 +102,7 @@ const CIRCUITS: Record<string, DspCtor> = {
   mult: MultDsp,
   midi: MidiCvDsp,
   output: OutputDsp,
+  tap: TapDsp,
   scope: ScopeDsp,
   fold: FolderDsp,
   sh: SampleHoldDsp,
@@ -198,6 +200,7 @@ const CIRCUITS: Record<string, DspCtor> = {
   lpg: LpgDsp,
   fm4: Fm4Dsp,
   swarm: SwarmDsp,
+  motion: MotionDsp,
   orbit: OrbitDsp,
   life: LifeDsp,
   flock: FlockDsp,

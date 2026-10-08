@@ -4,7 +4,7 @@ import type { ParamSpec } from '../../modules/types'
 import type { MorphSnapshot, Patch } from '../../patch/types'
 
 /** Modules that move other modules' knobs: never captured (no feedback loops). */
-export const CONTROLLERS = new Set(['xy', 'scenes', 'macro', 'accident'])
+export const CONTROLLERS = new Set(['xy', 'scenes', 'macro', 'accident', 'motion'])
 
 /** Every continuous knob in the rack except the controller modules (switches
  *  and step patterns are left alone: morphing them would just flip-flop). */

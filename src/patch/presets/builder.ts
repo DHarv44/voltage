@@ -1,5 +1,5 @@
 import { CABLE_COLORS, makeModule, uid } from '../factory'
-import type { Cable, ModuleInst, Patch } from '../types'
+import type { Cable, ModuleInst, MorphSnapshot, Patch } from '../types'
 
 /** Tiny DSL for writing preset racks: place modules, wire jacks, build. */
 export class RackBuilder {
@@ -24,6 +24,17 @@ export class RackBuilder {
       to: { mod: to, jack: toJack },
       color: CABLE_COLORS[this.cables.length % CABLE_COLORS.length],
     })
+  }
+
+  /** Store a snapshot in one of a module's slots (XY corners, scenes, macro
+   *  ranges, MOTION lane targets). */
+  setMorph(id: string, slot: number, snap: MorphSnapshot): void {
+    const m = this.modules.find((x) => x.id === id)
+    if (!m) return
+    const morph = [...(m.morph ?? [])]
+    while (morph.length <= slot) morph.push(null)
+    morph[slot] = snap
+    m.morph = morph
   }
 
   build(minRows = 2): Patch {

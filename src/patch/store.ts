@@ -176,6 +176,18 @@ export const actions = {
   },
 
   /** Store (or clear, with null) one XY morph corner. */
+  /** Knob values the rack plays by itself (recorded motion): applied and
+   *  saved, but not undo steps (undo takes back what you did, not playback). */
+  setParamsLive(updates: [string, string, number][]): void {
+    if (!updates.length) return
+    const byMod = new Map<string, Record<string, number>>()
+    for (const [id, param, v] of updates) byMod.set(id, { ...byMod.get(id), [param]: v })
+    emit({
+      ...state,
+      modules: state.modules.map((m) => (byMod.has(m.id) ? { ...m, params: { ...m.params, ...byMod.get(m.id) } } : m)),
+    })
+  },
+
   setMorphCorner(id: string, corner: number, snap: MorphSnapshot | null): void {
     set({
       ...state,

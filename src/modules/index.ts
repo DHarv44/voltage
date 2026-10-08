@@ -5,7 +5,7 @@ import { vca } from './specs/vca'
 import { adsr } from './specs/adsr'
 import { lfo } from './specs/lfo'
 import { noise, mixer, mult } from './specs/utilities'
-import { midi, output, scope } from './specs/io'
+import { midi, output, scope, tap } from './specs/io'
 import { atten, fold, quant, sh, slew } from './specs/shapers'
 import { ms, svf } from './specs/filters2'
 import { clock, div, seq8 } from './specs/sequencing'
@@ -63,6 +63,7 @@ import { lattice } from './specs/lattice'
 import { console_, glue, master } from './specs/mixbus'
 import { lpg, vocoder } from './specs/voiceFx'
 import { fm4, swarm } from './specs/synthVoices'
+import { motion } from './specs/motion'
 import { orbit } from './specs/orbit'
 import { life } from './specs/life'
 import { flock } from './specs/flock'
@@ -187,6 +188,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   atten,
   scenes,
   macro,
+  motion,
   accident,
   scope,
   vision,
@@ -201,6 +203,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   gamepad,
   output,
   monitor,
+  tap,
 ]
 
 export const SPECS: Record<string, ModuleSpec> = Object.fromEntries(SPEC_LIST.map((s) => [s.type, s]))

@@ -16,7 +16,7 @@ extend VOLTAGE.
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (124)
+### Modules (126)
 (Grouped here by family; the library's own categories are in `modules/types.ts` CATEGORIES.)
 - **POCKET family**: POCKET (drums), POCKET BASS (16 note steps, slide/accent, SUB/SQUARE/ACID), POCKET
   MELODY (scale degrees, per-step NOTE/CHORD/ARP, BELL/PLUCK/LEAD, poly NOTES). Drag a step to set its
@@ -83,14 +83,18 @@ extend VOLTAGE.
   (scratch the platter; flywheel motor + brake, 33/45, pitch, transformer CUT, strobe dots, cartridge
   output follows stylus velocity, crackle/rumble WEAR; cut your own record or load a file; factory
   battle record is synthesised).
-- **Utilities / I/O**: MIX, STEREO, MULT, ATTN, LOGIC, SCOPE, MIDI·CV (aftertouch, bend range), OUT, MONITOR.
+- **Utilities / I/O**: MIX, STEREO, MULT, ATTN, LOGIC, SCOPE, MIDI·CV (aftertouch, bend range), OUT, MONITOR,
+  TAP (the speakers' mix as a cable, for resampling into SAMPLE / LOOP / CHOP).
 - **Mix bus**: CONSOLE (6 channels: tilt-EQ TONE, PAN, post-fader SEND, LEVEL, MUTE, and a per-channel
   DUCK from the DUCK IN sidechain with DUCK REL; stereo return, master), GLUE (SSL-style stereo bus
   compressor: soft knee, 2/4/10:1, stepped attack, release with AUTO, makeup, parallel MIX, KEY
   sidechain with HPF, GR out as CV, 5-LED meter), MASTER (low/high shelves + sweepable mid, mid/side
   WIDTH, DRIVE into a 2 ms look-ahead limiter held under CEILING).
 - **Performance**: SCENES (8 whole-rack snapshots, glide recall, CV select/next), MACRO (four knobs that
-  learn many moves each), ACCIDENT (roll random nudges, EVOLVE drift, undoable).
+  learn many moves each), ACCIDENT (roll random nudges, EVOLVE drift, undoable), MOTION (knob-motion
+  recorder: four lanes; arm a lane, the first knob you turn is learned and one loop of 1–8 bars is
+  recorded in time from CLK or TEMPO, then played back on that knob, MACRO-style, and out as CV; 64
+  points per loop saved with the patch, SMOOTH glide; playback writes skip undo history).
 - **Real-world inputs** (only on when you click ENABLE; nothing leaves the machine): AUDIO IN (mic/line
   into the rack: audio, envelope, gate, YIN pitch), CAMERA (webcam motion amount/position/brightness),
   GAMEPAD (sticks, triggers, buttons).
@@ -230,8 +234,8 @@ Our own versions throughout: inspired by the classics, our own names, panels and
      width / limiter). Later: multiband ("OTT"-style), a channel compressor per strip.
   2. ~~Vocoder and low-pass gate~~ (done: VOCODER, LPG).
   3. ~~FM voice and supersaw~~ (done: FM-4, SWARM). Still open: unison stacking for the analog poly voice.
-  4. Knob-motion recording (automation that loops) and resampling (record the master or any cable
-     straight into SAMPLE / LOOP / CHOP).
+  4. ~~Knob-motion recording and resampling~~ (done: MOTION, TAP). Later: per-step motion like
+     Elektron's (one value per trig), recording switches.
   5. Ambient toolkit: granular (Clouds/Morphagene-style), shimmer reverb, pitch shifter / harmoniser.
   6. MIDI clock in/out (sync with a DAW and gear).
 - **Gaps by sound**:

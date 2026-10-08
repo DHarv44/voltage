@@ -1,6 +1,7 @@
 import { Dsp } from './base'
 import type { MidiEvent } from '../protocol'
 import { AudioOutCore, KeyboardCore } from './cores'
+import { masterBus } from './external'
 
 /** Mono last-note-priority MIDI→CV. 0 V = MIDI note 60 (C4). */
 export class MidiCvDsp extends Dsp {
@@ -56,6 +57,28 @@ export class OutputDsp extends Dsp {
     this.audioR = this.right.process(r, vol, dc)
     this.led[0] = this.left.peak * 1.5
     this.led[1] = this.right.peak * 1.5
+  }
+}
+
+/** The speakers at ±1 come back as about ±5 V at LEVEL 1, for a mix at a
+ *  usual OUT volume (OUT scales by vol²/8: 0.6 → ×0.045). */
+const TAP_GAIN = 25
+
+/** TAP: the speakers (last sample), back up to audio level. */
+export class TapDsp extends Dsp {
+  private readonly pLevel = this.pi('level')
+  private peak = 0
+  private readonly decay = Math.exp(-1 / (0.15 * this.fs))
+
+  tick(): void {
+    const g = TAP_GAIN * this.p[this.pLevel]
+    const l = masterBus.l * g
+    const r = masterBus.r * g
+    this.out[0] = l
+    this.out[1] = r
+    const a = Math.max(Math.abs(l), Math.abs(r)) / 5
+    this.peak = a > this.peak ? a : this.peak * this.decay
+    this.led[0] = this.peak
   }
 }
 

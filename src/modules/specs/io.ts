@@ -71,6 +71,34 @@ export const output: ModuleSpec = {
   ],
 }
 
+/** What you hear, as a cable: the speakers' left and right (every OUT and
+ *  system direct out, after their volume), back at audio level, one sample
+ *  late. Patch it into SAMPLE, LOOP or CHOP to resample the whole mix.
+ *  (Patching it back into an OUT is feedback: turn down first.) */
+export const tap: ModuleSpec = {
+  type: 'tap',
+  title: 'TAP',
+  name: 'Master Tap',
+  tagline: 'Everything you hear, as a cable: patch it into SAMPLE, LOOP or CHOP to resample the whole mix',
+  category: 'Output',
+  hp: 6,
+  panel: BLUE,
+  inputs: [],
+  outputs: [
+    { id: 'l', label: 'L' },
+    { id: 'r', label: 'R' },
+  ],
+  params: [{ id: 'level', label: 'LEVEL', min: 0, max: 2, def: 1, unit: '%' }],
+  leds: 1,
+  controls: [
+    { kind: 'knob', param: 'level', x: 15.24, y: 30 },
+    { kind: 'led', index: 0, x: 15.24, y: 46, color: '#3bff6b' },
+    { kind: 'text', text: 'WHAT YOU HEAR', x: 15.24, y: 56, size: 1.8 },
+    { kind: 'out', jack: 'l', x: 15.24, y: 76 },
+    { kind: 'out', jack: 'r', x: 15.24, y: 98 },
+  ],
+}
+
 export const scope: ModuleSpec = {
   type: 'scope',
   title: 'SCOPE',

@@ -7,6 +7,10 @@ export const external = {
   i: 0,
 }
 
+/** What the speakers got last sample (the sum of every OUT and system direct
+ *  out, ±1 = full scale): TAP reads it, so the whole mix can be recorded. */
+export const masterBus = { l: 0, r: 0 }
+
 /** Input sample for channel 0 (left) or 1 (right) right now (0 if none). */
 export function externalSample(ch: 0 | 1): number {
   const buf = ch === 0 ? external.l : (external.r ?? external.l)

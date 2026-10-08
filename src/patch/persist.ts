@@ -9,16 +9,26 @@ let timer: number | undefined
 /** `?scratch` in the URL: a throwaway rack that never reads or writes the saved patch. */
 export const SCRATCH = new URLSearchParams(location.search).has('scratch')
 
+/** When the first unsaved change happened (a steady stream of changes, like a
+ *  knob playing back, must not hold the save off forever). */
+let pendingSince = 0
+const SAVE_DEBOUNCE_MS = 300
+const SAVE_MAX_WAIT_MS = 2000
+
 export function save(p: Patch): void {
   if (SCRATCH) return
   window.clearTimeout(timer)
+  const now = Date.now()
+  if (!pendingSince) pendingSince = now
+  const wait = Math.max(0, Math.min(SAVE_DEBOUNCE_MS, pendingSince + SAVE_MAX_WAIT_MS - now))
   timer = window.setTimeout(() => {
+    pendingSince = 0
     try {
       localStorage.setItem(KEY, JSON.stringify(p))
     } catch {
       /* storage unavailable: patch just isn't remembered */
     }
-  }, 300)
+  }, wait)
 }
 
 export function loadSaved(): Patch | null {

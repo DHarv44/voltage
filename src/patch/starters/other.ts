@@ -1,6 +1,7 @@
 import { band, beat, melody, mix, toOut, tune, voice, type Kit } from './kit'
 import { GROOVES, PHRASES } from './material'
 import type { Starter } from './types'
+import { MOTION_POINTS, MOTION_RES, pointId } from '../../modules/specs/motion'
 
 /** The tune, plus a module that does its job beside it (no audio of its own). */
 function beside(k: Kit, type: string, params: Record<string, number> = {}): string {
@@ -143,6 +144,39 @@ export const OTHER_STARTERS: Record<string, Starter> = {
   scenes: { howTo: 'Turn some knobs, STORE into a slot; turn more, store another; tap the slots to glide between.', build: (k) => void beside(k, 'scenes') },
   macro: { howTo: 'Press LEARN on a macro, turn some knobs on the tune, LEARN again: now one knob moves them all.', build: (k) => void beside(k, 'macro') },
   accident: { howTo: 'Press ROLL for a happy accident on the tune’s knobs (Ctrl+Z if you hate it). Try EVOLVE.', build: (k) => void beside(k, 'accident', { evolve: 0.2 }) },
+  tap: {
+    howTo:
+      'A funk groove and bass play; TAP hands what you hear to CHOP. Press REC on CHOP, let a bar or two go by, press REC again: the mix is chopped across the pads. Turn the groove down and play them.',
+    build(k) {
+      const b = beat(k, { groove: GROOVES.funk })
+      const bass = melody(k, { clock: b.clock, phrase: PHRASES.funk })
+      const v = voice(k, bass.pitch, bass.gate, { filter: { type: 'vcf', params: { cutoff: 500, res: 0.5 }, out: 'lp4' } })
+      const chop = k.add('chop', { tempo: GROOVES.funk.bpm })
+      const t = k.add('tap')
+      k.wire([t, 'l'], [chop, 'in'])
+      toOut(k, mix(k, [b.out, v.out, [chop, 'out']], [0.8, 0.6, 0.8]))
+    },
+  },
+  motion: {
+    howTo:
+      'An acid line whose CUTOFF is turned by lane A: a two-bar swell recorded on MOTION. Click lane B, then turn RESONANCE (or any knob) for a bar or two: it loops from then on. Right-click a lane to clear it.',
+    build(k) {
+      const m = melody(k, { phrase: PHRASES.acid, bpm: 124 })
+      const mono = k.add('mono', { cutoff: 320, res: 0.7, envamt: 0.55, d: 0.18, s: 0.1, glide: 0.05, wave: 0 })
+      k.wire(m.pitch, [mono, 'pitch'])
+      k.wire(m.gate, [mono, 'gate'])
+      // lane A: CUTOFF dips low, swells open over the second bar, falls back
+      const pts: Record<string, number> = { bars: 1, smooth: 0.4, has0: 1 }
+      for (let i = 0; i < MOTION_POINTS; i++) {
+        const t = i / MOTION_POINTS
+        pts[pointId(0, i)] = Math.round(MOTION_RES * (0.22 + 0.4 * Math.pow(Math.sin(Math.PI * t), 3)))
+      }
+      const mo = k.add('motion', pts)
+      k.target(mo, 0, mono, 'cutoff')
+      k.wire([m.clock, 'x4'], [mo, 'clk'])
+      toOut(k, [mono, 'vca'], undefined, 0.6)
+    },
+  },
   scope: {
     howTo: 'A pulse wave on CH1 whose width an LFO sweeps (watch the high part grow and shrink), and the LFO itself on CH2. Change TIME to zoom; turn the LFO RATE.',
     build(k) {

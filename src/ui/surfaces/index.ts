@@ -37,6 +37,7 @@ import { AudioIn, Camera, Gamepad } from './Inputs'
 import { Vector, Waterfall } from './VisualOut'
 import { Accident, Macro, Scenes } from './Perform'
 import { Fm4Screen, SwarmScreen } from './SynthScreens'
+import { Motion } from './Motion'
 
 /** Played instrument surfaces, by the `name` a spec's surface control uses. */
 export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
@@ -83,4 +84,5 @@ export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
   accident: Accident,
   fm4: Fm4Screen,
   swarm: SwarmScreen,
+  motion: Motion,
 }
