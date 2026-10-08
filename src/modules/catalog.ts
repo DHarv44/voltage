@@ -149,6 +149,12 @@ export const CATALOG: Record<string, Entry> = {
   ensemble: { tags: ['stereo', 'texture'], aka: ['solina', 'string ensemble', 'chorus'] },
   tune: { tags: ['melody'], aka: ['auto-tune', 'autotune', 'pitch correction', 'robot voice'] },
   chamber: { tags: ['space', 'ambient'], aka: ['room', 'reverb', 'echo chamber', 'acoustics'] },
+  shimmer: { tags: ['space', 'ambient', 'stereo'], aka: ['shimmer', 'reverb', 'octave reverb', 'eno', 'blackhole', 'bigsky', 'cloud', 'freeze'] },
+  grains: {
+    tags: ['ambient', 'texture', 'record', 'stereo'],
+    aka: ['granular', 'clouds', 'morphagene', 'beads', 'grain', 'time stretch', 'freeze', 'texture', 'cloud'],
+  },
+  shift: { tags: ['texture', 'stereo'], aka: ['pitch shifter', 'harmoniser', 'harmonizer', 'whammy', 'octaver', 'h910', 'eventide', 'spiral', 'doubler'] },
   vocoder: { tags: ['texture', 'melody'], aka: ['vocoder', 'talking synth', 'robot voice', 'daft punk', 'voice', 'formant', 'channel vocoder'] },
   // Pedals
   fuzz: { tags: ['dirt'], aka: ['fuzz face', 'distortion', 'germanium', 'guitar'] },

@@ -77,6 +77,8 @@ import { LpgDsp } from './lpg'
 import { Fm4Dsp } from './fm4'
 import { SwarmDsp } from './swarm'
 import { MotionDsp } from './motion'
+import { GrainsDsp } from './grains'
+import { ShiftDsp, ShimmerDsp } from './ambient'
 import { OrbitDsp } from './orbit'
 import { LifeDsp } from './life'
 import { FlockDsp } from './flock'
@@ -201,6 +203,9 @@ const CIRCUITS: Record<string, DspCtor> = {
   fm4: Fm4Dsp,
   swarm: SwarmDsp,
   motion: MotionDsp,
+  grains: GrainsDsp,
+  shimmer: ShimmerDsp,
+  shift: ShiftDsp,
   orbit: OrbitDsp,
   life: LifeDsp,
   flock: FlockDsp,

@@ -64,6 +64,7 @@ import { console_, glue, master } from './specs/mixbus'
 import { lpg, vocoder } from './specs/voiceFx'
 import { fm4, swarm } from './specs/synthVoices'
 import { motion } from './specs/motion'
+import { grains, shift, shimmer } from './specs/ambient'
 import { orbit } from './specs/orbit'
 import { life } from './specs/life'
 import { flock } from './specs/flock'
@@ -168,6 +169,9 @@ export const SPEC_LIST: ModuleSpec[] = [
   ensemble,
   tune,
   chamber,
+  shimmer,
+  grains,
+  shift,
   vocoder,
   fuzz,
   wah,

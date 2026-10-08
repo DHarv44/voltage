@@ -16,7 +16,7 @@ extend VOLTAGE.
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (126)
+### Modules (129)
 (Grouped here by family; the library's own categories are in `modules/types.ts` CATEGORIES.)
 - **POCKET family**: POCKET (drums), POCKET BASS (16 note steps, slide/accent, SUB/SQUARE/ACID), POCKET
   MELODY (scale degrees, per-step NOTE/CHORD/ARP, BELL/PLUCK/LEAD, poly NOTES). Drag a step to set its
@@ -60,6 +60,13 @@ extend VOLTAGE.
   image-source reflections, Sabine-sized FDN tail, Doppler when moving), VOCODER (16 bands of
   4th-order band-pass, followers with ATTACK/RELEASE, formant SHIFT, Q, SIBILANCE pass-through, NOISE,
   FREEZE; a built-in carrier on V/OCT when CARRIER is empty; ENV out; band meter in dB).
+  - **Ambient toolkit**: GRAINS (4 s memory, up to 32 Hann-windowed grains: POSITION, SIZE, DENSITY,
+    PITCH, SPRAY, stereo SPREAD, REVERSE chance, FEEDBACK wash, FREEZE; grains never cross the write
+    head; TRIG / V/OCT / DENSITY / POSITION CV; a screen with the memory's waveform and every grain),
+    SHIMMER (the PLATE's Dattorro tank, now a shared PlateCore, with a high-passed pitch-shifted copy
+    of the tail fed back: +12 / +7 / +19 / +24 / −12, soft-limited; FREEZE holds the tail), SHIFT (two
+    delay-line pitch-shift voices, ±24 st + 1 V/oct CV each, FINE doubling, SIZE window, a delayed
+    feedback spiral). One PitchShifter core (two sin²/cos² crossfaded taps) serves SHIMMER and SHIFT.
 - **Studio tape**: TAPE KEYS (Mellotron-style: a strip per key, runs out at 8 s, spring rewind; synthesised
   strings/flute/choir), 4-TRACK (30 s × 4, punch in/out, bounce, varispeed, reverse, loop, reels).
 - **Pedals** (stompboxes, click-free footswitch): FUZZ (germanium, bias sputter), WAH (draggable treadle,
@@ -236,7 +243,7 @@ Our own versions throughout: inspired by the classics, our own names, panels and
   3. ~~FM voice and supersaw~~ (done: FM-4, SWARM). Still open: unison stacking for the analog poly voice.
   4. ~~Knob-motion recording and resampling~~ (done: MOTION, TAP). Later: per-step motion like
      Elektron's (one value per trig), recording switches.
-  5. Ambient toolkit: granular (Clouds/Morphagene-style), shimmer reverb, pitch shifter / harmoniser.
+  5. ~~Ambient toolkit~~ (done: GRAINS, SHIMMER, SHIFT).
   6. MIDI clock in/out (sync with a DAW and gear).
 - **Gaps by sound**:
   - Analog poly: unison/detune stacking, poly-mod, built-in chorus (Prophet / Juno / CS-80 / OB style).
@@ -343,7 +350,7 @@ material (no downloaded samples). Our own names; no Fairlight / Akai / MPC / SP 
   Grids-style drum map, Marbles-style random, Metropolix-style sequencer, Disting-style multi-tool.
 - **Classic instruments**: 6-op FM (DX7-style), supersaw (JP-8000-style), tonewheel organ + rotary speaker,
   electric piano model, 303-style acid voice, vocoder / talk box.
-- **Effects**: tempo-synced ping-pong delay, algorithmic hall/room, shimmer reverb, flanger, auto-filter,
+- **Effects**: tempo-synced ping-pong delay, algorithmic hall/room, flanger, auto-filter,
   tremolo/auto-pan, pitch shifter/harmoniser, bitcrusher, multiband distortion.
 - **DAW-style sequencing**: piano roll / clip launcher, MIDI file player, song arranger, swing templates,
   scale lock, chord memory, strum, tap tempo, MIDI clock in/out.

@@ -56,6 +56,38 @@ export function pad(k: Kit, o: { bpm?: number; a?: number; r?: number; wave?: st
 }
 
 export const EFFECT_STARTERS: Record<string, Starter> = {
+  shimmer: {
+    howTo:
+      'Slow harp notes into SHIMMER: each one blooms into a tail that climbs an octave as it rings. Turn SHIMMER and DECAY up for a glowing wash; flip FREEZE to hold it as a pad.',
+    build(k) {
+      const g = guitar(k, PHRASES.slow, { sustain: 1.4, bright: 0.5 })
+      const s = k.add('shimmer', { decay: 0.88, shimmer: 0.55, mix: 0.55 })
+      k.wire(g.out, [s, 'in'])
+      toOut(k, [s, 'l'], [s, 'r'], 0.68)
+    },
+  },
+  grains: {
+    howTo:
+      'A harp arpeggio into GRAINS, a slow LFO drifting POSITION: the notes come back scattered, layered and sometimes reversed. Try SIZE and DENSITY, PITCH +12, then FREEZE and keep turning.',
+    build(k) {
+      const g = guitar(k, PHRASES.arpeggio, { sustain: 1 })
+      const gr = k.add('grains', { pos: 0.3, size: 0.2, density: 16, spray: 0.3, spread: 0.85, rev: 0.25, fb: 0.3, mix: 0.75 })
+      const lfo = k.add('lfo', { rate: 0.05 })
+      k.wire(g.out, [gr, 'in'])
+      k.wire([lfo, 'tri'], [gr, 'pos'])
+      toOut(k, [gr, 'l'], [gr, 'r'], 0.55)
+    },
+  },
+  shift: {
+    howTo:
+      'A riff harmonised by SHIFT: voice A an octave up on the left, B a fifth up on the right. Try SHIFT A at −12; set both to 0 and turn FINE for a doubled riff; raise FEEDBACK for the endless spiral.',
+    build(k) {
+      const g = guitar(k, PHRASES.riff)
+      const s = k.add('shift', { a: 12, b: 7, la: 0.6, lb: 0.5, mix: 0.5 })
+      k.wire(g.out, [s, 'in'])
+      toOut(k, [s, 'l'], [s, 'r'], 0.62)
+    },
+  },
   bbd: {
     howTo: 'Dub-techno chord stabs into the BBD, a kick underneath: every repeat comes back darker. Push REPEATS past noon for runaway feedback; move TIME while it echoes.',
     build(k) {

@@ -18,6 +18,31 @@ export const MORE_OVERRIDES: Record<string, string> = {
   'swarm:sub': 'A square wave an octave down: weight under the chord.',
   'swarm:cvamt': 'How far the CUTOFF input opens the filter.',
   'swarm:att': 'How long each note takes to swell in: zero for stabs, longer for pads.',
+  // GRAINS
+  'grains:pos': 'How far back in the four-second memory the grains come from: left is right now, right is four seconds ago.',
+  'grains:size': 'How long each grain is: tiny ones buzz and sparkle, long ones blur into a smeared copy of the sound.',
+  'grains:density': 'How many grains start each second: a few separate blips to a thick, continuous cloud.',
+  'grains:pitch': 'Every grain played this many semitones up or down, without changing speed: octaves (±12) and fifths (7) sound sweetest.',
+  'grains:spray': 'Scatters where each grain starts around POSITION: zero is tight, more is a cloud of moments.',
+  'grains:spread': 'Throws the grains across the stereo field: wider and more enveloping.',
+  'grains:rev': 'The chance each grain plays backwards: a dreamy, reversed shimmer.',
+  'grains:fb': 'Feeds the cloud back into the memory, so it layers on itself into a wash.',
+  'grains:mix': 'The dry input against the cloud.',
+  'grains:freeze': 'FREEZE stops recording: the memory holds that moment, and the grains keep playing with it.',
+  // SHIMMER
+  'shimmer:decay': 'How long the reverb rings: a room to an endless wash.',
+  'shimmer:shimmer': 'How much of the tail is pitched up and sent back in: every repeat climbs, so the sound glows and rises.',
+  'shimmer:interval': 'How far each pass climbs: an octave (+12), a fifth (+7), both (+19), two octaves, or an octave down for darkness.',
+  'shimmer:freeze': 'FREEZE: the tail holds forever and new sound stays out, a pad made of whatever was ringing.',
+  // SHIFT
+  'shift:a': 'Voice A’s pitch, in semitones from what goes in: +12 is an octave up, 7 a fifth, −12 an octave down.',
+  'shift:b': 'Voice B’s pitch, in semitones from what goes in (turn LEVEL B up to hear it).',
+  'shift:la': 'How loud voice A is.',
+  'shift:lb': 'How loud voice B is.',
+  'shift:fine': 'Detunes the two voices apart by a few cents: set both SHIFTs to 0 for a thick double-tracked sound.',
+  'shift:size': 'The window the shifter works in: short is tight but buzzy, long is smooth but smears fast notes.',
+  'shift:fb': 'Sends the shifted sound back through again: each repeat climbs (or falls) once more, the endless pitch spiral.',
+  'shift:delay': 'How long before each feedback repeat comes round.',
   // TAP
   'tap:level': 'How loud the tapped mix comes out: 1 brings a usual mix back to normal audio level; raise it if your OUT is turned down low.',
   // MOTION

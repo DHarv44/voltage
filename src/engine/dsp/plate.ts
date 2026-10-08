@@ -6,60 +6,69 @@ import { TAU } from './util'
  *  the published values at 29761 Hz, scaled to the engine rate. */
 const REF_FS = 29761
 
-/** Dattorro plate reverb: predelay → bandwidth filter → four input diffusers →
+/** The plate itself: predelay → bandwidth filter → four input diffusers →
  *  figure-eight tank of two branches (modulated allpass, delay, damping, decay,
- *  allpass, delay), with the published stereo output taps. */
-export class PlateDsp extends Dsp {
-  private iIn = this.ii('in')
-  private pDecay = this.pi('decay')
-  private pDamp = this.pi('damp')
-  private pPre = this.pi('pre')
-  private pMix = this.pi('mix')
-
-  private readonly s = this.fs / REF_FS
-  private readonly n = (v: number) => Math.round(v * this.s)
-
-  private readonly pre = new DelayLine(0.21 * this.fs)
+ *  allpass, delay), with the published stereo output taps. Shared by PLATE
+ *  and SHIMMER (which feeds a pitch-shifted copy of the tail back in). */
+export class PlateCore {
+  private readonly s: number
+  private readonly n: (v: number) => number
+  private readonly pre: DelayLine
   private bw = 0
-  private readonly diff = [
-    new Allpass(this.n(142), 0.75),
-    new Allpass(this.n(107), 0.75),
-    new Allpass(this.n(379), 0.625),
-    new Allpass(this.n(277), 0.625),
-  ]
-  // Left branch
-  private readonly lAp1 = new Allpass(this.n(672), 0.7, this.n(32))
-  private readonly lD1Len = this.n(4453)
-  private readonly lD1 = new DelayLine(this.lD1Len)
-  private readonly lAp2 = new Allpass(this.n(1800), 0.5)
-  private readonly lD2Len = this.n(3720)
-  private readonly lD2 = new DelayLine(this.lD2Len)
-  // Right branch
-  private readonly rAp1 = new Allpass(this.n(908), 0.7, this.n(32))
-  private readonly rD1Len = this.n(4217)
-  private readonly rD1 = new DelayLine(this.rD1Len)
-  private readonly rAp2 = new Allpass(this.n(2656), 0.5)
-  private readonly rD2Len = this.n(3163)
-  private readonly rD2 = new DelayLine(this.rD2Len)
+  private readonly diff: Allpass[]
+  private readonly lAp1: Allpass
+  private readonly lD1Len: number
+  private readonly lD1: DelayLine
+  private readonly lAp2: Allpass
+  private readonly lD2Len: number
+  private readonly lD2: DelayLine
+  private readonly rAp1: Allpass
+  private readonly rD1Len: number
+  private readonly rD1: DelayLine
+  private readonly rAp2: Allpass
+  private readonly rD2Len: number
+  private readonly rD2: DelayLine
   private lDamp = 0
   private rDamp = 0
   private lFeed = 0 // left tank output, fed into the right branch next sample
   private rFeed = 0
   private lfo = 0
-  private readonly exc = this.n(16)
+  private readonly exc: number
+  /** The wet output, this sample. */
+  l = 0
+  r = 0
 
-  tick(): void {
-    const p = this.p
-    const x = this.in[this.iIn]
-    const decay = p[this.pDecay]
-    const damp = 0.0005 + 0.7 * p[this.pDamp]
+  constructor(private readonly fs: number) {
+    this.s = fs / REF_FS
+    const n = (v: number) => Math.round(v * this.s)
+    this.n = n
+    this.pre = new DelayLine(0.21 * fs)
+    this.diff = [new Allpass(n(142), 0.75), new Allpass(n(107), 0.75), new Allpass(n(379), 0.625), new Allpass(n(277), 0.625)]
+    this.lAp1 = new Allpass(n(672), 0.7, n(32))
+    this.lD1Len = n(4453)
+    this.lD1 = new DelayLine(this.lD1Len)
+    this.lAp2 = new Allpass(n(1800), 0.5)
+    this.lD2Len = n(3720)
+    this.lD2 = new DelayLine(this.lD2Len)
+    this.rAp1 = new Allpass(n(908), 0.7, n(32))
+    this.rD1Len = n(4217)
+    this.rD1 = new DelayLine(this.rD1Len)
+    this.rAp2 = new Allpass(n(2656), 0.5)
+    this.rD2Len = n(3163)
+    this.rD2 = new DelayLine(this.rD2Len)
+    this.exc = n(16)
+  }
+
+  /** One sample: `decay` 0..~1 (1 = holds forever), `damp` 0..1, `preS` seconds. */
+  process(x: number, decay: number, damp01: number, preS: number): void {
+    const damp = 0.0005 + 0.7 * damp01
     const g2 = Math.min(0.5, Math.max(0.25, decay + 0.15)) // decay diffusion 2 tracks decay
     this.lAp2.g = g2
     this.rAp2.g = g2
 
     // Input: predelay, bandwidth (gentle lowpass), diffusion
     this.pre.write(x * 0.5)
-    const pd = Math.max(1, Math.round(p[this.pPre] * this.fs))
+    const pd = Math.max(1, Math.round(preS * this.fs))
     this.bw += (this.pre.tap(pd) - this.bw) * 0.9995
     let d = this.bw
     const diff = this.diff
@@ -91,15 +100,30 @@ export class PlateDsp extends Dsp {
 
     // Published output taps
     const n = this.n
-    const yL =
+    this.l =
       this.rD1.tap(n(266)) + this.rD1.tap(n(2974)) - this.rAp2.line.tap(n(1913)) + this.rD2.tap(n(1996)) -
       this.lD1.tap(n(1990)) - this.lAp2.line.tap(n(187)) - this.lD2.tap(n(1066))
-    const yR =
+    this.r =
       this.lD1.tap(n(353)) + this.lD1.tap(n(3627)) - this.lAp2.line.tap(n(1228)) + this.lD2.tap(n(2673)) -
       this.rD1.tap(n(2111)) - this.rAp2.line.tap(n(335)) - this.rD2.tap(n(121))
+  }
+}
 
+/** PLATE: the plate, dry/wet. */
+export class PlateDsp extends Dsp {
+  private iIn = this.ii('in')
+  private pDecay = this.pi('decay')
+  private pDamp = this.pi('damp')
+  private pPre = this.pi('pre')
+  private pMix = this.pi('mix')
+  private readonly plate = new PlateCore(this.fs)
+
+  tick(): void {
+    const p = this.p
+    const x = this.in[this.iIn]
+    this.plate.process(x, p[this.pDecay], p[this.pDamp], p[this.pPre])
     const mix = p[this.pMix]
-    this.out[0] = x * (1 - mix) + yL * 0.6 * mix
-    this.out[1] = x * (1 - mix) + yR * 0.6 * mix
+    this.out[0] = x * (1 - mix) + this.plate.l * 0.6 * mix
+    this.out[1] = x * (1 - mix) + this.plate.r * 0.6 * mix
   }
 }

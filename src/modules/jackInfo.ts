@@ -196,6 +196,11 @@ OVERRIDES['swarm:in:voct'] = { signal: 'pitch', what: 'The notes (V/OCT, poly or
 for (let l = 0; l < 4; l++) OVERRIDES[`motion:out:cv${l}`] = { signal: 'cv', what: 'This lane’s recorded movement as a voltage (0–10 V): patch it to move something else the same way.' }
 for (const s of ['l', 'r'])
   OVERRIDES[`tap:out:${s}`] = { signal: 'audio', what: `The ${s === 'l' ? 'left' : 'right'} speaker: everything you hear. Patch it into SAMPLE, LOOP or CHOP to resample the mix.` }
+for (const t of ['grains', 'shimmer']) OVERRIDES[`${t}:in:frz`] = { signal: 'gate', what: 'While high, the memory (or the tail) is frozen, as if FREEZE were on.' }
+OVERRIDES['grains:in:trig'] = { signal: 'trigger', what: 'Each pulse starts an extra grain: play the cloud in rhythm.' }
+OVERRIDES['grains:in:voct'] = { signal: 'pitch', what: 'Pitches the grains (V/OCT, added to PITCH): play the cloud from a sequencer.' }
+OVERRIDES['grains:in:dens'] = { signal: 'cv', what: 'More grains a second with more volts (each 2 V doubles them).' }
+for (const v of ['a', 'b']) OVERRIDES[`shift:in:cv${v}`] = { signal: 'pitch', what: `Adds to SHIFT ${v.toUpperCase()} in V/OCT (1 V = an octave): a sequencer plays the harmony.` }
 OVERRIDES['motion:in:clk'] = { signal: 'clock', what: 'Clock in, in 16ths (CLOCK’s ×4): keeps the loops in time with the music.' }
 OVERRIDES['echo:in:cv'] = { signal: 'cv', what: 'Moves the RATE (the tape speed): the repeats bend in pitch.' }
 
