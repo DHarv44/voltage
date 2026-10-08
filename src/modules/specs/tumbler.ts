@@ -26,6 +26,7 @@ const inputs: ModuleSpec['inputs'] = [
   { id: 'kick', label: 'KICK' },
   { id: 'spin', label: 'SPIN' },
   { id: 'grav', label: 'GRAV' },
+  { id: 'rst', label: 'RST' },
 ]
 const outputs: ModuleSpec['outputs'] = [
   { id: 'pitch', label: 'PITCH' },
@@ -40,7 +41,7 @@ const { controls, top } = packRows(
   [
     ['sides', 'speed', 'gravity', 'bounce'].map(knob),
     ['balls', 'scale', 'oct', 'len'].map(knob),
-    [jack('in', 'kick'), jack('in', 'spin'), jack('in', 'grav'), null],
+    [jack('in', 'kick'), jack('in', 'spin'), jack('in', 'grav'), jack('in', 'rst')],
     ['pitch', 'gate', 'trig', 'vel'].map((j) => jack('out', j)),
   ],
   { params, inputs, outputs },

@@ -1,6 +1,7 @@
 import type { ModuleSpec } from '../../../modules/types'
 import type { UiEvent } from '../../protocol'
 import { Dsp } from '../base'
+import { Schmitt } from '../cores'
 
 const MAX_S = 60
 const EMPTY = 0
@@ -14,6 +15,8 @@ const STOPPED = 4
  *  loop is kept with the patch. Short fades at the loop seam stop clicks. */
 export class LooperPedalDsp extends Dsp {
   private readonly iIn = this.ii('in')
+  private readonly iRst = this.ii('rst')
+  private readonly rst = new Schmitt()
   private readonly pOn = this.pi('on')
   private readonly pLevel = this.pi('level')
   private readonly buf: Float32Array
@@ -78,6 +81,8 @@ export class LooperPedalDsp extends Dsp {
     const on = this.p[this.pOn]
     if (this.lastOn >= 0 && on !== this.lastOn) this.stomp()
     this.lastOn = on
+    // RST: a playing (or overdubbing) loop goes back to its top, on the downbeat
+    if (this.rst.rise(this.in[this.iRst]) && (this.state === PLAY || this.state === DUB)) this.pos = 0
     const x = this.in[this.iIn]
     let loop = 0
     if (this.state === REC) {

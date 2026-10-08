@@ -19,6 +19,7 @@ export const chaos: ModuleSpec = {
   inputs: [
     { id: 'kick', label: 'KICK' },
     { id: 'rate', label: 'RATE' },
+    { id: 'rst', label: 'RST' },
   ],
   outputs: [
     { id: 'x', label: 'X' },
@@ -41,6 +42,7 @@ export const chaos: ModuleSpec = {
     { kind: 'knob', param: 'damp', x: 48, y: 85, size: 'S' },
     { kind: 'in', jack: 'kick', x: 12, y: 92 },
     { kind: 'in', jack: 'rate', x: 26, y: 92 },
+    { kind: 'in', jack: 'rst', x: 37.6, y: 92 },
     ...['x', 'y', 'z', 'gate'].map((jack, i) => ({ kind: 'out' as const, jack, x: 9 + i * 14.3, y: 113.5 })),
   ],
 }

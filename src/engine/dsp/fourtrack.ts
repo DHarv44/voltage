@@ -2,6 +2,7 @@ import type { ModuleSpec } from '../../modules/types'
 import { FT_SECONDS, FT_TRACKS, FTL } from '../../modules/specs/fourtrack'
 import type { UiEvent } from '../protocol'
 import { Dsp } from './base'
+import { Schmitt } from './cores'
 
 const STOP = 0
 const PLAY = 1
@@ -13,6 +14,8 @@ const REW_SPEED = -12
  *  starts, stops and speed changes slur the pitch like a real transport. */
 export class FourTrackDsp extends Dsp {
   private readonly iIn = Array.from({ length: FT_TRACKS }, (_, i) => this.ii(`in${i + 1}`))
+  private readonly iRst = this.ii('rst')
+  private readonly rst = new Schmitt()
   private readonly pLvl = Array.from({ length: FT_TRACKS }, (_, i) => this.pi(`lvl${i + 1}`))
   private readonly pVari = this.pi('vari')
   private readonly pRev = this.pi('rev')
@@ -88,6 +91,12 @@ export class FourTrackDsp extends Dsp {
 
   tick(): void {
     const p = this.p
+    // RST: the head back to the top of the tape (its loop's end, playing backwards)
+    if (this.rst.rise(this.in[this.iRst])) {
+      const back = p[this.pRev] >= 0.5 && p[this.pLoop] >= 0.5 && this.end > this.fs
+      this.head = back ? this.end - 1 : 0
+      this.lastW = -1
+    }
     const target = this.state === PLAY ? p[this.pVari] * (p[this.pRev] >= 0.5 ? -1 : 1) : this.state === REW ? REW_SPEED : 0
     this.speed += (target - this.speed) * this.motor
     this.head += this.speed

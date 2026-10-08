@@ -27,6 +27,8 @@ export class XyDsp extends Dsp {
   private readonly iY = this.ii('y')
   private readonly iClk = this.ii('clk')
   private readonly clk = new Schmitt()
+  private readonly iRst = this.ii('rst')
+  private readonly rst = new Schmitt()
   private readonly loop = new GestureLoop()
   private readonly frame = new Float64Array(4)
   /** Output voltages from the last control step; glided per sample. */
@@ -139,6 +141,7 @@ export class XyDsp extends Dsp {
 
   tick(): void {
     if (this.clk.rise(this.in[this.iClk])) this.edge = true
+    if (this.rst.rise(this.in[this.iRst])) this.loop.restart()
     if (++this.n >= BLOCK) {
       this.n = 0
       const dt = this.dt

@@ -31,6 +31,8 @@ export class TumblerDsp extends Dsp {
   private readonly pLen = this.pi('len')
   private readonly drum: TumbleCore
   private readonly kick = new Schmitt()
+  private readonly iRst = this.ii('rst')
+  private readonly rst = new Schmitt()
   private n = 0
   private pitch = 0
   private vel = 0
@@ -66,6 +68,8 @@ export class TumblerDsp extends Dsp {
   }
 
   tick(): void {
+    // RST: the drum and its balls back where they began (the same tumble again)
+    if (this.rst.rise(this.in[this.iRst])) this.drum.reset()
     if (++this.n >= CTRL) {
       this.n = 0
       const p = this.p

@@ -211,6 +211,14 @@ for (const t of ['vector', 'waterfall']) OVERRIDES[`${t}:in:rst`] = { signal: 'r
 OVERRIDES['loop:in:rst'] = { signal: 'reset', what: 'A pulse sends the loop back to its start, on the downbeat.' }
 OVERRIDES['life:in:rst'] = { signal: 'reset', what: 'A pulse sends the scan back to the first column (the colony keeps its shape).' }
 OVERRIDES['bandmate:in:rst'] = { signal: 'reset', what: 'A pulse starts bar one of a phrase, so the fills land where your song’s phrases end.' }
+OVERRIDES['fourtrack:in:rst'] = { signal: 'reset', what: 'A pulse rewinds the tape to its start, so what you recorded starts with the rack.' }
+OVERRIDES['lpedal:in:rst'] = { signal: 'reset', what: 'A pulse sends the playing loop back to its start, on the downbeat.' }
+OVERRIDES['tanpura:in:rst'] = { signal: 'reset', what: 'A pulse starts the pluck cycle over on its first string (with CLK patched, the next pulse plucks it).' }
+OVERRIDES['xy:in:rst'] = { signal: 'reset', what: 'A pulse sends the recorded gesture loop back to its start.' }
+OVERRIDES['bounce:in:rst'] = { signal: 'reset', what: 'A pulse drops the balls again from their starting heights: the same bouncing accelerando, from the top.' }
+OVERRIDES['tumbler:in:rst'] = { signal: 'reset', what: 'A pulse puts the drum and its balls back where they began: the same tumble again.' }
+OVERRIDES['chaos:in:rst'] = { signal: 'reset', what: 'A pulse restarts from the very same point: chaos is deterministic, so the same “random” phrase plays again.' }
+OVERRIDES['ecosystem:in:rst'] = { signal: 'reset', what: 'A pulse brings back the starting populations: the boom-and-crash cycle starts over.' }
 OVERRIDES['tally:in:rst'] = { signal: 'reset', what: 'A pulse sends the rhythm to its first beat and ONE KEY PLAY to the tune’s first note.' }
 for (const t of ['groove', 'sketchbook', 'undertone', 'lockstep', 'pocket', 'pocketbass', 'pocketmelody'])
   OVERRIDES[`${t}:out:rsto`] = { signal: 'reset', what: 'A pulse whenever it starts (or is reset): patch it to followers’ RST so everything starts on beat one together.' }

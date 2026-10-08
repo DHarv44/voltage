@@ -24,6 +24,7 @@ export const bounce: ModuleSpec = {
     { id: 'kick', label: 'KICK' },
     { id: 'grav', label: 'GRAV' },
     { id: 'tilt', label: 'TILT' },
+    { id: 'rst', label: 'RST' },
   ],
   outputs: [
     ...Array.from({ length: BALLS }, (_, i) => ({ id: `g${i + 1}`, label: `G${i + 1}` })),
@@ -48,6 +49,7 @@ export const bounce: ModuleSpec = {
     { kind: 'in', jack: 'kick', x: 12, y: 87 },
     { kind: 'in', jack: 'grav', x: 26, y: 87 },
     { kind: 'in', jack: 'tilt', x: 40, y: 87 },
+    { kind: 'in', jack: 'rst', x: 40, y: 98.9 },
     { kind: 'out', jack: 'x', x: 54, y: 84.3 },
     { kind: 'out', jack: 'y', x: 68, y: 84.3 },
     { kind: 'out', jack: 'vel', x: 54, y: 98.9 },

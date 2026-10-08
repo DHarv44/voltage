@@ -33,6 +33,9 @@ export class BounceDsp extends Dsp {
   private readonly pKick = this.pi('kickf')
   private readonly balls: Ball[]
   private readonly kick = new Schmitt()
+  private readonly iRst = this.ii('rst')
+  private readonly rst = new Schmitt()
+  private readonly startY = new Float64Array(BALLS)
   private grabbed = -1
   private n = 0
   private vel = 0
@@ -46,8 +49,22 @@ export class BounceDsp extends Dsp {
       const b = new Ball()
       b.x = 0.25 + i * 0.35
       b.y = 0.55 + this.rng.next() * 0.4
+      this.startY[i] = b.y
       return b
     })
+  }
+
+  /** RST: every ball back at its starting height, at rest, so the same
+   *  bouncing accelerando plays again from the top. */
+  private restart(): void {
+    for (let i = 0; i < BALLS; i++) {
+      const b = this.balls[i]
+      b.x = 0.25 + i * 0.35
+      b.y = this.startY[i]
+      b.vx = b.vy = 0
+      b.held = false
+    }
+    this.grabbed = -1
   }
 
   onUi(ev: UiEvent): void {
@@ -121,6 +138,7 @@ export class BounceDsp extends Dsp {
   }
 
   tick(): void {
+    if (this.rst.rise(this.in[this.iRst])) this.restart()
     if (++this.n >= CTRL) {
       this.n = 0
       this.step()

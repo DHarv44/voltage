@@ -25,6 +25,8 @@ export class EcosystemDsp extends Dsp {
   private peak = 0
   private trough = 1
   private readonly cull = new Schmitt()
+  private readonly iRst = this.ii('rst')
+  private readonly rst = new Schmitt()
   private boom = 0
   private crash = 0
   private extinct = 0
@@ -35,6 +37,15 @@ export class EcosystemDsp extends Dsp {
     const p = this.p
     const t = dt * p[this.pRate] * 3
     if (this.cull.rise(this.in[this.iCull])) this.pred *= 0.4
+    // RST: the starting populations again, so the boom-and-crash cycle starts over
+    if (this.rst.rise(this.in[this.iRst])) {
+      this.prey = 0.5
+      this.pred = 0.2
+      this.trend = 0
+      this.peak = 0
+      this.trough = 1
+      this.gone = -1
+    }
     const K = Math.max(0.2, 2 * (1 + this.in[this.iFood] / 5)) // the meadow's carrying capacity
     const r = p[this.pGrowth]
     const a = 4 * p[this.pHunt] // attack rate

@@ -26,6 +26,8 @@ export class ChaosDsp extends Dsp {
   private readonly k4 = new Float64Array(4)
   private readonly tmp = new Float64Array(4)
   private readonly kick = new Schmitt()
+  private readonly iRst = this.ii('rst')
+  private readonly rst = new Schmitt()
   private gate = 0
   private lastWing = 1
   private lastTurns = 0
@@ -67,8 +69,21 @@ export class ChaosDsp extends Dsp {
   private readonly pendF = (s: Float64Array, d: Float64Array) => this.pend(s, d, this.p[this.pDamp] * 0.3)
   private readonly lorF = (s: Float64Array, d: Float64Array) => this.lorenz(s, d, 15 + this.p[this.pEnergy] * 25)
 
+  /** RST: back to the very same starting point. Chaos is deterministic, so
+   *  the same "random" phrase plays again from here (until a KICK). */
+  private restart(): void {
+    this.s[0] = 2.2
+    this.s[1] = 2.6
+    this.s[2] = this.s[3] = 0
+    this.l[0] = this.l[1] = 1
+    this.l[2] = 20
+    this.lastWing = 1
+    this.lastTurns = 0
+  }
+
   private step(dt: number): void {
     const p = this.p
+    if (this.rst.rise(this.in[this.iRst])) this.restart()
     const h = dt * p[this.pRate] * Math.pow(2, this.in[this.iRate])
     const kicked = this.kick.rise(this.in[this.iKick])
     const g = this.goal

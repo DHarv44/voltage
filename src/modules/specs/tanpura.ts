@@ -21,6 +21,7 @@ export const tanpura: ModuleSpec = {
   inputs: [
     { id: 'voct', label: 'V/OCT' },
     { id: 'clk', label: 'CLK' },
+    { id: 'rst', label: 'RST' },
   ],
   outputs: [
     { id: 'out', label: 'OUT' },
@@ -43,6 +44,7 @@ export const tanpura: ModuleSpec = {
     { kind: 'knob', param: 'cycle', x: 44, y: 75, size: 'S' },
     { kind: 'knob', param: 'jawari', x: 58, y: 75, size: 'S' },
     { kind: 'knob', param: 'decay', x: 12, y: 93, size: 'S' },
+    { kind: 'in', jack: 'rst', x: 26, y: 93 },
     { kind: 'knob', param: 'level', x: 58, y: 93, size: 'S' },
     { kind: 'in', jack: 'voct', x: 12, y: 113.5 },
     { kind: 'in', jack: 'clk', x: 26, y: 113.5 },

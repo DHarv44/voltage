@@ -20,6 +20,7 @@ export const ecosystem: ModuleSpec = {
   inputs: [
     { id: 'food', label: 'FOOD' },
     { id: 'cull', label: 'CULL' },
+    { id: 'rst', label: 'RST' },
   ],
   outputs: [
     { id: 'prey', label: 'PREY' },
@@ -40,6 +41,7 @@ export const ecosystem: ModuleSpec = {
     ...['rate', 'growth', 'hunt', 'starve'].map((param, i) => ({ kind: 'knob' as const, param, x: 12 + i * 15.7, y: 67, size: 'S' as const })),
     { kind: 'in', jack: 'food', x: 12, y: 88 },
     { kind: 'in', jack: 'cull', x: 26, y: 88 },
+    { kind: 'in', jack: 'rst', x: 40, y: 88 },
     { kind: 'out', jack: 'extinct', x: 59, y: 98.9 },
     ...['prey', 'pred', 'boom', 'crash'].map((jack, i) => ({ kind: 'out' as const, jack, x: 12 + i * 15.7, y: 113.5 })),
   ],

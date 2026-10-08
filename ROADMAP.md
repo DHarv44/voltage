@@ -138,7 +138,11 @@ extend VOLTAGE.
 - Reset everywhere it matters: every module with a position in a cycle has a RST input (back before
   step 1, the next clock plays it): sequencers, the systems, POCKETs, BANDMATE (phrase count), TALLY,
   LOOP, LIFE; VISION / VISION CORE (every scene starts over, so the visuals begin with the song;
-  creatures reset in place, no allocation) and VECTOR / WATERFALL (the screen wipes). Every clock
+  creatures reset in place, no allocation) and VECTOR / WATERFALL (the screen wipes); 4-TRACK (tape
+  to its start), LOOPER pedal, TANPURA (cycle from its first string), XY (gesture loop), and the
+  simulations BOUNCE / TUMBLER / CHAOS / ECOSYSTEM (back to their exact starting state, so the
+  same "random" phrase replays). Deliberately without: TURING (no beat one by design), FLOCK
+  (SCATTER), and modules whose TRIG / START / RETRIG / SYNC already are their reset. Every clock
   source has a RST out (a 3 ms pulse on start or reset): CLOCK, GROOVE-1, SKETCHBOOK, UNDERTONE,
   LOCKSTEP and the POCKETs, wired into the rigs and presets that follow them.
 - Jack hints (top-bar setting, on by default): while a cable is dragged, every jack it could go to rings

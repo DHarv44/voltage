@@ -34,12 +34,28 @@ export class TumbleCore {
     count: number,
     private readonly rng: Rng,
   ) {
+    this.startY = new Float64Array(count)
     this.balls = Array.from({ length: count }, (_, i) => {
       const b = new Ball()
       b.x = (i - (count - 1) / 2) * 0.25
       b.y = 0.2 + rng.next() * 0.3
+      this.startY[i] = b.y
       return b
     })
+  }
+  private readonly startY: Float64Array
+
+  /** Back to how it began: the drum square, the balls where they started, at rest. */
+  reset(): void {
+    const n = this.balls.length
+    for (let i = 0; i < n; i++) {
+      const b = this.balls[i]
+      b.x = (i - (n - 1) / 2) * 0.25
+      b.y = this.startY[i]
+      b.vx = b.vy = 0
+    }
+    this.angle = 0
+    this.omega = 0
   }
 
   /** Throw the first `count` balls upward. */

@@ -145,6 +145,7 @@ export const lpedal = pedal({
   panel: PEDAL_ORANGE,
   params: [{ id: 'level', label: 'LOOP', min: 0, max: 1.5, def: 1, unit: '%' }],
   knobs: ['level', null],
+  inputs: [{ id: 'rst', label: 'RST' }],
   leds: 3,
   extra: [
     { kind: 'button', name: 'stop', x: 30.5, y: 27, label: 'STOP', led: 1, ledColor: '#3bff6b' },

@@ -61,6 +61,12 @@ export class GestureLoop {
     } else this.loopPulses = 0
   }
 
+  /** RST: a playing loop goes back to its top (its clock count with it). */
+  restart(): void {
+    this.pos = 0
+    this.edgeCount = 0
+  }
+
   toggle(): void {
     if (this.len) this.playing = !this.playing
     this.pos = 0

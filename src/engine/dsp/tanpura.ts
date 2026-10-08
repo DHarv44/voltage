@@ -56,6 +56,8 @@ export class TanpuraDsp extends Dsp {
   private readonly strings: TString[]
   private readonly detune: number[]
   private readonly clk = new Schmitt()
+  private readonly rst = new Schmitt()
+  private readonly iRst = this.ii('rst')
   private t = 0
   private next = 0
   private gate = 0
@@ -85,6 +87,14 @@ export class TanpuraDsp extends Dsp {
 
   tick(): void {
     const p = this.p
+    // RST: the cycle starts over on its first string (clocked: the next CLK plucks it)
+    if (this.rst.rise(this.in[this.iRst])) {
+      this.next = 0
+      if (!this.patched[this.iClk]) {
+        this.t = 0
+        this.pluck(0)
+      }
+    }
     // The cycle: free-running, or one pluck per CLK.
     if (this.patched[this.iClk]) {
       if (this.clk.rise(this.in[this.iClk])) {

@@ -27,7 +27,7 @@ export const fourtrack: ModuleSpec = {
   category: 'Sampling & Tape',
   hp: 28,
   panel: BLACK,
-  inputs: Array.from({ length: FT_TRACKS }, (_, i) => ({ id: `in${i + 1}`, label: `IN ${i + 1}` })),
+  inputs: [...Array.from({ length: FT_TRACKS }, (_, i) => ({ id: `in${i + 1}`, label: `IN ${i + 1}` })), { id: 'rst', label: 'RST' }],
   outputs: [
     ...Array.from({ length: FT_TRACKS }, (_, i) => ({ id: `out${i + 1}`, label: `TRK ${i + 1}` })),
     { id: 'mix', label: 'MIX' },
@@ -54,6 +54,7 @@ export const fourtrack: ModuleSpec = {
       { kind: 'in', jack: `in${i + 1}`, x, y: 98 },
       { kind: 'out', jack: `out${i + 1}`, x, y: 114.5 },
     ]),
+    { kind: 'in', jack: 'rst', x: 118, y: 98 },
     { kind: 'out', jack: 'mix', x: 118, y: 114.5 },
   ],
 }
