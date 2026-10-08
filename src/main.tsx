@@ -15,12 +15,13 @@ import { validateStarters } from './patch/starters'
 import { validateSongs } from './patch/songs'
 import { lintPanels } from './ui/panel/lint'
 import { tutorial } from './tutorial/runner'
+import { validateLessons } from './tutorial/validate'
 import { bootShared } from './ui/share/sharedState'
 import './styles.css'
 
 if (import.meta.env.DEV) {
-  const errors = [...validateSpecs(), ...validatePresets(), ...validateStarters(), ...validateCatalog(SPEC_LIST), ...validateSongs()]
-  if (errors.length) console.error('Module spec / preset / ready-to-play rig / catalog errors:\n' + errors.join('\n'))
+  const errors = [...validateSpecs(), ...validatePresets(), ...validateStarters(), ...validateCatalog(SPEC_LIST), ...validateSongs(), ...validateLessons()]
+  if (errors.length) console.error('Module spec / preset / ready-to-play rig / catalog / lesson errors:\n' + errors.join('\n'))
   const layout = lintPanels()
   if (layout.length) console.warn('Panel layout problems (overlaps, alignment, screws):\n' + layout.join('\n'))
   const gaps = paramGaps(SPEC_LIST)

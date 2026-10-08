@@ -1,0 +1,62 @@
+import { SPECS } from '../modules'
+import { makeModule } from '../patch/factory'
+import { findSlot } from '../patch/layout'
+import type { Patch } from '../patch/types'
+import { rackMatches } from './continuity'
+import { FUNDAMENTALS } from './lessons/fundamentals'
+import type { Action, Lesson, Target } from './types'
+
+/** Dev-time check of the course: play every lesson's steps on its starting
+ *  rack (adding modules where the library would put them), and check every
+ *  module type, jack and knob a step names exists, and that each lesson ends
+ *  with the rack the next one starts from. */
+export function validateLessons(lessons: Lesson[] = FUNDAMENTALS): string[] {
+  const errors: string[] = []
+  lessons.forEach((lesson, n) => {
+    const start = lesson.build()
+    const patch: Patch = structuredClone(start.patch)
+    const mods = { ...start.mods }
+    const where = (i: number) => `${lesson.id} step ${i + 1}`
+    const spec = (name: string) => SPECS[patch.modules.find((m) => m.id === mods[name])?.type ?? '']
+    const hasJack = (name: string, jack: string, dir: 'in' | 'out') => !!spec(name)?.[dir === 'in' ? 'inputs' : 'outputs'].some((j) => j.id === jack)
+    const checkTarget = (t: Target | undefined, i: number) => {
+      if (!t || 'ui' in t) return
+      if ('lib' in t) {
+        if (!SPECS[t.lib]) errors.push(`${where(i)}: no module type ${t.lib}`)
+      } else if ('param' in t) {
+        if (!spec(t.mod)?.params.some((p) => p.id === t.param)) errors.push(`${where(i)}: no knob ${t.mod}.${t.param}`)
+      } else if (!hasJack(t.mod, t.jack, t.dir)) errors.push(`${where(i)}: no jack ${t.mod}.${t.jack}`)
+    }
+    const apply = (a: Action, i: number) => {
+      if (a.kind === 'add') {
+        if (!SPECS[a.type]) return void errors.push(`${where(i)}: no module type ${a.type}`)
+        let slot = findSlot(patch, SPECS[a.type].hp)
+        if (!slot) {
+          patch.rows++
+          slot = { row: patch.rows - 1, hp: 0 }
+        }
+        const m = makeModule(a.type, slot.row, slot.hp)
+        patch.modules.push(m)
+        mods[a.as] = m.id
+      } else if (a.kind === 'connect') {
+        if (!hasJack(a.from[0], a.from[1], 'out')) errors.push(`${where(i)}: no output ${a.from.join('.')}`)
+        if (!hasJack(a.to[0], a.to[1], 'in')) errors.push(`${where(i)}: no input ${a.to.join('.')}`)
+        const to = { mod: mods[a.to[0]], jack: a.to[1] }
+        patch.cables = patch.cables.filter((c) => !(c.to.mod === to.mod && c.to.jack === to.jack))
+        patch.cables.push({ id: `v${patch.cables.length}_${i}`, from: { mod: mods[a.from[0]], jack: a.from[1] }, to, color: '#fff' })
+      } else if (a.kind === 'set') {
+        const m = patch.modules.find((x) => x.id === mods[a.mod])
+        if (!m || !SPECS[m.type].params.some((p) => p.id === a.param)) errors.push(`${where(i)}: no knob ${a.mod}.${a.param}`)
+        else m.params[a.param] = a.value
+      }
+    }
+    lesson.steps.forEach((s, i) => {
+      checkTarget(s.target, i)
+      if (s.action) apply(s.action, i)
+      for (const t of s.then ?? []) apply(t, i)
+    })
+    const next = lessons[n + 1]
+    if (next && !rackMatches(patch, mods, next.build())) errors.push(`${lesson.id}: doesn't end with the rack “${next.id}” starts from`)
+  })
+  return errors
+}

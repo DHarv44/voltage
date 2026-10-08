@@ -12,24 +12,24 @@ export const firstSound: Lesson = {
       text: 'This is your rack: an empty case. A modular synth is built from separate modules, each doing one job, joined with patch cables. The list on the left is every module you can add. Let’s build the simplest instrument there is, one piece at a time.',
     },
     {
-      text: 'Every synth sound starts with an oscillator: a circuit that vibrates back and forth hundreds of times a second. Ours is the VCO (voltage-controlled oscillator), in the SOURCES section of the list.',
+      text: 'Every synth sound starts with an oscillator: a circuit that vibrates back and forth hundreds of times a second. Ours is the VCO (voltage-controlled oscillator), in the OSCILLATORS section of the list.',
       task: 'Click “Oscillator” in the module list (or drag it into the rack).',
       action: { kind: 'add', type: 'vco', as: 'vco' },
     },
     {
-      text: 'Vibrations are only sound once they reach your speakers. The OUT module is the rack’s connection to your speakers or headphones — nothing is heard without it. It’s in the I/O section.',
-      task: 'Add “Audio Output” from the I/O section.',
+      text: 'Vibrations are only sound once they reach your speakers. The OUT module is the rack’s connection to your speakers or headphones — nothing is heard without it. It’s in the OUTPUT section.',
+      task: 'Add “Audio Output” from the OUTPUT section.',
       action: { kind: 'add', type: 'output', as: 'out' },
     },
     volumeStep('Before we make any sound, protect your ears: OUT’s VOLUME starts fairly high. Knobs turn with the scroll wheel over them (up = clockwise), or by dragging up and down.'),
     {
-      text: 'A scope lets you see sound: it draws a voltage over time, so you can watch the shape of each wave while you hear it. It’s in UTILITIES.',
-      task: 'Add “Oscilloscope” from the UTILITIES section.',
+      text: 'A scope lets you see sound: it draws a voltage over time, so you can watch the shape of each wave while you hear it. It’s in VISUALS.',
+      task: 'Add “Oscilloscope” from the VISUALS section.',
       action: { kind: 'add', type: 'scope', as: 'scope' },
     },
     {
       text: 'We want the oscillator in two places at once: your speakers and the scope. A MULT (multiple) copies one signal to several outputs — whatever goes into its A input comes out of each of the jacks below it.',
-      task: 'Add “Buffered Multiple” from UTILITIES.',
+      task: 'Add “Buffered Multiple” from CV TOOLS.',
       action: { kind: 'add', type: 'mult', as: 'mult' },
     },
     {

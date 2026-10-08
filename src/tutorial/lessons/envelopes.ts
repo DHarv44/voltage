@@ -28,8 +28,8 @@ export const envelopes: Lesson = {
       action: { kind: 'set', mod: 'vcf', param: 'cutoff', value: 1200 },
     },
     {
-      text: 'MIDI·CV turns your computer keyboard (or a MIDI keyboard) into voltages: which note you pressed, and whether a key is held. It’s in I/O.',
-      task: 'Add “MIDI to CV” from I/O.',
+      text: 'MIDI·CV turns your computer keyboard (or a MIDI keyboard) into voltages: which note you pressed, and whether a key is held. It’s in CONTROLLERS.',
+      task: 'Add “MIDI to CV” from CONTROLLERS.',
       action: { kind: 'add', type: 'midi', as: 'midi' },
     },
     {
@@ -39,8 +39,8 @@ export const envelopes: Lesson = {
       action: { kind: 'connect', from: ['midi', 'pitch'], to: ['vco', 'voct'] },
     },
     {
-      text: 'The VCA (voltage-controlled amplifier) lets sound through only as far as a voltage opens it. It’s in AMPLIFIERS.',
-      task: 'Add “Amplifier” from AMPLIFIERS.',
+      text: 'The VCA (voltage-controlled amplifier) lets sound through only as far as a voltage opens it. It’s in AMPS & MIXERS.',
+      task: 'Add “Amplifier” from AMPS & MIXERS.',
       action: { kind: 'add', type: 'vca', as: 'vca' },
     },
     {
@@ -56,8 +56,8 @@ export const envelopes: Lesson = {
       action: { kind: 'connect', from: ['vcf', 'lp4'], to: ['vca', 'in'] },
     },
     {
-      text: 'The envelope (ADSR) makes that voltage: it rises when a key goes down and falls when it comes up. It’s in MODULATION.',
-      task: 'Add “Envelope” from MODULATION.',
+      text: 'The envelope (ADSR) makes that voltage: it rises when a key goes down and falls when it comes up. It’s in ENVELOPES & LFOS.',
+      task: 'Add “Envelope” from ENVELOPES & LFOS.',
       action: { kind: 'add', type: 'adsr', as: 'adsr' },
     },
     {

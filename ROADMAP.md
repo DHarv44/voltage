@@ -184,8 +184,11 @@ extend VOLTAGE.
 - Cables: sag; right-click a jack pulls its cables, Shift+right-click recolours; Esc cancels a drag.
 - Eurorack mounting grid: panel screws land on the rail holes.
 - Played surfaces (platters, strings, pads, rooms…) via a surface registry.
-- **Tutorials** (Learn menu): synth fundamentals as one continuous course (oscillators, filters,
-  envelopes + VCA, modulation). Lesson 1 starts from an empty case; each lesson picks up where the last
+- **Tutorials** (Learn menu): one continuous course from an empty case to a whole track: oscillators,
+  filters, envelopes + VCA, modulation, then sequencing (CLOCK + SEQ-8 play the voice), drums (kick
+  and hats on the same clock, a mixer) and effects (tape echo on the synth, plate on the mix). A dev
+  startup check (tutorial/validate.ts) replays every lesson on a model rack: every module, jack and
+  knob it names must exist, and each lesson must end where the next begins. Lesson 1 starts from an empty case; each lesson picks up where the last
   ended ("Next lesson" keeps your rack). WALKTHROUGH performs each step as you press Next; GUIDED
   moves on by itself when you do the step and asks you to play notes ("Show me" if stuck). Lessons run in a
   scratch rack; Finish keeps what you built. Lessons are data (steps with text, target, action).
@@ -233,8 +236,8 @@ extend VOLTAGE.
   more doubling in their rigs). The newer systems have no direct path: patch them to OUT.
 
 ## Up next
-- **Tutorial suite**: lessons for every module family (sequencing, drums, effects, systems, poly, the
-  played instruments), plus "how this preset works" tours of the factory presets.
+- **Tutorial suite**: ~~sequencing, drums, effects~~ (done: lessons 5–7 of the course). Still: systems,
+  poly, the played instruments, and "how this preset works" tours of the factory presets.
 - **XY pad extras**: multi-touch → poly cables on tablets; save the recorded gesture with the patch.
 - **POCKET family** (calculator-sized grooveboxes that clock each other over CLK; our own names, look and
   sounds; no third-party trademarks, artwork, LCD characters or samples):

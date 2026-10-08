@@ -28,8 +28,8 @@ export const modulation: Lesson = {
       action: { kind: 'set', mod: 'vcf', param: 'res', value: 0.5 },
     },
     {
-      text: 'An LFO (low-frequency oscillator) vibrates too slowly to hear — under about 20 times a second. Too slow for a tone, perfect for movement. It’s in MODULATION.',
-      task: 'Add “Low-Frequency Oscillator” from MODULATION.',
+      text: 'An LFO (low-frequency oscillator) vibrates too slowly to hear — under about 20 times a second. Too slow for a tone, perfect for movement. It’s in ENVELOPES & LFOS.',
+      task: 'Add “Low-Frequency Oscillator” from ENVELOPES & LFOS.',
       action: { kind: 'add', type: 'lfo', as: 'lfo' },
     },
     {
@@ -73,7 +73,7 @@ export const modulation: Lesson = {
       action: { kind: 'set', mod: 'vco', param: 'fm', value: 0.06 },
     },
     {
-      text: 'That’s modulation: any output can turn any knob that has a CV input. Turn the VCA’s LEVEL back down to play plucks again — now with a moving filter. Oscillators, filters, envelopes, VCAs and modulation: you now know the building blocks of every synth in this rack.',
+      text: 'That’s modulation: any output can turn any knob that has a CV input. Oscillators, filters, envelopes, VCAs and modulation: you now know the building blocks of every synth in this rack. Next: let the rack play by itself.',
     },
   ],
 }

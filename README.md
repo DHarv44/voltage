@@ -194,9 +194,9 @@ slide/accent or chord/arp. With WRITE off, the 16 buttons are a keyboard. Start 
 Band** rack.
 
 ### Learn
-**Learn → Synth fundamentals** is one continuous course (oscillators → filters → envelopes and VCAs
-→ modulation). Each lesson picks up where the last ended, and **Finish** leaves you with the rack
-you built.
+**Learn → Synth fundamentals** is one continuous course, from an empty case to a whole track
+(oscillators → filters → envelopes and VCAs → modulation → sequencing → drums → effects). Each
+lesson picks up where the last ended, and **Finish** leaves you with the rack you built.
 
 ---
 

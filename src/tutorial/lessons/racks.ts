@@ -79,7 +79,43 @@ const envelopes = () =>
     .wire(['midi', 'gate'], ['adsr', 'gate'])
     .wire(['adsr', 'env'], ['vca', 'cv'])
 
+/** Lesson 4's end: a held-open drone, an LFO on the filter (wah) and the pitch (vibrato). */
+const modulation = () =>
+  envelopes()
+    .set('vca', { gain: 0.8 })
+    .set('vcf', { res: 0.5, cv: 0.7 })
+    .add('lfo', 'lfo', { rate: 0.3 })
+    .wire(['lfo', 'tri'], ['vcf', 'cv'])
+    .wire(['lfo', 'tri'], ['vco', 'fm'])
+    .set('vco', { fm: 0.06 })
+
+/** Lesson 5's end: CLOCK and SEQ-8 play the voice. */
+const sequencing = () =>
+  modulation()
+    .set('vca', { gain: 0 })
+    .add('clock', 'clock', { bpm: 140 })
+    .add('seq', 'seq8', { s4: 0.6667, g6: 0, len: 6 })
+    .wire(['clock', 'x2'], ['seq', 'clk'])
+    .wire(['seq', 'gate'], ['adsr', 'gate'])
+    .wire(['seq', 'cv'], ['vco', 'voct'])
+
+/** Lesson 6's end: kick and hats on the same clock, all through a mixer. */
+const drums = () =>
+  sequencing()
+    .add('kick', 'kick', { decay: 0.3 })
+    .wire(['clock', 'x1'], ['kick', 'trig'])
+    .add('mix', 'mixer', { l3: 0.4 })
+    .wire(['vca', 'out'], ['mix', 'in1'])
+    .wire(['mix', 'out'], ['mult', 'a'])
+    .wire(['kick', 'out'], ['mix', 'in2'])
+    .add('hats', 'hats')
+    .wire(['clock', 'x4'], ['hats', 'ch'])
+    .wire(['hats', 'mix'], ['mix', 'in3'])
+
 export const emptyRack = (): Rack => done(new Stage())
 export const afterFirstSound = (): Rack => done(firstSound())
 export const afterFilters = (): Rack => done(filters())
 export const afterEnvelopes = (): Rack => done(envelopes())
+export const afterModulation = (): Rack => done(modulation())
+export const afterSequencing = (): Rack => done(sequencing())
+export const afterDrums = (): Rack => done(drums())
