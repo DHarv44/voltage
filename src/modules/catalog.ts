@@ -125,7 +125,7 @@ export const CATALOG: Record<string, Entry> = {
   tom: { tags: ['beat', 'world'], aka: ['conga', '808 tom'] },
   perc: { tags: ['beat'], aka: ['rimshot', 'cowbell', '808'] },
   // Sequencers
-  clock: { tags: ['clock'], aka: ['tempo', 'bpm', 'master clock'] },
+  clock: { tags: ['clock'], aka: ['tempo', 'bpm', 'master clock', 'midi clock', 'sync', 'daw', 'external clock'] },
   div: { tags: ['clock'], aka: ['clock divider', 'divider'] },
   seq8: { tags: ['sequence', 'melody'], aka: ['step sequencer', 'analog sequencer'] },
   tr16: { tags: ['beat', 'sequence'], aka: ['drum sequencer', 'trigger sequencer', '808', 'song mode'] },

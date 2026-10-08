@@ -2,6 +2,8 @@
  *  Used from the browser console / automated checks; not imported by the app. */
 import { Graph } from '../engine/graph'
 import { SPECS } from '../modules'
+/** The MIDI-out queue the bench's graph writes to (the same module instance). */
+export { midiOut } from '../engine/dsp/external'
 
 export const FS = 48000
 

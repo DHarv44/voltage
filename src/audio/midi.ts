@@ -3,6 +3,8 @@ import { GM_PADS } from '../engine/drumMap'
 
 type Send = (ev: MidiEvent) => void
 
+let access: MIDIAccess | null = null
+
 /** Hardware MIDI via Web MIDI (all inputs, hot-plug aware). */
 export async function initMidi(send: Send, status: (s: string) => void): Promise<void> {
   if (!navigator.requestMIDIAccess) {
@@ -10,24 +12,40 @@ export async function initMidi(send: Send, status: (s: string) => void): Promise
     return
   }
   try {
-    const access = await navigator.requestMIDIAccess()
+    const a = await navigator.requestMIDIAccess()
+    access = a
     const bind = () => {
       let n = 0
-      access.inputs.forEach((input) => {
+      a.inputs.forEach((input) => {
         input.onmidimessage = (e) => parse(e.data, send)
         n++
       })
       status(n ? `MIDI: ${n} input${n > 1 ? 's' : ''}` : 'MIDI: none')
     }
-    access.onstatechange = bind
+    a.onstatechange = bind
     bind()
   } catch {
     status('MIDI blocked')
   }
 }
 
+/** Send bytes to every MIDI output at `atMs` (performance.now() time; the
+ *  browser holds them until then, so clock ticks leave on time). */
+export function midiSend(bytes: number[], atMs: number[]): void {
+  if (!access) return
+  access.outputs.forEach((out) => {
+    for (let i = 0; i < bytes.length; i++) out.send([bytes[i]], atMs[i])
+  })
+}
+
+/** Realtime bytes: MIDI clock and transport. */
+const REALTIME: Record<number, MidiEvent> = { 0xf8: { kind: 'clock' }, 0xfa: { kind: 'start' }, 0xfb: { kind: 'continue' }, 0xfc: { kind: 'stop' } }
+
 function parse(d: Uint8Array | null, send: Send): void {
-  if (!d || d.length < 2) return
+  if (!d || !d.length) return
+  const rt = REALTIME[d[0]]
+  if (rt) return send(rt)
+  if (d.length < 2) return
   const type = d[0] & 0xf0
   const ch = (d[0] & 0x0f) + 1
   if (type === 0x90 && d[2] > 0) send({ kind: 'on', note: d[1], vel: d[2], ch })

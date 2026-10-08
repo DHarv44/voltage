@@ -1,6 +1,6 @@
 import { Graph } from './graph'
 import type { AudioChunkMsg, ToEngine } from './protocol'
-import { external } from './dsp/external'
+import { audioClock, external, midiOut } from './dsp/external'
 
 const TELEMETRY_HZ = 30
 const REC_CHUNK = 16384
@@ -86,11 +86,17 @@ class VoltageRackProcessor extends AudioWorkletProcessor {
     const inp = inputs[0]
     external.l = inp && inp[0] ? inp[0] : null
     external.r = inp && inp[1] ? inp[1] : null
+    audioClock.frame = currentFrame
     try {
       this.graph.process(out[0].length, out[0], out[1] ?? null)
     } catch (err) {
       this.failed = true
       this.port.postMessage({ type: 'error', message: String(err) })
+    }
+    // MIDI clock out: hand this block's bytes to the page at once (timing matters)
+    if (midiOut.n > 0) {
+      this.port.postMessage({ type: 'midiOut', bytes: Array.from(midiOut.bytes.subarray(0, midiOut.n)), frames: Array.from(midiOut.frames.subarray(0, midiOut.n)) })
+      midiOut.n = 0
     }
     if (this.recording) this.capture(out[0], out[1] ?? out[0])
     this.since += out[0].length

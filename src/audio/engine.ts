@@ -4,7 +4,7 @@ import type { AudioChunkMsg, FromEngine, MidiEvent, ToEngine, UiEvent } from '..
 import { actions, patchStore } from '../patch/store'
 import type { Patch } from '../patch/types'
 import { buildPatchMsg, topologyKey } from './patchMsg'
-import { initMidi } from './midi'
+import { initMidi, midiSend } from './midi'
 import { telemetry } from './telemetry'
 import { settings } from '../ui/settings'
 
@@ -84,7 +84,8 @@ class AudioEngine {
       if (m.type === 'telemetry') {
         this.applyEngineParams(m.params)
         if (this.status.power) telemetry.ingest(m)
-      } else if (m.type === 'audio') this.onAudio?.(m)
+      } else if (m.type === 'midiOut') this.sendMidiOut(m.bytes, m.frames)
+      else if (m.type === 'audio') this.onAudio?.(m)
       else if (m.type === 'buffer') this.onBuffer?.(m)
       else this.update({ error: m.message })
     }
@@ -113,6 +114,19 @@ class AudioEngine {
   midi(ev: MidiEvent): void {
     if (this.status.power) this.send({ type: 'midi', ev })
     this.midiListeners.forEach((f) => f(ev))
+  }
+
+  /** MIDI clock out: each byte belongs to an audio frame; it should leave
+   *  when that frame is heard, so map frames to performance.now() through
+   *  the context's output timestamp (past ones go at once). */
+  private sendMidiOut(bytes: number[], frames: number[]): void {
+    const ctx = this.ctx
+    if (!ctx) return
+    const ts = ctx.getOutputTimestamp()
+    const ctxT = ts.contextTime ?? ctx.currentTime
+    const perfT = ts.performanceTime ?? performance.now()
+    const at = frames.map((f) => Math.max(0, perfT + (f / ctx.sampleRate - ctxT) * 1000))
+    midiSend(bytes, at)
   }
 
   /** Watch one module's jack voltages (hover readout). */

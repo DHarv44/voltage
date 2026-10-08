@@ -264,7 +264,11 @@ Our own versions throughout: inspired by the classics, our own names, panels and
   4. ~~Knob-motion recording and resampling~~ (done: MOTION, TAP). Later: per-step motion like
      Elektron's (one value per trig), recording switches.
   5. ~~Ambient toolkit~~ (done: GRAINS, SHIMMER, SHIFT).
-  6. MIDI clock in/out (sync with a DAW and gear).
+  6. ~~MIDI clock in/out~~ (done, on CLOCK: SYNC MIDI IN follows 24 PPQN clock with START /
+     CONTINUE / STOP, its bar ramp anchored to the tick count and the tempo smoothed from tick
+     intervals (shown on the knob); MIDI OUT sends clock / START / STOP, each byte stamped with its
+     audio frame and scheduled through Web MIDI timestamps via the context's output timestamp).
+     Later: song position pointer, MIDI notes out.
 - **Gaps by sound**:
   - Analog poly: unison/detune stacking, poly-mod, built-in chorus (Prophet / Juno / CS-80 / OB style).
   - Mono: full acid sequencer, 3-osc Model-D-style system.

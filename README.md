@@ -104,6 +104,13 @@ Patch **MIDI·CV** (or use a module with a built-in keybed) and play:
 - **1–8**: drum pads (MIDI channel 10)
 - A connected **MIDI keyboard** works too (Web MIDI).
 
+### Syncing with a DAW or other gear
+**CLOCK** speaks MIDI clock (Web MIDI; in Chrome or Edge):
+- **SYNC → MIDI IN**: the rack follows a DAW or drum machine: its START starts the rack on beat
+  one, STOP stops it, and the TEMPO knob shows the tempo it hears.
+- **MIDI OUT**: the rack leads: CLOCK sends MIDI clock, START and STOP to your MIDI outputs, timed
+  to the audio you hear.
+
 ### Recording
 **REC** in the top bar records the master output to a 24-bit WAV until you press it again.
 

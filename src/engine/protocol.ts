@@ -10,6 +10,11 @@ export type MidiEvent =
   /** Channel or polyphonic aftertouch, 0..127. */
   | { kind: 'pressure'; value: number }
   | { kind: 'panic' }
+  /** MIDI clock (24 per quarter note) and transport, from a DAW or other gear. */
+  | { kind: 'clock' }
+  | { kind: 'start' }
+  | { kind: 'continue' }
+  | { kind: 'stop' }
 
 export const DRUM_CHANNEL = 10
 
@@ -91,5 +96,7 @@ export type FromEngine =
   | TelemetryMsg
   | AudioChunkMsg
   | { type: 'error'; message: string }
+  /** MIDI bytes to send (MIDI clock out), each stamped with the audio frame it belongs to. */
+  | { type: 'midiOut'; bytes: number[]; frames: number[] }
   /** A module's buffer changed (persist it), or `dump` = reply to getBuffer. */
   | ({ type: 'buffer'; dump: boolean } & BufferMsg)

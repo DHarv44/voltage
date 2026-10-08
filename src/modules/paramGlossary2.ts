@@ -51,6 +51,9 @@ export const MORE_OVERRIDES: Record<string, string> = {
   'tally:balance': 'The melody against the rhythm: left is all melody, right all rhythm.',
   'tally:vol': 'How loud TALLY is.',
   'tally:tempo': 'The rhythm’s speed (and how fast ♪ plays a number), when nothing is patched to CLK.',
+  // CLOCK and MIDI
+  'clock:sync': 'INT: its own TEMPO. MIDI IN: follows MIDI clock from a DAW or a drum machine (tempo, START and STOP); the TEMPO knob shows what it hears.',
+  'clock:mout': 'MIDI OUT: sends MIDI clock, START and STOP to your MIDI outputs, so a DAW or other gear follows the rack.',
   // TAP
   'tap:level': 'How loud the tapped mix comes out: 1 brings a usual mix back to normal audio level; raise it if your OUT is turned down low.',
   // MOTION
