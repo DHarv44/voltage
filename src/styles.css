@@ -951,11 +951,24 @@ button {
 .module > svg {
   cursor: grab;
 }
+/* one shadow for the held panel (a filter on every child is far too slow to drag) */
+.module.lifted {
+  filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.7));
+  z-index: 7;
+  will-change: left, top;
+}
 .module.lifted,
 .module.lifted * {
   cursor: grabbing;
-  filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.7));
-  z-index: 5;
+}
+/* the slot a held panel will drop into */
+.move-ghost {
+  position: absolute;
+  z-index: 4;
+  border: 2px dashed var(--accent);
+  border-radius: 3px;
+  background: rgba(232, 163, 61, 0.1);
+  pointer-events: none;
 }
 .module svg {
   display: block;

@@ -131,25 +131,33 @@ export function useRackInteractions(toLocal: (e: ClientPt) => Pt) {
         const sx = e.clientX
         const sy = e.clientY
         const slop = e.pointerType === 'mouse' ? MOVE_SLOP : MOVE_SLOP_TOUCH
+        // the panel follows the pointer every frame; the slot (and neighbours) only on a new slot
+        let frame = 0
+        let free = { x: moduleLeft(m.hp), y: rowTop(m.row) }
+        const draw = () => {
+          frame = 0
+          setMove({ ...cur, free })
+        }
         track(
           (ev) => {
             // a press that barely moves is a click, not a move
             if (!lifted) {
               if (Math.hypot(ev.clientX - sx, ev.clientY - sy) < slop) return
               lifted = true
-              setMove(cur)
             }
-            const t = slotAt(local.current(ev), dx, dy, base.rows)
+            const pt = local.current(ev)
+            free = { x: pt.x - dx, y: pt.y - dy }
+            const t = slotAt(pt, dx, dy, base.rows)
             const key = `${t.row}:${t.hp}`
-            if (key === last) return
-            last = key
-            const pv = resolve(base, id, m.type, t.row, t.hp)
-            if (pv) {
-              cur = pv
-              setMove(pv)
+            if (key !== last) {
+              last = key
+              const pv = resolve(base, id, m.type, t.row, t.hp)
+              if (pv) cur = pv
             }
+            if (!frame) frame = requestAnimationFrame(draw)
           },
           () => {
+            if (frame) cancelAnimationFrame(frame)
             if (!lifted) return
             const moved = cur.row !== m.row || cur.hp !== m.hp || Object.keys(cur.moves).length > 0
             if (moved) actions.placeModule(id, cur.row, cur.targetHp)

@@ -15,6 +15,9 @@ export interface DragPreview {
   /** Raw drop position, re-used on commit so the store resolves identically. */
   targetHp: number
   moves: Record<string, number>
+  /** Where the held panel is drawn (rack px, its top-left), following the
+   *  pointer smoothly; `row` / `hp` are the slot it will drop into. */
+  free?: Pt
 }
 
 /** Snap a rack-space point (minus the grab offset) to a row / HP slot.
@@ -41,8 +44,9 @@ export function libraryPreview(type: string, pt: Pt, base: Patch): DragPreview |
 }
 
 /** Where a module is drawn, given an in-progress drag. Only the dragged panel
- *  moves; neighbours stay put (overlapped) and slide aside on drop. */
+ *  moves (with the pointer, between slots too: fractional row / hp);
+ *  neighbours stay put (overlapped) and slide aside on drop. */
 export function placementOf(m: ModuleInst, pv: DragPreview | null): Placement {
-  if (pv && m.id === pv.id) return { row: pv.row, hp: pv.hp }
+  if (pv && m.id === pv.id) return pv.free ? { row: (pv.free.y - GAP) / (ROW_PX + GAP), hp: (pv.free.x - SIDE) / HP_PX } : { row: pv.row, hp: pv.hp }
   return m
 }

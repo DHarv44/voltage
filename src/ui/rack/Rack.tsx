@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { SPECS } from '../../modules'
+import { hpOf } from '../../modules/size'
 import { railHp } from '../../patch/layout'
 import { actions, patchStore } from '../../patch/store'
 import type { ModuleInst } from '../../patch/types'
@@ -118,6 +119,13 @@ export function Rack() {
               <ModulePanel key={m.id} inst={m} row={at.row} hp={at.hp} lifted={move?.id === m.id} handlers={handlers} fed={fed[m.id]?.join(',') ?? ''} />
             )
           })}
+          {move?.free && (
+            // where the held panel will drop
+            <div
+              className="move-ghost"
+              style={{ left: moduleLeft(move.hp), top: rowTop(move.row), width: hpOf(patch.modules.find((m) => m.id === move.id) ?? { type: move.type }) * HP_PX, height: ROW_PX }}
+            />
+          )}
           {libPreview && (
             <div
               className="drop-ghost"
