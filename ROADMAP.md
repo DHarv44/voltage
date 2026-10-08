@@ -132,6 +132,9 @@ extend VOLTAGE.
     spectrogram), **LIGHTS** (the music lights the whole rack: bass red, mids green, treble blue).
 
 ### Rack & workflow
+- Touch: a finger held still (450 ms) on a jack, knob (panel or canvas) or switch shows its tooltip,
+  which lingers 2.5 s after lifting; moving past a 12 px slop starts the cable or turns the knob
+  from there instead (`ui/rack/touchHold.ts`). Hover handlers ignore touch.
 - Reset everywhere it matters: every module with a position in a cycle has a RST input (back before
   step 1, the next clock plays it): sequencers, the systems, POCKETs, BANDMATE (phrase count), TALLY,
   LOOP, LIFE; VISION / VISION CORE (every scene starts over, so the visuals begin with the song;

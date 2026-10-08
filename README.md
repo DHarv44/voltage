@@ -87,6 +87,7 @@ case. **Walkthrough** does each step for you; **Guided** lets you do it and move
 | Double-click a knob | Reset it to its default |
 | Drag from a jack to another jack | Patch a cable (output → input); dropping on an input replaces its cable. With **Jack hints** on (top bar), every jack the cable could go to rings while you drag (free inputs from an output, every output from an input), the ones carrying the same kind of signal ring brightest in that kind's colour (audio blue, pitch yellow, gates/triggers/clocks orange, CV violet), and the jack it will land on glows with its name |
 | Hover a jack | What it is: its name, the kind of signal (with the same colour), what it does, and the live voltage. With **Explain** on (top bar), a plain-words explanation of that kind of signal too (what a gate is, what V/OCT means) |
+| On a touchscreen: hold a finger still on a jack, knob or switch | Its tooltip (the same as hovering); it stays a moment after you lift. Move the finger instead and the cable comes, or the knob turns |
 | Hover a knob or switch | Its name, its value and how to use it. With **Explain** on, what it does in plain words (what CUTOFF or RESONANCE does, what SWING is, what this module's odd ones mean) |
 | Drag a cable's end out of an input | Unplug it |
 | Right-click a jack | Pull out all its cables |

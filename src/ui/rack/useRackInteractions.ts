@@ -8,6 +8,7 @@ import { moduleLeft, nearestJack, rowTop, type Pt } from '../geometry'
 import type { PanelHandlers } from '../panel/ModulePanel'
 import { track } from '../pointer'
 import { resolve, slotAt, type DragPreview } from './dragPreview'
+import { holdForTip } from './touchHold'
 
 export interface CableDrag extends Pt {
   anchor: JackRef
@@ -78,18 +79,33 @@ export function useRackInteractions(toLocal: (e: ClientPt) => Pt) {
       window.addEventListener('keydown', onKey)
     }
 
+    /** Pick up a cable from a jack (a patched input gives up its plug). */
+    const fromJack = (mod: string, jack: string, dir: 'in' | 'out', e: ClientPt) => {
+      if (dir === 'in') {
+        const c = patchStore.get().cables.find((c) => c.to.mod === mod && c.to.jack === jack)
+        if (c) {
+          actions.removeCable(c.id)
+          startCable(c.from, 'out', c.color, e, c)
+          return
+        }
+      }
+      startCable({ mod, jack }, dir, nextColor(), e)
+    }
+
     return {
       jackDown(mod, jack, dir, e) {
         if (e.button !== 0) return
-        if (dir === 'in') {
-          const c = patchStore.get().cables.find((c) => c.to.mod === mod && c.to.jack === jack)
-          if (c) {
-            actions.removeCable(c.id)
-            startCable(c.from, 'out', c.color, e, c)
-            return
-          }
+        // a finger: the cable comes once it moves; held still, the jack's tooltip
+        if (e.pointerType === 'touch') {
+          holdForTip(
+            e,
+            () => jackHover.set({ mod, jack, dir, x: e.clientX, y: e.clientY - 40 }),
+            () => jackHover.set(null),
+            (ev) => fromJack(mod, jack, dir, ev),
+          )
+          return
         }
-        startCable({ mod, jack }, dir, nextColor(), e)
+        fromJack(mod, jack, dir, e)
       },
       // Right-click pulls the jack's cables; Shift+right-click (or an empty jack) opens the jack menu.
       jackContext(mod, jack, dir, e) {

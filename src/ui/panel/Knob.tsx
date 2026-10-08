@@ -5,6 +5,7 @@ import { actions, patchStore } from '../../patch/store'
 import { dragKnob, knobAngle, knobHow, knobTicks, turnsKnob, wheelTurner } from './knobModel'
 import { KNOB } from '../../modules/panelMetrics'
 import { controlHover } from '../rack/controlHover'
+import { holdForTip } from '../rack/touchHold'
 
 interface Props {
   mod: string
@@ -53,19 +54,31 @@ export function Knob({ mod, ps, value, x, y, size = 'M', label, fg }: Props) {
     }
   }, [])
 
-  const hover = (e: PointerEvent<SVGGElement>) => {
-    if (e.buttons) return // mid-drag: the knob's own readout is up
+  const tip = (x: number, y: number) => {
     const { mod, ps } = latest.current
     const read = () => patchStore.get().modules.find((m) => m.id === mod)?.params[ps.id] ?? latest.current.value
-    controlHover.set({ mod, ps, label: text, read, how: knobHow(ps), x: e.clientX, y: e.clientY })
+    controlHover.set({ mod, ps, label: text, read, how: knobHow(ps), x, y })
+  }
+  const hover = (e: PointerEvent<SVGGElement>) => {
+    if (e.buttons || e.pointerType === 'touch') return // mid-drag (its own readout is up), or a finger (see down)
+    tip(e.clientX, e.clientY)
   }
 
+  const turn = (from: { clientY: number }) => {
+    setActive(true)
+    const { mod, ps } = latest.current
+    dragKnob(from, ps, latest.current.value, (v) => actions.setParam(mod, ps.id, v), () => setActive(false))
+  }
   const down = (e: PointerEvent<SVGGElement>) => {
     if (!turnsKnob(e)) return
     e.stopPropagation()
     controlHover.set(null)
-    setActive(true)
-    dragKnob(e, ps, value, (v) => actions.setParam(mod, ps.id, v), () => setActive(false))
+    // a finger: it turns once it moves (from there, so nothing jumps); held still, the tooltip
+    if (e.pointerType === 'touch') {
+      holdForTip(e, () => tip(e.clientX, e.clientY - 40), () => controlHover.set(null), turn)
+      return
+    }
+    turn(e)
   }
 
   const readout = formatParam(ps, value)
@@ -77,7 +90,7 @@ export function Knob({ mod, ps, value, x, y, size = 'M', label, fg }: Props) {
       onPointerDown={down}
       onPointerEnter={hover}
       onPointerMove={hover}
-      onPointerLeave={() => controlHover.set(null)}
+      onPointerLeave={(e) => e.pointerType !== 'touch' && controlHover.set(null)}
       onDoubleClick={(e) => {
         e.stopPropagation()
         actions.setParam(mod, ps.id, ps.def)

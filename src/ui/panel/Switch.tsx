@@ -3,6 +3,10 @@ import type { ParamSpec } from '../../modules/types'
 import { actions, patchStore } from '../../patch/store'
 import { SWITCH } from '../../modules/panelMetrics'
 import { controlHover } from '../rack/controlHover'
+import { holdForTip } from '../rack/touchHold'
+
+/** The press in progress (one finger at a time). */
+let holding: { held: () => boolean } | null = null
 
 interface Props {
   mod: string
@@ -21,21 +25,28 @@ export function Switch({ mod, ps, value, x, y, fg }: Props) {
   const up = steps === 1 ? 0 : pos / (steps - 1)
   const tip = 3.6 - up * 7.2
   const opts = ps.options ?? []
-  const hover = (e: PointerEvent) => {
+  const tipAt = (cx: number, cy: number) => {
     const read = () => patchStore.get().modules.find((m) => m.id === mod)?.params[ps.id] ?? value
     const how = opts.length ? `Click to switch (${opts.filter(Boolean).join(' / ')})` : 'Click to switch'
-    controlHover.set({ mod, ps, read, how, x: e.clientX, y: e.clientY })
+    controlHover.set({ mod, ps, read, how, x: cx, y: cy })
   }
+  const hover = (e: PointerEvent) => e.pointerType !== 'touch' && tipAt(e.clientX, e.clientY)
   return (
     <g
       className="switch"
       transform={`translate(${x} ${y})`}
-      onPointerDown={(e) => e.stopPropagation()}
+      onPointerDown={(e) => {
+        e.stopPropagation()
+        // a finger held still shows the tooltip instead of flipping the switch
+        if (e.pointerType === 'touch') holding = holdForTip(e, () => tipAt(e.clientX, e.clientY - 40), () => controlHover.set(null), () => {})
+        else holding = null
+      }}
       onPointerEnter={hover}
       onPointerMove={hover}
-      onPointerLeave={() => controlHover.set(null)}
+      onPointerLeave={(e) => e.pointerType !== 'touch' && controlHover.set(null)}
       onClick={(e) => {
         e.stopPropagation()
+        if (holding?.held()) return
         actions.setParam(mod, ps.id, ps.min + ((pos + 1) % steps))
       }}
     >

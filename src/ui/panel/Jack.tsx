@@ -41,9 +41,10 @@ export function Jack({ x, y, label, out, patched, family, panel, onDown, onConte
         e.stopPropagation()
         onContext(e)
       }}
-      onPointerEnter={onHover}
-      onPointerMove={onHover}
-      onPointerLeave={() => onHover(null)}
+      // hover is for mouse and pen; a finger gets the tooltip by holding still (touchHold)
+      onPointerEnter={(e) => e.pointerType !== 'touch' && onHover(e)}
+      onPointerMove={(e) => e.pointerType !== 'touch' && onHover(e)}
+      onPointerLeave={(e) => e.pointerType !== 'touch' && onHover(null)}
     >
       {out && (
         <rect

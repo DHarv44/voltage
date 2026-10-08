@@ -2,6 +2,7 @@ import { useEffect, useRef, type RefObject } from 'react'
 import type { ParamSpec } from '../../modules/types'
 import { dragKnob, knobAngle, knobHow, knobTicks, turnsKnob, wheelTurner } from '../panel/knobModel'
 import { controlHover } from '../rack/controlHover'
+import { holdForTip } from '../rack/touchHold'
 
 /** A knob painted on a surface canvas (the POCKETs' A/B knobs, …). It looks
  *  like its surface, but behaves exactly like a panel knob: the same ticks,
@@ -96,13 +97,14 @@ export function useCanvasKnobs(canvas: RefObject<HTMLCanvasElement | null>, mod:
       else k.set(k.ps.def)
     }
     const hover = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') return // a finger holds still for the tooltip (pressKnob)
       const k = e.buttons ? null : knobAt(latest.current(), el, e.clientX, e.clientY)
       if (!k) return controlHover.set(null)
       const id = k.ps.id
       const read = () => latest.current().find((n) => n.ps.id === id)?.value ?? k.value
       controlHover.set({ mod, ps: k.ps, label: k.label, read, how: knobHow(k.ps), x: e.clientX, y: e.clientY })
     }
-    const leave = () => controlHover.set(null)
+    const leave = (e: PointerEvent) => e.pointerType !== 'touch' && controlHover.set(null)
     el.addEventListener('wheel', wheel, { passive: false })
     el.addEventListener('dblclick', dbl)
     el.addEventListener('pointermove', hover)
@@ -115,7 +117,7 @@ export function useCanvasKnobs(canvas: RefObject<HTMLCanvasElement | null>, mod:
     }
   }, [canvas, mod])
 
-  return (e: { button: number; clientX: number; clientY: number; stopPropagation(): void; preventDefault(): void }): boolean => {
+  return (e: { button: number; clientX: number; clientY: number; pointerType?: string; stopPropagation(): void; preventDefault(): void }): boolean => {
     const el = canvas.current
     if (!el || !turnsKnob(e)) return false
     const k = knobAt(latest.current(), el, e.clientX, e.clientY)
@@ -123,6 +125,12 @@ export function useCanvasKnobs(canvas: RefObject<HTMLCanvasElement | null>, mod:
     e.stopPropagation()
     e.preventDefault()
     controlHover.set(null)
+    // a finger: it turns once it moves; held still, the knob's tooltip
+    if (e.pointerType === 'touch') {
+      const show = () => controlHover.set({ mod, ps: k.ps, label: k.label, read: () => k.value, how: knobHow(k.ps), x: e.clientX, y: e.clientY - 40 })
+      holdForTip(e, show, () => controlHover.set(null), (ev) => dragKnob(ev, k.ps, k.value, k.set))
+      return true
+    }
     dragKnob(e, k.ps, k.value, k.set)
     return true
   }
