@@ -1,4 +1,4 @@
-import { BOUNCE, cellId, DRAW, HOLD, LT_COLORS, LT_LAYERS, LT_SIZE, LTL, RANDOM, SCORE, SOLO } from '../../../modules/specs/lattice'
+import { BOUNCE, cellId, DRAW, HOLD, LT_COLORS, LT_LAYERS, LT_PAGE_LED, LT_SIZE, LTL, RANDOM, SCORE, SOLO } from '../../../modules/specs/lattice'
 
 /** A note's light spreading out across the grid. */
 interface Ripple {
@@ -27,6 +27,7 @@ export class Ripples {
   update(p: Record<string, number>, led: ArrayLike<number> | undefined, now: number): void {
     while (this.list.length && now - this.list[0].t > LIFE) this.list.shift()
     if (!led) return
+    const pg = Math.round(led[LT_PAGE_LED] ?? 0) // the page playing
     for (let l = 0; l < LT_LAYERS; l++) {
       const b = l * LTL.block
       const mode = Math.round(p[`mode${l}`])
@@ -36,13 +37,13 @@ export class Ripples {
       const ry = led[b + LTL.ry]
       const changed = col !== this.col[l]
       if (mode === SCORE && col >= 0 && changed) {
-        const mask = Math.round(p[cellId(l, col)] ?? 0)
+        const mask = Math.round(p[cellId(l, col, pg)] ?? 0)
         for (let y = 0; y < LT_SIZE; y++) if ((mask >>> y) & 1) this.add(col, y, now, color)
       }
       // HOLD: every lit dot as the loop strikes again
       if (mode === HOLD && col === 0 && changed)
         for (let x = 0; x < LT_SIZE; x++) {
-          const mask = Math.round(p[cellId(l, x)] ?? 0)
+          const mask = Math.round(p[cellId(l, x, pg)] ?? 0)
           for (let y = 0; y < LT_SIZE; y++) if ((mask >>> y) & 1) this.add(x, y, now, color)
         }
       // SOLO counts its notes on `col` (the same light twice still ripples)

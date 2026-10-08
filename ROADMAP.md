@@ -378,7 +378,12 @@ Have: MONO-1, STUDIO-3, GROOVE-1, SKETCHBOOK, KIN-8, UNDERTONE, LOCKSTEP, LATTIC
        DRAW (hold and trace: one cell per step of the layer from the moment you press, rests off the
        lights, up to 32; plays as you draw, then loops; the trace's cells light up). Factory layer 5
        is a drawn hill on GLASS, swung.
-     - Phase 2, still to do: saved "pages" of the whole grid.
+     - Phase 2, second part (done): PAGES A–D, each the whole grid (every layer's lights and trace;
+       the layers' settings are shared; page A keeps the old ids, B–D prefixed). Picked while
+       playing, a page blinks and switches at the end of the bar (HOLD strikes afresh, traces start
+       over); hold (or right-click) a page button to copy this page into it; PAGE in picks by
+       voltage (2.5 V bands). Factory: A the tune, B a variation, C a breakdown, D blank.
+       LATTICE phase 2 is done.
   5. ~~**VL-Tone-style calculator synth**~~ (done: **TALLY**, 32 HP). Later: auto-play of the
      remembered tune with its note lengths, the calculator's memory keys.
 - **Also pinned**: OP-XY / OP-Z-style sequencer brain (could drive VISION), EP-133-style sampler-composer,

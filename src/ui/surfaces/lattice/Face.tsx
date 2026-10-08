@@ -1,6 +1,6 @@
-import { useMemo, useRef, type PointerEvent } from 'react'
+import { useMemo, useRef, type MouseEvent, type PointerEvent } from 'react'
 import { telemetry } from '../../../audio/telemetry'
-import { BOUNCE, cellId, DRAW, LT_COLORS, LT_LAYERS, LT_SIZE, LTL, SOLO } from '../../../modules/specs/lattice'
+import { BOUNCE, cellId, DRAW, LT_COLORS, LT_LAYERS, LT_PAGE_LED, LT_SIZE, LTL, SOLO } from '../../../modules/specs/lattice'
 import { actions, patchStore } from '../../../patch/store'
 import { PX } from '../../geometry'
 import { track } from '../../pointer'
@@ -11,6 +11,7 @@ import { sideButtons, sideHint, sideKnobs } from './side'
 
 const FAMILY = "Bahnschrift, 'Arial Narrow', sans-serif"
 const OFF = '#1a2430'
+const HOLD_MS = 450
 
 /** LATTICE's face: the 16 × 16 lights, then the selected layer's settings.
  *  Click (or drag across) lights to draw on the selected layer; in BOUNCE a
@@ -37,7 +38,7 @@ export function LatticeFace({ inst, spec, x, y, w, h }: SurfaceProps) {
 
   const knobs = () => sideKnobs(mod, live(), panel, (id) => byId.get(id)!)
   const pressKnob = useCanvasKnobs(ref, mod, knobs)
-  const buttons = () => sideButtons(mod, live(), panel)
+  const buttons = () => sideButtons(mod, live(), panel, Math.round(telemetry.leds[mod]?.[LT_PAGE_LED] ?? 0))
 
   useFrame(ref, (now) => {
     const ctx = ref.current?.getContext('2d')
@@ -46,6 +47,7 @@ export function LatticeFace({ inst, spec, x, y, w, h }: SurfaceProps) {
     const p = live()
     const led = telemetry.leds[mod]
     const sel = Math.round(p.layer)
+    const pg = Math.round(p.page ?? 0)
     ripples.current.update(p, led, t)
     ctx.fillStyle = '#c8ccd1'
     ctx.beginPath()
@@ -66,7 +68,7 @@ export function LatticeFace({ inst, spec, x, y, w, h }: SurfaceProps) {
         let alpha = 1
         for (let k = 0; k < LT_LAYERS; k++) {
           const l = (sel + 1 + k) % LT_LAYERS // selected layer drawn last
-          if (((Math.round(p[cellId(l, cx)] ?? 0) >>> cy) & 1) === 0) continue
+          if (((Math.round(p[cellId(l, cx, pg)] ?? 0) >>> cy) & 1) === 0) continue
           fill = LT_COLORS[l]
           alpha = l === sel ? 1 : 0.35
         }
@@ -133,7 +135,7 @@ export function LatticeFace({ inst, spec, x, y, w, h }: SurfaceProps) {
     if (hint) {
       ctx.fillStyle = '#22344c'
       ctx.font = `700 ${Math.round(H * 0.042)}px ${FAMILY}`
-      ctx.fillText(hint, sx + sw / 2, H * 0.73)
+      ctx.fillText(hint, sx + sw / 2, H * 0.685)
     }
   })
 
@@ -148,16 +150,40 @@ export function LatticeFace({ inst, spec, x, y, w, h }: SurfaceProps) {
     return [((e.clientX - b.left) / b.width) * W, ((e.clientY - b.top) / b.height) * H]
   }
 
+  const buttonAt = (px: number, py: number) => buttons().find((b) => Math.abs(px - b.x) < b.w / 2 && Math.abs(py - b.y) < b.h / 2)
+  /** Right-click on a button with a hold job does it (not the module menu). */
+  const context = (e: MouseEvent<HTMLCanvasElement>) => {
+    const [px, py] = local(e, e.currentTarget)
+    const b = buttonAt(px, py)
+    if (!b?.hold) return
+    e.preventDefault()
+    e.stopPropagation()
+    b.hold()
+  }
+
   const down = (e: PointerEvent<HTMLCanvasElement>) => {
     if (pressKnob(e)) return
     if (e.button !== 0) return
     const el = e.currentTarget
     const [px, py] = local(e, el)
-    const hitBtn = buttons().find((b) => Math.abs(px - b.x) < b.w / 2 && Math.abs(py - b.y) < b.h / 2)
+    const hitBtn = buttonAt(px, py)
     if (hitBtn) {
       e.stopPropagation()
       e.preventDefault()
-      hitBtn.press()
+      if (!hitBtn.hold) return hitBtn.press()
+      // a tap presses; held, it does its other job (a page: copy this one into it)
+      let held = false
+      const timer = window.setTimeout(() => {
+        held = true
+        hitBtn.hold!()
+      }, HOLD_MS)
+      track(
+        () => {},
+        () => {
+          window.clearTimeout(timer)
+          if (!held) hitBtn.press()
+        },
+      )
       return
     }
     const c = cellAt(px, py)
@@ -165,7 +191,8 @@ export function LatticeFace({ inst, spec, x, y, w, h }: SurfaceProps) {
     e.stopPropagation()
     e.preventDefault()
     const l = Math.round(live().layer)
-    const mask = (cx: number) => Math.round(live()[cellId(l, cx)] ?? 0)
+    const pg = Math.round(live().page ?? 0)
+    const mask = (cx: number) => Math.round(live()[cellId(l, cx, pg)] ?? 0)
     const mode = Math.round(live()[`mode${l}`])
     if (mode === SOLO || mode === DRAW) {
       // the hand goes to the engine: SOLO plays each light it enters, DRAW records the path
@@ -187,7 +214,7 @@ export function LatticeFace({ inst, spec, x, y, w, h }: SurfaceProps) {
     }
     if (mode === BOUNCE) {
       // one ball per column: the click sets its height (again: removes it)
-      set(cellId(l, c[0]), mask(c[0]) === 1 << c[1] ? 0 : 1 << c[1])
+      set(cellId(l, c[0], pg), mask(c[0]) === 1 << c[1] ? 0 : 1 << c[1])
       return
     }
     // draw: the first light decides whether the drag lights or clears
@@ -195,7 +222,7 @@ export function LatticeFace({ inst, spec, x, y, w, h }: SurfaceProps) {
     const paint = ([cx, cy]: [number, number]) => {
       const m = mask(cx)
       const next = on ? m | (1 << cy) : m & ~(1 << cy)
-      if (next !== m) set(cellId(l, cx), next)
+      if (next !== m) set(cellId(l, cx, pg), next)
     }
     paint(c)
     track(
@@ -216,6 +243,7 @@ export function LatticeFace({ inst, spec, x, y, w, h }: SurfaceProps) {
       height={H}
       style={{ left: x * PX, top: y * PX, width: w * PX, height: h * PX }}
       onPointerDown={down}
+      onContextMenu={context}
     />
   )
 }

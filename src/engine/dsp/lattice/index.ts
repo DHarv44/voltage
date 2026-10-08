@@ -4,7 +4,27 @@ import { Schmitt } from '../cores'
 import { swungPos } from '../lockstep/tables'
 import { SCALES } from '../shapers'
 import { rails } from '../util'
-import { BOUNCE, cellId, DRAW, drawId, drawLenId, HOLD, LT_DRAW, LT_LAYERS, LT_OUTS, LT_RATE_STEPS, LT_SIZE, LTL, RANDOM, SCORE, SOLO } from '../../../modules/specs/lattice'
+import {
+  BOUNCE,
+  cellId,
+  DRAW,
+  drawId,
+  drawLenId,
+  HOLD,
+  LT_BAR,
+  LT_DRAW,
+  LT_LAYERS,
+  LT_OUTS,
+  LT_PAGE_LED,
+  LT_PAGE_VOLTS,
+  LT_PAGES,
+  LT_RATE_STEPS,
+  LT_SIZE,
+  LTL,
+  RANDOM,
+  SCORE,
+  SOLO,
+} from '../../../modules/specs/latticeDefs'
 import { LayerSound } from './sounds'
 import { TraceRecorder } from './trace'
 
@@ -33,7 +53,9 @@ export class LatticeDsp extends Dsp {
   private oLayer = Array.from({ length: LT_OUTS }, (_, k) => this.oi(`o${k + 1}`))
   private oL = this.oi('l')
   private oR = this.oi('r')
-  private P = { run: this.pi('run'), tempo: this.pi('tempo'), scale: this.pi('scale'), key: this.pi('key'), master: this.pi('master') }
+  private iPage = this.ii('page')
+  private P = { run: this.pi('run'), tempo: this.pi('tempo'), scale: this.pi('scale'), key: this.pi('key'), master: this.pi('master'), page: this.pi('page') }
+  /** Each layer's settings, and per page its lights ([page][column]) and trace. */
   private L = Array.from({ length: LT_LAYERS }, (_, l) => ({
     mode: this.pi(`mode${l}`),
     snd: this.pi(`snd${l}`),
@@ -42,10 +64,13 @@ export class LatticeDsp extends Dsp {
     rate: this.pi(`rate${l}`),
     vol: this.pi(`vol${l}`),
     swing: this.pi(`swing${l}`),
-    cells: Int32Array.from({ length: LT_SIZE }, (_, x) => this.pi(cellId(l, x))),
-    dlen: this.pi(drawLenId(l)),
-    draw: Int32Array.from({ length: LT_DRAW }, (_, i) => this.pi(drawId(l, i))),
+    cells: LT_PAGES.map((_, pg) => Int32Array.from({ length: LT_SIZE }, (_, x) => this.pi(cellId(l, x, pg)))),
+    dlen: Int32Array.from(LT_PAGES, (_, pg) => this.pi(drawLenId(l, pg))),
+    draw: LT_PAGES.map((_, pg) => Int32Array.from({ length: LT_DRAW }, (_, i) => this.pi(drawId(l, i, pg)))),
   }))
+  /** The page playing, and where the current bar began (a new page waits for the next). */
+  private pg = 0
+  private bar = 0
 
   private readonly sounds = Array.from({ length: LT_LAYERS }, () => new LayerSound(this.fs, this.rng))
   /** Each layer's step count since PLAY (−1: not started). */
@@ -76,6 +101,20 @@ export class LatticeDsp extends Dsp {
     this.drawFrom.fill(0)
     for (const o of this.origin) o.fill(0)
     for (const h of this.held) h.fill(0)
+    this.bar = 0
+    this.pg = this.cued()
+  }
+
+  /** The page picked (by the buttons or PAGE in). */
+  private cued(): number {
+    return Math.max(0, Math.min(LT_PAGES.length - 1, Math.round(this.p[this.P.page])))
+  }
+
+  /** A new page from the next step: HOLD strikes its dots afresh, traces start over. */
+  private turnTo(pg: number): void {
+    this.pg = pg
+    for (const h of this.held) h.fill(0)
+    for (let l = 0; l < LT_LAYERS; l++) this.drawFrom[l] = this.count[l] + 1
   }
 
   /** The hand on the lights: SOLO plays, DRAW records (x: layer × 16 + column,
@@ -105,19 +144,21 @@ export class LatticeDsp extends Dsp {
     }
   }
 
-  /** The trace is done: keep it (and light its cells), loop it from the next step. */
+  /** The trace is done: keep it on the page picked (and light its cells),
+   *  loop it from the next step. */
   private finish(): void {
     const l = this.rec.layer
     const L = this.L[l]
+    const pg = this.cued()
     const { buf, len } = this.rec
     this.masks.fill(0)
     for (let i = 0; i < LT_DRAW; i++) {
       const v = i < len ? buf[i] : 0
-      this.writeParam(L.draw[i], v)
+      this.writeParam(L.draw[pg][i], v)
       if (v > 0) this.masks[Math.floor((v - 1) / LT_SIZE)] |= 1 << (v - 1) % LT_SIZE
     }
-    this.writeParam(L.dlen, len)
-    for (let x = 0; x < LT_SIZE; x++) this.writeParam(L.cells[x], this.masks[x])
+    this.writeParam(L.dlen[pg], len)
+    for (let x = 0; x < LT_SIZE; x++) this.writeParam(L.cells[pg][x], this.masks[x])
     this.drawFrom[l] = this.count[l] + 1
     this.rec.layer = -1
   }
@@ -150,9 +191,10 @@ export class LatticeDsp extends Dsp {
     const L = this.L[l]
     const p = this.p
     const mode = Math.round(p[L.mode])
+    const cells = L.cells[this.pg]
     if (mode === BOUNCE) {
       for (let x = 0; x < LT_SIZE; x++) {
-        const h = top(p[L.cells[x]])
+        const h = top(p[cells[x]])
         if (h !== this.height[l][x]) {
           this.height[l][x] = h
           this.origin[l][x] = n
@@ -165,12 +207,12 @@ export class LatticeDsp extends Dsp {
     }
     if (mode === RANDOM) {
       let lit = 0
-      for (let x = 0; x < LT_SIZE; x++) for (let m = p[L.cells[x]]; m; m &= m - 1) lit++
+      for (let x = 0; x < LT_SIZE; x++) for (let m = p[cells[x]]; m; m &= m - 1) lit++
       if (!lit) return
       let pick = Math.floor(this.rng.next() * lit)
       for (let x = 0; x < LT_SIZE; x++)
         for (let y = 0; y < LT_SIZE; y++) {
-          if (((p[L.cells[x]] >>> y) & 1) === 0 || pick-- !== 0) continue
+          if (((p[cells[x]] >>> y) & 1) === 0 || pick-- !== 0) continue
           this.note(l, y, 0.75)
           this.show(l, x, y)
         }
@@ -182,7 +224,7 @@ export class LatticeDsp extends Dsp {
       const k = n % len
       const hold = this.stepOf(l) * (len - k)
       for (let x = 0; x < LT_SIZE; x++) {
-        const mask = p[L.cells[x]]
+        const mask = p[cells[x]]
         const fresh = k === 0 ? mask : mask & ~this.held[l][x]
         this.held[l][x] = mask
         for (let y = 0; y < LT_SIZE; y++) if ((fresh >>> y) & 1) this.note(l, y, 0.55, hold)
@@ -190,10 +232,10 @@ export class LatticeDsp extends Dsp {
       return
     }
     if (mode === DRAW) {
-      const dl = Math.round(p[L.dlen])
+      const dl = Math.round(p[L.dlen[this.pg]])
       if (this.rec.layer === l || dl === 0) return
       const i = (((n - this.drawFrom[l]) % dl) + dl) % dl
-      const v = p[L.draw[i]]
+      const v = p[L.draw[this.pg][i]]
       if (v <= 0) return
       const c = v - 1
       this.note(l, c % LT_SIZE, 0.8)
@@ -203,7 +245,7 @@ export class LatticeDsp extends Dsp {
     if (mode !== SCORE) return // SOLO: played by hand
     // SCORE: the column under the playhead, as a chord (quieter the fuller it is)
     const x = n % len
-    const mask = p[L.cells[x]]
+    const mask = p[cells[x]]
     let notes = 0
     for (let m = mask; m; m &= m - 1) notes++
     for (let y = 0; y < LT_SIZE; y++) if ((mask >>> y) & 1) this.note(l, y, 0.85 / Math.sqrt(notes))
@@ -230,6 +272,20 @@ export class LatticeDsp extends Dsp {
       if (this.period > 0) this.stepSamples = this.period
     } else if (running) this.phase += p[P.tempo] / 15 / this.fs
     const live = running && (!external || this.edges > 0)
+
+    // PAGE in picks the page (the face follows); a new page waits for the bar
+    if (this.patched[this.iPage]) {
+      const want = Math.max(0, Math.min(LT_PAGES.length - 1, Math.floor(i[this.iPage] / LT_PAGE_VOLTS)))
+      if (want !== Math.round(p[P.page])) this.writeParam(P.page, want)
+    }
+    const want = this.cued()
+    if (running) {
+      while (this.phase - this.bar >= LT_BAR) {
+        this.bar += LT_BAR
+        if (want !== this.pg) this.turnTo(want)
+      }
+    } else if (want !== this.pg) this.turnTo(want)
+    this.led[LT_PAGE_LED] = this.pg
 
     // DRAW: the trace in progress takes a cell each step of its layer
     const r = this.rec.layer
@@ -260,7 +316,7 @@ export class LatticeDsp extends Dsp {
       // ball heights, moving smoothly between steps
       for (let x = 0; x < LT_SIZE; x++) {
         const h = this.height[l][x]
-        if (mode !== BOUNCE || h < 0 || !live) led[b + LTL.balls + x] = mode === BOUNCE ? top(p[L.cells[x]]) : -1
+        if (mode !== BOUNCE || h < 0 || !live) led[b + LTL.balls + x] = mode === BOUNCE ? top(p[L.cells[this.pg][x]]) : -1
         else led[b + LTL.balls + x] = h === 0 ? 0 : Math.abs(((((at - this.origin[l][x]) % (2 * h)) + 2 * h) % (2 * h)) - h)
       }
       if (mode !== RANDOM && mode !== SOLO && mode !== DRAW) led[b + LTL.rx] = -1

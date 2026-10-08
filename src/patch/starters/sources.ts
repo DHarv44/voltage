@@ -94,7 +94,7 @@ export const SOURCE_STARTERS: Record<string, Starter> = {
   },
   lattice: {
     howTo:
-      'LATTICE playing five of its eight layers (5 is a traced line, swung). Pick a layer, click or drag across the lights to draw; MODE switches SCORE / BOUNCE / RANDOM / HOLD / SOLO / DRAW. On 5 (DRAW), hold and trace a new path: it plays as you draw, then loops. Try SOLO on layer 6 and play the lights.',
+      'LATTICE playing five of its eight layers (5 is a traced line, swung). Pick a layer, click or drag across the lights to draw; MODE switches SCORE / BOUNCE / RANDOM / HOLD / SOLO / DRAW. On 5 (DRAW), hold and trace a new path: it plays as you draw, then loops. Try SOLO on layer 6 and play the lights. Pages B and C are a variation and a breakdown; D is blank (hold D to copy this page into it).',
     build(k) {
       const g = k.add('lattice', { run: 1 })
       const plate = k.add('plate', { decay: 0.6, mix: 0.25 })
