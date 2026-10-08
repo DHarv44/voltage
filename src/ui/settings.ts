@@ -13,6 +13,8 @@ export interface Settings {
   libTags: string[]
   /** While dragging a cable, light every jack it could go to. */
   jackHints: boolean
+  /** Plain-words explanations in the tooltips (what a gate is, what V/OCT means…). */
+  explain: boolean
   /** Analog imperfections (engine options). */
   psuSag: boolean
   crosstalk: boolean
@@ -27,6 +29,7 @@ const DEFAULTS: Settings = {
   recent: [],
   libTags: [],
   jackHints: true,
+  explain: true,
   psuSag: false,
   crosstalk: false,
 }

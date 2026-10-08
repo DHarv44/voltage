@@ -100,6 +100,10 @@ export function TopBar() {
         <input type="checkbox" checked={s.jackHints} onChange={(e) => settings.set({ jackHints: e.target.checked })} />
         Jack hints
       </label>
+      <label className="ctl" title="Plain-words explanations when you hover a jack: what a gate, a trigger or V/OCT is, and what to patch there. Turn off once you know your way around.">
+        <input type="checkbox" checked={s.explain} onChange={(e) => settings.set({ explain: e.target.checked })} />
+        Explain
+      </label>
       <label className="ctl" title="Heavy load droops the ±12 V rails: outputs clip earlier, oscillators go slightly flat">
         <input type="checkbox" checked={s.psuSag} onChange={(e) => settings.set({ psuSag: e.target.checked })} />
         PSU sag

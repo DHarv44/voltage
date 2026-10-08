@@ -14,6 +14,8 @@ interface Props {
   out: boolean
   /** An input that already has a cable in it (inputs take one). */
   patched?: boolean
+  /** Its signal family (audio / pitch / timing / cv), for the hint colours. */
+  family: string
   panel: PanelStyle
   onDown: (e: PointerEvent) => void
   onContext: (e: MouseEvent) => void
@@ -24,11 +26,11 @@ interface Props {
  *  hardware. Hovering shows the live voltage (the rack's jack readout).
  *  While a cable is being dragged, the rack's hint classes light the ring
  *  round every jack it could go to (see .jack-hint in styles.css). */
-export function Jack({ x, y, label, out, patched, panel, onDown, onContext, onHover }: Props) {
+export function Jack({ x, y, label, out, patched, family, panel, onDown, onContext, onHover }: Props) {
   const p = JACK.plate
   return (
     <g
-      className={`jack ${out ? 'out' : 'in'}${patched ? ' patched' : ''}`}
+      className={`jack ${out ? 'out' : 'in'} fam-${family}${patched ? ' patched' : ''}`}
       transform={`translate(${x} ${y})`}
       onPointerDown={(e) => {
         e.stopPropagation()

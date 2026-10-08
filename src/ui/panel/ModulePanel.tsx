@@ -2,6 +2,7 @@ import { memo, type MouseEvent, type PointerEvent } from 'react'
 import { SPECS } from '../../modules'
 import { controlsOf, hpOf } from '../../modules/size'
 import { makerClear, PANEL, titleSize } from '../../modules/panelMetrics'
+import { familyOf, jackInfo } from '../../modules/jackInfo'
 import { HP_MM, PANEL_H_MM, type Control, type ModuleSpec } from '../../modules/types'
 import type { ModuleInst } from '../../patch/types'
 import { PX, SCREW_Y_MM, moduleLeft, rowTop, screwHoles } from '../geometry'
@@ -164,6 +165,7 @@ function ControlView({ c, spec, inst, handlers, fed }: { c: Control; spec: Modul
           y={c.y}
           out={c.kind === 'out'}
           patched={c.kind === 'in' && `,${fed},`.includes(`,${c.jack},`)}
+          family={familyOf(jackInfo(spec, c.jack, c.kind).signal)}
           label={c.label ?? js.label}
           panel={spec.panel}
           onDown={(e) => handlers.jackDown(inst.id, c.jack, c.kind, e)}

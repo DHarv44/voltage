@@ -3,7 +3,8 @@ import { SPECS } from '../../modules'
 import { railHp } from '../../patch/layout'
 import { actions, patchStore } from '../../patch/store'
 import type { ModuleInst } from '../../patch/types'
-import { HP_PX, ROW_PX, SIDE, moduleLeft, rackHeight, rackWidth, rowTop } from '../geometry'
+import { HP_PX, ROW_PX, SIDE, moduleLeft, nearestJack, rackHeight, rackWidth, rowTop } from '../geometry'
+import { familyOf, jackInfo } from '../../modules/jackInfo'
 import { ModulePanel } from '../panel/ModulePanel'
 import { useSettings } from '../settings'
 import { CableLayer } from './CableLayer'
@@ -56,6 +57,14 @@ export function Rack() {
     return by
   }, [patch.cables])
 
+  // patching hints: the dragged jack's signal family, and the jack the cable would land on
+  const anchorMod = cable ? patch.modules.find((m) => m.id === cable.anchor.mod) : undefined
+  const dragFamily = cable && anchorMod ? familyOf(jackInfo(SPECS[anchorMod.type], cable.anchor.jack, cable.anchorDir).signal) : ''
+  const hit = cable && jackHints ? nearestJack(patch, cable, 16) : null
+  const target = hit && hit.dir !== cable!.anchorDir ? hit : null
+  const targetMod = target ? patch.modules.find((m) => m.id === target.mod) : undefined
+  const targetName = target && targetMod ? `${SPECS[targetMod.type].title} · ${jackInfo(SPECS[targetMod.type], target.jack, target.dir).label}` : ''
+
   // Others (a rig just added from the library) can bring a row into view.
   useEffect(() => {
     rackView.reveal = (row) => scrollRef.current?.scrollTo({ top: Math.max(0, rowTop(row) * zoom - 12), behavior: 'smooth' })
@@ -80,7 +89,7 @@ export function Rack() {
     <div className="rack-scroll" ref={scrollRef}>
       <div className="rack-sizer" style={{ width: W * zoom, height: H * zoom }}>
         <div
-          className={cable && jackHints ? `rack hint-from-${cable.anchorDir}` : 'rack'}
+          className={cable && jackHints ? `rack hint-from-${cable.anchorDir} hint-fam-${dragFamily}` : 'rack'}
           ref={innerRef}
           style={{ width: W, height: H, transform: `scale(${zoom})` }}
         >
@@ -122,6 +131,11 @@ export function Rack() {
             </div>
           )}
           <CableLayer patch={patch} place={place} drag={cable} opacity={cableOpacity} width={W} height={H} />
+          {target && (
+            <div className="jack-target" style={{ left: target.x, top: target.y }}>
+              <span>{targetName}</span>
+            </div>
+          )}
           <TutorialHighlight width={W} height={H} />
         </div>
       </div>

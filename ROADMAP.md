@@ -108,8 +108,13 @@ extend VOLTAGE.
     spectrogram), **LIGHTS** (the music lights the whole rack: bass red, mids green, treble blue).
 
 ### Rack & workflow
-- Jack hints (top-bar setting, on by default): while a cable is dragged, every jack it could go to pulses
-  (free inputs from an output, any output from an input) and the occupied / wrong-way ones dim.
+- Jack hints (top-bar setting, on by default): while a cable is dragged, every jack it could go to rings
+  (free inputs from an output, any output from an input), the occupied / wrong-way ones dim, jacks of the
+  same signal family (audio / pitch / timing / CV) ring strongly in that family's colour, and the jack
+  it would land on glows with its name.
+- Jack tooltips: every jack's kind of signal and what it does (`modules/jackInfo.ts`: a glossary by
+  name, per-module overrides, and "turns <knob> for you" for inputs named after a knob), with the live
+  voltage. "Explain" (top-bar setting, on by default) adds a plain-words explanation of the signal kind.
 - Move a panel by its bare face (title strip, empty space; never from a control or screen), after a
   6 px drag (12 px on touch) so clicks never nudge it; slide-aside on drop, library drag-in, new-row drop.
 - Library: every module in one of 20 categories by what it is (Systems, Instruments, Oscillators, CV
