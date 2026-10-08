@@ -328,8 +328,17 @@ Have: MONO-1, STUDIO-3, GROOVE-1, SKETCHBOOK, KIN-8, UNDERTONE, LOCKSTEP, LATTIC
        evenly through the step, same note and locks) and MICRO timing (±12/24 of a step, early
        steps fire before their boundary) per step, on the TRIG page's encoders 3 and 4; keys show
        ×N and ◂ / ▸. The factory pattern uses them (a lazier bass, a hat roll).
-     - Phase 2, still to do: patterns (A–D, chaining), copy / paste steps, slides, a reverb send,
-       per-track LFO; then the sampler voice (with the sampler core).
+     - Phase 2, second part (done): PATTERNS A–D. The sound (knobs, algo, root, length, speed,
+       mutes) is shared; a pattern holds the trigs and every step's note, condition, ratchet, nudge
+       and locks (pattern A keeps the old ids, so older patches load as A; B–D are prefixed `B.`).
+       Picked while playing, a pattern blinks and waits for the end of the bar (16 master steps),
+       then starts from step 1; stopped, it changes at once. The keys and screen show and edit the
+       picked pattern. COPY (the pattern; with a step picked, the step; hold: the selected track)
+       and PASTE (one undo); with a step picked the pattern row becomes UNLOCK / CLEAR / DONE.
+       Factory: A the groove, B a busier variation, C a breakdown (the kick only with FILL held),
+       D blank.
+     - Phase 2, still to do: pattern chaining, a PATTERN CV in, slides, a reverb send, per-track
+       LFO; then the sampler voice (with the sampler core).
   4. **Tenori-on-style light grid: LATTICE** (40 HP).
      - ~~Phase 1~~ (done): 16×16 lights, four layers drawn on the same grid (selected layer bright,
        the others dim, each its own colour); per layer MODE (SCORE: columns are time, rows pitch, a

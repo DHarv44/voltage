@@ -6,12 +6,14 @@ import {
   lockValue,
   LS_ALGOS,
   LS_PAGES,
+  LS_PATTERNS,
   LS_RATIOS,
   LS_STEPS,
   LS_TRACK_COLORS,
   LS_TRACKS,
   LSL,
   ratioIndex,
+  trigsId,
   TRIG,
 } from '../../../modules/specs/lockstep'
 import type { ParamSpec } from '../../../modules/types'
@@ -28,18 +30,20 @@ export interface LsScreen {
   led: ArrayLike<number> | undefined
   sel: number
   spec: (id: string) => ParamSpec
+  /** A passing message (after a copy or paste) for the header. */
+  note: string
 }
 
 const noteName = (semis: number) => `${NOTES[((semis % 12) + 12) % 12]}${Math.floor(semis / 12) + 4}`
-export const hasLocks = (p: Record<string, number>, t: number, s: number) => {
-  for (let page = 0; page < LOCK_PAGES; page++) if ((p[lockId(t, s, page)] ?? 0) !== 0) return true
+export const hasLocks = (p: Record<string, number>, t: number, s: number, pat: number) => {
+  for (let page = 0; page < LOCK_PAGES; page++) if ((p[lockId(t, s, page, pat)] ?? 0) !== 0) return true
   return false
 }
 
 /** A knob's value as the screen shows it. */
 function show(id: string, v: number, ps: ParamSpec, p: Record<string, number>): string {
   if (id.startsWith('k') && id.endsWith('_0')) return LS_RATIOS[ratioIndex(v)].join(':')
-  if (id.startsWith('n')) return noteName(Math.round(p[`root${Math.round(p.trk)}`]) + Math.round(v))
+  if (/^([A-D]\.)?n\d/.test(id)) return noteName(Math.round(p[`root${Math.round(p.trk)}`]) + Math.round(v))
   if (ps.options) return ps.options[Math.round(v)] ?? ''
   if (ps.unit === 'bpm') return String(Math.round(v))
   if (ps.unit === 'st') return `${v > 0 ? '+' : ''}${Math.round(v)}`
@@ -54,6 +58,8 @@ export function drawLsScreen(ctx: CanvasRenderingContext2D, r: { x: number; y: n
   const { p, led, sel } = s
   const t = Math.round(p.trk)
   const page = Math.round(p.page)
+  const pat = Math.round(p.pat ?? 0)
+  const playing = Math.round(led?.[LSL.pat] ?? 0)
   ctx.fillStyle = BG
   ctx.beginPath()
   ctx.roundRect(r.x, r.y, r.w, r.h, r.h * 0.05)
@@ -63,15 +69,19 @@ export function drawLsScreen(ctx: CanvasRenderingContext2D, r: { x: number; y: n
   ctx.textBaseline = 'middle'
   ctx.textAlign = 'left'
   ctx.font = font(head * 0.72, 700)
+  ctx.fillStyle = INK
+  ctx.fillText(LS_PATTERNS[pat], r.x + pad, r.y + pad + head / 2)
   ctx.fillStyle = LS_TRACK_COLORS[t]
-  ctx.fillText(`T${t + 1}`, r.x + pad, r.y + pad + head / 2)
+  ctx.fillText(`T${t + 1}`, r.x + pad + head * 0.8, r.y + pad + head / 2)
   ctx.fillStyle = INK
   const algo = `${LS_ALGOS[Math.round(p[`algo${t}`])]}`
-  ctx.fillText(`${LS_PAGES[page]} · ${algo}`, r.x + pad + head * 1.2, r.y + pad + head / 2)
+  ctx.fillText(`${LS_PAGES[page]} · ${algo}`, r.x + pad + head * 2, r.y + pad + head / 2)
   ctx.textAlign = 'right'
   const run = p.run >= 0.5
-  ctx.fillStyle = sel >= 0 ? LOCK : run ? INK : DIM
-  ctx.fillText(sel >= 0 ? `STEP ${sel + 1}` : `${run ? '▶' : '■'} ${Math.round(p.tempo)}`, r.x + r.w - pad, r.y + pad + head / 2)
+  // a message, the picked step, the pattern still to come, or the transport
+  const right = s.note || (sel >= 0 ? `STEP ${sel + 1}` : run && playing !== pat ? `${LS_PATTERNS[playing]} → ${LS_PATTERNS[pat]}` : `${run ? '▶' : '■'} ${Math.round(p.tempo)}`)
+  ctx.fillStyle = s.note || sel >= 0 || (run && playing !== pat) ? LOCK : run ? INK : DIM
+  ctx.fillText(right, r.x + r.w - pad, r.y + pad + head / 2)
 
   // the four encoders' values
   const top = r.y + pad * 1.6 + head
@@ -93,7 +103,7 @@ export function drawLsScreen(ctx: CanvasRenderingContext2D, r: { x: number; y: n
     let v = p[id] ?? ps.def
     let locked = false
     if (page < LOCK_PAGES && sel >= 0) {
-      const lv = lockValue(p[lockId(t, sel, page)] ?? 0, i)
+      const lv = lockValue(p[lockId(t, sel, page, pat)] ?? 0, i)
       if (lv >= 0) {
         v = lv
         locked = true
@@ -120,8 +130,8 @@ export function drawLsScreen(ctx: CanvasRenderingContext2D, r: { x: number; y: n
   const cw = (r.w - pad * 2) / LS_STEPS
   for (let k = 0; k < LS_TRACKS; k++) {
     const len = Math.round(p[`len${k}`])
-    const mask = Math.round(p[`tr${k}`])
-    const at = led?.[LSL.step + k] ?? -1
+    const mask = Math.round(p[trigsId(k, pat)])
+    const at = playing === pat ? (led?.[LSL.step + k] ?? -1) : -1
     for (let st = 0; st < LS_STEPS; st++) {
       const on = ((mask >>> st) & 1) === 1
       ctx.globalAlpha = st < len ? 1 : 0.15

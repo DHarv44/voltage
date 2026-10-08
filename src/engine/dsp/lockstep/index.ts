@@ -2,8 +2,36 @@ import { Dsp } from '../base'
 import { Schmitt } from '../cores'
 import { FX_DELAY, SketchFx } from '../sketchbook/fx'
 import { rails } from '../util'
-import { knobId, LOCK_PAGES, lockId, lockValue, LS_SPEED_X, LS_STEPS, LS_TRACKS, LSL, microId, muteId, retrigId } from '../../../modules/specs/lockstepDefs'
+import {
+  condId,
+  knobId,
+  LOCK_PAGES,
+  lockId,
+  lockValue,
+  LS_BAR,
+  LS_PATTERNS,
+  LS_SPEED_X,
+  LS_STEPS,
+  LS_TRACKS,
+  LSL,
+  microId,
+  muteId,
+  noteId,
+  retrigId,
+  trigsId,
+} from '../../../modules/specs/lockstepDefs'
 import { FmVoice } from './voice'
+
+/** One pattern's param indices, per track (steps × fields). */
+interface PatIdx {
+  tr: Int32Array
+  note: Int32Array[]
+  cond: Int32Array[]
+  rt: Int32Array[]
+  mt: Int32Array[]
+  /** step × LOCK_PAGES + page */
+  lock: Int32Array[]
+}
 
 /** A:B conditions (index 1..9): play on the A-th of every B times round. */
 const COND_A = [0, 1, 2, 1, 2, 3, 1, 2, 3, 4]
@@ -38,22 +66,34 @@ export class LockstepDsp extends Dsp {
   private oR = this.oi('r')
   private P = {
     run: this.pi('run'), fill: this.pi('fill'), tempo: this.pi('tempo'), swing: this.pi('swing'),
-    dtime: this.pi('dtime'), dfb: this.pi('dfb'), master: this.pi('master'),
+    dtime: this.pi('dtime'), dfb: this.pi('dfb'), master: this.pi('master'), pat: this.pi('pat'),
   }
   private kIdx = Array.from({ length: LS_TRACKS }, (_, t) => Int32Array.from({ length: KNOBS }, (_, j) => this.pi(knobId(t, j))))
   private algoIdx = Int32Array.from({ length: LS_TRACKS }, (_, t) => this.pi(`algo${t}`))
   private rootIdx = Int32Array.from({ length: LS_TRACKS }, (_, t) => this.pi(`root${t}`))
   private lenIdx = Int32Array.from({ length: LS_TRACKS }, (_, t) => this.pi(`len${t}`))
   private spdIdx = Int32Array.from({ length: LS_TRACKS }, (_, t) => this.pi(`spd${t}`))
-  private trIdx = Int32Array.from({ length: LS_TRACKS }, (_, t) => this.pi(`tr${t}`))
-  private noteIdx = Array.from({ length: LS_TRACKS }, (_, t) => Int32Array.from({ length: LS_STEPS }, (_, s) => this.pi(`n${t}_${s}`)))
-  private condIdx = Array.from({ length: LS_TRACKS }, (_, t) => Int32Array.from({ length: LS_STEPS }, (_, s) => this.pi(`c${t}_${s}`)))
-  private lockIdx = Array.from({ length: LS_TRACKS }, (_, t) =>
-    Int32Array.from({ length: LS_STEPS * LOCK_PAGES }, (_, i) => this.pi(lockId(t, Math.floor(i / LOCK_PAGES), i % LOCK_PAGES))),
-  )
-  private rtIdx = Array.from({ length: LS_TRACKS }, (_, t) => Int32Array.from({ length: LS_STEPS }, (_, s) => this.pi(retrigId(t, s))))
-  private mtIdx = Array.from({ length: LS_TRACKS }, (_, t) => Int32Array.from({ length: LS_STEPS }, (_, s) => this.pi(microId(t, s))))
   private muteIdx = Int32Array.from({ length: LS_TRACKS }, (_, t) => this.pi(muteId(t)))
+  private pats: PatIdx[] = LS_PATTERNS.map((_, pat) => {
+    const steps = (id: (t: number, s: number, pat: number) => string) =>
+      Array.from({ length: LS_TRACKS }, (_, t) => Int32Array.from({ length: LS_STEPS }, (_, s) => this.pi(id(t, s, pat))))
+    return {
+      tr: Int32Array.from({ length: LS_TRACKS }, (_, t) => this.pi(trigsId(t, pat))),
+      note: steps(noteId),
+      cond: steps(condId),
+      rt: steps(retrigId),
+      mt: steps(microId),
+      lock: Array.from({ length: LS_TRACKS }, (_, t) =>
+        Int32Array.from({ length: LS_STEPS * LOCK_PAGES }, (_, i) => this.pi(lockId(t, Math.floor(i / LOCK_PAGES), i % LOCK_PAGES, pat))),
+      ),
+    }
+  })
+  /** The pattern playing, and the master position its bar 1 began at. */
+  private playing = 0
+  private origin = 0
+  /** Where the current bar began (pattern changes wait for the next). */
+  private bar = 0
+  private cur: PatIdx = this.pats[0]
   /** Each track's next step to fire (absolute count since PLAY). */
   private readonly next = new Float64Array(LS_TRACKS)
   /** Ratchets in progress: hits left, samples between them, samples to the next. */
@@ -80,10 +120,23 @@ export class LockstepDsp extends Dsp {
   private restart(): void {
     this.phase = 0
     this.edges = 0
+    this.origin = 0
+    this.bar = 0
+    this.begin(this.cued())
+    this.rstOut = Math.round(0.003 * this.fs) // followers start over too
+  }
+
+  private cued(): number {
+    return Math.max(0, Math.min(LS_PATTERNS.length - 1, Math.round(this.p[this.P.pat])))
+  }
+
+  /** Pattern `pat` from its first step. */
+  private begin(pat: number): void {
+    this.playing = pat
+    this.cur = this.pats[pat]
     this.pos.fill(-1)
     this.next.fill(0)
     this.rtLeft.fill(0)
-    this.rstOut = Math.round(0.003 * this.fs) // followers start over too
   }
 
   private passes(cond: number, loop: number, fill: boolean): boolean {
@@ -100,20 +153,21 @@ export class LockstepDsp extends Dsp {
    *  evenly through the step (`stepSamples` long). */
   private trig(t: number, s: number, loop: number, fill: boolean, stepSamples: number): void {
     const p = this.p
-    if (((p[this.trIdx[t]] >>> s) & 1) === 0) return
+    const d = this.cur
+    if (((p[d.tr[t]] >>> s) & 1) === 0) return
     if (p[this.muteIdx[t]] >= 0.5) return
-    if (!this.passes(Math.round(p[this.condIdx[t][s]]), loop, fill)) return
-    const hits = 1 + Math.round(p[this.rtIdx[t][s]])
+    if (!this.passes(Math.round(p[d.cond[t][s]]), loop, fill)) return
+    const hits = 1 + Math.round(p[d.rt[t][s]])
     this.rtLeft[t] = hits - 1
     this.rtGap[t] = stepSamples / hits
     this.rtWait[t] = this.rtGap[t]
     const v = this.voices[t]
-    const li = this.lockIdx[t]
+    const li = d.lock[t]
     for (let page = 0; page < LOCK_PAGES; page++) {
       const word = p[li[s * LOCK_PAGES + page]]
       for (let k = 0; k < 4; k++) v.locks[page * 4 + k] = lockValue(word, k)
     }
-    v.start((p[this.rootIdx[t]] + p[this.noteIdx[t][s]]) / 12)
+    v.start((p[this.rootIdx[t]] + p[d.note[t][s]]) / 12)
     this.led[LSL.flash + t] = 1
   }
 
@@ -140,6 +194,18 @@ export class LockstepDsp extends Dsp {
       if (this.period > 0) stepLen = this.period / this.fs
     } else if (running) this.phase += p[P.tempo] / 15 / this.fs
 
+    // a new pattern: straight away when stopped, else from the next bar
+    const want = this.cued()
+    if (running) {
+      while (this.phase - this.bar >= LS_BAR) {
+        this.bar += LS_BAR
+        if (want !== this.playing) {
+          this.origin = this.bar
+          this.begin(want)
+        }
+      }
+    } else if (want !== this.playing) this.begin(want)
+
     const live = running && (!external || this.edges > 0)
     const swing = p[P.swing]
     let mixL = 0
@@ -150,14 +216,14 @@ export class LockstepDsp extends Dsp {
       const v = this.voices[t]
       if (live) {
         const speed = LS_SPEED_X[Math.round(p[this.spdIdx[t]])]
-        const x = swungPos(this.phase * speed, swing)
+        const x = swungPos((this.phase - this.origin) * speed, swing)
         // a jump (SPEED changed, clock caught up) skips ahead rather than firing a burst
         if (x - this.next[t] > 2) this.next[t] = Math.floor(x)
         // fire each step once its time (nudged by MICRO, in 24ths) has come
         for (let guard = 0; guard < 3; guard++) {
           const k = this.next[t]
           const s = k % len
-          if (x < k + p[this.mtIdx[t][s]] / 24) break
+          if (x < k + p[this.cur.mt[t][s]] / 24) break
           this.next[t] = k + 1
           this.pos[t] = k
           this.trig(t, s, Math.floor(k / len), fill, (stepLen * this.fs) / speed)
@@ -195,5 +261,6 @@ export class LockstepDsp extends Dsp {
     if (this.rstOut > 0) this.rstOut--
     this.led[LSL.beat] = running && this.phase % 4 < 0.5 ? 1 : 0
     this.led[LSL.fill] = fill ? 1 : 0
+    this.led[LSL.pat] = this.playing
   }
 }

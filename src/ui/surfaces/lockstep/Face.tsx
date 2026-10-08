@@ -1,20 +1,20 @@
 import { useMemo, useRef, type MouseEvent, type PointerEvent } from 'react'
 import { telemetry } from '../../../audio/telemetry'
 import {
+  condId,
   encoderLabels,
   encoderParams,
   LOCK_PAGES,
   lockId,
   lockValue,
   LS_CONDS,
-  LS_PAGES,
   LS_RETRIGS,
   LS_STEPS,
   LS_TRACK_COLORS,
   LSL,
   microId,
-  muteId,
   retrigId,
+  trigsId,
   withLock,
 } from '../../../modules/specs/lockstep'
 import { actions, patchStore } from '../../../patch/store'
@@ -22,30 +22,20 @@ import { PX } from '../../geometry'
 import { track } from '../../pointer'
 import { drawCanvasKnob, useCanvasKnobs, type CanvasKnob } from '../canvasKnob'
 import { RES, useFrame, type SurfaceProps } from '../common'
-import { BTN, CLUSTER_X, ENC_R, ENC_X, ENC_Y, keyAt, keyRect, LABEL_Y, lockstepSel, PAGE_X, PAGE_Y, ROW_Y, SCREEN } from './layout'
+import { lsButtons } from './buttons'
+import { lsNote } from './clipboard'
+import { BTN, ENC_R, ENC_X, ENC_Y, keyAt, keyRect, LABEL_Y, lockstepSel, SCREEN } from './layout'
 import { drawLsScreen, hasLocks } from './screen'
 
 const LOCK = '#ff8a2b'
 const HOLD_MS = 450
 const FAMILY = "Bahnschrift, 'Arial Narrow', sans-serif"
 
-interface Button {
-  label: string
-  x: number
-  y: number
-  color?: string
-  lit?: boolean
-  /** Momentary: `press` on the way down, `release` on the way up. */
-  press: () => void
-  release?: () => void
-  /** Hold (or right-click) does this instead; then `press` waits for a short tap. */
-  hold?: () => void
-}
-
 /** LOCKSTEP's face. Click a step key to toggle its trig; right-click (or hold)
  *  it to pick the step: then the FM / AMP / FX encoders lock their knob on
  *  that step (double-click an encoder to unlock it) and TRIG edits its note
- *  and condition. The screen shows every track's steps under the values. */
+ *  and condition. A–D pick the pattern the keys and screen show and edit.
+ *  The screen shows every track's steps under the values. */
 export function LockstepFace({ inst, spec, x, y, w, h }: SurfaceProps) {
   const mod = inst.id
   const ref = useRef<HTMLCanvasElement>(null)
@@ -69,7 +59,7 @@ export function LockstepFace({ inst, spec, x, y, w, h }: SurfaceProps) {
       const base = { fx: ENC_X[i], fy: ENC_Y, fr: ENC_R, ps, label: labels[i] }
       if (page >= LOCK_PAGES || s < 0) return [{ ...base, value: p[id] ?? ps.def, set: (v) => set(id, v) }]
       // a step is picked: this knob's lock on it
-      const wid = lockId(t, s, page)
+      const wid = lockId(t, s, page, Math.round(p.pat ?? 0))
       const lv = lockValue(p[wid] ?? 0, i)
       return [
         {
@@ -84,40 +74,7 @@ export function LockstepFace({ inst, spec, x, y, w, h }: SurfaceProps) {
   }
   const pressKnob = useCanvasKnobs(ref, mod, knobs)
 
-  const buttons = (): Button[] => {
-    const p = live()
-    const s = sel()
-    const t = Math.round(p.trk)
-    const out: Button[] = [
-      ...LS_PAGES.map((label, i) => ({ label, x: PAGE_X[i], y: PAGE_Y, lit: Math.round(p.page) === i, press: () => set('page', i) })),
-      // tap selects a track; hold (or right-click) mutes it
-      ...LS_TRACK_COLORS.map((color, k) => {
-        const muted = (p[muteId(k)] ?? 0) >= 0.5
-        return {
-          label: muted ? `T${k + 1} ✕` : `T${k + 1}`,
-          x: CLUSTER_X[k],
-          y: ROW_Y[0],
-          color: muted ? '#5a5c62' : color,
-          lit: t === k,
-          press: () => set('trk', k),
-          hold: () => set(muteId(k), muted ? 0 : 1),
-        }
-      }),
-      { label: p.run >= 0.5 ? '■ STOP' : '▶ PLAY', x: CLUSTER_X[0], y: ROW_Y[1], lit: p.run >= 0.5, press: () => set('run', p.run >= 0.5 ? 0 : 1) },
-      { label: 'FILL', x: CLUSTER_X[1], y: ROW_Y[1], lit: p.fill >= 0.5, press: () => set('fill', 1), release: () => set('fill', 0) },
-    ]
-    if (s >= 0)
-      out.push(
-        {
-          label: 'UNLOCK',
-          x: CLUSTER_X[2],
-          y: ROW_Y[1],
-          press: () => actions.setParams(Array.from({ length: LOCK_PAGES }, (_, pg) => [mod, lockId(t, s, pg), 0] as [string, string, number]), `unlock:${mod}`),
-        },
-        { label: 'DONE', x: CLUSTER_X[3], y: ROW_Y[1], lit: true, press: () => lockstepSel.set(mod, -1) },
-      )
-    return out
-  }
+  const buttons = () => lsButtons(mod, live(), Math.round(telemetry.leds[mod]?.[LSL.pat] ?? 0))
 
   useFrame(ref, () => {
     const ctx = ref.current?.getContext('2d')
@@ -129,7 +86,7 @@ export function LockstepFace({ inst, spec, x, y, w, h }: SurfaceProps) {
     ctx.beginPath()
     ctx.roundRect(0, 0, W, H, H * 0.04)
     ctx.fill()
-    drawLsScreen(ctx, { x: SCREEN.x * W, y: SCREEN.y * H, w: SCREEN.w * W, h: SCREEN.h * H }, { p, led, sel: s, spec: specOf })
+    drawLsScreen(ctx, { x: SCREEN.x * W, y: SCREEN.y * H, w: SCREEN.w * W, h: SCREEN.h * H }, { p, led, sel: s, spec: specOf, note: lsNote.get(mod) })
     const page = Math.round(p.page)
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
@@ -161,9 +118,11 @@ export function LockstepFace({ inst, spec, x, y, w, h }: SurfaceProps) {
   /** The sixteen step keys for the selected track. */
   function drawKeys(ctx: CanvasRenderingContext2D, p: Record<string, number>, led: ArrayLike<number> | undefined, s: number) {
     const t = Math.round(p.trk)
+    const pat = Math.round(p.pat ?? 0)
     const len = Math.round(p[`len${t}`])
-    const mask = Math.round(p[`tr${t}`])
-    const at = led?.[LSL.step + t] ?? -1
+    const mask = Math.round(p[trigsId(t, pat)])
+    // the playhead only over the pattern that's playing
+    const at = Math.round(led?.[LSL.pat] ?? 0) === pat ? (led?.[LSL.step + t] ?? -1) : -1
     const color = LS_TRACK_COLORS[t]
     for (let st = 0; st < LS_STEPS; st++) {
       const r = keyRect(st)
@@ -190,21 +149,21 @@ export function LockstepFace({ inst, spec, x, y, w, h }: SurfaceProps) {
       ctx.font = `600 ${Math.round(kh * 0.2)}px ${FAMILY}`
       ctx.textAlign = 'left'
       ctx.fillText(String(st + 1), kx + kw * 0.12, ky + kh * 0.2)
-      if (hasLocks(p, t, st)) {
+      if (hasLocks(p, t, st, pat)) {
         ctx.fillStyle = on ? '#141414' : LOCK
         ctx.beginPath()
         ctx.arc(kx + kw * 0.8, ky + kh * 0.2, kh * 0.07, 0, Math.PI * 2)
         ctx.fill()
       }
-      const cond = Math.round(p[`c${t}_${st}`] ?? 0)
+      const cond = Math.round(p[condId(t, st, pat)] ?? 0)
       if (cond > 0) {
         ctx.textAlign = 'center'
         ctx.font = `700 ${Math.round(Math.min(kh * 0.2, kw * 0.22))}px ${FAMILY}`
         ctx.fillText(LS_CONDS[cond], kx + kw / 2, ky + kh * 0.75)
       }
       // a ratchet (×2…×4) and a nudge (◂ early, ▸ late)
-      const rt = Math.round(p[retrigId(t, st)] ?? 0)
-      const mt = Math.round(p[microId(t, st)] ?? 0)
+      const rt = Math.round(p[retrigId(t, st, pat)] ?? 0)
+      const mt = Math.round(p[microId(t, st, pat)] ?? 0)
       if (rt > 0 || mt !== 0) {
         ctx.textAlign = 'left'
         ctx.font = `700 ${Math.round(Math.min(kh * 0.18, kw * 0.2))}px ${FAMILY}`
@@ -242,8 +201,8 @@ export function LockstepFace({ inst, spec, x, y, w, h }: SurfaceProps) {
           window.clearTimeout(timer)
           if (held) return
           const p = live()
-          const t = Math.round(p.trk)
-          set(`tr${t}`, Math.round(p[`tr${t}`]) ^ (1 << step))
+          const id = trigsId(Math.round(p.trk), Math.round(p.pat ?? 0))
+          set(id, Math.round(p[id]) ^ (1 << step))
         },
       )
       return

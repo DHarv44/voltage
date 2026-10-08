@@ -39,19 +39,44 @@ export const LS_TRACK_COLORS = ['#ff6b5b', '#ffbe3d', '#3ddc97', '#4aa8ff']
 export const LS_RETRIGS = ['×1', '×2', '×3', '×4']
 /** Micro-timing: a step can land up to this many 24ths of a step early or late. */
 export const LS_MICRO = 12
-export const retrigId = (t: number, s: number) => `rt${t}_${s}`
-export const microId = (t: number, s: number) => `mt${t}_${s}`
 export const muteId = (t: number) => `mute${t}`
 
-/** LED layout: each track's step (−1 stopped) and trig flash, the beat, FILL. */
-export const LSL = { step: 0, flash: LS_TRACKS, beat: LS_TRACKS * 2, fill: LS_TRACKS * 2 + 1, end: LS_TRACKS * 2 + 2 } as const
+// ---- patterns ----
+// Four patterns, A–D. The sound (knobs, algorithm, root, length, speed) is
+// shared; a pattern holds the trigs and every step's note, condition,
+// ratchet, nudge and locks. Pattern A keeps the plain ids, so patches saved
+// before patterns existed load as pattern A; B–D are prefixed `B.` and so on.
+
+export const LS_PATTERNS = ['A', 'B', 'C', 'D']
+/** A pattern change waits for the end of the bar: this many master 16ths. */
+export const LS_BAR = 16
+const pre = (pat: number) => (pat > 0 ? `${LS_PATTERNS[pat]}.` : '')
+export const trigsId = (t: number, pat = 0) => `${pre(pat)}tr${t}`
+export const noteId = (t: number, s: number, pat = 0) => `${pre(pat)}n${t}_${s}`
+export const condId = (t: number, s: number, pat = 0) => `${pre(pat)}c${t}_${s}`
+export const retrigId = (t: number, s: number, pat = 0) => `${pre(pat)}rt${t}_${s}`
+export const microId = (t: number, s: number, pat = 0) => `${pre(pat)}mt${t}_${s}`
+
+/** LED layout: each track's step (−1 stopped) and trig flash, the beat, FILL,
+ *  the pattern playing (a cued one waits for the bar). */
+export const LSL = { step: 0, flash: LS_TRACKS, beat: LS_TRACKS * 2, fill: LS_TRACKS * 2 + 1, pat: LS_TRACKS * 2 + 2, end: LS_TRACKS * 2 + 3 } as const
 
 // ---- parameter locks ----
 // A step keeps one param per lockable page: four knobs × one byte
 // (0 = not locked, 1..255 = the knob at (b − 1) / 254), so 32 bits.
 
-export const lockId = (t: number, s: number, page: number) => `lk${t}_${s}_${page}`
+export const lockId = (t: number, s: number, page: number, pat = 0) => `${pre(pat)}lk${t}_${s}_${page}`
 export const knobId = (t: number, j: number) => `k${t}_${j}`
+
+/** Everything one step of one track holds in a pattern, bar its trig bit
+ *  (that's a bit of trigsId): note, condition, ratchet, nudge, the locks. */
+export const stepIds = (t: number, s: number, pat: number): string[] => [
+  noteId(t, s, pat),
+  condId(t, s, pat),
+  retrigId(t, s, pat),
+  microId(t, s, pat),
+  ...Array.from({ length: LOCK_PAGES }, (_, page) => lockId(t, s, page, pat)),
+]
 
 /** Knob k's byte in a packed lock word. */
 export const lockByte = (word: number, k: number) => (word >>> (8 * k)) & 255
