@@ -320,8 +320,12 @@ Have: MONO-1, STUDIO-3, GROOVE-1, SKETCHBOOK, KIN-8, UNDERTONE, LOCKSTEP, LATTIC
        parameter locks on all twelve sound knobs (packed four to a param); swing, ping-pong delay,
        momentary FILL; CLK / RUN / FILL / RESET in; CLK, T1–T4, L / R out. Click a step key to toggle
        it; right-click (or hold) to pick it and lock knobs on it.
-     - Phase 2: patterns (A–D, chaining), copy / paste steps, micro-timing, retrigs, slides, a reverb
-       send, per-track LFO, track mutes; then the sampler voice (with the sampler core).
+     - Phase 2, first part (done): track MUTES (hold or right-click T1–T4), RETRIG ratchets (×1–×4
+       evenly through the step, same note and locks) and MICRO timing (±12/24 of a step, early
+       steps fire before their boundary) per step, on the TRIG page's encoders 3 and 4; keys show
+       ×N and ◂ / ▸. The factory pattern uses them (a lazier bass, a hat roll).
+     - Phase 2, still to do: patterns (A–D, chaining), copy / paste steps, slides, a reverb send,
+       per-track LFO; then the sampler voice (with the sampler core).
   4. **Tenori-on-style light grid: LATTICE** (40 HP).
      - ~~Phase 1~~ (done): 16×16 lights, four layers drawn on the same grid (selected layer bright,
        the others dim, each its own colour); per layer MODE (SCORE: columns are time, rows pitch, a

@@ -33,6 +33,8 @@ export const MODULE_TERMS: Record<string, ParamTerm[]> = {
     { match: /^ALGO$/, what: 'The FM algorithm: how the operators are wired (who modulates whom). Each one gives a family of sounds.' },
     { match: /^ROOT$/, what: 'The track’s base note: every step’s NOTE counts from here.' },
     { match: /^SPEED$/, what: 'How fast this track steps compared with the others (half, double…): for polyrhythms.' },
+    { match: /^RETRIG$/, what: 'A ratchet: the selected step fires 2, 3 or 4 quick hits instead of one (rolls, stutters).' },
+    { match: /^MICRO$/, what: 'Nudges the selected step early or late, in 24ths of a step: lazy bass, pushed hats, human feel.' },
   ],
   sketchbook: [
     ...FM_KNOBS,

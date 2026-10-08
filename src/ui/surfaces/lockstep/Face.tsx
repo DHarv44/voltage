@@ -8,9 +8,13 @@ import {
   lockValue,
   LS_CONDS,
   LS_PAGES,
+  LS_RETRIGS,
   LS_STEPS,
   LS_TRACK_COLORS,
   LSL,
+  microId,
+  muteId,
+  retrigId,
   withLock,
 } from '../../../modules/specs/lockstep'
 import { actions, patchStore } from '../../../patch/store'
@@ -34,6 +38,8 @@ interface Button {
   /** Momentary: `press` on the way down, `release` on the way up. */
   press: () => void
   release?: () => void
+  /** Hold (or right-click) does this instead; then `press` waits for a short tap. */
+  hold?: () => void
 }
 
 /** LOCKSTEP's face. Click a step key to toggle its trig; right-click (or hold)
@@ -84,7 +90,19 @@ export function LockstepFace({ inst, spec, x, y, w, h }: SurfaceProps) {
     const t = Math.round(p.trk)
     const out: Button[] = [
       ...LS_PAGES.map((label, i) => ({ label, x: PAGE_X[i], y: PAGE_Y, lit: Math.round(p.page) === i, press: () => set('page', i) })),
-      ...LS_TRACK_COLORS.map((color, k) => ({ label: `T${k + 1}`, x: CLUSTER_X[k], y: ROW_Y[0], color, lit: t === k, press: () => set('trk', k) })),
+      // tap selects a track; hold (or right-click) mutes it
+      ...LS_TRACK_COLORS.map((color, k) => {
+        const muted = (p[muteId(k)] ?? 0) >= 0.5
+        return {
+          label: muted ? `T${k + 1} ✕` : `T${k + 1}`,
+          x: CLUSTER_X[k],
+          y: ROW_Y[0],
+          color: muted ? '#5a5c62' : color,
+          lit: t === k,
+          press: () => set('trk', k),
+          hold: () => set(muteId(k), muted ? 0 : 1),
+        }
+      }),
       { label: p.run >= 0.5 ? '■ STOP' : '▶ PLAY', x: CLUSTER_X[0], y: ROW_Y[1], lit: p.run >= 0.5, press: () => set('run', p.run >= 0.5 ? 0 : 1) },
       { label: 'FILL', x: CLUSTER_X[1], y: ROW_Y[1], lit: p.fill >= 0.5, press: () => set('fill', 1), release: () => set('fill', 0) },
     ]
@@ -184,6 +202,14 @@ export function LockstepFace({ inst, spec, x, y, w, h }: SurfaceProps) {
         ctx.font = `700 ${Math.round(Math.min(kh * 0.2, kw * 0.22))}px ${FAMILY}`
         ctx.fillText(LS_CONDS[cond], kx + kw / 2, ky + kh * 0.75)
       }
+      // a ratchet (×2…×4) and a nudge (◂ early, ▸ late)
+      const rt = Math.round(p[retrigId(t, st)] ?? 0)
+      const mt = Math.round(p[microId(t, st)] ?? 0)
+      if (rt > 0 || mt !== 0) {
+        ctx.textAlign = 'left'
+        ctx.font = `700 ${Math.round(Math.min(kh * 0.18, kw * 0.2))}px ${FAMILY}`
+        ctx.fillText(`${mt < 0 ? '◂' : ''}${rt > 0 ? LS_RETRIGS[rt] : ''}${mt > 0 ? '▸' : ''}`, kx + kw * 0.12, ky + kh * 0.48)
+      }
       ctx.globalAlpha = 1
     }
     ctx.textAlign = 'center'
@@ -223,19 +249,38 @@ export function LockstepFace({ inst, spec, x, y, w, h }: SurfaceProps) {
       return
     }
     if (e.button !== 0) return
-    const hit = buttons().find((b) => Math.abs(fx - b.x) < BTN.w / 2 && Math.abs(fy - b.y) < BTN.h / 2)
+    const hit = buttonAt(fx, fy)
     if (!hit) return
     e.stopPropagation()
     e.preventDefault()
+    if (hit.hold) {
+      // a short tap presses; held, it does its other job
+      let held = false
+      const timer = window.setTimeout(() => {
+        held = true
+        hit.hold!()
+      }, HOLD_MS)
+      track(
+        () => {},
+        () => {
+          window.clearTimeout(timer)
+          if (!held) hit.press()
+        },
+      )
+      return
+    }
     hit.press()
     if (hit.release) track(() => {}, hit.release)
   }
-  /** Right-click on a step key picks it rather than opening the module menu. */
+  const buttonAt = (fx: number, fy: number) => buttons().find((b) => Math.abs(fx - b.x) < BTN.w / 2 && Math.abs(fy - b.y) < BTN.h / 2)
+  /** Right-click on a step key picks it, on a track button mutes it (not the module menu). */
   const context = (e: MouseEvent<HTMLCanvasElement>) => {
     const [fx, fy] = fractions(e, e.currentTarget)
-    if (keyAt(fx, fy) < 0) return
+    const b = buttonAt(fx, fy)
+    if (keyAt(fx, fy) < 0 && !b?.hold) return
     e.preventDefault()
     e.stopPropagation()
+    b?.hold?.()
   }
 
   return (

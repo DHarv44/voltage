@@ -8,7 +8,12 @@ import {
   LS_ALGOS,
   LS_CONDS,
   LS_KNOBS,
+  LS_MICRO,
   LS_PAGES,
+  LS_RETRIGS,
+  microId,
+  muteId,
+  retrigId,
   LS_SPEEDS,
   LS_STEPS,
   LS_TRACKS,
@@ -30,6 +35,9 @@ interface TrackDef {
   trigs: Record<number, [note: number, cond?: number]>
   /** Steps with a lock: [step, knob 0..11, value]. */
   locks?: [number, number, number][]
+  /** Ratchets (step → 1..3 extra hits) and micro-timing (step → 24ths of a step). */
+  ratchets?: Record<number, number>
+  nudges?: Record<number, number>
 }
 const TRACKS: TrackDef[] = [
   { name: 'KICK', knobs: [0, 0.15, 0, 0.05, 0, 0.35, 0.6, 0.9, 0.4, 0, 0.5, 0], algo: 1, root: -24, len: 16, trigs: { 0: [0], 4: [0], 8: [0], 12: [0], 14: [0, 13] } },
@@ -40,6 +48,7 @@ const TRACKS: TrackDef[] = [
     root: -24,
     len: 16,
     trigs: { 2: [0], 3: [12], 6: [0], 10: [3], 11: [5, 11], 14: [7, 1] },
+    nudges: { 3: 5, 11: 4 }, // the octave and the fourth land a touch late: a lazier bass
   },
   {
     name: 'HATS',
@@ -49,6 +58,7 @@ const TRACKS: TrackDef[] = [
     len: 16,
     trigs: { 2: [0], 6: [0], 10: [0], 14: [0], 15: [0, 12] },
     locks: [[14, 5, 0.42]], // an open hat: step 15's DECAY locked longer
+    ratchets: { 15: 2 }, // the last hat a quick triple roll
   },
   { name: 'BELL', knobs: [0.94, 0.45, 0, 0.25, 0, 0.45, 0, 0.5, 0.8, 0.1, 0.35, 0.4], algo: 0, root: 0, len: 12, trigs: { 2: [7], 7: [10, 11], 10: [3] } },
 ]
@@ -62,9 +72,12 @@ const trackParams = (d: TrackDef, t: number): ParamSpec[] => [
   { id: `len${t}`, label: `T${t + 1} LENGTH`, min: 1, max: LS_STEPS, def: d.len, stepped: true },
   opt(`spd${t}`, `T${t + 1} SPEED`, LS_SPEEDS, 3),
   { id: `tr${t}`, label: `T${t + 1} TRIGS`, min: 0, max: 0xffff, def: Object.keys(d.trigs).reduce((m, s) => m | (1 << Number(s)), 0), stepped: true },
+  opt(muteId(t), `T${t + 1} MUTE`, ['ON', 'MUTE'], 0),
   ...Array.from({ length: LS_STEPS }, (_, s): ParamSpec[] => [
     { id: `n${t}_${s}`, label: `T${t + 1} STEP ${s + 1} NOTE`, min: -24, max: 24, def: d.trigs[s]?.[0] ?? 0, stepped: true, unit: 'st' },
     opt(`c${t}_${s}`, `T${t + 1} STEP ${s + 1} COND`, LS_CONDS, d.trigs[s]?.[1] ?? 0),
+    opt(retrigId(t, s), `T${t + 1} STEP ${s + 1} RETRIG`, LS_RETRIGS, d.ratchets?.[s] ?? 0),
+    { id: microId(t, s), label: `T${t + 1} STEP ${s + 1} MICRO`, min: -LS_MICRO, max: LS_MICRO, def: d.nudges?.[s] ?? 0, stepped: true },
     ...Array.from({ length: LOCK_PAGES }, (_, page): ParamSpec => {
       const def = (d.locks ?? []).filter(([ls, j]) => ls === s && Math.floor(j / 4) === page).reduce((w, [, j, v]) => withLock(w, j % 4, v), 0)
       return { id: lockId(t, s, page), label: `T${t + 1} STEP ${s + 1} LOCKS ${page + 1}`, min: 0, max: 0xffffffff, def, stepped: true }
@@ -91,7 +104,7 @@ export function encoderParams(p: Record<string, number>, sel: number): (string |
   const page = Math.round(p.page ?? 0)
   const t = Math.round(p.trk ?? 0)
   if (page < LOCK_PAGES) return [0, 1, 2, 3].map((i) => knobId(t, page * 4 + i))
-  if (page === TRIG) return sel >= 0 ? [`n${t}_${sel}`, `c${t}_${sel}`, null, null] : [null, null, null, null]
+  if (page === TRIG) return sel >= 0 ? [`n${t}_${sel}`, `c${t}_${sel}`, retrigId(t, sel), microId(t, sel)] : [null, null, null, null]
   if (page === TRACK) return [`algo${t}`, `root${t}`, `len${t}`, `spd${t}`]
   return ['tempo', 'swing', 'dtime', 'dfb']
 }
@@ -99,7 +112,7 @@ export function encoderParams(p: Record<string, number>, sel: number): (string |
 export function encoderLabels(p: Record<string, number>): string[] {
   const page = Math.round(p.page ?? 0)
   if (page < LOCK_PAGES) return LS_KNOBS[page]
-  if (page === TRIG) return ['NOTE', 'COND', '', '']
+  if (page === TRIG) return ['NOTE', 'COND', 'RETRIG', 'MICRO']
   if (page === TRACK) return ['ALGO', 'ROOT', 'LENGTH', 'SPEED']
   return ['TEMPO', 'SWING', 'DLY TIME', 'DLY FDBK']
 }

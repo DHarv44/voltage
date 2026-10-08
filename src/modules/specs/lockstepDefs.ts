@@ -35,6 +35,13 @@ export const LS_SPEED_X = [0.25, 0.5, 0.75, 1, 1.5, 2]
  *  only with / without FILL, only the first time round / not. */
 export const LS_CONDS = ['ALWAYS', '1:2', '2:2', '1:3', '2:3', '3:3', '1:4', '2:4', '3:4', '4:4', '75%', '50%', '25%', '10%', 'FILL', '!FILL', 'FIRST', '!FIRST']
 export const LS_TRACK_COLORS = ['#ff6b5b', '#ffbe3d', '#3ddc97', '#4aa8ff']
+/** Ratchets: a step fires this many evenly spaced hits. */
+export const LS_RETRIGS = ['×1', '×2', '×3', '×4']
+/** Micro-timing: a step can land up to this many 24ths of a step early or late. */
+export const LS_MICRO = 12
+export const retrigId = (t: number, s: number) => `rt${t}_${s}`
+export const microId = (t: number, s: number) => `mt${t}_${s}`
+export const muteId = (t: number) => `mute${t}`
 
 /** LED layout: each track's step (−1 stopped) and trig flash, the beat, FILL. */
 export const LSL = { step: 0, flash: LS_TRACKS, beat: LS_TRACKS * 2, fill: LS_TRACKS * 2 + 1, end: LS_TRACKS * 2 + 2 } as const

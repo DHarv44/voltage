@@ -2,7 +2,7 @@ import { Dsp } from '../base'
 import { Schmitt } from '../cores'
 import { FX_DELAY, SketchFx } from '../sketchbook/fx'
 import { rails } from '../util'
-import { knobId, LOCK_PAGES, lockId, lockValue, LS_SPEED_X, LS_STEPS, LS_TRACKS, LSL } from '../../../modules/specs/lockstepDefs'
+import { knobId, LOCK_PAGES, lockId, lockValue, LS_SPEED_X, LS_STEPS, LS_TRACKS, LSL, microId, muteId, retrigId } from '../../../modules/specs/lockstepDefs'
 import { FmVoice } from './voice'
 
 /** A:B conditions (index 1..9): play on the A-th of every B times round. */
@@ -14,11 +14,12 @@ const PAN = 10
 const SEND = 11
 const LED_DECAY = 0.9992
 
-/** The step a swung clock is on: in each pair of steps the first lasts
- *  1 + swing, the second 1 − swing. */
-function swungStep(x: number, swing: number): number {
+/** Where a swung clock is, in steps (continuous): in each pair of steps the
+ *  first lasts 1 + swing, the second 1 − swing. */
+function swungPos(x: number, swing: number): number {
   const pair = Math.floor(x / 2)
-  return 2 * pair + (x - 2 * pair < 1 + swing ? 0 : 1)
+  const r = x - 2 * pair
+  return r < 1 + swing ? 2 * pair + r / (1 + swing) : 2 * pair + 1 + (r - 1 - swing) / (1 - swing)
 }
 
 /** LOCKSTEP: one master clock in 16ths (TEMPO, or CLK in, with the time
@@ -50,6 +51,15 @@ export class LockstepDsp extends Dsp {
   private lockIdx = Array.from({ length: LS_TRACKS }, (_, t) =>
     Int32Array.from({ length: LS_STEPS * LOCK_PAGES }, (_, i) => this.pi(lockId(t, Math.floor(i / LOCK_PAGES), i % LOCK_PAGES))),
   )
+  private rtIdx = Array.from({ length: LS_TRACKS }, (_, t) => Int32Array.from({ length: LS_STEPS }, (_, s) => this.pi(retrigId(t, s))))
+  private mtIdx = Array.from({ length: LS_TRACKS }, (_, t) => Int32Array.from({ length: LS_STEPS }, (_, s) => this.pi(microId(t, s))))
+  private muteIdx = Int32Array.from({ length: LS_TRACKS }, (_, t) => this.pi(muteId(t)))
+  /** Each track's next step to fire (absolute count since PLAY). */
+  private readonly next = new Float64Array(LS_TRACKS)
+  /** Ratchets in progress: hits left, samples between them, samples to the next. */
+  private readonly rtLeft = new Int32Array(LS_TRACKS)
+  private readonly rtGap = new Float64Array(LS_TRACKS)
+  private readonly rtWait = new Float64Array(LS_TRACKS)
 
   private readonly voices = Array.from({ length: LS_TRACKS }, () => new FmVoice(this.fs))
   private readonly vals = Array.from({ length: LS_TRACKS }, () => new Float64Array(KNOBS))
@@ -71,6 +81,8 @@ export class LockstepDsp extends Dsp {
     this.phase = 0
     this.edges = 0
     this.pos.fill(-1)
+    this.next.fill(0)
+    this.rtLeft.fill(0)
     this.rstOut = Math.round(0.003 * this.fs) // followers start over too
   }
 
@@ -83,10 +95,18 @@ export class LockstepDsp extends Dsp {
     return cond === 16 ? loop === 0 : loop > 0
   }
 
-  private trig(t: number, s: number, loop: number, fill: boolean): void {
+  /** Step s of track t comes round: play it if it's lit, passes its
+   *  condition and the track isn't muted; a ratchet re-strikes the same note
+   *  evenly through the step (`stepSamples` long). */
+  private trig(t: number, s: number, loop: number, fill: boolean, stepSamples: number): void {
     const p = this.p
     if (((p[this.trIdx[t]] >>> s) & 1) === 0) return
+    if (p[this.muteIdx[t]] >= 0.5) return
     if (!this.passes(Math.round(p[this.condIdx[t][s]]), loop, fill)) return
+    const hits = 1 + Math.round(p[this.rtIdx[t][s]])
+    this.rtLeft[t] = hits - 1
+    this.rtGap[t] = stepSamples / hits
+    this.rtWait[t] = this.rtGap[t]
     const v = this.voices[t]
     const li = this.lockIdx[t]
     for (let page = 0; page < LOCK_PAGES; page++) {
@@ -127,15 +147,30 @@ export class LockstepDsp extends Dsp {
     let send = 0
     for (let t = 0; t < LS_TRACKS; t++) {
       const len = Math.max(1, Math.round(p[this.lenIdx[t]]))
+      const v = this.voices[t]
       if (live) {
-        const at = swungStep(this.phase * LS_SPEED_X[Math.round(p[this.spdIdx[t]])], swing)
-        if (at !== this.pos[t]) {
-          this.pos[t] = at
-          this.trig(t, at % len, Math.floor(at / len), fill)
+        const speed = LS_SPEED_X[Math.round(p[this.spdIdx[t]])]
+        const x = swungPos(this.phase * speed, swing)
+        // a jump (SPEED changed, clock caught up) skips ahead rather than firing a burst
+        if (x - this.next[t] > 2) this.next[t] = Math.floor(x)
+        // fire each step once its time (nudged by MICRO, in 24ths) has come
+        for (let guard = 0; guard < 3; guard++) {
+          const k = this.next[t]
+          const s = k % len
+          if (x < k + p[this.mtIdx[t][s]] / 24) break
+          this.next[t] = k + 1
+          this.pos[t] = k
+          this.trig(t, s, Math.floor(k / len), fill, (stepLen * this.fs) / speed)
         }
       }
+      // ratchets: the same note again, the same locks
+      if (this.rtLeft[t] > 0 && --this.rtWait[t] <= 0) {
+        this.rtLeft[t]--
+        this.rtWait[t] = this.rtGap[t]
+        v.start(v.volts)
+        this.led[LSL.flash + t] = 1
+      }
       // the voice: its knobs, with the playing note's locks over them
-      const v = this.voices[t]
       const vals = this.vals[t]
       const ki = this.kIdx[t]
       for (let j = 0; j < KNOBS; j++) vals[j] = v.locks[j] >= 0 ? v.locks[j] : p[ki[j]]
