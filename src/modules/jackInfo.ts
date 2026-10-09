@@ -245,6 +245,9 @@ OVERRIDES['pocketarcade:out:tri'] = { signal: 'audio', what: 'The triangle bass 
 OVERRIDES['pocketarcade:out:noise'] = { signal: 'audio', what: 'The noise drums on their own.' }
 for (const t of ['groove', 'sketchbook', 'undertone', 'lockstep', 'pocket', 'pocketbass', 'pocketmelody', 'pocketarcade', 'pocketrobot', 'pocketoffice', 'pocketspeak', 'metronome', 'maelzel', 'coach'])
   OVERRIDES[`${t}:out:rsto`] = { signal: 'reset', what: 'A pulse whenever it starts (or is reset): patch it to followers’ RST so everything starts on beat one together.' }
+OVERRIDES['vision:out:tx'] = { signal: 'cv', what: 'Where your finger is across the glass, 0 V at the left to 10 V at the right (it stays put when you lift off): the tank as a touch pad.' }
+OVERRIDES['vision:out:ty'] = { signal: 'cv', what: 'Where your finger is up the glass, 0 V at the bottom to 10 V at the top.' }
+OVERRIDES['vision:out:tgate'] = { signal: 'gate', what: 'High while a finger is on the glass: play a voice’s envelope by touching the creature.' }
 OVERRIDES['lockstep:in:pat'] = { signal: 'cv', what: 'Picks the pattern by voltage (0–2.5 V A, to 5 V B, to 7.5 V C, above D), changing at the end of the bar: a sequencer or S&H arranges the song.' }
 OVERRIDES['motion:in:clk'] = { signal: 'clock', what: 'Clock in, in 16ths (CLOCK’s ×4): keeps the loops in time with the music.' }
 OVERRIDES['echo:in:cv'] = { signal: 'cv', what: 'Moves the RATE (the tape speed): the repeats bend in pitch.' }

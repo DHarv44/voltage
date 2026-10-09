@@ -273,9 +273,10 @@ extend VOLTAGE.
   - ~~POCKET OFFICE~~: done (see Modules).
   - Shared upgrades: 16 hold-to-play punch-in effects (stutter, loop, filter sweep, crush, retrigger,
     reverse), several patterns per pocket chained into a song, a family LCD with its own animated mascot.
-- **VISION extras**: TOUCH X / Y / GATE outputs (the glass as a performance pad), a DEPTH output for the
-  jelly, and the new scenes (coral reef, rain on a pond, starling murmuration) built in 3D so there's
-  something to see wherever you zoom.
+- **VISION extras**: ~~TOUCH X / Y / GATE outputs~~ (done: VISION only, the finger on the scene that
+  drives the jacks, 0–10 V with y up, held on lift, gate while down; VISION CORE has no glass so no
+  jacks), a DEPTH output for the jelly, and the new scenes (coral reef, rain on a pond, starling
+  murmuration) built in 3D so there's something to see wherever you zoom.
 
 ## Pinned for later: cloud saving, short links and a public gallery
 Goal: short links anyone can open; public patches browsable on the site; private patches only their

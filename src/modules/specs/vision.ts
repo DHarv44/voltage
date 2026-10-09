@@ -63,6 +63,15 @@ export const VISION_OUTPUTS: ModuleSpec['outputs'] = [
   { id: 'light', label: 'LIGHT' },
   { id: 'link', label: 'LINK' },
 ]
+/** VISION (the one with glass) adds the glass as a touch pad: where the finger
+ *  is on the scene driving the jacks (0–10 V, held when it lifts) and a gate
+ *  while it's down. */
+const TANK_OUTPUTS: ModuleSpec['outputs'] = [
+  ...VISION_OUTPUTS,
+  { id: 'tx', label: 'TOUCH X' },
+  { id: 'ty', label: 'TOUCH Y' },
+  { id: 'tgate', label: 'TOUCH' },
+]
 export const VISION_PARAMS: ModuleSpec['params'] = [
   { id: 'scene', label: 'SCENE', min: 0, max: VISION_SCENES.length - 1, def: 0, stepped: true, options: [...VISION_SCENES] },
   { id: 'rate', label: 'RATE', min: 0.05, max: 2, def: 0.4, curve: 'exp', unit: 'Hz' },
@@ -93,7 +102,7 @@ const PITCH = 11.5
 const VISION_CONTROLS: Control[] = [
   ...(['scene', 'rate', 'hue', 'glow', 'count'] as const).map((param): Control => ({ kind: 'knob', param, x: 0, y: 0, size: 'S' })),
   ...(['trig', 'feed', 'glow', 'hue', 'move', 'rst'] as const).map((jack): Control => ({ kind: 'in', jack, x: 0, y: 0 })),
-  ...(['gate', 'sway', 'grow', 'light', 'link'] as const).map((jack): Control => ({ kind: 'out', jack, x: 0, y: 0 })),
+  ...(['gate', 'sway', 'grow', 'light', 'link', 'tx', 'ty', 'tgate'] as const).map((jack): Control => ({ kind: 'out', jack, x: 0, y: 0 })),
 ]
 
 /** Split controls into as few even rows as fit across `w` mm. */
@@ -110,7 +119,7 @@ export function rowsThatFit<T>(items: T[], w: number, pitch = PITCH): T[][] {
  *  The gate LED sits on the top edge between the screws. */
 function visionLayout(hp: number): Control[] {
   const w = hp * HP_MM
-  const spec = { params: VISION_PARAMS, inputs: VISION_INPUTS, outputs: VISION_OUTPUTS }
+  const spec = { params: VISION_PARAMS, inputs: VISION_INPUTS, outputs: TANK_OUTPUTS }
   const { controls, top } = packRows(rowsThatFit(VISION_CONTROLS, w), spec, w)
   return [
     { kind: 'vision', x: 2.5, y: GLASS_TOP, w: w - 5, h: top - GLASS_GAP - GLASS_TOP },
@@ -126,12 +135,12 @@ export const vision: ModuleSpec = {
   type: 'vision',
   title: 'VISION',
   name: 'Vision Tank',
-  tagline: 'Living scenes you patch: jellyfish, a flower garden, fireflies, aurora, cymatics. CV in, CV out',
+  tagline: 'Living scenes you patch: jellyfish, a flower garden, fireflies, aurora, cymatics. CV in, CV out; the glass is a touch pad too',
   category: 'Visuals',
   hp: 20,
   panel: BLACK,
   inputs: VISION_INPUTS,
-  outputs: VISION_OUTPUTS,
+  outputs: TANK_OUTPUTS,
   params: VISION_PARAMS,
   leds: VISION_LEDS,
   controls: visionLayout(20),

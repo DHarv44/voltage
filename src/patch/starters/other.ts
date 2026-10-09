@@ -191,7 +191,11 @@ export const OTHER_STARTERS: Record<string, Starter> = {
       toOut(k, [vca, 'out'])
     },
   },
-  vision: { howTo: 'The tune plays the jellyfish: every note is a bell stroke, the pitch is its colour.', build: (k) => void visionRig(k, 'vision') },
+  vision: {
+    howTo:
+      'The tune plays the jellyfish: every note is a bell stroke, the pitch is its colour. The glass is a touch pad too: touch the water, and TOUCH X / Y / TOUCH send where your finger is and a gate.',
+    build: (k) => void visionRig(k, 'vision'),
+  },
   visioncore: {
     howTo: 'VISION CORE played by the tune, shown on a VISION VIEW.',
     build(k) {

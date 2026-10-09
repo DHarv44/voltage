@@ -48,6 +48,11 @@ export class VisionDsp extends Dsp {
   private readonly iHue = this.ii('hue')
   private readonly iMove = this.ii('move')
   private readonly iRst = this.ii('rst')
+  /** The glass as a touch pad (VISION only; VISION CORE has no glass: −1). */
+  private readonly oTx = this.spec.outputs.findIndex((j) => j.id === 'tx')
+  private readonly oTy = this.spec.outputs.findIndex((j) => j.id === 'ty')
+  private readonly oTgate = this.spec.outputs.findIndex((j) => j.id === 'tgate')
+  private scene = 0
   private readonly creatures: Creature[]
   private readonly trig = new Schmitt()
   private readonly rst = new Schmitt()
@@ -129,6 +134,7 @@ export class VisionDsp extends Dsp {
       // Every scene lives all the time (views may watch any of them); the
       // SCENE knob picks which one drives the jacks and the main glass.
       const scene = Math.min(this.creatures.length - 1, Math.max(0, Math.round(this.p[this.pScene])))
+      this.scene = scene
       const t = ci.touch
       for (let k = 0; k < this.creatures.length; k++) {
         const f = this.fingers[k]
@@ -152,5 +158,12 @@ export class VisionDsp extends Dsp {
     o[1] += (co.sway - o[1]) * this.glide
     o[2] += (co.grow - o[2]) * this.glide
     o[3] += (co.light - o[3]) * this.glide
+    // the finger on the scene driving the jacks: where it is (held when it lifts), and down or not
+    if (this.oTx >= 0) {
+      const f = this.fingers[this.scene]
+      o[this.oTx] += (Math.max(0, Math.min(10, f.x * 10)) - o[this.oTx]) * this.glide
+      o[this.oTy] += (Math.max(0, Math.min(10, f.y * 10)) - o[this.oTy]) * this.glide
+      o[this.oTgate] = f.down ? 10 : 0
+    }
   }
 }
