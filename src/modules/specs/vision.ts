@@ -7,7 +7,7 @@ import { LED_BLOCK, VS, VS_EXTRA } from './visionState'
 export { LED_BLOCK, sceneBlock, VS, VS_EXTRA } from './visionState'
 
 /** Scenes the VISION tank can hold, in SCENE knob order. */
-export const VISION_SCENES = ['JELLY', 'GARDEN', 'FIREFLIES', 'AURORA', 'CYMATICS'] as const
+export const VISION_SCENES = ['JELLY', 'GARDEN', 'FIREFLIES', 'AURORA', 'CYMATICS', 'MURMURATION'] as const
 
 /** Jelly: depth in the tank (0 back wall … 1 front glass) and the bell's
  *  lean toward/away from the glass (radians). */
@@ -20,6 +20,24 @@ export const CYM = { m: VS_EXTRA, n: VS_EXTRA + 1, mode: VS_EXTRA + 2, knock: VS
 export const FIREFLIES = 48
 /** Fireflies: the swarm nearer the glass (+1) or further off (−1). */
 export const FF_NEAR = VS_EXTRA + FIREFLIES
+/** Murmuration (the flock's centre is VS.x / VS.y, 0..1 across and up the
+ *  sky): how near (0..1), its radius (scene units), panic 0..1, where the
+ *  falcon is diving (0..1) and how long ago it stooped (s, −1 none), how many
+ *  turning waves so far and which way the latest one runs (−1 / +1), the dusk
+ *  (0 evening … 1 roosted). */
+export const MUR = {
+  z: VS_EXTRA,
+  spread: VS_EXTRA + 1,
+  panic: VS_EXTRA + 2,
+  fx: VS_EXTRA + 3,
+  fy: VS_EXTRA + 4,
+  falcon: VS_EXTRA + 5,
+  waves: VS_EXTRA + 6,
+  waveDir: VS_EXTRA + 7,
+  dusk: VS_EXTRA + 8,
+} as const
+/** Most starlings a murmuration can hold (COUNT picks how many). */
+export const STARLINGS = 1200
 
 /** COUNT (0..1, default ½ = each scene's classic look) → how many of each
  *  scene's things there are. Shared by the engine and the renderer. */
@@ -32,6 +50,8 @@ export const countOf = {
   fireflies: (c: number) => Math.max(4, Math.min(FIREFLIES, Math.round(c * 48))),
   curtains: (c: number) => Math.max(1, Math.min(6, Math.round(c * 6))),
   grains: (c: number) => Math.max(300, Math.round(c * 5000)),
+  /** Starlings: 600 at halfway. */
+  starlings: (c: number) => Math.max(80, Math.min(STARLINGS, Math.round(c * 1200))),
 }
 
 export const VISION_LEDS = LED_BLOCK * (1 + VISION_SCENES.length)
@@ -39,15 +59,15 @@ export const VISION_LEDS = LED_BLOCK * (1 + VISION_SCENES.length)
 /** Shared by VISION and VISION CORE (the same creature engine). The names are
  *  generic; each scene reads them its own way:
  *
- *  | jack   | JELLY        | GARDEN          | FIREFLIES      | AURORA        | CYMATICS            |
- *  | TRIG   | bell stroke  | pollen burst    | scatter        | substorm      | knock the plate     |
- *  | FEED   | food → size  | food → health   | coupling       | solar wind    | drive               |
- *  | PITCH  | colour/note  | colour/note     | colour/note    | colour/note   | mode + colour       |
- *  | MOVE   | current      | wind            | drift          | curtains      | tilt                |
- *  | GATE   | stroke       | each new stage  | meadow flash   | onset         | new mode / knock    |
- *  | MOTION | tentacles    | stems           | drift          | curtains      | buzz                |
- *  | STATE  | size         | how alive       | sync           | energy        | mode number         |
- *  | DEPTH  | how near     | seeds' height   | swarm's depth  | curtain height| knock's ring        |
+ *  | jack   | JELLY        | GARDEN          | FIREFLIES      | AURORA        | CYMATICS            | MURMURATION     |
+ *  | TRIG   | bell stroke  | pollen burst    | scatter        | substorm      | knock the plate     | a falcon stoops |
+ *  | FEED   | food → size  | food → health   | coupling       | solar wind    | drive               | cohesion        |
+ *  | PITCH  | colour/note  | colour/note     | colour/note    | colour/note   | mode + colour       | sunset colour   |
+ *  | MOVE   | current      | wind            | drift          | curtains      | tilt                | wind            |
+ *  | GATE   | stroke       | each new stage  | meadow flash   | onset         | new mode / knock    | wave / stoop    |
+ *  | MOTION | tentacles    | stems           | drift          | curtains      | buzz                | swinging        |
+ *  | STATE  | size         | how alive       | sync           | energy        | mode number         | how dense       |
+ *  | DEPTH  | how near     | seeds' height   | swarm's depth  | curtain height| knock's ring        | how near        |
  *
  *  Jack ids stay as first named (hue, sway, grow) so saved patches keep their
  *  cables. LINK carries no voltage: patch it into VISION VIEW modules. */
@@ -139,7 +159,7 @@ export const vision: ModuleSpec = {
   type: 'vision',
   title: 'VISION',
   name: 'Vision Tank',
-  tagline: 'Living scenes you patch: jellyfish, a flower garden, fireflies, aurora, cymatics. CV in, CV out; the glass is a touch pad too',
+  tagline: 'Living scenes you patch: jellyfish, a flower garden, fireflies, aurora, cymatics, a starling murmuration. CV in, CV out; the glass is a touch pad too',
   category: 'Visuals',
   hp: 20,
   panel: BLACK,

@@ -286,8 +286,12 @@ extend VOLTAGE.
   drives the jacks, 0–10 V with y up, held on lift, gate while down; VISION CORE has no glass so no
   jacks), ~~a DEPTH output~~ (done, on VISION and VISION CORE: the jelly's distance from the glass,
   the garden's highest seed, the fireflies' swarm drifting nearer and further (FF_NEAR, drawn too),
-  the aurora's height, the cymatics plate's knock ringing), and the new scenes (coral reef, rain on a pond, starling
-  murmuration) built in 3D so there's something to see wherever you zoom.
+  the aurora's height, the cymatics plate's knock ringing), ~~MURMURATION~~ (done: the engine flies
+  the flock as a whole (heading, radius, turning waves, falcon stoops, a five-minute dusk ending in
+  the roost) and the screen flies up to 1200 boids (ui/vision/flock.ts: seven-ish neighbours on a
+  hashed grid, a goal felt only past the flock's edge, waves that swerve each bird as the front
+  passes; birds look bigger side-on), in front of 3D reeds), and the other new scenes (coral reef,
+  rain on a pond) built in 3D so there's something to see wherever you zoom.
 
 ## Pinned for later: cloud saving, short links and a public gallery
 Goal: short links anyone can open; public patches browsable on the site; private patches only their
