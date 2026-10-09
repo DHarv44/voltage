@@ -1,6 +1,6 @@
 import { BEZEL, packRows, type SpecLabels } from '../panelMetrics'
 import { HP_MM, type Control, type ModuleSpec, type ParamSpec } from '../types'
-import { BLUSH, SAGE, SLATE } from './panels'
+import { BLUSH, GRAPHITE, SAGE, SLATE } from './panels'
 
 /** The melodic members of the POCKET family: same 16-step, calculator-sized
  *  idea as the drum POCKET (same clock, CLK out → CLK in to play as a band),
@@ -155,6 +155,45 @@ export const pocketarcade: ModuleSpec = {
     [knob('tempo'), knob('swing'), knob('vol'), knob('scale'), knob('root'), jack('in', 'clk'), jack('in', 'rst'), jack('out', 'pulse')],
     [knob('voice'), knob('oct'), knob('bass'), knob('drums'), jack('out', 'clko'), jack('out', 'rsto'), jack('out', 'tri'), jack('out', 'noise')],
     [null, null, null, null, jack('out', 'pitch'), jack('out', 'gate'), null, jack('out', 'out')],
+  ]),
+}
+
+// ---- POCKET ROBOT: the live lead ----
+
+export const ROBOT_VOICES = ['SAW', 'SQUARE', 'BUZZ']
+/** Per step: a note, or a glide into it. */
+export const ROBOT_MODES = ['NOTE', 'GLIDE']
+export const ROBOT_FX = ['DRY', 'ECHO', 'CRUSH']
+
+const ROBOT_PARAMS: ParamSpec[] = [
+  ...common(ROBOT_VOICES).map((ps) => (ps.id === 'write' ? { ...ps, def: 0 } : ps)),
+  { id: 'scale', label: 'SCALE', min: 0, max: SCALES.length - 1, def: 3, stepped: true, options: SCALES },
+  { id: 'root', label: 'ROOT', min: 0, max: 11, def: 9, stepped: true, options: ROOTS },
+  { id: 'glide', label: 'GLIDE', min: 0.01, max: 0.6, def: 0.12, curve: 'exp', unit: 's' },
+  { id: 'fx', label: 'FX', min: 0, max: ROBOT_FX.length - 1, def: 1, stepped: true, options: ROBOT_FX },
+  { id: 'rec', label: 'REC', min: 0, max: 1, def: 0, stepped: true, options: ['OFF', 'REC'] },
+  // an electro riff in A dorian (the F♯ is dorian's bright sixth), gliding up to the octave
+  ...stepParams(MELODY_NOTES, [4, 0, 4, 6, 0, 7, 6, 0, 3, 0, 4, 0, 5, 0, 0, 0], bit(1, 3, 4, 6, 7, 9, 11, 13), 1, [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]),
+]
+
+/** A live lead: off WRITE the buttons play it (scale degrees, gliding between
+ *  them); with REC on while it runs, what you play is written into the steps. */
+export const pocketrobot: ModuleSpec = {
+  type: 'pocketrobot',
+  title: 'POCKET ROBOT',
+  name: 'Pocket Robot',
+  tagline: 'Calculator-sized live lead: play the buttons, glide between notes, echo or crush it, record what you play into the steps',
+  category: 'Systems',
+  hp: 24,
+  panel: GRAPHITE,
+  inputs: CLK_IN,
+  outputs: SYNTH_OUTS,
+  params: ROBOT_PARAMS,
+  leds: 3,
+  controls: pocketLayout(24, { params: ROBOT_PARAMS, inputs: CLK_IN, outputs: SYNTH_OUTS }, [
+    [knob('tempo'), knob('swing'), knob('vol'), knob('scale'), knob('root'), jack('in', 'clk'), jack('in', 'rst'), jack('out', 'pitch')],
+    [knob('voice'), knob('oct'), knob('glide'), knob('fx'), { kind: 'switch', param: 'rec', x: 0, y: 0 }, jack('out', 'clko'), jack('out', 'rsto'), jack('out', 'gate')],
+    [null, null, null, null, null, null, null, jack('out', 'out')],
   ]),
 }
 

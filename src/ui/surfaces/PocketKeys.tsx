@@ -1,6 +1,6 @@
 import { useRef, type MouseEvent, type PointerEvent, type WheelEvent } from 'react'
 import { telemetry } from '../../audio/telemetry'
-import { ARCADE_MODES, ARCADE_VOICES, BASS_NOTES, BASS_VOICES, MELODY_MODES, MELODY_NOTES, MELODY_VOICES, PSL, PSTEPS, ROOTS, SCALE_STEPS } from '../../modules/specs/pocketSynth'
+import { ARCADE_MODES, ARCADE_VOICES, ROBOT_MODES, ROBOT_VOICES, BASS_NOTES, BASS_VOICES, MELODY_MODES, MELODY_NOTES, MELODY_VOICES, PSL, PSTEPS, ROOTS, SCALE_STEPS } from '../../modules/specs/pocketSynth'
 import { drawMascot } from './pocketMascots'
 import { actions, patchStore } from '../../patch/store'
 import { PX } from '../geometry'
@@ -21,9 +21,10 @@ const INK = '#26301e'
 
 /** What differs between the melodic POCKETs' faces. */
 const FLAVOURS = {
-  pocketbass: { bg: '#c3cfc6', accent: '#2d6cdf', voices: BASS_VOICES, modes: [] as string[], knobA: 'A · TONE' },
-  pocketmelody: { bg: '#dfcbcc', accent: '#8a3fc2', voices: MELODY_VOICES, modes: MELODY_MODES, knobA: 'A · TONE' },
-  pocketarcade: { bg: '#c9ced9', accent: '#d9542b', voices: ARCADE_VOICES, modes: ARCADE_MODES, knobA: 'A · VIBRATO' },
+  pocketbass: { bg: '#c3cfc6', accent: '#2d6cdf', voices: BASS_VOICES, modes: [] as string[], knobA: 'A · TONE', knobB: 'B · DECAY' },
+  pocketmelody: { bg: '#dfcbcc', accent: '#8a3fc2', voices: MELODY_VOICES, modes: MELODY_MODES, knobA: 'A · TONE', knobB: 'B · DECAY' },
+  pocketarcade: { bg: '#c9ced9', accent: '#d9542b', voices: ARCADE_VOICES, modes: ARCADE_MODES, knobA: 'A · VIBRATO', knobB: 'B · DECAY' },
+  pocketrobot: { bg: '#cfccc5', accent: '#e8402f', voices: ROBOT_VOICES, modes: ROBOT_MODES, knobA: 'A · TONE', knobB: 'B · FX' },
 }
 
 /** The melodic POCKETs' face. WRITE on: click a step to switch it on/off,
@@ -60,7 +61,7 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
       // live from the store: gestures can arrive faster than React re-renders
       value: (patchStore.get().modules.find((m) => m.id === mod)?.params ?? params.current)[id] ?? 0.5,
       set: (v: number) => actions.setParam(mod, id, v),
-      label: k === 0 ? look.knobA : 'B · DECAY',
+      label: k === 0 ? look.knobA : look.knobB,
     }))
   const pressKnob = useCanvasKnobs(ref, mod, knobs)
 
@@ -91,7 +92,9 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
     ctx.textAlign = 'right'
     // following another POCKET's CLK: its tempo, not ours
     const ext = patchStore.get().cables.some((c) => c.to.mod === mod && c.to.jack === 'clk')
-    ctx.fillText(ext ? 'EXT' : `${Math.round(p.tempo)}`, lx + lw * 0.97, ly + lh * 0.22)
+    // recording (POCKET ROBOT): a red dot, blinking while it plays
+    const rec = (p.rec ?? 0) >= 0.5 && (step < 0 || Math.floor(performance.now() / 400) % 2 === 0)
+    ctx.fillText(`${rec ? '● REC  ' : ''}${ext ? 'EXT' : Math.round(p.tempo)}`, lx + lw * 0.97, ly + lh * 0.22)
     const rollTop = ly + lh * 0.32
     const rollH = lh * 0.6
     const cw = (lw * 0.94) / PSTEPS
@@ -254,7 +257,7 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
     const i = gridIndex(fx, fy)
     if (i < 0) return
     const f = Math.round(p[`f${i}`] ?? 0)
-    actions.setParam(mod, `f${i}`, (f + 1) % (bass ? 4 : 3))
+    actions.setParam(mod, `f${i}`, (f + 1) % (bass ? 4 : look.modes.length))
   }
 
   // Scroll over a step (WRITE) to nudge its note.

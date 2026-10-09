@@ -19,10 +19,11 @@ function kitWith(
 }
 
 /** A POCKET drum machine running; the others follow its CLK. */
-function pocketBand(k: Kit, with_?: 'pocketbass' | 'pocketmelody'): void {
+function pocketBand(k: Kit, with_?: 'pocketbass' | 'pocketmelody' | 'pocketrobot'): void {
   const p = k.add('pocket', { run: 1, write: 0, tempo: 104 })
   if (!with_) return void toOut(k, [p, 'out'])
-  const other = k.add(with_, { write: 0 })
+  // followers only step on the clock while their own PLAY is on
+  const other = k.add(with_, { run: 1, write: 0 })
   k.wire([p, 'clko'], [other, 'clk'])
   k.wire([p, 'rsto'], [other, 'rst'])
   toOut(k, mix(k, [[p, 'out'], [other, 'out']], [0.75, 0.75]))
@@ -84,6 +85,11 @@ export const RHYTHM_STARTERS: Record<string, Starter> = {
   pocket: { howTo: 'POCKET playing its beat. WRITE on: pick a sound, toggle its steps.', build: (k) => pocketBand(k) },
   pocketbass: { howTo: 'POCKET BASS following POCKET’s clock. Drag a step up or down to change its note.', build: (k) => pocketBand(k, 'pocketbass') },
   pocketmelody: { howTo: 'POCKET MELODY following POCKET’s clock. Drag steps to change notes; right-click for chords.', build: (k) => pocketBand(k, 'pocketmelody') },
+  pocketrobot: {
+    howTo:
+      'POCKET ROBOT playing its electro riff over POCKET’s beat. Press its buttons to play live (held notes glide into each other); flip REC and play along to write what you play into the steps. Try VOICE (BUZZ) and FX (CRUSH), with B for how much.',
+    build: (k) => pocketBand(k, 'pocketrobot'),
+  },
   pocketarcade: {
     howTo:
       'POCKET ARCADE playing a little level theme on its own: pulse lead, triangle bass, noise drums. Drag steps to change notes; right-click a step for a chip ARP or a SLIDE. Try VOICE (the pulse width) and BASS / DRUMS.',
