@@ -8,7 +8,7 @@ pitch, ±5 V audio, 0–10 V control voltages, rails that saturate, components t
 up). There are no samples and no downloaded assets: every sound, from a ladder filter to a
 singing bowl to a vinyl record, is synthesised.
 
-- **135 modules**: oscillators, filters, envelopes, sequencers and drums; pedals, tape machines and
+- **136 modules**: oscillators, filters, envelopes, sequencers and drums; pedals, tape machines and
   played instruments; simulations that make music (bouncing balls, orbits, flocks, chaos); musical
   "brains" that jam with you; and **VISION**, living 3D scenes you patch like any other module.
 - **18 factory racks** to start from, and a **Learn** menu with a step-by-step course in synthesis.
@@ -119,7 +119,7 @@ Patch **MIDI·CV** (or use a module with a built-in keybed) and play:
 
 ## What's in the rack
 
-The full list, with what each module does, is in [ROADMAP.md](ROADMAP.md#modules-135). The module
+The full list, with what each module does, is in [ROADMAP.md](ROADMAP.md#modules-136). The module
 list on the left groups them by what they are (below); search finds them by name, by what you want
 ("bass", "reverb", "beat"…) or by the gear you know ("mellotron", "dfam", "op-1"); every word must
 match, Enter adds the top result and `/` jumps to the box. Tag chips narrow the list (all tags must
@@ -185,6 +185,8 @@ Calculator-sized grooveboxes with 16 steps, two knobs and a little LCD. Chain th
 CLK in** and they play as one band.
 
 - **POCKET:** eight drum sounds, with per-step parameter locks (right-click a step).
+- **POCKET OFFICE:** the same, but the kit is the office: typewriter keys, the space bar, a stapler,
+  glitchy hats, the carriage bell and its return, a phone's trill, paper.
 - **POCKET BASS:** 16 note steps with **slide** and **accent** (SUB / SQUARE / ACID voices).
 - **POCKET MELODY:** steps are notes of a scale, so nothing is out of key. Each step can be a note,
   a **chord** or an **arpeggio**.

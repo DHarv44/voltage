@@ -16,9 +16,12 @@ extend VOLTAGE.
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (135)
+### Modules (136)
 (Grouped here by family; the library's own categories are in `modules/types.ts` CATEGORIES.)
-- **POCKET family**: POCKET (drums), POCKET BASS (16 note steps, slide/accent, SUB/SQUARE/ACID), POCKET
+- **POCKET family**: POCKET (drums), POCKET OFFICE (the drum POCKET with an office kit: TYPE, SPACE,
+  STAPLE and BELL as struck modal clicks retuned ±4 % per hit, RETURN a speeding ratchet then a slam,
+  GLITCH crushed noise that sometimes stutters, PHONE a two-tone trill, PAPER crackling noise; drum
+  POCKETs share engine/dsp/pocketDrums.ts and a spec builder), POCKET BASS (16 note steps, slide/accent, SUB/SQUARE/ACID), POCKET
   MELODY (scale degrees, per-step NOTE/CHORD/ARP, BELL/PLUCK/LEAD, poly NOTES), POCKET ARCADE
   (chiptune: naive pulse lead THIN/HOLLOW/SQUARE with 4-bit stepped volume and delayed vibrato, per
   step NOTE / ARP (the triad cycled at 60 Hz) / SLIDE; a 4-bit stepped triangle bass, BEAT or FOLLOW;
@@ -264,7 +267,7 @@ extend VOLTAGE.
   - ~~POCKET ARCADE~~: done (see Modules).
   - ~~POCKET ROBOT~~: done (see Modules).
   - POCKET SPEAK: syllables per step with pitch locks (formant voice from the talk box).
-  - POCKET OFFICE: a noise-and-click drum kit (typewriter, glitch hats).
+  - ~~POCKET OFFICE~~: done (see Modules).
   - Shared upgrades: 16 hold-to-play punch-in effects (stutter, loop, filter sweep, crush, retrigger,
     reverse), several patterns per pocket chained into a song, a family LCD with its own animated mascot.
 - **VISION extras**: TOUCH X / Y / GATE outputs (the glass as a performance pad), a DEPTH output for the

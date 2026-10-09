@@ -1,6 +1,6 @@
 import { useRef, useState, type MouseEvent, type PointerEvent } from 'react'
 import { telemetry } from '../../audio/telemetry'
-import { POCKET_SOUNDS, POCKET_STEPS, POCKETL } from '../../modules/specs/pocket'
+import { drumPocketSounds, POCKET_STEPS, POCKETL } from '../../modules/specs/pocket'
 import { actions, patchStore } from '../../patch/store'
 import { PX } from '../geometry'
 import { track } from '../pointer'
@@ -17,9 +17,17 @@ const FN = [
 ]
 const GRID = { x: 0.05, y: 0.52, w: 0.9, h: 0.46 }
 
+/** The drum POCKETs' faces differ only in colour, sound names and knob names. */
+const LOOKS: Record<string, { bg: string; knobs: [string, string] }> = {
+  pocket: { bg: '#d8d0bd', knobs: ['A · PITCH', 'B · DECAY'] },
+  pocketoffice: { bg: '#e6ddc8', knobs: ['A · TONE', 'B · LENGTH'] },
+}
+
 /** Pocket groovebox face: LCD, knobs A and B, PLAY/WRITE, and the 4×4 buttons. */
 export function Pocket({ inst, spec, x, y, w, h }: SurfaceProps) {
   const mod = inst.id
+  const POCKET_SOUNDS = drumPocketSounds(inst.type)
+  const look = LOOKS[inst.type] ?? LOOKS.pocket
   const ref = useRef<HTMLCanvasElement>(null)
   const W = Math.round(w * PX * RES)
   const H = Math.round(h * PX * RES)
@@ -46,7 +54,7 @@ export function Pocket({ inst, spec, x, y, w, h }: SurfaceProps) {
       const id = knobParam(k)
       const locking = lockRef.current !== null
       const v = p[id] ?? 0.5
-      const label = k === 0 ? 'A · PITCH' : 'B · DECAY'
+      const label = look.knobs[k]
       return {
         fx,
         fy: KNOB_Y,
@@ -68,7 +76,7 @@ export function Pocket({ inst, spec, x, y, w, h }: SurfaceProps) {
     const step = led?.[POCKETL.step] ?? -1
     const sel = Math.round(p.sel)
     const mask = p[`m${sel}`] ?? 0
-    ctx.fillStyle = '#d8d0bd'
+    ctx.fillStyle = look.bg
     ctx.fillRect(0, 0, W, H)
 
     // LCD: sound, BPM, step strip, and a little visualiser of the sounds.
@@ -119,7 +127,7 @@ export function Pocket({ inst, spec, x, y, w, h }: SurfaceProps) {
       ctx.fillStyle = '#2a2520'
       ctx.textAlign = 'center'
       ctx.font = `${Math.round(H * 0.035)}px Bahnschrift, 'Arial Narrow', sans-serif`
-      ctx.fillText(k === 0 ? 'A · PITCH' : 'B · DECAY', knob.fx * W, (knob.fy + knob.fr) * H + H * 0.05)
+      ctx.fillText(look.knobs[k], knob.fx * W, (knob.fy + knob.fr) * H + H * 0.05)
     }
     FN.forEach((f, k) => {
       const on = k === 0 ? p.run >= 0.5 : p.write >= 0.5

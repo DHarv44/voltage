@@ -64,6 +64,10 @@ export const MODULE_TERMS: Record<string, ParamTerm[]> = {
   pocket: [{ match: /^A PITCH$/, what: 'The selected sound’s pitch (hold a step to lock it there only).' }],
   pocketbass: [{ match: /^A TONE$/, what: 'Brightness: opens the filter (hold a step to lock it there only).' }],
   pocketmelody: [{ match: /^A TONE$/, what: 'Brightness: opens the filter (hold a step to lock it there only).' }],
+  pocketoffice: [
+    { match: /^A TONE$/, what: 'The selected sound’s pitch or brightness (hold a step to lock it there only).' },
+    { match: /^B LENGTH$/, what: 'How long the selected sound lasts: a key’s ring, the carriage’s run, the phone’s trill.' },
+  ],
   pocketrobot: [
     { match: /^A TONE$/, what: 'Brightness: how far the filter opens (each note also sweeps it a little).' },
     { match: /^B DECAY$/, what: 'How much effect: the echo’s level and repeats, or how hard the crush.' },

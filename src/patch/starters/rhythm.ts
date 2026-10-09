@@ -85,6 +85,14 @@ export const RHYTHM_STARTERS: Record<string, Starter> = {
   pocket: { howTo: 'POCKET playing its beat. WRITE on: pick a sound, toggle its steps.', build: (k) => pocketBand(k) },
   pocketbass: { howTo: 'POCKET BASS following POCKET’s clock. Drag a step up or down to change its note.', build: (k) => pocketBand(k, 'pocketbass') },
   pocketmelody: { howTo: 'POCKET MELODY following POCKET’s clock. Drag steps to change notes; right-click for chords.', build: (k) => pocketBand(k, 'pocketmelody') },
+  pocketoffice: {
+    howTo:
+      'POCKET OFFICE: a typist at work as a beat. Keys between the beats, the space bar on them, a staple on 2 and 4, the bell at the end of the line, the carriage return. WRITE on: pick a sound, toggle its steps; right-click a step to lock A / B there.',
+    build(k) {
+      const o = k.add('pocketoffice', { run: 1, tempo: 96, swing: 0.15 })
+      toOut(k, [o, 'out'], undefined, 0.6)
+    },
+  },
   pocketrobot: {
     howTo:
       'POCKET ROBOT playing its electro riff over POCKET’s beat. Press its buttons to play live (held notes glide into each other); flip REC and play along to write what you play into the steps. Try VOICE (BUZZ) and FX (CRUSH), with B for how much.',
