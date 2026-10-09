@@ -293,8 +293,12 @@ extend VOLTAGE.
   passes; birds look bigger side-on), in front of 3D reeds), ~~RAIN~~ (done: the engine drops rain
   (RATE, FEED), a GATE and DEPTH per drop, the lily pad's bob from the same ripple() the water
   shader differentiates, lightning when it pours; the screen: a reflective pond seen from the bank,
-  pads, streaks, splash crowns, a 3D tree line), and the coral reef, built in 3D so there's
-  something to see wherever you zoom.
+  pads, streaks, splash crowns, a 3D tree line), ~~REEF~~ (done: the engine's swell, polyps,
+  school heading and turns, barracuda passes and finger scares; the screen: the same Flock as fish
+  (instanced cones facing their velocity), procedural staghorn (instanced branching cylinders,
+  polyps glowing at the tips), brain coral (ridged domes), sea fans (lattice shader) and an
+  anemone (instanced tentacles) swaying with the surge, clownfish, sand caustics, sun shafts).
+  All built in 3D so there's something to see wherever you zoom.
 
 ## Pinned for later: cloud saving, short links and a public gallery
 Goal: short links anyone can open; public patches browsable on the site; private patches only their

@@ -165,7 +165,10 @@ can play the music and the music can drive the visuals.
   through the flock are its own. A falcon (TRIG, or tap the sky) blows it apart; as the light goes
   the waves come faster, then the whole flock pours down into the reeds to roost. And **rain on a
   pond**: every drop is a GATE with its own DEPTH (how near it fell), so the rain plays a melody;
-  the lily pad's bob on the crossing rings is MOTION, and a storm (RATE up) brings lightning.
+  the lily pad's bob on the crossing rings is MOTION, and a storm (RATE up) brings lightning. And
+  a **coral reef**: a school of fish milling round staghorn and brain corals, sea fans and an
+  anemone with its clownfish; the swell's surge is MOTION, the polyps open to feed on FEED, and a
+  barracuda (TRIG) scatters the school into a flashing bait ball.
 - **The garden** is a meadow through days and nights. Daisies, tulips, sunflowers (they turn to follow
   the sun) and dandelions (their seed clocks blow away and come up where the seeds land) live whole
   lives: they close at night, drop petals as they die, fall into the grass and rot away. Trees grow

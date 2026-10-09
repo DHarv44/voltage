@@ -7,7 +7,7 @@ import { LED_BLOCK, VS, VS_EXTRA } from './visionState'
 export { LED_BLOCK, sceneBlock, VS, VS_EXTRA } from './visionState'
 
 /** Scenes the VISION tank can hold, in SCENE knob order. */
-export const VISION_SCENES = ['JELLY', 'GARDEN', 'FIREFLIES', 'AURORA', 'CYMATICS', 'MURMURATION', 'RAIN'] as const
+export const VISION_SCENES = ['JELLY', 'GARDEN', 'FIREFLIES', 'AURORA', 'CYMATICS', 'MURMURATION', 'RAIN', 'REEF'] as const
 
 /** Jelly: depth in the tank (0 back wall … 1 front glass) and the bell's
  *  lean toward/away from the glass (radians). */
@@ -47,6 +47,31 @@ export const RAIN = { drops: VS_EXTRA, flash: VS_EXTRA + DROPS * 4, heavy: VS_EX
  *  screen (the water): pond size (scene units), ripple speed (units/s),
  *  wavenumber (rad/unit), how fast they die away (s), where the pad floats. */
 export const POND = { w: 4, d: 3, speed: 0.35, k: 40, fade: 1.5, padX: 0.62, padZ: 0.55 } as const
+/** Reef (the school's centre is VS.x / VS.y): how near the school is, its
+ *  radius, panic, the barracuda (0..1 across, height, s since it set off or
+ *  −1, which way), a scare at a finger (where, s left), the surge (−1..1),
+ *  the polyps open (0..1), how many times the school has turned and which way. */
+export const REEF = {
+  z: VS_EXTRA,
+  spread: VS_EXTRA + 1,
+  panic: VS_EXTRA + 2,
+  bx: VS_EXTRA + 3,
+  by: VS_EXTRA + 4,
+  pass: VS_EXTRA + 5,
+  bdir: VS_EXTRA + 6,
+  sx: VS_EXTRA + 7,
+  sy: VS_EXTRA + 8,
+  scare: VS_EXTRA + 9,
+  surge: VS_EXTRA + 10,
+  polyps: VS_EXTRA + 11,
+  turns: VS_EXTRA + 12,
+  turnDir: VS_EXTRA + 13,
+} as const
+/** How long the barracuda takes to cross (s). */
+export const REEF_PASS_S = 4
+/** Most fish in the school. */
+export const REEF_FISH = 500
+
 /** A drop's ripple at distance r (scene units), `age` s after it landed. */
 export function ripple(r: number, age: number, size: number): number {
   const u = r - POND.speed * age
@@ -69,6 +94,8 @@ export const countOf = {
   starlings: (c: number) => Math.max(80, Math.min(STARLINGS, Math.round(c * 1200))),
   /** Lily pads on the pond: three at halfway. */
   pads: (c: number) => Math.max(1, Math.min(7, Math.round(c * 6))),
+  /** Fish in the reef's school: 250 at halfway. */
+  fish: (c: number) => Math.max(30, Math.min(REEF_FISH, Math.round(c * 500))),
 }
 
 export const VISION_LEDS = LED_BLOCK * (1 + VISION_SCENES.length)
@@ -76,15 +103,15 @@ export const VISION_LEDS = LED_BLOCK * (1 + VISION_SCENES.length)
 /** Shared by VISION and VISION CORE (the same creature engine). The names are
  *  generic; each scene reads them its own way:
  *
- *  | jack   | JELLY        | GARDEN          | FIREFLIES      | AURORA        | CYMATICS            | MURMURATION     | RAIN             |
- *  | TRIG   | bell stroke  | pollen burst    | scatter        | substorm      | knock the plate     | a falcon stoops | a fish rises     |
- *  | FEED   | food → size  | food → health   | coupling       | solar wind    | drive               | cohesion        | heavier rain     |
- *  | PITCH  | colour/note  | colour/note     | colour/note    | colour/note   | mode + colour       | sunset colour   | sky colour       |
- *  | MOVE   | current      | wind            | drift          | curtains      | tilt                | wind            | wind             |
- *  | GATE   | stroke       | each new stage  | meadow flash   | onset         | new mode / knock    | wave / stoop    | each drop        |
- *  | MOTION | tentacles    | stems           | drift          | curtains      | buzz                | swinging        | the lily pad bob |
- *  | STATE  | size         | how alive       | sync           | energy        | mode number         | how dense       | how hard it rains|
- *  | DEPTH  | how near     | seeds' height   | swarm's depth  | curtain height| knock's ring        | how near        | where it fell    |
+ *  | jack   | JELLY        | GARDEN          | FIREFLIES      | AURORA        | CYMATICS            | MURMURATION     | RAIN             | REEF               |
+ *  | TRIG   | bell stroke  | pollen burst    | scatter        | substorm      | knock the plate     | a falcon stoops | a fish rises     | a barracuda passes |
+ *  | FEED   | food → size  | food → health   | coupling       | solar wind    | drive               | cohesion        | heavier rain     | plankton           |
+ *  | PITCH  | colour/note  | colour/note     | colour/note    | colour/note   | mode + colour       | sunset colour   | sky colour       | water colour       |
+ *  | MOVE   | current      | wind            | drift          | curtains      | tilt                | wind            | wind             | surge              |
+ *  | GATE   | stroke       | each new stage  | meadow flash   | onset         | new mode / knock    | wave / stoop    | each drop        | school turns       |
+ *  | MOTION | tentacles    | stems           | drift          | curtains      | buzz                | swinging        | the lily pad bob | the surge          |
+ *  | STATE  | size         | how alive       | sync           | energy        | mode number         | how dense       | how hard it rains| polyps open        |
+ *  | DEPTH  | how near     | seeds' height   | swarm's depth  | curtain height| knock's ring        | how near        | where it fell    | school's nearness  |
  *
  *  Jack ids stay as first named (hue, sway, grow) so saved patches keep their
  *  cables. LINK carries no voltage: patch it into VISION VIEW modules. */
@@ -176,7 +203,7 @@ export const vision: ModuleSpec = {
   type: 'vision',
   title: 'VISION',
   name: 'Vision Tank',
-  tagline: 'Living scenes you patch: jellyfish, a flower garden, fireflies, aurora, cymatics, a starling murmuration, rain on a pond. CV in, CV out; the glass is a touch pad too',
+  tagline: 'Living scenes you patch: jellyfish, a flower garden, fireflies, aurora, cymatics, a starling murmuration, rain on a pond, a coral reef. CV in, CV out; the glass is a touch pad too',
   category: 'Visuals',
   hp: 20,
   panel: BLACK,

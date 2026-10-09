@@ -9,11 +9,12 @@ import { cymaticsScene } from './cymaticsScene'
 import { firefliesScene } from './firefliesScene'
 import { murmurationScene } from './murmurationScene'
 import { rainScene } from './rainScene'
+import { reefScene } from './reefScene'
 import type { CreatureView, SceneFactory, ScreenSource, VisionScene } from './types'
 import { Viewer } from './viewer'
 
 /** In SCENE knob order (VISION_SCENES). */
-const SCENES: SceneFactory[] = [jellyScene, flowerScene, firefliesScene, auroraScene, cymaticsScene, murmurationScene, rainScene]
+const SCENES: SceneFactory[] = [jellyScene, flowerScene, firefliesScene, auroraScene, cymaticsScene, murmurationScene, rainScene, reefScene]
 
 interface Screen {
   canvas: HTMLCanvasElement
