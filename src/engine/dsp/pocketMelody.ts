@@ -3,6 +3,8 @@ import { MELODY_NOTES, PSL, PSTEPS, SCALE_STEPS } from '../../modules/specs/pock
 import type { UiEvent } from '../protocol'
 import { Dsp } from './base'
 import { PocketClock } from './pocketClock'
+import { PocketFx } from './pocketFx'
+import { PocketSong } from './pocketSong'
 import { C4, polyBlep, TAU } from './util'
 
 const BELL = 0
@@ -40,9 +42,8 @@ export class PocketMelodyDsp extends Dsp {
   private readonly pB = this.pi('b')
   private readonly pScale = this.pi('scale')
   private readonly pRoot = this.pi('root')
-  private readonly pMask = this.pi('m')
-  private readonly pNote = this.pi('n0')
-  private readonly pFlag = this.pi('f0')
+  private readonly song = new PocketSong((id) => this.pi(id), true)
+  private readonly fx = new PocketFx(this.fs)
   private readonly oNotes = this.oi('notes')
   private readonly clock: PocketClock
   private readonly voices = Array.from({ length: VOICES }, () => new Voice())
@@ -85,7 +86,7 @@ export class PocketMelodyDsp extends Dsp {
   }
 
   onUi(ev: UiEvent): void {
-    if (ev.kind !== 'surface' || ev.name !== 'key') return
+    if (this.fx.onUi(ev) || ev.kind !== 'surface' || ev.name !== 'key') return
     if (ev.down) {
       this.heldKey = Math.min(MELODY_NOTES + 1, Math.round(ev.x))
       this.play(this.heldKey, 30) // held until the key comes up
@@ -101,11 +102,14 @@ export class PocketMelodyDsp extends Dsp {
     const c = this.clock
     const stepped = c.tick(p[this.pRun] >= 0.5, this.patched[this.iClk] === 1, this.in[this.iClk], p[this.pTempo], p[this.pSwing], this.in[this.iRst])
     this.out[this.oRst] = c.rstSample()
+    if (c.restarted) this.song.reset()
     if (stepped) {
       const s = c.step
-      if (p[this.pMask] & (1 << s)) {
-        const d = p[this.pNote + s]
-        const mode = Math.round(p[this.pFlag + s])
+      const sg = this.song
+      if (s === 0) sg.bar(p)
+      if (p[sg.mask] & (1 << s)) {
+        const d = p[sg.note + s]
+        const mode = Math.round(p[sg.flag + s])
         if (mode === CHORD) {
           this.play(d, c.stepLen * 0.9)
           this.play(d + 2, c.stepLen * 0.9)
@@ -173,7 +177,7 @@ export class PocketMelodyDsp extends Dsp {
     }
 
     const o = this.out
-    o[0] = Math.tanh(y * 0.45) * 5 * p[this.pVol]
+    o[0] = this.fx.process(Math.tanh(y * 0.45) * 5 * p[this.pVol], c.sixteenth)
     o[1] = c.clkSample()
     o[2] = this.lastVolts
     o[3] = anyGate || this.heldKey >= 0 ? 10 : 0
@@ -185,5 +189,6 @@ export class PocketMelodyDsp extends Dsp {
     this.led[PSL.step] = c.step
     this.led[PSL.flash] = this.flash
     this.led[PSL.note] = this.lastDegree
+    this.song.leds(this.led, PSL.song, this.fx.held)
   }
 }

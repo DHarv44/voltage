@@ -6,15 +6,12 @@ import { PX } from '../geometry'
 import { track } from '../pointer'
 import { drawCanvasKnob, useCanvasKnobs, type CanvasKnob } from './canvasKnob'
 import { RES, sendSurface, useFrame, type SurfaceProps } from './common'
+import { drawFn, drawPage, editPre, fnAt, pressFn, pressPage, songTag, type PageState } from './pocketPages'
 
 /** Regions as fractions of the surface. */
 const LCD = { x: 0.05, y: 0.03, w: 0.9, h: 0.27 }
 const KNOB_Y = 0.4
 const KNOBS = [0.16, 0.39]
-const FN = [
-  { x: 0.64, name: 'PLAY' },
-  { x: 0.86, name: 'WRITE' },
-]
 const GRID = { x: 0.05, y: 0.52, w: 0.9, h: 0.46 }
 
 /** The drum POCKETs' faces differ only in colour, sound names and knob names. */
@@ -36,11 +33,13 @@ export function Pocket({ inst, spec, x, y, w, h }: SurfaceProps) {
   const [lockStep, setLockStep] = useState<number | null>(null)
   const lockRef = useRef(lockStep)
   lockRef.current = lockStep
+  const st = useRef<PageState>({ page: 'steps', copying: false, chain: null }).current
 
+  // locks belong to the pattern being edited
   const knobParam = (k: number) => {
     const sel = Math.round(params.current.sel)
     const ab = k === 0 ? 'a' : 'b'
-    return lockRef.current !== null ? `l${ab}${sel}_${lockRef.current}` : `${ab}${sel}`
+    return lockRef.current !== null ? `${editPre(params.current)}l${ab}${sel}_${lockRef.current}` : `${ab}${sel}`
   }
 
   // Knobs A and B: the selected sound's, or (with a step picked) that step's
@@ -75,7 +74,7 @@ export function Pocket({ inst, spec, x, y, w, h }: SurfaceProps) {
     const led = telemetry.leds[mod]
     const step = led?.[POCKETL.step] ?? -1
     const sel = Math.round(p.sel)
-    const mask = p[`m${sel}`] ?? 0
+    const mask = p[`${editPre(p)}m${sel}`] ?? 0
     ctx.fillStyle = look.bg
     ctx.fillRect(0, 0, W, H)
 
@@ -91,7 +90,7 @@ export function Pocket({ inst, spec, x, y, w, h }: SurfaceProps) {
     ctx.textAlign = 'left'
     ctx.fillText(`${sel + 1} ${POCKET_SOUNDS[sel]}`, lx + lw * 0.04, ly + lh * 0.26)
     ctx.textAlign = 'right'
-    ctx.fillText(`${Math.round(p.tempo)}`, lx + lw * 0.96, ly + lh * 0.26)
+    ctx.fillText(`${songTag(p, led, POCKETL.song)}  ${Math.round(p.tempo)}`, lx + lw * 0.96, ly + lh * 0.26)
     for (let i = 0; i < POCKET_STEPS; i++) {
       const sx = lx + lw * (0.04 + (0.92 * i) / POCKET_STEPS)
       const sw = (lw * 0.92) / POCKET_STEPS - 3
@@ -129,21 +128,13 @@ export function Pocket({ inst, spec, x, y, w, h }: SurfaceProps) {
       ctx.font = `${Math.round(H * 0.035)}px Bahnschrift, 'Arial Narrow', sans-serif`
       ctx.fillText(look.knobs[k], knob.fx * W, (knob.fy + knob.fr) * H + H * 0.05)
     }
-    FN.forEach((f, k) => {
-      const on = k === 0 ? p.run >= 0.5 : p.write >= 0.5
-      ctx.fillStyle = on ? '#c2402a' : '#4a4540'
-      ctx.beginPath()
-      ctx.roundRect(f.x * W - W * 0.08, KNOB_Y * H - H * 0.045, W * 0.16, H * 0.09, 6)
-      ctx.fill()
-      ctx.fillStyle = '#f2eee6'
-      ctx.font = `600 ${Math.round(H * 0.035)}px Bahnschrift, 'Arial Narrow', sans-serif`
-      ctx.fillText(f.name, f.x * W, KNOB_Y * H + H * 0.012)
-    })
+    drawFn(ctx, W, H, p, st.page, '#c2402a')
 
-    // 4×4 buttons.
+    // 4×4 buttons: steps or sounds, or the PATTERN / FX page.
     const bw = (GRID.w * W) / 4
     const bh = (GRID.h * H) / 4
-    for (let i = 0; i < 16; i++) {
+    if (st.page !== 'steps') drawPage(ctx, { x: GRID.x * W, y: GRID.y * H, w: GRID.w * W, h: GRID.h * H }, p, led, POCKETL.song, '#c2402a', st)
+    else for (let i = 0; i < 16; i++) {
       const bx = GRID.x * W + (i % 4) * bw
       const by = GRID.y * H + Math.floor(i / 4) * bh
       const write = p.write >= 0.5
@@ -187,7 +178,9 @@ export function Pocket({ inst, spec, x, y, w, h }: SurfaceProps) {
     const sel = Math.round(p.sel)
     const i = gridIndex(fx, fy)
     if (i >= 0) {
-      if (p.write >= 0.5) actions.setParam(mod, `m${sel}`, (p[`m${sel}`] ?? 0) ^ (1 << i))
+      const m = `${editPre(p)}m${sel}`
+      if (st.page !== 'steps') pressPage(mod, spec, i, st)
+      else if (p.write >= 0.5) actions.setParam(mod, m, (p[m] ?? 0) ^ (1 << i))
       else if (i < POCKET_SOUNDS.length) {
         actions.setParam(mod, 'sel', i)
         sendSurface(mod, 'hit', i, 0, true)
@@ -195,13 +188,10 @@ export function Pocket({ inst, spec, x, y, w, h }: SurfaceProps) {
       }
       return
     }
-    if (Math.abs(fy - KNOB_Y) < 0.1) {
-      const fnHit = FN.findIndex((f) => Math.abs(fx - f.x) < 0.09)
-      if (fnHit >= 0) {
-        const id = fnHit === 0 ? 'run' : 'write'
-        actions.setParam(mod, id, p[id] >= 0.5 ? 0 : 1)
-        if (id === 'write') setLockStep(null)
-      }
+    const fn = fnAt(fx, fy)
+    if (fn) {
+      pressFn(mod, fn, st)
+      setLockStep(null)
     }
   }
 
@@ -210,7 +200,7 @@ export function Pocket({ inst, spec, x, y, w, h }: SurfaceProps) {
   const context = (e: MouseEvent<HTMLCanvasElement>) => {
     e.preventDefault()
     e.stopPropagation()
-    if (params.current.write < 0.5) return
+    if (params.current.write < 0.5 || st.page !== 'steps') return
     const { fx, fy } = region(e)
     const i = gridIndex(fx, fy)
     if (i >= 0) setLockStep((cur) => (cur === i ? null : i))

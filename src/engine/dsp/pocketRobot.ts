@@ -4,6 +4,8 @@ import type { UiEvent } from '../protocol'
 import { Dsp } from './base'
 import { Svf } from './drumVoices'
 import { PocketClock } from './pocketClock'
+import { PocketFx } from './pocketFx'
+import { PocketSong } from './pocketSong'
 import { C4, polyBlep, TAU } from './util'
 
 const SQUARE = 1
@@ -26,8 +28,11 @@ export class PocketRobotDsp extends Dsp {
   private readonly P = {
     tempo: this.pi('tempo'), swing: this.pi('swing'), vol: this.pi('vol'), run: this.pi('run'), voice: this.pi('voice'),
     oct: this.pi('oct'), a: this.pi('a'), b: this.pi('b'), scale: this.pi('scale'), root: this.pi('root'),
-    glide: this.pi('glide'), fx: this.pi('fx'), rec: this.pi('rec'), mask: this.pi('m'), note: this.pi('n0'), flag: this.pi('f0'),
+    glide: this.pi('glide'), fx: this.pi('fx'), rec: this.pi('rec'),
   }
+  private readonly song = new PocketSong((id) => this.pi(id), true)
+  /** The punch-in effects (FX is the robot's own echo / crush). */
+  private readonly punch = new PocketFx(this.fs)
   private readonly clock: PocketClock
   private readonly svf = new Svf()
   private readonly echo: Float32Array
@@ -74,7 +79,7 @@ export class PocketRobotDsp extends Dsp {
   }
 
   onUi(ev: UiEvent): void {
-    if (ev.kind !== 'surface' || ev.name !== 'key') return
+    if (this.punch.onUi(ev) || ev.kind !== 'surface' || ev.name !== 'key') return
     if (!ev.down) {
       this.held = -1
       this.gate = 0
@@ -88,9 +93,10 @@ export class PocketRobotDsp extends Dsp {
     const c = this.clock
     if (this.p[this.P.rec] >= 0.5 && c.step >= 0) {
       const s = this.sinceStep > (c.stepLen * this.fs) / 2 ? (c.step + 1) % PSTEPS : c.step
-      this.writeParam(this.P.note + s, d)
-      this.writeParam(this.P.flag + s, 0)
-      this.writeParam(this.P.mask, Math.round(this.p[this.P.mask]) | (1 << s))
+      const sg = this.song // into the pattern playing
+      this.writeParam(sg.note + s, d)
+      this.writeParam(sg.flag + s, 0)
+      this.writeParam(sg.mask, Math.round(this.p[sg.mask]) | (1 << s))
     }
   }
 
@@ -99,11 +105,15 @@ export class PocketRobotDsp extends Dsp {
     const fs = this.fs
     const c = this.clock
     this.sinceStep++
-    if (c.tick(p[this.P.run] >= 0.5, this.patched[this.iClk] === 1, this.in[this.iClk], p[this.P.tempo], p[this.P.swing], this.in[this.iRst])) {
+    const stepped = c.tick(p[this.P.run] >= 0.5, this.patched[this.iClk] === 1, this.in[this.iClk], p[this.P.tempo], p[this.P.swing], this.in[this.iRst])
+    if (c.restarted) this.song.reset()
+    if (stepped) {
       this.sinceStep = 0
       const s = c.step
+      const sg = this.song
+      if (s === 0) sg.bar(p)
       // steps play unless a key is held (the hand wins)
-      if (this.held < 0 && (p[this.P.mask] & (1 << s)) !== 0) this.note(p[this.P.note + s], Math.round(p[this.P.flag + s]) === GLIDE, c.stepLen * 0.75)
+      if (this.held < 0 && (p[sg.mask] & (1 << s)) !== 0) this.note(p[sg.note + s], Math.round(p[sg.flag + s]) === GLIDE, c.stepLen * 0.75)
     }
     this.out[this.oRst] = c.rstSample()
 
@@ -158,7 +168,7 @@ export class PocketRobotDsp extends Dsp {
     }
 
     const o = this.out
-    o[0] = Math.tanh(y * 0.8) * 5 * p[this.P.vol]
+    o[0] = this.punch.process(Math.tanh(y * 0.8) * 5 * p[this.P.vol], c.sixteenth)
     o[1] = c.clkSample()
     o[2] = this.volts
     o[3] = on ? 10 : 0
@@ -166,5 +176,6 @@ export class PocketRobotDsp extends Dsp {
     this.led[PSL.step] = c.step
     this.led[PSL.flash] = this.flash
     this.led[PSL.note] = this.deg
+    this.song.leds(this.led, PSL.song, this.punch.held)
   }
 }

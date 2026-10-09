@@ -7,15 +7,12 @@ import { PX } from '../geometry'
 import { track } from '../pointer'
 import { drawCanvasKnob, useCanvasKnobs, type CanvasKnob } from './canvasKnob'
 import { RES, sendSurface, useFrame, type SurfaceProps } from './common'
+import { drawFn, drawPage, editPre, fnAt, pressFn, pressPage, songTag, type PageState } from './pocketPages'
 
 /** Regions as fractions of the surface (the same face as the drum POCKET). */
 const LCD = { x: 0.05, y: 0.03, w: 0.9, h: 0.27 }
 const KNOB_Y = 0.4
 const KNOBS = [0.16, 0.39]
-const FN = [
-  { x: 0.64, name: 'PLAY' },
-  { x: 0.86, name: 'WRITE' },
-]
 const GRID = { x: 0.05, y: 0.52, w: 0.9, h: 0.46 }
 const INK = '#26301e'
 
@@ -43,6 +40,9 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
   const H = Math.round(h * PX * RES)
   const params = useRef(inst.params)
   params.current = inst.params
+  const st = useRef<PageState>({ page: 'steps', copying: false, chain: null }).current
+  /** A step param of the pattern being edited (m, n3, f3 …). */
+  const sp = (id: string) => `${editPre(params.current)}${id}`
 
   /** A step's note as a name: bass in semitones from C, melody in its scale. */
   const noteName = (n: number) => {
@@ -74,7 +74,7 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
     const led = telemetry.leds[mod]
     const step = led?.[PSL.step] ?? -1
     const flash = led?.[PSL.flash] ?? 0
-    const mask = p.m ?? 0
+    const mask = p[sp('m')] ?? 0
     const write = p.write >= 0.5
     ctx.fillStyle = look.bg
     ctx.fillRect(0, 0, W, H)
@@ -96,7 +96,7 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
     const ext = patchStore.get().cables.some((c) => c.to.mod === mod && c.to.jack === 'clk')
     // recording (POCKET ROBOT): a red dot, blinking while it plays
     const rec = (p.rec ?? 0) >= 0.5 && (step < 0 || Math.floor(performance.now() / 400) % 2 === 0)
-    ctx.fillText(`${rec ? '● REC  ' : ''}${ext ? 'EXT' : Math.round(p.tempo)}`, lx + lw * 0.97, ly + lh * 0.22)
+    ctx.fillText(`${rec ? '● REC  ' : ''}${songTag(p, led, PSL.song)}  ${ext ? 'EXT' : Math.round(p.tempo)}`, lx + lw * 0.97, ly + lh * 0.22)
     const rollTop = ly + lh * 0.32
     const rollH = lh * 0.6
     const cw = (lw * 0.94) / PSTEPS
@@ -111,8 +111,8 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
         prevY = -1
         continue
       }
-      const n = p[`n${i}`] ?? 0
-      const f = Math.round(p[`f${i}`] ?? 0)
+      const n = p[sp(`n${i}`)] ?? 0
+      const f = Math.round(p[sp(`f${i}`)] ?? 0)
       const ny = rollTop + rollH * (1 - n / maxNote) - lh * 0.03
       ctx.fillStyle = INK
       if (bass) {
@@ -143,22 +143,14 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
       ctx.font = `${Math.round(H * 0.035)}px Bahnschrift, 'Arial Narrow', sans-serif`
       ctx.fillText(knob.label ?? '', knob.fx * W, (knob.fy + knob.fr) * H + H * 0.05)
     }
-    FN.forEach((f, k) => {
-      const on = k === 0 ? p.run >= 0.5 : write
-      ctx.fillStyle = on ? look.accent : '#4a4540'
-      ctx.beginPath()
-      ctx.roundRect(f.x * W - W * 0.08, KNOB_Y * H - H * 0.045, W * 0.16, H * 0.09, 6)
-      ctx.fill()
-      ctx.fillStyle = '#f2eee6'
-      ctx.font = `600 ${Math.round(H * 0.035)}px Bahnschrift, 'Arial Narrow', sans-serif`
-      ctx.fillText(f.name, f.x * W, KNOB_Y * H + H * 0.012)
-    })
+    drawFn(ctx, W, H, p, st.page, look.accent)
 
-    // 4×4 buttons: steps (WRITE) or keys.
+    // 4×4 buttons: steps (WRITE) or keys, or the PATTERN / FX page.
     const bw = (GRID.w * W) / 4
     const bh = (GRID.h * H) / 4
     const playing = led?.[PSL.note] ?? -1
-    for (let i = 0; i < 16; i++) {
+    if (st.page !== 'steps') drawPage(ctx, { x: GRID.x * W, y: GRID.y * H, w: GRID.w * W, h: GRID.h * H }, p, led, PSL.song, look.accent, st)
+    else for (let i = 0; i < 16; i++) {
       const bx = GRID.x * W + (i % 4) * bw
       const by = GRID.y * H + Math.floor(i / 4) * bh
       const on = write ? !!(mask & (1 << i)) : flash > 0.4 && i === Math.round(playing)
@@ -174,10 +166,10 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
       ctx.fillStyle = on ? '#f2eee6' : '#3a3632'
       ctx.textAlign = 'center'
       ctx.font = `${Math.round(bh * 0.24)}px Bahnschrift, 'Arial Narrow', sans-serif`
-      const label = write ? noteName(p[`n${i}`] ?? 0) : noteName(i)
+      const label = write ? noteName(p[sp(`n${i}`)] ?? 0) : noteName(i)
       ctx.fillText(write && !on ? String(i + 1) : label, bx + bw / 2, by + bh * 0.48)
       if (write && on) {
-        const f = Math.round(p[`f${i}`] ?? 0)
+        const f = Math.round(p[sp(`f${i}`)] ?? 0)
         const tag = bass ? [f & 1 ? 'SLIDE' : '', f & 2 ? 'ACC' : ''].filter(Boolean).join(' ') : f || inst.type === 'pocketspeak' ? look.modes[f] : ''
         if (tag) {
           ctx.font = `${Math.round(bh * 0.15)}px Bahnschrift, 'Arial Narrow', sans-serif`
@@ -198,8 +190,8 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
   const setNote = (i: number, n: number) => {
     const v = Math.max(0, Math.min(maxNote, n))
     actions.setParams([
-      [mod, `n${i}`, v],
-      [mod, 'm', (params.current.m ?? 0) | (1 << i)],
+      [mod, sp(`n${i}`), v],
+      [mod, sp('m'), (params.current[sp('m')] ?? 0) | (1 << i)],
     ], `pocket-note-${mod}-${i}`)
     return v
   }
@@ -212,6 +204,10 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
     const { fx, fy, r } = region(e)
     const p = params.current
     const i = gridIndex(fx, fy)
+    if (i >= 0 && st.page !== 'steps') {
+      pressPage(mod, spec, i, st)
+      return
+    }
     if (i >= 0) {
       if (p.write < 0.5) {
         // keyboard: the note sounds while held
@@ -223,7 +219,7 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
         return
       }
       // WRITE: click toggles the step; drag up/down sets its note (and hears it)
-      const start = { y: e.clientY, n: p[`n${i}`] ?? 0, moved: false }
+      const start = { y: e.clientY, n: p[sp(`n${i}`)] ?? 0, moved: false }
       track(
         (ev) => {
           const dn = Math.round((start.y - ev.clientY) / (r.height * 0.035))
@@ -234,18 +230,13 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
         },
         () => {
           if (start.moved) sendSurface(mod, 'key', 0, 0, false)
-          else actions.setParam(mod, 'm', (params.current.m ?? 0) ^ (1 << i))
+          else actions.setParam(mod, sp('m'), (params.current[sp('m')] ?? 0) ^ (1 << i))
         },
       )
       return
     }
-    if (Math.abs(fy - KNOB_Y) < 0.1) {
-      const fnHit = FN.findIndex((f) => Math.abs(fx - f.x) < 0.09)
-      if (fnHit >= 0) {
-        const id = fnHit === 0 ? 'run' : 'write'
-        actions.setParam(mod, id, p[id] >= 0.5 ? 0 : 1)
-      }
-    }
+    const fn = fnAt(fx, fy)
+    if (fn) pressFn(mod, fn, st)
   }
 
   // Right-click a step (WRITE): its flag. Bass: none → slide → accent → both.
@@ -254,23 +245,23 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
     e.preventDefault()
     e.stopPropagation()
     const p = params.current
-    if (p.write < 0.5) return
+    if (p.write < 0.5 || st.page !== 'steps') return
     const { fx, fy } = region(e)
     const i = gridIndex(fx, fy)
     if (i < 0) return
-    const f = Math.round(p[`f${i}`] ?? 0)
-    actions.setParam(mod, `f${i}`, (f + 1) % (bass ? 4 : look.modes.length))
+    const f = Math.round(p[sp(`f${i}`)] ?? 0)
+    actions.setParam(mod, sp(`f${i}`), (f + 1) % (bass ? 4 : look.modes.length))
   }
 
   // Scroll over a step (WRITE) to nudge its note.
   const wheel = (e: WheelEvent<HTMLCanvasElement>) => {
     const p = params.current
-    if (p.write < 0.5) return
+    if (p.write < 0.5 || st.page !== 'steps') return
     const { fx, fy } = region(e)
     const i = gridIndex(fx, fy)
     if (i < 0) return
     e.stopPropagation()
-    setNote(i, (p[`n${i}`] ?? 0) + (e.deltaY < 0 ? 1 : -1))
+    setNote(i, (p[sp(`n${i}`)] ?? 0) + (e.deltaY < 0 ? 1 : -1))
   }
 
   return (

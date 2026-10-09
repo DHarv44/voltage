@@ -33,7 +33,13 @@ extend VOLTAGE.
   a syllable per step: AH EE OO, DA and BO (voiced burst, formants sliding in), TI (an unvoiced puff),
   MA (a closed-mouth hum that opens), LA (a glide from the l shape); ROBOT / CHOIR / WHISPER through
   the talk box's three formants; A the throat's size, B how long; a singing face). Drag a step to set its note, right-click for its flag; off WRITE the
-  buttons are a keyboard. They follow each other's CLK.
+  buttons are a keyboard. They follow each other's CLK. Every POCKET also has four patterns (A keeps
+  the original ids, B–D are prefixed `B.` …; modules/specs/pocketShared.ts), switched at the bar
+  (engine/dsp/pocketSong.ts), a CHAIN of up to eight played as a SONG, COPY / CLEAR, and 16
+  hold-to-play punch-in effects on OUT (engine/dsp/pocketFx.ts: four beat-repeat loops, ROLL, OCT
+  DOWN / UP, REVERSE, TAPE STOP, SCRATCH, LOW / HIGH SWEEP, CRUSH, CHOP, ECHO with its tail, WOBBLE;
+  measured in the POCKET's sixteenths while the sequencer runs on). The faces share
+  ui/surfaces/pocketPages.ts (PLAY / WRITE / PATTERN / FX buttons and the two pages).
 - **Systems**: MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine), SKETCHBOOK
   (portable workstation), KIN-8 (DFAM-style percussion: two VCOs, noise, ladder, three decays, 8-step
   pitch/velocity sequencer), UNDERTONE (Subharmonicon-style: two VCOs with phase-locked subharmonics,
@@ -263,8 +269,8 @@ extend VOLTAGE.
   harp. Later, if wanted: music box, tanpura, gamelan, singing bowl, TALLY, LATTICE.
 - **XY pad extras**: ~~save the recorded gesture with the patch~~ (done: each finished take goes to
   the buffer store like LOOP audio, comes back on reload / undo, and re-locks to the clock when one
-  arrives; XY is in BUFFER_SLOTS but NOT_AUDIO, so no WAV export). Still: multi-touch → poly cables
-  on tablets.
+  arrives; XY is in BUFFER_SLOTS but NOT_AUDIO, so no WAV export). Still (on hold): multi-touch →
+  poly cables on tablets.
 - **POCKET family** (calculator-sized grooveboxes that clock each other over CLK; our own names, look and
   sounds; no third-party trademarks, artwork, LCD characters or samples):
   - ~~POCKET BASS~~ and ~~POCKET MELODY~~: done (see Modules).
@@ -274,8 +280,8 @@ extend VOLTAGE.
   - ~~POCKET ROBOT~~: done (see Modules).
   - ~~POCKET SPEAK~~: done (see Modules).
   - ~~POCKET OFFICE~~: done (see Modules).
-  - Shared upgrades: 16 hold-to-play punch-in effects (stutter, loop, filter sweep, crush, retrigger,
-    reverse), several patterns per pocket chained into a song, a family LCD with its own animated mascot.
+  - ~~Shared upgrades~~: done (16 punch-in effects, patterns A–D chained into a song; each LCD
+    already has its own mascot). See Modules.
 - **VISION extras**: ~~TOUCH X / Y / GATE outputs~~ (done: VISION only, the finger on the scene that
   drives the jacks, 0–10 V with y up, held on lift, gate while down; VISION CORE has no glass so no
   jacks), a DEPTH output for the jelly, and the new scenes (coral reef, rain on a pond, starling

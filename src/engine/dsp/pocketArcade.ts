@@ -3,6 +3,8 @@ import { ARCADE_DUTY, MELODY_NOTES, PSL, PSTEPS, SCALE_STEPS } from '../../modul
 import type { UiEvent } from '../protocol'
 import { Dsp } from './base'
 import { PocketClock } from './pocketClock'
+import { PocketFx } from './pocketFx'
+import { PocketSong } from './pocketSong'
 import { C4, TAU } from './util'
 
 const ARP = 1
@@ -39,8 +41,10 @@ export class PocketArcadeDsp extends Dsp {
   private readonly P = {
     tempo: this.pi('tempo'), swing: this.pi('swing'), vol: this.pi('vol'), run: this.pi('run'), voice: this.pi('voice'),
     oct: this.pi('oct'), a: this.pi('a'), b: this.pi('b'), scale: this.pi('scale'), root: this.pi('root'),
-    bass: this.pi('bass'), drums: this.pi('drums'), mask: this.pi('m'), note: this.pi('n0'), flag: this.pi('f0'),
+    bass: this.pi('bass'), drums: this.pi('drums'),
   }
+  private readonly song = new PocketSong((id) => this.pi(id), true)
+  private readonly fx = new PocketFx(this.fs)
   private readonly clock: PocketClock
   // the pulse lead
   private ph = 0
@@ -112,7 +116,7 @@ export class PocketArcadeDsp extends Dsp {
   }
 
   onUi(ev: UiEvent): void {
-    if (ev.kind !== 'surface' || ev.name !== 'key') return
+    if (this.fx.onUi(ev) || ev.kind !== 'surface' || ev.name !== 'key') return
     if (ev.down) {
       this.held = Math.min(MELODY_NOTES + 1, Math.round(ev.x))
       this.lead(this.held, 0, 30)
@@ -124,9 +128,11 @@ export class PocketArcadeDsp extends Dsp {
 
   private onStep(s: number, stepLen: number): void {
     const p = this.p
-    const lit = (p[this.P.mask] & (1 << s)) !== 0
-    const d = p[this.P.note + s]
-    if (lit) this.lead(d, Math.round(p[this.P.flag + s]), stepLen * (Math.round(p[this.P.flag + s]) === ARP ? 1 : 0.8))
+    const sg = this.song
+    if (s === 0) sg.bar(p)
+    const lit = (p[sg.mask] & (1 << s)) !== 0
+    const d = p[sg.note + s]
+    if (lit) this.lead(d, Math.round(p[sg.flag + s]), stepLen * (Math.round(p[sg.flag + s]) === ARP ? 1 : 0.8))
     const bass = Math.round(p[this.P.bass])
     if (bass === 1 && s % 4 === 0) this.bassNote(this.degVolts(s % 8 === 0 ? 0 : 4) - 2, stepLen * 1.8)
     else if (bass === 2 && lit) this.bassNote(this.degVolts(d) - 2, stepLen * 0.9)
@@ -138,7 +144,9 @@ export class PocketArcadeDsp extends Dsp {
     const p = this.p
     const fs = this.fs
     const c = this.clock
-    if (c.tick(p[this.P.run] >= 0.5, this.patched[this.iClk] === 1, this.in[this.iClk], p[this.P.tempo], p[this.P.swing], this.in[this.iRst])) this.onStep(c.step, c.stepLen)
+    const stepped = c.tick(p[this.P.run] >= 0.5, this.patched[this.iClk] === 1, this.in[this.iClk], p[this.P.tempo], p[this.P.swing], this.in[this.iRst])
+    if (c.restarted) this.song.reset()
+    if (stepped) this.onStep(c.step, c.stepLen)
     this.out[this.oRst] = c.rstSample()
 
     // the pulse lead: stepped volume, delayed vibrato, arpeggio, slide
@@ -195,7 +203,7 @@ export class PocketArcadeDsp extends Dsp {
 
     const o = this.out
     const vol = p[this.P.vol]
-    o[0] = Math.tanh(lead * 0.45 + tri * 0.55 + noise * 0.3) * 5 * vol
+    o[0] = this.fx.process(Math.tanh(lead * 0.45 + tri * 0.55 + noise * 0.3) * 5 * vol, c.sixteenth)
     o[1] = c.clkSample()
     o[2] = this.volts
     o[3] = on || this.held >= 0 ? 10 : 0
@@ -206,5 +214,6 @@ export class PocketArcadeDsp extends Dsp {
     this.led[PSL.step] = c.step
     this.led[PSL.flash] = this.flash
     this.led[PSL.note] = this.deg
+    this.song.leds(this.led, PSL.song, this.fx.held)
   }
 }

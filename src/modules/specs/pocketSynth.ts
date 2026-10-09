@@ -1,6 +1,7 @@
 import { BEZEL, packRows, type SpecLabels } from '../panelMetrics'
 import { HP_MM, type Control, type ModuleSpec, type ParamSpec } from '../types'
 import { BLUE, BLUSH, GRAPHITE, SAGE, SLATE } from './panels'
+import { morePatterns, SONG_LEDS, songParams } from './pocketShared'
 
 /** The melodic members of the POCKET family: same 16-step, calculator-sized
  *  idea as the drum POCKET (same clock, CLK out → CLK in to play as a band),
@@ -24,14 +25,17 @@ export const MELODY_NOTES = 14
 export const MELODY_MODES = ['NOTE', 'CHORD', 'ARP']
 
 /** Telemetry: the step playing, a note flash, and the note sounding. */
-export const PSL = { step: 0, flash: 1, note: 2 } as const
+export const PSL = { step: 0, flash: 1, note: 2, song: 3 } as const
 
+/** Pattern A's steps (mask, notes, flags), then the pattern / chain params
+ *  and patterns B–D laid out the same way (so a pattern is an offset). */
 function stepParams(max: number, defNotes: number[], defMask: number, flagMax: number, defFlags: number[] = []): ParamSpec[] {
-  return [
+  const a: ParamSpec[] = [
     { id: 'm', label: 'STEPS', min: 0, max: 0xffff, def: defMask, stepped: true },
     ...Array.from({ length: PSTEPS }, (_, i): ParamSpec => ({ id: `n${i}`, label: `NOTE ${i + 1}`, min: 0, max, def: defNotes[i] ?? 0, stepped: true })),
     ...Array.from({ length: PSTEPS }, (_, i): ParamSpec => ({ id: `f${i}`, label: `FLAG ${i + 1}`, min: 0, max: flagMax, def: defFlags[i] ?? 0, stepped: true })),
   ]
+  return [...a, ...songParams(), ...morePatterns(a)]
 }
 
 const common = (voices: string[]): ParamSpec[] => [
@@ -100,7 +104,7 @@ export const pocketbass: ModuleSpec = {
   inputs: CLK_IN,
   outputs: BASS_OUTS,
   params: BASS_PARAMS,
-  leds: 3,
+  leds: 3 + SONG_LEDS,
   controls: pocketLayout(16, { params: BASS_PARAMS, inputs: CLK_IN, outputs: BASS_OUTS }, [
     [knob('tempo'), knob('swing'), knob('vol'), jack('in', 'clk'), jack('in', 'rst'), jack('out', 'pitch')],
     [knob('voice'), knob('oct'), jack('out', 'gate'), jack('out', 'clko'), jack('out', 'rsto'), jack('out', 'out')],
@@ -150,7 +154,7 @@ export const pocketarcade: ModuleSpec = {
   inputs: CLK_IN,
   outputs: ARCADE_OUTS,
   params: ARCADE_PARAMS,
-  leds: 3,
+  leds: 3 + SONG_LEDS,
   controls: pocketLayout(24, { params: ARCADE_PARAMS, inputs: CLK_IN, outputs: ARCADE_OUTS }, [
     [knob('tempo'), knob('swing'), knob('vol'), knob('scale'), knob('root'), jack('in', 'clk'), jack('in', 'rst'), jack('out', 'pulse')],
     [knob('voice'), knob('oct'), knob('bass'), knob('drums'), jack('out', 'clko'), jack('out', 'rsto'), jack('out', 'tri'), jack('out', 'noise')],
@@ -189,7 +193,7 @@ export const pocketrobot: ModuleSpec = {
   inputs: CLK_IN,
   outputs: SYNTH_OUTS,
   params: ROBOT_PARAMS,
-  leds: 3,
+  leds: 3 + SONG_LEDS,
   controls: pocketLayout(24, { params: ROBOT_PARAMS, inputs: CLK_IN, outputs: SYNTH_OUTS }, [
     [knob('tempo'), knob('swing'), knob('vol'), knob('scale'), knob('root'), jack('in', 'clk'), jack('in', 'rst'), jack('out', 'pitch')],
     [knob('voice'), knob('oct'), knob('glide'), knob('fx'), { kind: 'switch', param: 'rec', x: 0, y: 0 }, jack('out', 'clko'), jack('out', 'rsto'), jack('out', 'gate')],
@@ -225,7 +229,7 @@ export const pocketspeak: ModuleSpec = {
   inputs: CLK_IN,
   outputs: SYNTH_OUTS,
   params: SPEAK_PARAMS,
-  leds: 3,
+  leds: 3 + SONG_LEDS,
   controls: pocketLayout(24, { params: SPEAK_PARAMS, inputs: CLK_IN, outputs: SYNTH_OUTS }, [
     [knob('tempo'), knob('swing'), knob('vol'), knob('scale'), knob('root'), jack('in', 'clk'), jack('in', 'rst'), jack('out', 'pitch')],
     [knob('voice'), knob('oct'), null, null, jack('out', 'clko'), jack('out', 'rsto'), jack('out', 'gate'), jack('out', 'out')],
@@ -245,7 +249,7 @@ export const pocketmelody: ModuleSpec = {
   inputs: CLK_IN,
   outputs: MELODY_OUTS,
   params: MELODY_PARAMS,
-  leds: 3,
+  leds: 3 + SONG_LEDS,
   controls: pocketLayout(24, { params: MELODY_PARAMS, inputs: CLK_IN, outputs: MELODY_OUTS }, [
     [knob('tempo'), knob('swing'), knob('vol'), knob('scale'), knob('root'), jack('in', 'clk'), jack('in', 'rst'), jack('out', 'notes')],
     [knob('voice'), knob('oct'), null, jack('out', 'clko'), jack('out', 'rsto'), jack('out', 'pitch'), jack('out', 'gate'), jack('out', 'out')],

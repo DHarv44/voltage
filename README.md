@@ -203,6 +203,15 @@ In WRITE mode, click a step on/off, **drag it up/down** to set its note, and rig
 slide/accent or chord/arp. With WRITE off, the 16 buttons are a keyboard. Start from the **Pocket
 Band** rack.
 
+Every POCKET also has:
+- **PATTERN:** four patterns, A to D. Tap one to edit it; while playing, it switches at the end of
+  the bar. **COPY** then a letter copies the pattern you're on; **CLEAR** empties it. **CHAIN**, then
+  tap up to eight patterns in order and CHAIN again: that's the **SONG**, played a bar each (SONG
+  turns it on and off).
+- **FX:** 16 punch-in effects that last as long as you hold the button: beat-repeat loops (¼ down to a
+  32nd), ROLL, OCT DOWN / UP, REVERSE, TAPE STOP, SCRATCH, LOW / HIGH SWEEP, CRUSH, CHOP, ECHO and
+  WOBBLE. The pattern keeps running underneath, so letting go lands back in time.
+
 ### Learn
 **Learn → Synth fundamentals** is one continuous course, from an empty case to a whole track
 (oscillators → filters → envelopes and VCAs → modulation → sequencing → drums → effects). Each

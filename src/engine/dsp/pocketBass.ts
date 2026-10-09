@@ -4,6 +4,8 @@ import type { UiEvent } from '../protocol'
 import { Dsp } from './base'
 import { Svf } from './drumVoices'
 import { PocketClock } from './pocketClock'
+import { PocketFx } from './pocketFx'
+import { PocketSong } from './pocketSong'
 import { C4, polyBlep, TAU } from './util'
 
 const SUB = 0
@@ -27,9 +29,8 @@ export class PocketBassDsp extends Dsp {
   private readonly pOct = this.pi('oct')
   private readonly pA = this.pi('a')
   private readonly pB = this.pi('b')
-  private readonly pMask = this.pi('m')
-  private readonly pNote = this.pi('n0')
-  private readonly pFlag = this.pi('f0')
+  private readonly song = new PocketSong((id) => this.pi(id), true)
+  private readonly fx = new PocketFx(this.fs)
   private readonly clock: PocketClock
   private readonly filter = new Svf()
   private ph = 0
@@ -72,7 +73,7 @@ export class PocketBassDsp extends Dsp {
   }
 
   onUi(ev: UiEvent): void {
-    if (ev.kind !== 'surface') return
+    if (this.fx.onUi(ev) || ev.kind !== 'surface') return
     // the keyboard (or auditioning a step while you set its note)
     if (ev.name === 'key') {
       if (ev.down) {
@@ -88,14 +89,17 @@ export class PocketBassDsp extends Dsp {
     const c = this.clock
     const stepped = c.tick(p[this.pRun] >= 0.5, this.patched[this.iClk] === 1, this.in[this.iClk], p[this.pTempo], p[this.pSwing], this.in[this.iRst])
     this.out[this.oRst] = c.rstSample()
+    if (c.restarted) this.song.reset()
     if (stepped) {
       const s = c.step
-      if (p[this.pMask] & (1 << s)) {
+      const sg = this.song
+      if (s === 0) sg.bar(p)
+      if (p[sg.mask] & (1 << s)) {
         const next = (s + 1) % PSTEPS
         // held into the next step if that one slides in
-        const tie = (p[this.pMask] & (1 << next)) !== 0 && (p[this.pFlag + next] & 1) !== 0
-        const f = p[this.pFlag + s]
-        this.note(p[this.pNote + s], (f & 1) !== 0, (f & 2) !== 0, c.stepLen * (tie ? 1.05 : 0.55))
+        const tie = (p[sg.mask] & (1 << next)) !== 0 && (p[sg.flag + next] & 1) !== 0
+        const f = p[sg.flag + s]
+        this.note(p[sg.note + s], (f & 1) !== 0, (f & 2) !== 0, c.stepLen * (tie ? 1.05 : 0.55))
       }
     }
 
@@ -142,7 +146,7 @@ export class PocketBassDsp extends Dsp {
     const y = Math.tanh(this.filter.lp * this.amp * gain * 1.6)
 
     const o = this.out
-    o[0] = y * 5 * p[this.pVol]
+    o[0] = this.fx.process(y * 5 * p[this.pVol], c.sixteenth)
     o[1] = c.clkSample()
     o[2] = v
     o[3] = on ? 10 : 0
@@ -150,5 +154,6 @@ export class PocketBassDsp extends Dsp {
     this.led[PSL.step] = c.step
     this.led[PSL.flash] = this.flash
     this.led[PSL.note] = this.goalNote
+    this.song.leds(this.led, PSL.song, this.fx.held)
   }
 }

@@ -7,6 +7,8 @@ export class PocketClock {
   step = -1
   /** Length of the current step (s): from the tempo, or measured between edges. */
   stepLen = 0.125
+  /** A sixteenth without the swing (s): what the punch-in effects measure by. */
+  sixteenth = 0.125
   private ph = 1
   private wasRunning = false
   private sinceEdge = 0
@@ -42,13 +44,16 @@ export class PocketClock {
     if (patched) {
       this.sinceEdge += 1 / this.fs
       if (this.clk.rise(clkIn)) {
-        if (this.sinceEdge < 2) this.stepLen = this.sinceEdge
+        if (this.sinceEdge < 2) {
+          this.stepLen = this.sinceEdge
+          this.sixteenth += (this.sinceEdge - this.sixteenth) * 0.5 // swung edges average out
+        }
         this.sinceEdge = 0
         advance = true
       }
     } else {
-      const sixteenth = 60 / tempo / 4
-      this.stepLen = sixteenth * (this.step % 2 === 0 ? 1 + swing : 1 - swing)
+      this.sixteenth = 60 / tempo / 4
+      this.stepLen = this.sixteenth * (this.step % 2 === 0 ? 1 + swing : 1 - swing)
       this.ph += 1 / this.fs / this.stepLen
       if (this.ph >= 1) {
         this.ph -= 1

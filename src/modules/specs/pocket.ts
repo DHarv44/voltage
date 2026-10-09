@@ -1,11 +1,12 @@
 import type { ModuleSpec, PanelStyle, ParamSpec } from '../types'
 import { CREAM, SAND } from './panels'
+import { morePatterns, SONG_LEDS, songParams } from './pocketShared'
 
 export const POCKET_SOUNDS = ['KICK', 'SNARE', 'CLAP', 'HAT', 'OPEN', 'TOM', 'BLIP', 'ZAP']
 /** POCKET OFFICE: the office as a drum kit. */
 export const OFFICE_SOUNDS = ['TYPE', 'SPACE', 'STAPLE', 'GLITCH', 'BELL', 'RETURN', 'PHONE', 'PAPER']
 export const POCKET_STEPS = 16
-export const POCKETL = { step: 0, hit0: 1 } as const
+export const POCKETL = { step: 0, hit0: 1, song: 9 } as const
 
 /** The eight sound names of a drum POCKET, by module type. */
 export const drumPocketSounds = (type: string): string[] => (type === 'pocketoffice' ? OFFICE_SOUNDS : POCKET_SOUNDS)
@@ -23,6 +24,7 @@ const LOCKS: ParamSpec[] = Array.from({ length: N * POCKET_STEPS * 2 }, (_, k) =
 /** A drum POCKET: eight sounds, 16 steps, parameter locks; `masks` is each
  *  sound's starting steps. */
 function drumPocket(o: { type: string; title: string; name: string; tagline: string; sounds: string[]; masks: number[]; panel: PanelStyle }): ModuleSpec {
+  const mask = (s: number): ParamSpec => ({ id: `m${s}`, label: `STEPS ${s + 1}`, min: 0, max: 0xffff, def: o.masks[s], stepped: true })
   return {
     type: o.type,
     title: o.title,
@@ -50,11 +52,13 @@ function drumPocket(o: { type: string; title: string; name: string; tagline: str
       ...o.sounds.flatMap((_, s): ParamSpec[] => [
         { id: `a${s}`, label: `A ${s + 1}`, min: 0, max: 1, def: 0.5 },
         { id: `b${s}`, label: `B ${s + 1}`, min: 0, max: 1, def: 0.5 },
-        { id: `m${s}`, label: `STEPS ${s + 1}`, min: 0, max: 0xffff, def: o.masks[s], stepped: true },
+        mask(s),
       ]),
       ...LOCKS,
+      ...songParams(),
+      ...morePatterns([...o.sounds.map((_, s) => mask(s)), ...LOCKS]),
     ],
-    leds: 1 + N,
+    leds: 1 + N + SONG_LEDS,
     controls: [
       { kind: 'surface', name: 'pocket', x: 4, y: 14, w: 73.3, h: 74 },
       { kind: 'knob', param: 'tempo', x: 12, y: 99, size: 'S' },
@@ -73,7 +77,9 @@ function drumPocket(o: { type: string; title: string; name: string; tagline: str
  *  parameter locks. WRITE on: the 16 buttons toggle steps of the selected
  *  sound. WRITE off: buttons 1–8 play and select sounds. Knobs A (pitch) and
  *  B (decay) set the selected sound; right-click a step (in WRITE) to lock A/B
- *  for just that step (it lights), double-click a knob to clear the lock. */
+ *  for just that step (it lights), double-click a knob to clear the lock.
+ *  PATTERN and FX (shared by every POCKET): patterns A–D and a song chain,
+ *  and 16 hold-to-play punch-in effects. */
 export const pocket = drumPocket({
   type: 'pocket',
   title: 'POCKET',

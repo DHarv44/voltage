@@ -4,6 +4,8 @@ import type { UiEvent } from '../protocol'
 import { Dsp } from './base'
 import { Svf } from './drumVoices'
 import { PocketClock } from './pocketClock'
+import { PocketFx } from './pocketFx'
+import { PocketSong } from './pocketSong'
 import { F, Formant, GAINS } from './talkbox'
 import { C4, polyBlep } from './util'
 
@@ -47,8 +49,9 @@ export class PocketSpeakDsp extends Dsp {
   private readonly P = {
     tempo: this.pi('tempo'), swing: this.pi('swing'), vol: this.pi('vol'), run: this.pi('run'), voice: this.pi('voice'),
     oct: this.pi('oct'), a: this.pi('a'), b: this.pi('b'), scale: this.pi('scale'), root: this.pi('root'),
-    mask: this.pi('m'), note: this.pi('n0'), flag: this.pi('f0'),
   }
+  private readonly song = new PocketSong((id) => this.pi(id), true)
+  private readonly fx = new PocketFx(this.fs)
   private readonly clock: PocketClock
   private readonly formants = [new Formant(), new Formant(), new Formant()]
   private readonly burstF = new Svf()
@@ -99,7 +102,7 @@ export class PocketSpeakDsp extends Dsp {
   }
 
   onUi(ev: UiEvent): void {
-    if (ev.kind !== 'surface' || ev.name !== 'key') return
+    if (this.fx.onUi(ev) || ev.kind !== 'surface' || ev.name !== 'key') return
     if (ev.down) {
       this.held = Math.min(MELODY_NOTES + 1, Math.round(ev.x))
       this.sing(this.held, 0, 30)
@@ -113,9 +116,13 @@ export class PocketSpeakDsp extends Dsp {
     const p = this.p
     const fs = this.fs
     const c = this.clock
-    if (c.tick(p[this.P.run] >= 0.5, this.patched[this.iClk] === 1, this.in[this.iClk], p[this.P.tempo], p[this.P.swing], this.in[this.iRst])) {
+    const stepped = c.tick(p[this.P.run] >= 0.5, this.patched[this.iClk] === 1, this.in[this.iClk], p[this.P.tempo], p[this.P.swing], this.in[this.iRst])
+    if (c.restarted) this.song.reset()
+    if (stepped) {
       const s = c.step
-      if (this.held < 0 && (p[this.P.mask] & (1 << s)) !== 0) this.sing(p[this.P.note + s], Math.round(p[this.P.flag + s]), c.stepLen * (0.5 + p[this.P.b] * 1.4))
+      const sg = this.song
+      if (s === 0) sg.bar(p)
+      if (this.held < 0 && (p[sg.mask] & (1 << s)) !== 0) this.sing(p[sg.note + s], Math.round(p[sg.flag + s]), c.stepLen * (0.5 + p[this.P.b] * 1.4))
     }
     this.out[this.oRst] = c.rstSample()
 
@@ -162,7 +169,7 @@ export class PocketSpeakDsp extends Dsp {
     }
 
     const o = this.out
-    o[0] = Math.tanh(y * 2.5) * 5 * p[this.P.vol]
+    o[0] = this.fx.process(Math.tanh(y * 2.5) * 5 * p[this.P.vol], c.sixteenth)
     o[1] = c.clkSample()
     o[2] = this.volts
     o[3] = on ? 10 : 0
@@ -170,5 +177,6 @@ export class PocketSpeakDsp extends Dsp {
     this.led[PSL.step] = c.step
     this.led[PSL.flash] = this.flash
     this.led[PSL.note] = this.deg
+    this.song.leds(this.led, PSL.song, this.fx.held)
   }
 }
