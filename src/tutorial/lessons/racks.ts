@@ -113,6 +113,9 @@ const drums = () =>
     .wire(['hats', 'mix'], ['mix', 'in3'])
 
 export const emptyRack = (): Rack => done(new Stage())
+/** Where the groovebox lesson ends up: LOCKSTEP into OUT, stopped. */
+export const lockstepRack = (): Rack =>
+  done(new Stage().add('out', 'output', { vol: 0.3 }).add('ls', 'lockstep').wire(['ls', 'l'], ['out', 'l']).wire(['ls', 'r'], ['out', 'r']))
 export const afterFirstSound = (): Rack => done(firstSound())
 export const afterFilters = (): Rack => done(filters())
 export const afterEnvelopes = (): Rack => done(envelopes())

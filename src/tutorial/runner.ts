@@ -6,6 +6,8 @@ import { rackMatches } from './continuity'
 import { COURSES, courseOf } from './lessons/courses'
 import type { Patch } from '../patch/types'
 import { settings } from '../ui/settings'
+import { lockstepSel } from '../ui/surfaces/lockstep/layout'
+import { lockId, lockValue, withLock } from '../modules/specs/lockstepDefs'
 
 const wait = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms))
 import type { Action, Lesson, Step, Target, TutorialMode } from './types'
@@ -159,6 +161,7 @@ class TutorialRunner {
     if (a?.kind === 'disconnect') return [{ target: { mod: a.to[0], jack: a.to[1], dir: 'in' } }]
     if (a?.kind === 'touch') return [{ target: { mod: a.mod, surface: true } }]
     if (a?.kind === 'step') return [{ target: { mod: a.mod, param: a.param, bit: a.bit } }]
+    if (a?.kind === 'lock') return [{ target: { mod: a.mod, surface: true } }]
     return step.target ? [{ target: step.target }] : []
   }
 
@@ -244,6 +247,12 @@ class TutorialRunner {
         const v = Math.round(this.module(a.mod)?.params[a.param] ?? 0)
         return ((v >>> a.bit) & 1) === (a.on ? 1 : 0)
       }
+      case 'lock': {
+        // that step holds a lock for that knob, near the value asked for
+        const m = this.module(a.mod)
+        const lv = m ? lockValue(m.params[lockId(a.track, a.step, a.page, Math.round(m.params.pat ?? 0))] ?? 0, a.knob) : -1
+        return lv >= 0 && Math.abs(lv - a.value) <= 0.2
+      }
       case 'add': {
         // whichever module of that type you added (click or drag) gets the name
         if (this.state.mods[a.as] && this.module(a.as)) return true
@@ -325,6 +334,18 @@ class TutorialRunner {
         if (!m) return
         const v = Math.round(m.params[a.param] ?? 0)
         actions.setParam(m.id, a.param, a.on ? v | (1 << a.bit) : v & ~(1 << a.bit))
+        return
+      }
+      case 'lock': {
+        // as a hand would: the track, the step picked, the page, then the knob
+        const m = this.module(a.mod)
+        if (!m) return
+        actions.setParam(m.id, 'trk', a.track)
+        lockstepSel.set(m.id, a.step)
+        actions.setParam(m.id, 'page', a.page)
+        await wait(600)
+        const id = lockId(a.track, a.step, a.page, Math.round(m.params.pat ?? 0))
+        actions.setParam(m.id, id, withLock(this.module(a.mod)?.params[id] ?? 0, a.knob, a.value))
         return
       }
       case 'set': {

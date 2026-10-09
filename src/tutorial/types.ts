@@ -33,6 +33,9 @@ export type Action =
   | { kind: 'set'; mod: string; param: string; value: number }
   /** Light (or clear) one step of a step grid: bit `bit` of a bitmask param. */
   | { kind: 'step'; mod: string; param: string; bit: number; on: boolean }
+  /** LOCKSTEP: lock knob `knob` (0–3) of `page` on one step of `track` to
+   *  about `value` (pick the step, turn the knob). */
+  | { kind: 'lock'; mod: string; track: number; step: number; page: number; knob: number; value: number }
   /** Notes in semitones from C4 (played for you, or: play any key yourself). */
   | { kind: 'play'; notes: number[]; spacing?: number; hold?: number }
   /** Play a module's surface (`name`: only that gesture counts); walkthrough

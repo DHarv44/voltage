@@ -1,10 +1,11 @@
 import type { Lesson } from '../types'
 import { FUNDAMENTALS } from './fundamentals'
 import { omnichordLesson, thereminLesson } from './instruments'
+import { plocks } from './plocks'
 import { polyphony } from './polyphony'
 import { semimodular } from './semimodular'
 import { grooveLesson, lockstepLesson } from './systems'
-import { acidTour } from './tours'
+import { acidTour, pocketTour } from './tours'
 import { jellyTour, stringsTour, westTour } from './tours2'
 
 export interface Course {
@@ -26,13 +27,13 @@ export const COURSES: Course[] = [
   {
     title: 'Beyond the basics',
     note: 'Lessons on their own, each starting from an empty case.',
-    lessons: [polyphony, semimodular, grooveLesson, lockstepLesson, thereminLesson, omnichordLesson],
+    lessons: [polyphony, semimodular, grooveLesson, lockstepLesson, plocks, thereminLesson, omnichordLesson],
     continuous: false,
   },
   {
     title: 'Tours of the factory racks',
     note: 'A factory rack, module by module: who does what, and the knobs to play.',
-    lessons: [acidTour, jellyTour, stringsTour, westTour],
+    lessons: [acidTour, jellyTour, stringsTour, westTour, pocketTour],
     continuous: false,
   },
 ]

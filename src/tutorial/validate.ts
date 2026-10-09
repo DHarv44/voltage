@@ -3,6 +3,7 @@ import { makeModule } from '../patch/factory'
 import { findSlot } from '../patch/layout'
 import type { Patch } from '../patch/types'
 import { rackMatches } from './continuity'
+import { lockId, withLock } from '../modules/specs/lockstepDefs'
 import { COURSES } from './lessons/courses'
 import type { Action, Lesson, Target } from './types'
 
@@ -57,6 +58,11 @@ export function validateLessons(lessons: Lesson[], continuous = true): string[] 
         const to = mods[a.to[0]]
         if (!patch.cables.some((c) => c.to.mod === to && c.to.jack === a.to[1])) errors.push(`${where(i)}: nothing patched into ${a.to.join('.')} to pull out`)
         patch.cables = patch.cables.filter((c) => !(c.to.mod === to && c.to.jack === a.to[1]))
+      } else if (a.kind === 'lock') {
+        const m = patch.modules.find((x) => x.id === mods[a.mod])
+        const id = lockId(a.track, a.step, a.page)
+        if (!m || !SPECS[m.type].params.some((p) => p.id === id)) errors.push(`${where(i)}: no lock ${a.mod}.${id}`)
+        else m.params[id] = withLock(m.params[id] ?? 0, a.knob, a.value)
       } else if (a.kind === 'step') {
         const m = patch.modules.find((x) => x.id === mods[a.mod])
         if (!m || !SPECS[m.type].params.some((p) => p.id === a.param)) errors.push(`${where(i)}: no step row ${a.mod}.${a.param}`)

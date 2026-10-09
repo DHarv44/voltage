@@ -79,8 +79,8 @@ export function pocketElectro(): Patch {
  *  decays, through warbly old tape and a dark plate (stereo). */
 export function pocketLofi(): Patch {
   const b = new RackBuilder()
-  // A minor pentatonic, a note on each beat-ish
-  const melody = { 1: blip(24), 4: blip(19), 7: blip(22), 9: blip(17), 11: blip(15), 14: blip(19) }
+  // A natural minor (the F, its minor sixth, keeps it off the pentatonic), a note on each beat-ish
+  const melody = { 1: blip(24), 4: blip(19), 7: blip(22), 9: blip(17), 11: blip(20), 14: blip(19) }
   const pocket = b.add('pocket', 0, 0, {
     run: 1, tempo: 78, swing: 0.24, vol: 0.8,
     [`m${KICK}`]: steps(1, 8, 11), a0: 0.15, b0: 0.75,

@@ -127,7 +127,7 @@ export const PRESETS: Preset[] = [
   {
     id: 'pocket-lofi',
     name: 'Pocket Lo-fi',
-    description: 'POCKET at 78 with deep swing: soft kick, rim snare, a slow pentatonic BLIP melody, warbly tape and a dark plate.',
+    description: 'POCKET at 78 with deep swing: soft kick, rim snare, a slow A-minor BLIP melody, warbly tape and a dark plate.',
     howTo: 'Power on and let it loop. Try TAPE AGE and WOW.',
     build: pocketLofi,
   },
