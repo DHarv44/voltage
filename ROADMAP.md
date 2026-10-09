@@ -261,8 +261,12 @@ extend VOLTAGE.
   starters/gaps.ts), ~~macro oscillator + resonator~~ (done: KALEIDO, eight models, LPG on TRIG,
   STRING / MODAL struck by TRIG or each new note; RESONATOR, MODAL 24 modes from string to bar,
   STRINGS sympathetic chords, STRING; IN drives the sounding voice, STRUM / onset / new note
-  strums, POLY 1–4, ODD / EVEN; both share engine/dsp/kstring.ts); next: tuner + analyser
-  (spectrum, LUFS, correlation), piano roll + song arranger, per-module presets.
+  strums, POLY 1–4, ODD / EVEN; both share engine/dsp/kstring.ts), ~~tuner + analyser~~ (done:
+  specs/meters.ts, engine/dsp/meters.ts; TUNER = YIN on the decimated copy, refined over full-rate
+  lags round it (0.15 cent from 41 Hz to 2 kHz), surface `tunerscreen` (`tuner` is TUNE's);
+  ANALYSER = BS.1770 K-weighting, 100 ms blocks, gated integrated via a 0.1 LU histogram, peaks,
+  correlation, 4096-sample frames for the screen's FFT (ui/surfaces/fft.ts, shared with
+  WATERFALL)); next: piano roll + song arranger, per-module presets.
 - **Tutorial suite**: ~~sequencing, drums, effects~~ (lessons 5–7 of the course), ~~polyphony,
   semi-modular normals, a tour of Acid House~~ (done: the Learn menu is now three courses: Synth
   fundamentals (continuous), Beyond the basics, Tours of the factory racks; a `disconnect` step pulls a

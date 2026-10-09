@@ -38,6 +38,11 @@ export const GAP_OVERRIDES: Record<string, string> = {
   'resonator:bright': 'How much of the high overtones ring: dark and woody to bright and glassy.',
   'resonator:damp': 'How quickly it stops ringing: right damps it to a short thunk, left lets it ring for seconds.',
   'resonator:pos': 'Where it’s struck or plucked: near the edge is thin and bright, the middle round and hollow.',
+  // TUNER and ANALYSER
+  'tuner:ref': 'The pitch of A4 everything is measured against: 440 Hz is standard; orchestras use 442 or 443, baroque ensembles 415.',
+  'analyser:range': 'How many decibels the spectrum shows top to bottom: less zooms in on the loud parts, more shows the quiet ones too.',
+  'analyser:tilt': 'Tilts the spectrum up toward the highs by this many dB per octave: at 3 (pink), a balanced mix looks roughly level instead of falling away.',
+  'analyser:target': 'The loudness you’re aiming for, in LUFS: about −14 for streaming services, −23 for broadcast, −9 to −6 for loud club masters. The bar and the integrated reading turn green near it.',
   // T&H
   'trackhold:m1': 'Channel 1: TRACK follows the input while the gate is high and freezes when it drops; S&H takes one sample on each rise; HOLD is the reverse of TRACK.',
   'trackhold:m2': 'Channel 2’s mode (TRACK, S&H or HOLD). Its input and gate copy channel 1’s when nothing is patched to them.',

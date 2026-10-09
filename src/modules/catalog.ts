@@ -212,6 +212,8 @@ export const CATALOG: Record<string, Entry> = {
   visionview: { tags: ['visual'], aka: ['viewport', 'screen'] },
   vector: { tags: ['visual'], aka: ['oscilloscope music', 'lissajous', 'xy scope', 'crt'] },
   waterfall: { tags: ['visual'], aka: ['spectrogram', 'spectrum', 'fft'] },
+  analyser: { tags: ['visual', 'mix', 'stereo', 'utility'], aka: ['analyzer', 'spectrum analyser', 'spectrum analyzer', 'lufs', 'loudness', 'loudness meter', 'peak meter', 'correlation', 'phase meter', 'metering', 'mastering'] },
+  tuner: { tags: ['visual', 'utility'], aka: ['tuner', 'strobe tuner', 'chromatic tuner', 'pitch detector', 'pitch to cv', 'pitch tracker', 'cents'] },
   lightshow: { tags: ['visual'], aka: ['lights', 'light show'] },
   scope: { tags: ['visual', 'utility'], aka: ['oscilloscope'] },
   // Output

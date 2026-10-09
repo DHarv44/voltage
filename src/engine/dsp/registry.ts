@@ -101,6 +101,7 @@ import { PannerDsp, WidenerDsp } from './stereoTools'
 import { ChanceDsp, QuadLfoDsp, SeqSwitchDsp, TrackHoldDsp } from './cvTools'
 import { KaleidoDsp } from './kaleido'
 import { ResonatorDsp } from './resonator'
+import { AnalyserDsp, TunerDsp } from './meters'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -127,6 +128,8 @@ const CIRCUITS: Record<string, DspCtor> = {
   widener: WidenerDsp,
   kaleido: KaleidoDsp,
   resonator: ResonatorDsp,
+  tuner: TunerDsp,
+  analyser: AnalyserDsp,
   slew: SlewDsp,
   quant: QuantizerDsp,
   atten: AttenDsp,

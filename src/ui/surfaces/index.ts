@@ -43,6 +43,8 @@ import { TallyFace } from './tally/Face'
 import { Metronome } from './metronome/Metronome'
 import { Maelzel } from './metronome/Maelzel'
 import { Coach } from './metronome/Coach'
+import { TunerScreen } from './TunerScreen'
+import { Analyser } from './Analyser'
 
 /** Played instrument surfaces, by the `name` a spec's surface control uses. */
 export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
@@ -95,4 +97,6 @@ export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
   metronome: Metronome,
   maelzel: Maelzel,
   coach: Coach,
+  tunerscreen: TunerScreen,
+  analyser: Analyser,
 }

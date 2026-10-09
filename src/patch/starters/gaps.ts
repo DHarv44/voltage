@@ -1,5 +1,5 @@
 import { beat, melody, mix, toOut, voice } from './kit'
-import { PHRASES } from './material'
+import { GROOVES, PHRASES } from './material'
 import type { Starter } from './types'
 
 /** Rigs for the modules that filled the gaps in the range: each shows the
@@ -88,6 +88,27 @@ export const GAP_STARTERS: Record<string, Starter> = {
       k.wire(m.pitch, [r, 'voct'])
       k.wire(m.trig, [r, 'strum'])
       toOut(k, [r, 'odd'], [r, 'even'], 0.75)
+    },
+  },
+  tuner: {
+    howTo: 'An oscillator a little sharp: the needle leans right and the strobe drifts. Turn the VCO’s FINE until the note goes green and the strobe stands still. PITCH out follows whatever it hears.',
+    build(k) {
+      const osc = k.add('vco', { coarse: -1, fine: 0.3 })
+      const t = k.add('tuner')
+      k.wire([osc, 'saw'], [t, 'in'])
+      const vca = k.add('vca', { gain: 0.25 })
+      k.wire([osc, 'saw'], [vca, 'in'])
+      toOut(k, [vca, 'out'])
+    },
+  },
+  analyser: {
+    howTo: 'The band through ANALYSER on its way to OUT: the spectrum, the loudness in LUFS against TARGET, peaks and correlation. Click the screen to start the integrated reading again.',
+    build(k) {
+      const b = beat(k, { groove: GROOVES.house })
+      const bass = melody(k, { clock: b.clock, phrase: PHRASES.dub })
+      const a = k.add('analyser')
+      k.wire(mix(k, [b.out, voice(k, bass.pitch, bass.gate, { env: { d: 0.3, s: 0.6 } }).out], [0.85, 0.7]), [a, 'l'])
+      toOut(k, [a, 'l'], [a, 'r'])
     },
   },
   trackhold: {
