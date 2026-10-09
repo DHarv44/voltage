@@ -198,7 +198,8 @@ Band** rack.
 (oscillators → filters → envelopes and VCAs → modulation → sequencing → drums → effects). Each
 lesson picks up where the last ended, and **Finish** leaves you with the rack you built. **Beyond the
 basics** has lessons on their own (polyphony and chords; a semi-modular and its normals; the GROOVE-1
-drum machine, the LOCKSTEP groovebox and its parameter locks; playing the theremin and the omnichord),
+drum machine, the LOCKSTEP groovebox and its parameter locks; playing the theremin, the omnichord, the
+stylus organ and the harp),
 and **Tours**
 take a factory rack apart module by module (Acid House, Jellyfish Dream, Poly Strings, West Coast,
 Pocket Band:

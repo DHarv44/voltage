@@ -246,7 +246,8 @@ extend VOLTAGE.
   (tracks, a step, a page and knob, mutes, patterns, chain); a `step` action lights one key of a step
   grid (a bitmask bit), ringed on the grid; targets drawn on a module's own face ring the face.
   Parameter locks (a `lock` step: picks the step, opens the page, locks the knob; starts from the
-  groovebox lesson's rack) and a tour of Pocket Band. Still: more instruments (stylophone, harp…).
+  groovebox lesson's rack) and a tour of Pocket Band. Instruments: theremin, omnichord, stylus organ,
+  harp. Later, if wanted: music box, tanpura, gamelan, singing bowl, TALLY, LATTICE.
 - **XY pad extras**: multi-touch → poly cables on tablets; save the recorded gesture with the patch.
 - **POCKET family** (calculator-sized grooveboxes that clock each other over CLK; our own names, look and
   sounds; no third-party trademarks, artwork, LCD characters or samples):
