@@ -132,10 +132,10 @@ match), ☆ stars a module into Favourites, and the last few you added sit under
 | **Polyphonic** | POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX; complete voices that play chords straight from your keys: **FM-4** (four-operator FM: electric piano, bass, bells, brass, organ…) and **SWARM** (supersaw) |
 | **Oscillators** | VCO, complex (west-coast) oscillator, wavetable, sub, noise |
 | **Filters** | Ladder, SVF, MS-12, LPG (vactrol low-pass gates: strike them for the west-coast "bongo") |
-| **Amps & Mixers** | VCA, VCA×4, mixer, stereo mixer, DJ mixer; the mix bus: CONSOLE (6 channels, sidechain DUCK per channel: feed it the kick for the pump), GLUE (bus compressor with KEY sidechain and GR out), MASTER (EQ, stereo width, look-ahead limiter) |
-| **Envelopes & LFOs** | ADSR, FUNC (Maths-style), follower, LFO |
+| **Amps & Mixers** | VCA, VCA×4, mixer, stereo mixer, DJ mixer, PANNER (equal-power, with auto-pan), WIDENER (mid/side width, Haas widening for mono sounds, bass kept mono, a phase-correlation light); the mix bus: CONSOLE (6 channels, sidechain DUCK per channel: feed it the kick for the pump), GLUE (bus compressor with KEY sidechain and GR out), MASTER (EQ, stereo width, look-ahead limiter) |
+| **Envelopes & LFOs** | ADSR, FUNC (Maths-style), follower, LFO, QUAD LFO (four from one rate: a quarter-cycle apart, at ratios, or drifting) |
 | **Shapers** | Wavefolder, ring modulator |
-| **CV Tools** | Quantizer, slew, S&H, attenuverters, mult, logic, chord generator |
+| **CV Tools** | Quantizer, slew, S&H, T&H (track & hold), CHANCE (coin-toss gates), SWITCH (sequential switch, both ways), attenuverters, mult, logic, chord generator |
 | **Drums** | Analog kick, snare, clap, hats, toms, perc |
 | **Sequencers** | Clock, dividers, SEQ-8, TR-16, Euclid, Turing machine, arpeggiator; three metronomes: METRONOME (accented click, subdivisions, tap tempo, follows CLK), **MAELZEL** (a simulated clockwork pendulum: winds down, ticks unevenly off level, and two on a shared plank fall into step), **COACH** (practice: tempo ramps to a target, gap-click silent bars, polyrhythm click; clocks a drum machine along) |
 | **Brains** | GHOST (answers your phrases), PROGRESSION (chord progressions), BANDMATE (a drummer) |

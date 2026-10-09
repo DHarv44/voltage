@@ -5,6 +5,7 @@ import { sanitize } from '../persist'
 import type { Patch } from '../types'
 import { CONTROL_STARTERS } from './control'
 import { EFFECT_STARTERS } from './effects'
+import { GAP_STARTERS } from './gaps'
 import { INSTRUMENT_STARTERS } from './instruments'
 import { SIMULATION_STARTERS } from './simulations'
 import { Kit } from './kit'
@@ -28,6 +29,7 @@ export const STARTERS: Record<string, Starter> = {
   ...SIMULATION_STARTERS,
   ...RHYTHM_STARTERS,
   ...OTHER_STARTERS,
+  ...GAP_STARTERS,
 }
 
 /** A module's rig as a patch fragment, laid out for a `rail`-HP case. */

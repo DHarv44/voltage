@@ -78,6 +78,8 @@ import { audioin, camera, gamepad } from './specs/inputs'
 import { lightshow, vector, waterfall } from './specs/visualOut'
 import { accident, macro, scenes } from './specs/perform'
 import { coach, maelzel, metronome } from './specs/metronomes'
+import { panner, widener } from './specs/stereoTools'
+import { chance, qlfo, sswitch, trackhold } from './specs/cvTools'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -154,8 +156,12 @@ export const SPEC_LIST: ModuleSpec[] = [
   func,
   follow,
   lfo,
+  qlfo,
   xy,
   sh,
+  trackhold,
+  chance,
+  sswitch,
   fold,
   ring,
   slew,
@@ -193,6 +199,8 @@ export const SPEC_LIST: ModuleSpec[] = [
   talkbox,
   mixer,
   smix,
+  panner,
+  widener,
   console_,
   glue,
   master,

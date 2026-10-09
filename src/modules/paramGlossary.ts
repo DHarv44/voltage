@@ -3,6 +3,7 @@
  *  common ones), and single controls (OVERRIDES, by `type:param`; the synth
  *  voices' are in paramGlossary2.ts). */
 import { MORE_OVERRIDES } from './paramGlossary2'
+import { GAP_OVERRIDES } from './paramGlossary3'
 
 export interface ParamTerm {
   /** Matched against the label in upper case, whole, then without its leading words. */
@@ -327,4 +328,4 @@ for (const c of ['A', 'B']) {
 }
 for (let i = 1; i <= 4; i++) o[`macro:m${i}`] = `Macro ${i}: moves every knob it learned, at once.`
 
-export const OVERRIDES: Record<string, string> = { ...o, ...MORE_OVERRIDES }
+export const OVERRIDES: Record<string, string> = { ...o, ...MORE_OVERRIDES, ...GAP_OVERRIDES }

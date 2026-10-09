@@ -97,6 +97,8 @@ import { LightShowDsp, VectorDsp, WaterfallDsp } from './visualOut'
 import { AccidentDsp, MacroDsp, ScenesDsp } from './perform'
 import { CoachDsp, MetronomeDsp } from './metronome'
 import { MaelzelDsp } from './maelzel'
+import { PannerDsp, WidenerDsp } from './stereoTools'
+import { ChanceDsp, QuadLfoDsp, SeqSwitchDsp, TrackHoldDsp } from './cvTools'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -115,6 +117,12 @@ const CIRCUITS: Record<string, DspCtor> = {
   scope: ScopeDsp,
   fold: FolderDsp,
   sh: SampleHoldDsp,
+  trackhold: TrackHoldDsp,
+  chance: ChanceDsp,
+  sswitch: SeqSwitchDsp,
+  qlfo: QuadLfoDsp,
+  panner: PannerDsp,
+  widener: WidenerDsp,
   slew: SlewDsp,
   quant: QuantizerDsp,
   atten: AttenDsp,

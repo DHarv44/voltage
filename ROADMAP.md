@@ -255,6 +255,11 @@ extend VOLTAGE.
   more doubling in their rigs). The newer systems have no direct path: patch them to OUT.
 
 ## Up next
+- **Gaps in the module range** (chosen 2026-10-09; then cloud saving): ~~stereo (PANNER with
+  auto-pan, WIDENER)~~, ~~CV tools (QUAD LFO, CHANCE, SWITCH, T&H)~~ (done: specs/stereoTools.ts,
+  specs/cvTools.ts; knob texts in paramGlossary3.ts, jack texts in jackInfo2.ts, rigs in
+  starters/gaps.ts); next: macro oscillator + resonator, tuner + analyser (spectrum, LUFS,
+  correlation), piano roll + song arranger, per-module presets.
 - **Tutorial suite**: ~~sequencing, drums, effects~~ (lessons 5–7 of the course), ~~polyphony,
   semi-modular normals, a tour of Acid House~~ (done: the Learn menu is now three courses: Synth
   fundamentals (continuous), Beyond the basics, Tours of the factory racks; a `disconnect` step pulls a
@@ -316,12 +321,9 @@ sharing), which stays as the no-account option.
     sessions in httpOnly cookies.
   - Railway setup (walkthrough when we pick this up): add Postgres, add a session secret, switch the
     service to the server.
-- **Open decisions**:
-  1. Sign-in: username + password (simplest, no email reset), email magic link (needs an email
-     provider), or "Sign in with GitHub".
-  2. Whether cloud saves carry LOOP/SAMPLE recordings (bigger storage; cap ~20 MB per patch).
-  3. Moderation: Report + admin delete enough?
-  4. Database: Railway Postgres (managed, backups) or SQLite on a volume (cheaper, no backups).
+- **Decisions** (2026-10-09): SQLite on a Railway volume; cloud saves carry recordings (capped
+  ~20 MB per patch); moderation = Report + admin delete. Still to discuss: sign-in (username +
+  password, email magic link, or GitHub).
 - Before it: version history of the autosaved rack and a full-copy `.voltage` file with recordings
   bundled in (local, no server).
 
@@ -343,11 +345,12 @@ Our own versions throughout: inspired by the classics, our own names, panels and
 - **Gaps by sound**:
   - Analog poly: unison/detune stacking, poly-mod, built-in chorus (Prophet / Juno / CS-80 / OB style).
   - Mono: full acid sequencer, 3-osc Model-D-style system.
-  - Modular: quad LFO, probability / ratchet gates (Bernoulli-style), sequential switch, track & hold.
+  - Modular: ~~quad LFO, probability gates (Bernoulli-style), sequential switch, track & hold~~
+    (done: QUAD LFO, CHANCE, SWITCH, T&H). Ratchet gates: open.
   - Digital: FM, sample-based drum kit (LinnDrum-style), macro oscillator (Plaits-style), resonator
     (Rings-style).
   - EDM: sidechain, multiband ("OTT"-style), supersaw.
-  - Stereo: panner, mid/side widener, auto-pan, ping-pong delay (most of the rack is mono today).
+  - Stereo: ~~panner, mid/side widener, auto-pan~~ (done: PANNER, WIDENER), ping-pong delay.
 - **Beyond modules**: per-module presets (save a module's settings), song mode / arranger (chain
   patterns and scenes), velocity + aftertouch routing and MPE input, Scala / just-intonation tunings.
 

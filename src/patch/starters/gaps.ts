@@ -1,0 +1,82 @@
+import { beat, melody, mix, toOut, voice } from './kit'
+import { PHRASES } from './material'
+import type { Starter } from './types'
+
+/** Rigs for the modules that filled the gaps in the range: each shows the
+ *  job its module is known for. */
+export const GAP_STARTERS: Record<string, Starter> = {
+  panner: {
+    howTo: 'A bright arpeggio swirling slowly from speaker to speaker (best on headphones). Turn AUTO down to park it with PAN; try SQUARE for hard ping-pong, RANDOM for scattered notes.',
+    build(k) {
+      const m = melody(k, { phrase: PHRASES.arpeggio })
+      const v = voice(k, m.pitch, m.gate, { osc: { type: 'vco', out: 'tri' }, filter: { type: 'vcf', params: { cutoff: 2400, res: 0.2 }, out: 'lp2' }, env: { d: 0.3, s: 0.2, r: 0.3 } })
+      const p = k.add('panner', { auto: 0.85, rate: 0.2 })
+      k.wire(v.out, [p, 'in'])
+      toOut(k, [p, 'l'], [p, 'r'], 0.8)
+    },
+  },
+  widener: {
+    howTo: 'A dub bass and a lead, mixed in mono, then opened out by WIDENER. Turn WIDTH right down (mono) and back up; the bass stays centred below BASS MONO while the lead spreads.',
+    build(k) {
+      const bass = melody(k, { phrase: PHRASES.dub })
+      const lead = melody(k, { clock: bass.clock, phrase: PHRASES.lead })
+      const b = voice(k, bass.pitch, bass.gate, { env: { d: 0.3, s: 0.6 } })
+      const l = voice(k, lead.pitch, lead.gate, { osc: { type: 'vco', out: 'saw' }, filter: { type: 'vcf', params: { cutoff: 1800, res: 0.3 }, out: 'lp2' }, env: { a: 0.01, s: 0.5, r: 0.3 } })
+      const w = k.add('widener', { width: 1.6, haas: 0.012 })
+      k.wire(mix(k, [b.out, l.out], [0.75, 0.55]), [w, 'l'])
+      toOut(k, [w, 'l'], [w, 'r'])
+    },
+  },
+  qlfo: {
+    howTo: 'One slow chord drone moved four linked ways by QUAD LFO: 1 opens the filter, 2 circles it round the speakers, 3 moves the pulse width. Try MODE RATIO and DRIFT, and SPREAD.',
+    build(k) {
+      const m = melody(k, { phrase: PHRASES.slow })
+      const q = k.add('qlfo', { rate: 0.15, spread: 1 })
+      const v = voice(k, m.pitch, m.gate, { osc: { type: 'vco', params: { pw: 0.5, pwm: 0.6 }, out: 'sqr' }, filter: { type: 'vcf', params: { cutoff: 500, res: 0.35, cv: 0.5 }, out: 'lp4' }, filterCv: [q, 'o1'], env: { a: 0.3, s: 0.9, r: 0.8 } })
+      k.wire([q, 'o3'], [v.osc, 'pwm'])
+      const p = k.add('panner', { auto: 0 })
+      k.wire([q, 'o2'], [p, 'cv'])
+      k.wire(v.out, [p, 'in'])
+      toOut(k, [p, 'l'], [p, 'r'])
+    },
+  },
+  chance: {
+    howTo: 'Sixteenths tossed by CHANCE: tails tick the closed hat, heads open it, so the hats are never the same twice. Channel 2 (the same clock) drops in ghost kicks. Turn the odds.',
+    build(k) {
+      const b = beat(k, { bpm: 104, tracks: {}, level: 0.8 })
+      const c = k.add('chance', { p1: 0.2, p2: 0.12 })
+      k.wire([b.clock, 'x4'], [c, 'in1'])
+      const hats = k.add('hats', { chd: 0.03 })
+      const kick = k.add('kick', { decay: 0.3 })
+      k.wire([c, 'a1'], [hats, 'ch'])
+      k.wire([c, 'b1'], [hats, 'oh'])
+      k.wire([c, 'b2'], [kick, 'trig'])
+      toOut(k, mix(k, [b.out, [hats, 'mix'], [kick, 'out']], [0.8, 0.5, 0.45]))
+    },
+  },
+  sswitch: {
+    howTo: 'One oscillator’s four waves into SWITCH, stepped each beat: the riff changes colour every note (sine, triangle, saw, pulse). Try ORDER RANDOM, or STEPS 2.',
+    build(k) {
+      const m = melody(k, { phrase: PHRASES.riff })
+      const osc = k.add('vco', { coarse: -1 })
+      k.wire(m.pitch, [osc, 'voct'])
+      const s = k.add('sswitch')
+      for (const [i, w] of ['sin', 'tri', 'saw', 'sqr'].entries()) k.wire([osc, w], [s, `in${i + 1}`])
+      k.wire([m.clock, 'x1'], [s, 'clk'])
+      toOut(k, voice(k, null, m.gate, { audio: [s, 'out'], filter: { type: 'vcf', params: { cutoff: 2600, res: 0.15 }, out: 'lp2' }, env: { d: 0.3, s: 0.5 } }).out)
+    },
+  },
+  trackhold: {
+    howTo: 'T&H follows a slow random wander while each eighth-note gate is high and freezes it when the gate drops; a quantizer keeps it in A minor. Channel 2 (S&H) shows the difference. Try MODE 1 HOLD.',
+    build(k) {
+      const clock = k.add('clock', { bpm: 96 })
+      const t = k.add('trackhold', { m1: 0 })
+      k.wire([clock, 'x2'], [t, 'g1'])
+      const att = k.add('atten', { a: 0.25 })
+      const q = k.add('quant', { scale: 2 })
+      k.wire([t, 'out1'], [att, 'a'])
+      k.wire([att, 'a'], [q, 'in'])
+      toOut(k, voice(k, [q, 'out'], [clock, 'x2'], { osc: { type: 'vco', out: 'saw' }, filter: { type: 'vcf', params: { cutoff: 1200, res: 0.4 }, out: 'lp4' }, env: { d: 0.2, s: 0.3, r: 0.15 } }).out)
+    },
+  },
+}
