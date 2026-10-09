@@ -142,6 +142,8 @@ export const CATALOG: Record<string, Entry> = {
   maelzel: { tags: ['clock', 'plays itself'], aka: ['metronome', 'wind-up', 'pendulum', 'wittner', 'clockwork', 'huygens', 'sync', 'swing', 'mechanical'] },
   coach: { tags: ['clock', 'utility'], aka: ['metronome', 'practice', 'speed trainer', 'tempo ramp', 'gap click', 'polyrhythm', 'click track', 'drummer'] },
   seq8: { tags: ['sequence', 'melody'], aka: ['step sequencer', 'analog sequencer'] },
+  pianoroll: { tags: ['sequence', 'melody', 'chords', 'poly'], aka: ['piano roll', 'daw', 'midi editor', 'note editor', 'chords', 'polyphonic sequencer', 'grid'] },
+  arranger: { tags: ['sequence', 'utility'], aka: ['song mode', 'arrangement', 'song arranger', 'timeline', 'sections', 'chain', 'intro', 'verse', 'chorus', 'mute', 'daw'] },
   tr16: { tags: ['beat', 'sequence'], aka: ['drum sequencer', 'trigger sequencer', '808', 'song mode'] },
   euclid: { tags: ['beat', 'generative', 'sequence'], aka: ['euclidean', 'bjorklund', 'polyrhythm'] },
   turing: { tags: ['generative', 'sequence', 'melody'], aka: ['turing machine', 'music thing', 'shift register', 'random'] },

@@ -82,6 +82,8 @@ import { panner, widener } from './specs/stereoTools'
 import { chance, qlfo, sswitch, trackhold } from './specs/cvTools'
 import { kaleido, resonator } from './specs/macroVoices'
 import { analyser, tuner } from './specs/meters'
+import { pianoroll } from './specs/pianoroll'
+import { arranger } from './specs/arranger'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -175,6 +177,8 @@ export const SPEC_LIST: ModuleSpec[] = [
   coach,
   div,
   seq8,
+  pianoroll,
+  arranger,
   arp,
   chord,
   ghost,

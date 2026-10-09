@@ -43,6 +43,18 @@ export const GAP_OVERRIDES: Record<string, string> = {
   'analyser:range': 'How many decibels the spectrum shows top to bottom: less zooms in on the loud parts, more shows the quiet ones too.',
   'analyser:tilt': 'Tilts the spectrum up toward the highs by this many dB per octave: at 3 (pink), a balanced mix looks roughly level instead of falling away.',
   'analyser:target': 'The loudness you’re aiming for, in LUFS: about −14 for streaming services, −23 for broadcast, −9 to −6 for loud club masters. The bar and the integrated reading turn green near it.',
+  // PIANO ROLL
+  'pianoroll:tempo': 'The speed in beats per minute, when nothing is patched to CLK.',
+  'pianoroll:bars': 'How many bars it plays before going round again (1–4).',
+  'pianoroll:oct': 'Moves every note up or down by octaves.',
+  'pianoroll:voices': 'How many notes can sound at once (each one a channel of the poly cables). A mono synth hears the first.',
+  'pianoroll:swing': 'Holds back every second 16th: a shuffled feel.',
+  'pianoroll:run': 'Starts and stops it (starting again begins at bar 1).',
+  // ARRANGER
+  'arranger:tempo': 'The speed in beats per minute, when nothing is patched to CLK.',
+  'arranger:len': 'How many sections the song has (the + on the screen adds one too).',
+  'arranger:loop': 'LOOP goes back to the first section after the last; ONCE stops there with every part off.',
+  'arranger:run': 'Starts and stops the song (starting again begins at the first section).',
   // T&H
   'trackhold:m1': 'Channel 1: TRACK follows the input while the gate is high and freezes when it drops; S&H takes one sample on each rise; HOLD is the reverse of TRACK.',
   'trackhold:m2': 'Channel 2’s mode (TRACK, S&H or HOLD). Its input and gate copy channel 1’s when nothing is patched to them.',

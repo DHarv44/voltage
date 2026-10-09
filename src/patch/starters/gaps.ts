@@ -1,4 +1,4 @@
-import { beat, melody, mix, toOut, voice } from './kit'
+import { beat, melody, mix, roomy, toOut, voice } from './kit'
 import { GROOVES, PHRASES } from './material'
 import type { Starter } from './types'
 
@@ -109,6 +109,44 @@ export const GAP_STARTERS: Record<string, Starter> = {
       const a = k.add('analyser')
       k.wire(mix(k, [b.out, voice(k, bass.pitch, bass.gate, { env: { d: 0.3, s: 0.6 } }).out], [0.85, 0.7]), [a, 'l'])
       toOut(k, [a, 'l'], [a, 'r'])
+    },
+  },
+  pianoroll: {
+    howTo: 'Four bars drawn on the PIANO ROLL (Am, F, C, G under a melody) played by a poly synth. Click to add notes, drag them about, drag a note’s end to lengthen it, right-click to delete; scroll for higher or lower.',
+    build(k) {
+      const pr = k.add('pianoroll')
+      const vco = k.add('pvco', { fine: 0.05 })
+      const vcf = k.add('pvcf', { cutoff: 1600, res: 0.2, cv: 0.35 })
+      const vca = k.add('pvca', { gain: 0, cv: 1 })
+      const env = k.add('padsr', { a: 0.02, d: 0.5, s: 0.6, r: 0.4 })
+      const pm = k.add('polymix', { level: 0.6 })
+      k.wire([pr, 'pitch'], [vco, 'voct'])
+      k.wire([pr, 'gate'], [env, 'gate'])
+      k.wire([vco, 'saw'], [vcf, 'in'])
+      k.wire([env, 'env'], [vcf, 'cv'])
+      k.wire([vcf, 'lp'], [vca, 'in'])
+      k.wire([env, 'env'], [vca, 'cv'])
+      k.wire([vca, 'out'], [pm, 'in'])
+      roomy(k, [pm, 'sum'], 0.25, 0.5)
+    },
+  },
+  arranger: {
+    howTo: 'A song in six sections: the ARRANGER’s part gates bring the drums, bass, lead and hats in and out through VCA×4. Click a lane cell to change who plays where, drag a block’s edge for its length; PAT is ready for LOCKSTEP’s PAT.',
+    build(k) {
+      const b = beat(k, { bpm: 116, tracks: {} })
+      const bass = melody(k, { clock: b.clock, phrase: PHRASES.dub })
+      const lead = melody(k, { clock: b.clock, phrase: PHRASES.lead })
+      const ar = k.add('arranger')
+      k.wire([b.clock, 'x4'], [ar, 'clk'])
+      const vm = k.add('vcamix')
+      const hats = k.add('hats', { chd: 0.03 })
+      k.wire([b.clock, 'x4'], [hats, 'ch'])
+      k.wire(b.out, [vm, 'in1'])
+      k.wire(voice(k, bass.pitch, bass.gate, { env: { d: 0.3, s: 0.6 } }).out, [vm, 'in2'])
+      k.wire(voice(k, lead.pitch, lead.gate, { osc: { type: 'vco', out: 'tri' }, env: { a: 0.01, s: 0.5, r: 0.3 } }).out, [vm, 'in3'])
+      k.wire([hats, 'mix'], [vm, 'in4'])
+      for (let g = 1; g <= 4; g++) k.wire([ar, `g${g}`], [vm, `cv${g}`])
+      toOut(k, [vm, 'mix'], undefined, 0.45)
     },
   },
   trackhold: {

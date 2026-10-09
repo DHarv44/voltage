@@ -266,7 +266,10 @@ extend VOLTAGE.
   lags round it (0.15 cent from 41 Hz to 2 kHz), surface `tunerscreen` (`tuner` is TUNE's);
   ANALYSER = BS.1770 K-weighting, 100 ms blocks, gated integrated via a 0.1 LU histogram, peaks,
   correlation, 4096-sample frames for the screen's FFT (ui/surfaces/fft.ts, shared with
-  WATERFALL)); next: piano roll + song arranger, per-module presets.
+  WATERFALL)), ~~piano roll + song arranger~~ (done: PIANO ROLL, 96 note slots as params
+  s/l/n/v, voice allocation free-first then nearest-its-end, poly out; ARRANGER, 16 sections
+  b/p/m, PAT a 16th early, PART gates on the bar; both drawn and edited on canvas faces); next:
+  per-module presets.
 - **Tutorial suite**: ~~sequencing, drums, effects~~ (lessons 5–7 of the course), ~~polyphony,
   semi-modular normals, a tour of Acid House~~ (done: the Learn menu is now three courses: Synth
   fundamentals (continuous), Beyond the basics, Tours of the factory racks; a `disconnect` step pulls a
@@ -358,8 +361,8 @@ Our own versions throughout: inspired by the classics, our own names, panels and
     resonator (Rings-style)~~ (done: KALEIDO, RESONATOR).
   - EDM: sidechain, multiband ("OTT"-style), supersaw.
   - Stereo: ~~panner, mid/side widener, auto-pan~~ (done: PANNER, WIDENER), ping-pong delay.
-- **Beyond modules**: per-module presets (save a module's settings), song mode / arranger (chain
-  patterns and scenes), velocity + aftertouch routing and MPE input, Scala / just-intonation tunings.
+- **Beyond modules**: per-module presets (save a module's settings), ~~song mode / arranger~~
+  (done: ARRANGER), velocity + aftertouch routing and MPE input, Scala / just-intonation tunings.
 
 ## Systems (whole instruments, our own names and looks)
 Have: MONO-1, STUDIO-3, GROOVE-1, SKETCHBOOK, KIN-8, UNDERTONE, LOCKSTEP, LATTICE, the POCKET family; played: OMNICHORD, STYLOPHONE, TAPE KEYS, THEREMIN.
