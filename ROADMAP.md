@@ -16,11 +16,15 @@ extend VOLTAGE.
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (133)
+### Modules (134)
 (Grouped here by family; the library's own categories are in `modules/types.ts` CATEGORIES.)
 - **POCKET family**: POCKET (drums), POCKET BASS (16 note steps, slide/accent, SUB/SQUARE/ACID), POCKET
-  MELODY (scale degrees, per-step NOTE/CHORD/ARP, BELL/PLUCK/LEAD, poly NOTES). Drag a step to set its
-  note, right-click for its flag; off WRITE the buttons are a keyboard. They follow each other's CLK.
+  MELODY (scale degrees, per-step NOTE/CHORD/ARP, BELL/PLUCK/LEAD, poly NOTES), POCKET ARCADE
+  (chiptune: naive pulse lead THIN/HOLLOW/SQUARE with 4-bit stepped volume and delayed vibrato, per
+  step NOTE / ARP (the triad cycled at 60 Hz) / SLIDE; a 4-bit stepped triangle bass, BEAT or FOLLOW;
+  15-bit LFSR noise drums (kick, snare, short-mode metallic hat), BEAT or BUSY; PULSE / TRI / NOISE
+  outs; an invader on the LCD). Drag a step to set its note, right-click for its flag; off WRITE the
+  buttons are a keyboard. They follow each other's CLK.
 - **Systems**: MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine), SKETCHBOOK
   (portable workstation), KIN-8 (DFAM-style percussion: two VCOs, noise, ladder, three decays, 8-step
   pitch/velocity sequencer), UNDERTONE (Subharmonicon-style: two VCOs with phase-locked subharmonics,
@@ -254,7 +258,7 @@ extend VOLTAGE.
   - ~~POCKET BASS~~ and ~~POCKET MELODY~~: done (see Modules).
   - POCKET SAMPLER: record from IN into 8 slots, chop across the buttons, sequence them (reuses the
     SAMPLE/LOOP buffers).
-  - POCKET ARCADE: chiptune: pulse + triangle, arpeggiated chords, a noise channel.
+  - ~~POCKET ARCADE~~: done (see Modules).
   - POCKET ROBOT: live lead played on the buttons, glide and effects, records into steps.
   - POCKET SPEAK: syllables per step with pitch locks (formant voice from the talk box).
   - POCKET OFFICE: a noise-and-click drum kit (typewriter, glitch hats).

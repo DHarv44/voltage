@@ -64,6 +64,10 @@ export const MODULE_TERMS: Record<string, ParamTerm[]> = {
   pocket: [{ match: /^A PITCH$/, what: 'The selected sound’s pitch (hold a step to lock it there only).' }],
   pocketbass: [{ match: /^A TONE$/, what: 'Brightness: opens the filter (hold a step to lock it there only).' }],
   pocketmelody: [{ match: /^A TONE$/, what: 'Brightness: opens the filter (hold a step to lock it there only).' }],
+  pocketarcade: [
+    { match: /^A TONE$/, what: 'Vibrato: how far held notes wobble once they’ve sounded a moment (the classic delayed game vibrato).' },
+    { match: /^B DECAY$/, what: 'How long each lead note takes to fade, in the old chips’ 16 steps of volume.' },
+  ],
   spring: [{ match: /^DECAY$/, what: 'How long the spring keeps ringing after the sound stops.' }],
   plate: [{ match: /^DECAY$/, what: 'How long the reverb tail lasts: a short room to a huge hall.' }],
   vocoder: [
@@ -270,6 +274,9 @@ const o: Record<string, string> = {
   'tapekeys:speed': 'Nudges the tape speed: the whole instrument a little sharp or flat.',
   'pocketbass:voice': 'The bass sound: a round SUB, a hollow SQUARE, or a squelchy ACID line.',
   'pocketmelody:voice': 'The melody sound: a BELL, a PLUCK or a LEAD.',
+  'pocketarcade:voice': 'The lead’s pulse width: THIN (12.5 %) is nasal, HOLLOW (25 %) the classic game lead, SQUARE (50 %) round and woody.',
+  'pocketarcade:bass': 'The triangle bass: OFF, BEAT (root and fifth on the beats) or FOLLOW (the lead’s notes, two octaves down).',
+  'pocketarcade:drums': 'The noise drums: OFF, BEAT (kick, snare, hats) or BUSY (a running game-music beat).',
   'bandmate:style': 'Which kind of drummer: rock, funk, house, hip-hop or bossa nova.',
   'vision:scene': 'Which living scene is in the tank.',
   'visioncore:scene': 'Which living scene is in the tank.',

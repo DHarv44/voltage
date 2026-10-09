@@ -50,6 +50,7 @@ export const CATALOG: Record<string, Entry> = {
   pocket: { tags: ['beat', 'sequence', 'plays itself'], aka: ['pocket operator', 'po-12', 'teenage engineering', 'calculator'] },
   pocketbass: { tags: ['bass', 'sequence'], aka: ['pocket operator', 'tb-303', '303', 'acid'] },
   pocketmelody: { tags: ['melody', 'chords', 'sequence'], aka: ['pocket operator', 'arpeggio'] },
+  pocketarcade: { tags: ['melody', 'beat', 'lo-fi', 'sequence', 'plays itself'], aka: ['chiptune', 'chip', '8-bit', '8 bit', 'nes', 'game boy', 'video game', 'arpeggio', 'pocket operator'] },
   tally: {
     tags: ['melody', 'beat', 'lo-fi', 'touch'],
     aka: ['vl-tone', 'vl-1', 'casio', 'calculator', 'toy keyboard', 'one key play', 'adsr code', 'rhythm box', 'chiptune'],

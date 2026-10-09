@@ -1,6 +1,6 @@
 import { BEZEL, packRows, type SpecLabels } from '../panelMetrics'
 import { HP_MM, type Control, type ModuleSpec, type ParamSpec } from '../types'
-import { BLUSH, SAGE } from './panels'
+import { BLUSH, SAGE, SLATE } from './panels'
 
 /** The melodic members of the POCKET family: same 16-step, calculator-sized
  *  idea as the drum POCKET (same clock, CLK out → CLK in to play as a band),
@@ -104,6 +104,57 @@ export const pocketbass: ModuleSpec = {
   controls: pocketLayout(16, { params: BASS_PARAMS, inputs: CLK_IN, outputs: BASS_OUTS }, [
     [knob('tempo'), knob('swing'), knob('vol'), jack('in', 'clk'), jack('in', 'rst'), jack('out', 'pitch')],
     [knob('voice'), knob('oct'), jack('out', 'gate'), jack('out', 'clko'), jack('out', 'rsto'), jack('out', 'out')],
+  ]),
+}
+
+// ---- POCKET ARCADE: the chiptune one ----
+
+/** The lead's pulse width (VOICE): 12.5 %, 25 %, 50 %. */
+export const ARCADE_VOICES = ['THIN', 'HOLLOW', 'SQUARE']
+export const ARCADE_DUTY = [0.125, 0.25, 0.5]
+/** Per step: a plain note, a chip arpeggio (the chord cycled at 60 Hz) or a slide into the note. */
+export const ARCADE_MODES = ['NOTE', 'ARP', 'SLIDE']
+/** The triangle bass: off, root and fifth on the beats, or the lead two octaves down. */
+export const ARCADE_BASS = ['OFF', 'BEAT', 'FOLLOW']
+/** The noise drums. */
+export const ARCADE_DRUMS = ['OFF', 'BEAT', 'BUSY']
+
+const ARCADE_PARAMS: ParamSpec[] = [
+  // HOLLOW (25 %) is the classic game lead
+  ...common(ARCADE_VOICES).map((ps) => (ps.id === 'voice' ? { ...ps, def: 1 } : ps)),
+  { id: 'scale', label: 'SCALE', min: 0, max: SCALES.length - 1, def: 1, stepped: true, options: SCALES },
+  { id: 'root', label: 'ROOT', min: 0, max: 11, def: 9, stepped: true, options: ROOTS },
+  { id: 'bass', label: 'BASS', min: 0, max: ARCADE_BASS.length - 1, def: 1, stepped: true, options: ARCADE_BASS },
+  { id: 'drums', label: 'DRUMS', min: 0, max: ARCADE_DRUMS.length - 1, def: 1, stepped: true, options: ARCADE_DRUMS },
+  // a little level theme in A minor: up to the octave, down through F and E, a chord to finish
+  ...stepParams(MELODY_NOTES, [7, 0, 6, 4, 0, 5, 4, 2, 0, 3, 4, 0, 0, 0, 0, 0], bit(1, 3, 4, 6, 7, 8, 10, 11, 13), 2, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 1, 0, 0, 0]),
+]
+const ARCADE_OUTS: ModuleSpec['outputs'] = [
+  ...SYNTH_OUTS,
+  { id: 'pulse', label: 'PULSE' },
+  { id: 'tri', label: 'TRI' },
+  { id: 'noise', label: 'NOISE' },
+]
+
+/** Chiptune: a pulse lead on the steps (scale degrees, with chip arpeggios
+ *  and slides), a stepped triangle bass and noise drums that play along by
+ *  themselves; each channel also on its own jack. */
+export const pocketarcade: ModuleSpec = {
+  type: 'pocketarcade',
+  title: 'POCKET ARCADE',
+  name: 'Pocket Arcade',
+  tagline: 'Calculator-sized chiptune: pulse lead with chip arpeggios, triangle bass, noise drums; syncs over CLK',
+  category: 'Systems',
+  hp: 24,
+  panel: SLATE,
+  inputs: CLK_IN,
+  outputs: ARCADE_OUTS,
+  params: ARCADE_PARAMS,
+  leds: 3,
+  controls: pocketLayout(24, { params: ARCADE_PARAMS, inputs: CLK_IN, outputs: ARCADE_OUTS }, [
+    [knob('tempo'), knob('swing'), knob('vol'), knob('scale'), knob('root'), jack('in', 'clk'), jack('in', 'rst'), jack('out', 'pulse')],
+    [knob('voice'), knob('oct'), knob('bass'), knob('drums'), jack('out', 'clko'), jack('out', 'rsto'), jack('out', 'tri'), jack('out', 'noise')],
+    [null, null, null, null, jack('out', 'pitch'), jack('out', 'gate'), null, jack('out', 'out')],
   ]),
 }
 

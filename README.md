@@ -8,7 +8,7 @@ pitch, ±5 V audio, 0–10 V control voltages, rails that saturate, components t
 up). There are no samples and no downloaded assets: every sound, from a ladder filter to a
 singing bowl to a vinyl record, is synthesised.
 
-- **133 modules**: oscillators, filters, envelopes, sequencers and drums; pedals, tape machines and
+- **134 modules**: oscillators, filters, envelopes, sequencers and drums; pedals, tape machines and
   played instruments; simulations that make music (bouncing balls, orbits, flocks, chaos); musical
   "brains" that jam with you; and **VISION**, living 3D scenes you patch like any other module.
 - **18 factory racks** to start from, and a **Learn** menu with a step-by-step course in synthesis.
@@ -119,7 +119,7 @@ Patch **MIDI·CV** (or use a module with a built-in keybed) and play:
 
 ## What's in the rack
 
-The full list, with what each module does, is in [ROADMAP.md](ROADMAP.md#modules-133). The module
+The full list, with what each module does, is in [ROADMAP.md](ROADMAP.md#modules-134). The module
 list on the left groups them by what they are (below); search finds them by name, by what you want
 ("bass", "reverb", "beat"…) or by the gear you know ("mellotron", "dfam", "op-1"); every word must
 match, Enter adds the top result and `/` jumps to the box. Tag chips narrow the list (all tags must
@@ -188,6 +188,9 @@ CLK in** and they play as one band.
 - **POCKET BASS:** 16 note steps with **slide** and **accent** (SUB / SQUARE / ACID voices).
 - **POCKET MELODY:** steps are notes of a scale, so nothing is out of key. Each step can be a note,
   a **chord** or an **arpeggio**.
+- **POCKET ARCADE:** chiptune. A pulse lead on the steps (each step a note, a chip **ARP** that cycles
+  the chord at 60 Hz, or a **SLIDE**), a stepped triangle bass and noise drums that play along by
+  themselves; each channel has its own jack too.
 
 In WRITE mode, click a step on/off, **drag it up/down** to set its note, and right-click for its
 slide/accent or chord/arp. With WRITE off, the 16 buttons are a keyboard. Start from the **Pocket

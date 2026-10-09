@@ -240,7 +240,10 @@ OVERRIDES['coach:out:beat'] = { signal: 'gate', what: 'High for the first half o
 OVERRIDES['coach:out:bar'] = { signal: 'gate', what: 'High on beat 1 of each bar.' }
 OVERRIDES['coach:out:poly'] = { signal: 'trigger', what: 'A pulse on each POLY click (N even pulses per bar): a cross-rhythm for another voice.' }
 OVERRIDES['coach:out:out'] = { signal: 'audio', what: 'The click, and the polyrhythm click.' }
-for (const t of ['groove', 'sketchbook', 'undertone', 'lockstep', 'pocket', 'pocketbass', 'pocketmelody', 'metronome', 'maelzel', 'coach'])
+OVERRIDES['pocketarcade:out:pulse'] = { signal: 'audio', what: 'The pulse lead on its own (for its own effects or channel).' }
+OVERRIDES['pocketarcade:out:tri'] = { signal: 'audio', what: 'The triangle bass on its own.' }
+OVERRIDES['pocketarcade:out:noise'] = { signal: 'audio', what: 'The noise drums on their own.' }
+for (const t of ['groove', 'sketchbook', 'undertone', 'lockstep', 'pocket', 'pocketbass', 'pocketmelody', 'pocketarcade', 'metronome', 'maelzel', 'coach'])
   OVERRIDES[`${t}:out:rsto`] = { signal: 'reset', what: 'A pulse whenever it starts (or is reset): patch it to followers’ RST so everything starts on beat one together.' }
 OVERRIDES['lockstep:in:pat'] = { signal: 'cv', what: 'Picks the pattern by voltage (0–2.5 V A, to 5 V B, to 7.5 V C, above D), changing at the end of the bar: a sequencer or S&H arranges the song.' }
 OVERRIDES['motion:in:clk'] = { signal: 'clock', what: 'Clock in, in 16ths (CLOCK’s ×4): keeps the loops in time with the music.' }

@@ -84,6 +84,14 @@ export const RHYTHM_STARTERS: Record<string, Starter> = {
   pocket: { howTo: 'POCKET playing its beat. WRITE on: pick a sound, toggle its steps.', build: (k) => pocketBand(k) },
   pocketbass: { howTo: 'POCKET BASS following POCKET’s clock. Drag a step up or down to change its note.', build: (k) => pocketBand(k, 'pocketbass') },
   pocketmelody: { howTo: 'POCKET MELODY following POCKET’s clock. Drag steps to change notes; right-click for chords.', build: (k) => pocketBand(k, 'pocketmelody') },
+  pocketarcade: {
+    howTo:
+      'POCKET ARCADE playing a little level theme on its own: pulse lead, triangle bass, noise drums. Drag steps to change notes; right-click a step for a chip ARP or a SLIDE. Try VOICE (the pulse width) and BASS / DRUMS.',
+    build(k) {
+      const a = k.add('pocketarcade', { run: 1, write: 1, tempo: 140, swing: 0 })
+      toOut(k, [a, 'out'], undefined, 0.5)
+    },
+  },
   touch: {
     howTo: 'Touch the strips to play: position is the note, pressure opens the filter.',
     played: true,

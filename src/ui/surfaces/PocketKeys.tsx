@@ -1,6 +1,7 @@
 import { useRef, type MouseEvent, type PointerEvent, type WheelEvent } from 'react'
 import { telemetry } from '../../audio/telemetry'
-import { BASS_NOTES, BASS_VOICES, MELODY_MODES, MELODY_NOTES, MELODY_VOICES, PSL, PSTEPS, ROOTS, SCALE_STEPS } from '../../modules/specs/pocketSynth'
+import { ARCADE_MODES, ARCADE_VOICES, BASS_NOTES, BASS_VOICES, MELODY_MODES, MELODY_NOTES, MELODY_VOICES, PSL, PSTEPS, ROOTS, SCALE_STEPS } from '../../modules/specs/pocketSynth'
+import { drawMascot } from './pocketMascots'
 import { actions, patchStore } from '../../patch/store'
 import { PX } from '../geometry'
 import { track } from '../pointer'
@@ -18,6 +19,13 @@ const FN = [
 const GRID = { x: 0.05, y: 0.52, w: 0.9, h: 0.46 }
 const INK = '#26301e'
 
+/** What differs between the melodic POCKETs' faces. */
+const FLAVOURS = {
+  pocketbass: { bg: '#c3cfc6', accent: '#2d6cdf', voices: BASS_VOICES, modes: [] as string[], knobA: 'A · TONE' },
+  pocketmelody: { bg: '#dfcbcc', accent: '#8a3fc2', voices: MELODY_VOICES, modes: MELODY_MODES, knobA: 'A · TONE' },
+  pocketarcade: { bg: '#c9ced9', accent: '#d9542b', voices: ARCADE_VOICES, modes: ARCADE_MODES, knobA: 'A · VIBRATO' },
+}
+
 /** The melodic POCKETs' face. WRITE on: click a step to switch it on/off,
  *  drag it up/down (or scroll) to set its note, right-click for its flag
  *  (bass: slide / accent; melody: note / chord / arp). WRITE off: the
@@ -25,6 +33,7 @@ const INK = '#26301e'
 export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
   const mod = inst.id
   const bass = inst.type === 'pocketbass'
+  const look = FLAVOURS[inst.type as keyof typeof FLAVOURS] ?? FLAVOURS.pocketmelody
   const maxNote = bass ? BASS_NOTES : MELODY_NOTES
   const ref = useRef<HTMLCanvasElement>(null)
   const W = Math.round(w * PX * RES)
@@ -51,7 +60,7 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
       // live from the store: gestures can arrive faster than React re-renders
       value: (patchStore.get().modules.find((m) => m.id === mod)?.params ?? params.current)[id] ?? 0.5,
       set: (v: number) => actions.setParam(mod, id, v),
-      label: k === 0 ? 'A · TONE' : 'B · DECAY',
+      label: k === 0 ? look.knobA : 'B · DECAY',
     }))
   const pressKnob = useCanvasKnobs(ref, mod, knobs)
 
@@ -64,7 +73,7 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
     const flash = led?.[PSL.flash] ?? 0
     const mask = p.m ?? 0
     const write = p.write >= 0.5
-    ctx.fillStyle = bass ? '#c3cfc6' : '#dfcbcc'
+    ctx.fillStyle = look.bg
     ctx.fillRect(0, 0, W, H)
 
     // LCD: voice and tempo, then the pattern as a little piano roll.
@@ -77,7 +86,7 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
     ctx.fillStyle = INK
     ctx.font = `600 ${Math.round(lh * 0.18)}px Consolas, 'Courier New', monospace`
     ctx.textAlign = 'left'
-    const voice = (bass ? BASS_VOICES : MELODY_VOICES)[Math.round(p.voice)] ?? ''
+    const voice = look.voices[Math.round(p.voice)] ?? ''
     ctx.fillText(bass ? voice : `${voice} ${ROOTS[Math.round(p.root)]}`, lx + lw * 0.03, ly + lh * 0.22)
     ctx.textAlign = 'right'
     // following another POCKET's CLK: its tempo, not ours
@@ -119,30 +128,7 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
       } else ctx.fillRect(cx + 2, ny, cw - 4, lh * 0.04)
       prevY = ny
     }
-    // mascot: bass, a speaker cone that pumps; melody, a little bird that sings
-    const mx = lx + lw * 0.62
-    const my = ly + lh * 0.14
-    ctx.fillStyle = INK
-    if (bass) {
-      ctx.beginPath()
-      ctx.arc(mx, my, lh * (0.06 + flash * 0.03), 0, Math.PI * 2)
-      ctx.fill()
-      ctx.strokeStyle = INK
-      ctx.lineWidth = 2
-      ctx.beginPath()
-      ctx.arc(mx, my, lh * (0.11 + flash * 0.02), 0, Math.PI * 2)
-      ctx.stroke()
-    } else {
-      ctx.beginPath()
-      ctx.ellipse(mx, my + lh * 0.02, lh * 0.08, lh * 0.06, 0, 0, Math.PI * 2)
-      ctx.fill()
-      ctx.beginPath()
-      ctx.moveTo(mx + lh * 0.07, my - flash * lh * 0.03)
-      ctx.lineTo(mx + lh * 0.14, my - lh * 0.01 - flash * lh * 0.05)
-      ctx.lineTo(mx + lh * 0.07, my + lh * 0.03)
-      ctx.fill()
-      if (flash > 0.3) ctx.fillText('♪', mx + lh * 0.3, my - flash * lh * 0.06)
-    }
+    drawMascot(ctx, inst.type, lx + lw * 0.62, ly + lh * 0.14, lh, flash, INK)
 
     // Knobs A (TONE) and B (DECAY).
     for (const knob of knobs()) {
@@ -154,7 +140,7 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
     }
     FN.forEach((f, k) => {
       const on = k === 0 ? p.run >= 0.5 : write
-      ctx.fillStyle = on ? (bass ? '#2d6cdf' : '#8a3fc2') : '#4a4540'
+      ctx.fillStyle = on ? look.accent : '#4a4540'
       ctx.beginPath()
       ctx.roundRect(f.x * W - W * 0.08, KNOB_Y * H - H * 0.045, W * 0.16, H * 0.09, 6)
       ctx.fill()
@@ -176,7 +162,7 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
       ctx.roundRect(bx + 4, by + 4, bw - 8, bh - 8, 6)
       ctx.fill()
       if (write && i === step) {
-        ctx.strokeStyle = bass ? '#2d6cdf' : '#8a3fc2'
+        ctx.strokeStyle = look.accent
         ctx.lineWidth = 3
         ctx.stroke()
       }
@@ -187,7 +173,7 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
       ctx.fillText(write && !on ? String(i + 1) : label, bx + bw / 2, by + bh * 0.48)
       if (write && on) {
         const f = Math.round(p[`f${i}`] ?? 0)
-        const tag = bass ? [f & 1 ? 'SLIDE' : '', f & 2 ? 'ACC' : ''].filter(Boolean).join(' ') : f ? MELODY_MODES[f] : ''
+        const tag = bass ? [f & 1 ? 'SLIDE' : '', f & 2 ? 'ACC' : ''].filter(Boolean).join(' ') : f ? look.modes[f] : ''
         if (tag) {
           ctx.font = `${Math.round(bh * 0.15)}px Bahnschrift, 'Arial Narrow', sans-serif`
           ctx.fillText(tag, bx + bw / 2, by + bh * 0.74)
