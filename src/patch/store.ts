@@ -7,11 +7,13 @@ import { findSlot, placeWithPush, RAIL_SIZES, ROW_HP, usedHp } from './layout'
 import { loadSaved, sanitize, save } from './persist'
 import { withoutRow, withRig } from './rowOps'
 import type { Cable, JackRef, MorphSnapshot, Patch } from './types'
+import { versions } from './versions'
 
 type Listener = () => void
 
 let state: Patch = loadSaved() ?? defaultPatch()
 save(state) // persist a fresh rack immediately so module seeds (unit personalities) survive reloads
+versions.touch(state) // the rack as it opened is the first version
 const listeners = new Set<Listener>()
 
 const HISTORY_LIMIT = 100
@@ -25,6 +27,7 @@ function emit(next: Patch): void {
   state = next
   listeners.forEach((l) => l())
   save(next)
+  versions.touch(next)
 }
 
 /** Commit an edit. Edits sharing `key` within MERGE_MS of each other (a knob

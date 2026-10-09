@@ -250,7 +250,12 @@ who keeps time, who plays, and the knobs that make the sound).
   filter-house sweep, the 808 as a bassline, worn tape over everything, loops of different lengths
   drifting apart). The notes are all our own. Loading replaces
   the rack (Ctrl+Z brings yours back); power on, then pull it apart.
-- **Export / Import** writes and reads a `.json` patch file, for backups or moving to another computer.
+- **Export / Import** writes and reads a `.voltage` file: the whole rack with every recording in it
+  (LOOP, SAMPLE, tape, CHOP, XY gestures), for backups or moving to another computer. Older `.json`
+  patch files still import.
+- **Earlier versions:** the Patches menu keeps your rack as it was over the last hours and days (a
+  snapshot every couple of minutes while it changes, the last 50 kept); load one to go back (Ctrl+Z
+  undoes that).
 - **Share** copies a link to the rack, with an optional title and note for whoever you send it to.
   The whole patch is packed into the link (after the `#`), so nothing is uploaded anywhere. Links
   open in a **scratch rack** that never touches the recipient's own patch; they can **Keep this

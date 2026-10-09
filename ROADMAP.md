@@ -334,10 +334,21 @@ sharing), which stays as the no-account option.
   - Railway setup (walkthrough when we pick this up): add Postgres, add a session secret, switch the
     service to the server.
 - **Decisions** (2026-10-09): SQLite on a Railway volume; cloud saves carry recordings (capped
-  ~20 MB per patch); moderation = Report + admin delete. Still to discuss: sign-in (username +
-  password, email magic link, or GitHub).
-- Before it: version history of the autosaved rack and a full-copy `.voltage` file with recordings
-  bundled in (local, no server).
+  ~20 MB per patch); moderation = Report + admin delete. Sign-in: Google, passkeys and email
+  magic links, all linked to one account by email (no passwords). Anyone can sign up; the admin
+  is set by an ADMIN_EMAIL variable on Railway. Live at https://voltage-production.up.railway.app/
+  for now. Open: email sending without a domain (buy a domain + Resend, send via a personal
+  mailbox, or launch Google + passkeys first); passkeys tie to the final domain.
+- ~~Before it: version history of the autosaved rack and a full-copy `.voltage` file with recordings
+  bundled in (local, no server)~~ (done: patch/versions.ts, IndexedDB `voltage-history`, a snapshot
+  at most every 2 min when changed, 50 kept, in the Patches menu; patch/bundle.ts packs the patch
+  and every recording, gzipped JSON with base64 Float32, also the cloud upload format;
+  buffers.adopt / read carry recordings into scratch racks).
+- **No accounts yet (chosen 2026-10-09)**: short links that carry recordings, owned by a random
+  owner key per browser (My patches, update, delete, private / unlisted / public, move the key to
+  another device with a code); a public gallery where submissions wait for admin approval; admin
+  page opened with an ADMIN_KEY set on Railway. Accounts (Google, passkeys, magic links) can claim
+  owner keys later.
 
 ## Pinned for later: what big synth artists use (gap review)
 Our own versions throughout: inspired by the classics, our own names, panels and sounds.

@@ -50,7 +50,7 @@ export function ShareMenu() {
             Note for your friend
             <textarea value={note} maxLength={400} rows={3} placeholder="e.g. Turn the CUTOFF slowly" onChange={(e) => setNote(e.target.value)} />
           </label>
-          {hasAudio && <p className="share-warn">Recordings (LOOP, SAMPLE…) are too big for a link; those modules arrive empty. Use Export for a full copy.</p>}
+          {hasAudio && <p className="share-warn">Recordings (LOOP, SAMPLE…) are too big for a link; those modules arrive empty. Use Export for a .voltage file that carries them.</p>}
           <button className="primary" onClick={() => void copy()}>
             Copy link
           </button>

@@ -1,7 +1,7 @@
 import type { BufferMsg } from '../engine/protocol'
 import { SCRATCH } from '../patch/persist'
 import type { Patch } from '../patch/types'
-import { bufferStore } from './bufferStore'
+import { bufferStore, type StoredBuffer } from './bufferStore'
 import { engine } from './engine'
 import { encodeWav24 } from './wav'
 
@@ -20,6 +20,9 @@ const MAX_FILE_SECONDS = 60
 class BufferManager {
   private present = new Set<string>()
   private dumps = new Map<string, (b: BufferMsg) => void>()
+  /** Recordings handed in by a .voltage file or a cloud patch: sent to their
+   *  modules as they appear (scratch racks too, which keep nothing on disk). */
+  private adopted = new Map<string, StoredBuffer>()
 
   constructor() {
     engine.onBuffer = (m) => {
@@ -42,13 +45,45 @@ class BufferManager {
       const slots = BUFFER_SLOTS[m.type]
       if (!slots) continue
       now.add(m.id)
-      if (this.present.has(m.id) || SCRATCH) continue
-      for (let s = 0; s < slots; s++)
-        void bufferStore.get(m.id, s).then((b) => {
-          if (b?.data.length) engine.send({ type: 'buffer', id: m.id, slot: s, rate: b.rate, data: b.data })
-        })
+      if (this.present.has(m.id)) continue
+      for (let s = 0; s < slots; s++) {
+        const own = this.adopted.get(bufferStore.key(m.id, s))
+        if (own) engine.send({ type: 'buffer', id: m.id, slot: s, rate: own.rate, data: own.data.slice() })
+        else if (!SCRATCH)
+          void bufferStore.get(m.id, s).then((b) => {
+            if (b?.data.length) engine.send({ type: 'buffer', id: m.id, slot: s, rate: b.rate, data: b.data })
+          })
+      }
     }
     this.present = now
+  }
+
+  /** Take in recordings for modules of a patch about to load (call before
+   *  loading it): kept on disk for your own rack, in memory for a scratch one. */
+  adopt(list: { id: string; slot: number; rate: number; data: Float32Array }[]): void {
+    for (const b of list) {
+      this.adopted.set(bufferStore.key(b.id, b.slot), { rate: b.rate, data: b.data })
+      this.present.delete(b.id) // so the next patch sends it, even to a module already here
+      if (!SCRATCH) void bufferStore.put(b.id, b.slot, { rate: b.rate, data: b.data })
+    }
+  }
+
+  /** A module slot's recording: from disk, or (scratch racks, or not saved yet)
+   *  straight from the running engine. */
+  async read(id: string, slot: number): Promise<StoredBuffer | null> {
+    const own = this.adopted.get(bufferStore.key(id, slot))
+    if (!SCRATCH) {
+      const b = await bufferStore.get(id, slot)
+      if (b?.data.length) return b
+    }
+    if (engine.getStatus().power) {
+      const b = await new Promise<BufferMsg>((resolve) => {
+        this.dumps.set(`${id}/${slot}`, resolve)
+        engine.send({ type: 'getBuffer', id, slot })
+      })
+      if (b.data.length) return { rate: b.rate, data: b.data }
+    }
+    return own ?? null
   }
 
   /** Decode an audio file, mix to mono, and load it into a module slot. */

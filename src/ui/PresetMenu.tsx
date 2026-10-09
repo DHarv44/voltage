@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { patchLibrary, useLibrary } from '../patch/library'
+import { HistoryList } from './HistoryList'
 import { PRESETS } from '../patch/presets'
 import { actions, patchStore } from '../patch/store'
 import type { Patch } from '../patch/types'
@@ -75,6 +76,7 @@ export function PresetMenu() {
               </button>
             </div>
           ))}
+          <HistoryList onLoad={(v) => load(v.patch)} />
           <div className="preset-group">Factory presets</div>
           {PRESETS.map((p) => (
             <button key={p.id} className="preset-item" onClick={() => load(p.build())}>

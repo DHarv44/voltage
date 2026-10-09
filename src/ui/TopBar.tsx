@@ -1,6 +1,8 @@
 import { useRef, useSyncExternalStore } from 'react'
 import { engine } from '../audio/engine'
 import { recorder, useRecorder } from '../audio/recorder'
+import { buffers } from '../audio/buffers'
+import { exportRack, unpack } from '../patch/bundle'
 import { SCRATCH } from '../patch/persist'
 import { RAIL_SIZES, railHp, usedHp } from '../patch/layout'
 import { PresetMenu } from './PresetMenu'
@@ -19,21 +21,14 @@ export function TopBar() {
   const rec = useRecorder()
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const exportPatch = () => {
-    const blob = new Blob([JSON.stringify(patchStore.get(), null, 2)], { type: 'application/json' })
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
-    a.download = 'voltage-patch.json'
-    a.click()
-    URL.revokeObjectURL(a.href)
-  }
+  // a .voltage file carries the recordings too; older .json patch files still import
+  const exportPatch = () => void exportRack(patchStore.get())
   const importPatch = async (f: File | undefined) => {
     if (!f) return
-    try {
-      if (!actions.load(JSON.parse(await f.text()))) alert('Not a VOLTAGE patch file.')
-    } catch {
-      alert('Could not read that file.')
-    }
+    const b = await unpack(new Uint8Array(await f.arrayBuffer()))
+    if (!b) return alert('Not a VOLTAGE file.')
+    buffers.adopt(b.recordings)
+    actions.load(b.patch)
   }
 
   return (
@@ -143,12 +138,14 @@ export function TopBar() {
         <SongMenu />
         <LearnMenu />
         <ShareMenu />
-        <button onClick={exportPatch}>Export</button>
+        <button onClick={exportPatch} title="Save the whole rack, recordings and all, as a .voltage file">
+          Export
+        </button>
         <button onClick={() => fileRef.current?.click()}>Import</button>
         <input
           ref={fileRef}
           type="file"
-          accept="application/json,.json"
+          accept=".voltage,application/json,.json"
           hidden
           onChange={(e) => {
             void importPatch(e.target.files?.[0])
