@@ -30,6 +30,18 @@ export function drawMascot(ctx: CanvasRenderingContext2D, kind: string, mx: numb
     ctx.beginPath()
     ctx.arc(mx, my - s * 1.4, s * (0.18 + flash * 0.2), 0, Math.PI * 2)
     ctx.fill()
+  } else if (kind === 'pocketspeak') {
+    // a face whose mouth opens as it sings
+    const r = lh * 0.1
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    ctx.arc(mx, my, r, 0, Math.PI * 2)
+    ctx.stroke()
+    ctx.fillRect(mx - r * 0.45, my - r * 0.35, r * 0.18, r * 0.18)
+    ctx.fillRect(mx + r * 0.27, my - r * 0.35, r * 0.18, r * 0.18)
+    ctx.beginPath()
+    ctx.ellipse(mx, my + r * 0.35, r * 0.35, r * (0.06 + flash * 0.3), 0, 0, Math.PI * 2)
+    ctx.fill()
   } else if (kind === 'pocketarcade') {
     // hops a pixel on every note, arms up and down
     const px = lh * 0.022

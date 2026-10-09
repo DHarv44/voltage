@@ -1,6 +1,6 @@
 import { BEZEL, packRows, type SpecLabels } from '../panelMetrics'
 import { HP_MM, type Control, type ModuleSpec, type ParamSpec } from '../types'
-import { BLUSH, GRAPHITE, SAGE, SLATE } from './panels'
+import { BLUE, BLUSH, GRAPHITE, SAGE, SLATE } from './panels'
 
 /** The melodic members of the POCKET family: same 16-step, calculator-sized
  *  idea as the drum POCKET (same clock, CLK out → CLK in to play as a band),
@@ -194,6 +194,41 @@ export const pocketrobot: ModuleSpec = {
     [knob('tempo'), knob('swing'), knob('vol'), knob('scale'), knob('root'), jack('in', 'clk'), jack('in', 'rst'), jack('out', 'pitch')],
     [knob('voice'), knob('oct'), knob('glide'), knob('fx'), { kind: 'switch', param: 'rec', x: 0, y: 0 }, jack('out', 'clko'), jack('out', 'rsto'), jack('out', 'gate')],
     [null, null, null, null, null, null, null, jack('out', 'out')],
+  ]),
+}
+
+// ---- POCKET SPEAK: the singing voice ----
+
+export const SPEAK_VOICES = ['ROBOT', 'CHOIR', 'WHISPER']
+/** Each step's syllable (its flag); right-click a step to change it. */
+export const SPEAK_SYLLABLES = ['AH', 'EE', 'OO', 'DA', 'TI', 'BO', 'MA', 'LA']
+
+const SPEAK_PARAMS: ParamSpec[] = [
+  ...common(SPEAK_VOICES),
+  { id: 'scale', label: 'SCALE', min: 0, max: SCALES.length - 1, def: 1, stepped: true, options: SCALES },
+  { id: 'root', label: 'ROOT', min: 0, max: 11, def: 9, stepped: true, options: ROOTS },
+  // a robot singing in A minor: da da ti la, bo ma, and a long ah
+  ...stepParams(MELODY_NOTES, [4, 0, 4, 0, 5, 0, 4, 0, 3, 0, 2, 0, 0, 0, 0, 0], bit(1, 3, 5, 7, 9, 11, 13), SPEAK_SYLLABLES.length - 1, [3, 0, 3, 0, 4, 0, 7, 0, 5, 0, 6, 0, 0, 0, 0, 0]),
+]
+
+/** A singing voice: each step a note (scale degree) and a syllable, sung by a
+ *  buzzing glottis, a small choir, or a whisper through vowel formants, the
+ *  consonant shaping how each note starts. */
+export const pocketspeak: ModuleSpec = {
+  type: 'pocketspeak',
+  title: 'POCKET SPEAK',
+  name: 'Pocket Speak',
+  tagline: 'Calculator-sized singing voice: a note and a syllable per step (da, ti, ma, la…), robot, choir or whisper; syncs over CLK',
+  category: 'Systems',
+  hp: 24,
+  panel: BLUE,
+  inputs: CLK_IN,
+  outputs: SYNTH_OUTS,
+  params: SPEAK_PARAMS,
+  leds: 3,
+  controls: pocketLayout(24, { params: SPEAK_PARAMS, inputs: CLK_IN, outputs: SYNTH_OUTS }, [
+    [knob('tempo'), knob('swing'), knob('vol'), knob('scale'), knob('root'), jack('in', 'clk'), jack('in', 'rst'), jack('out', 'pitch')],
+    [knob('voice'), knob('oct'), null, null, jack('out', 'clko'), jack('out', 'rsto'), jack('out', 'gate'), jack('out', 'out')],
   ]),
 }
 

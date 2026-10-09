@@ -64,6 +64,10 @@ export const MODULE_TERMS: Record<string, ParamTerm[]> = {
   pocket: [{ match: /^A PITCH$/, what: 'The selected sound’s pitch (hold a step to lock it there only).' }],
   pocketbass: [{ match: /^A TONE$/, what: 'Brightness: opens the filter (hold a step to lock it there only).' }],
   pocketmelody: [{ match: /^A TONE$/, what: 'Brightness: opens the filter (hold a step to lock it there only).' }],
+  pocketspeak: [
+    { match: /^A TONE$/, what: 'The throat’s size: left a big, deep voice, right a small, bright one (the vowels’ formants move).' },
+    { match: /^B DECAY$/, what: 'How long each syllable is held: short and staccato, or long and joined.' },
+  ],
   pocketoffice: [
     { match: /^A TONE$/, what: 'The selected sound’s pitch or brightness (hold a step to lock it there only).' },
     { match: /^B LENGTH$/, what: 'How long the selected sound lasts: a key’s ring, the carriage’s run, the phone’s trill.' },
@@ -282,6 +286,7 @@ const o: Record<string, string> = {
   'tapekeys:speed': 'Nudges the tape speed: the whole instrument a little sharp or flat.',
   'pocketbass:voice': 'The bass sound: a round SUB, a hollow SQUARE, or a squelchy ACID line.',
   'pocketmelody:voice': 'The melody sound: a BELL, a PLUCK or a LEAD.',
+  'pocketspeak:voice': 'Who sings: ROBOT (one buzzing voice), CHOIR (three, a little apart) or WHISPER (breath only).',
   'pocketrobot:voice': 'The lead’s wave: a bright SAW, a hollow SQUARE, or BUZZ (ring-modulated: metallic, robotic).',
   'pocketrobot:glide': 'How long a glide takes: between notes played legato, and into steps marked GLIDE.',
   'pocketrobot:fx': 'The effect: DRY, an ECHO three sixteenths later, or CRUSH (fewer bits, a lower sample rate). B sets how much.',

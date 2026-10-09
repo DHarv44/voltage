@@ -64,6 +64,7 @@ import { PocketMelodyDsp } from './pocketMelody'
 import { PocketArcadeDsp } from './pocketArcade'
 import { PocketRobotDsp } from './pocketRobot'
 import { PocketOfficeDsp } from './pocketOffice'
+import { PocketSpeakDsp } from './pocketSpeak'
 import { StylophoneDsp } from './stylophone'
 import { BounceDsp } from './bounce'
 import { TumblerDsp } from './tumbler'
@@ -199,6 +200,7 @@ const CIRCUITS: Record<string, DspCtor> = {
   pocketarcade: PocketArcadeDsp,
   pocketrobot: PocketRobotDsp,
   pocketoffice: PocketOfficeDsp,
+  pocketspeak: PocketSpeakDsp,
   stylophone: StylophoneDsp,
   bounce: BounceDsp,
   tumbler: TumblerDsp,

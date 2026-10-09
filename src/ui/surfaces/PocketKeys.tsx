@@ -1,6 +1,6 @@
 import { useRef, type MouseEvent, type PointerEvent, type WheelEvent } from 'react'
 import { telemetry } from '../../audio/telemetry'
-import { ARCADE_MODES, ARCADE_VOICES, ROBOT_MODES, ROBOT_VOICES, BASS_NOTES, BASS_VOICES, MELODY_MODES, MELODY_NOTES, MELODY_VOICES, PSL, PSTEPS, ROOTS, SCALE_STEPS } from '../../modules/specs/pocketSynth'
+import { ARCADE_MODES, ARCADE_VOICES, ROBOT_MODES, ROBOT_VOICES, SPEAK_SYLLABLES, SPEAK_VOICES, BASS_NOTES, BASS_VOICES, MELODY_MODES, MELODY_NOTES, MELODY_VOICES, PSL, PSTEPS, ROOTS, SCALE_STEPS } from '../../modules/specs/pocketSynth'
 import { drawMascot } from './pocketMascots'
 import { actions, patchStore } from '../../patch/store'
 import { PX } from '../geometry'
@@ -25,6 +25,8 @@ const FLAVOURS = {
   pocketmelody: { bg: '#dfcbcc', accent: '#8a3fc2', voices: MELODY_VOICES, modes: MELODY_MODES, knobA: 'A · TONE', knobB: 'B · DECAY' },
   pocketarcade: { bg: '#c9ced9', accent: '#d9542b', voices: ARCADE_VOICES, modes: ARCADE_MODES, knobA: 'A · VIBRATO', knobB: 'B · DECAY' },
   pocketrobot: { bg: '#cfccc5', accent: '#e8402f', voices: ROBOT_VOICES, modes: ROBOT_MODES, knobA: 'A · TONE', knobB: 'B · FX' },
+  // the step's flag is its syllable (shown even for AH, the first)
+  pocketspeak: { bg: '#cbd5e3', accent: '#2a6fb3', voices: SPEAK_VOICES, modes: SPEAK_SYLLABLES, knobA: 'A · THROAT', knobB: 'B · LENGTH' },
 }
 
 /** The melodic POCKETs' face. WRITE on: click a step to switch it on/off,
@@ -176,7 +178,7 @@ export function PocketKeys({ inst, spec, x, y, w, h }: SurfaceProps) {
       ctx.fillText(write && !on ? String(i + 1) : label, bx + bw / 2, by + bh * 0.48)
       if (write && on) {
         const f = Math.round(p[`f${i}`] ?? 0)
-        const tag = bass ? [f & 1 ? 'SLIDE' : '', f & 2 ? 'ACC' : ''].filter(Boolean).join(' ') : f ? look.modes[f] : ''
+        const tag = bass ? [f & 1 ? 'SLIDE' : '', f & 2 ? 'ACC' : ''].filter(Boolean).join(' ') : f || inst.type === 'pocketspeak' ? look.modes[f] : ''
         if (tag) {
           ctx.font = `${Math.round(bh * 0.15)}px Bahnschrift, 'Arial Narrow', sans-serif`
           ctx.fillText(tag, bx + bw / 2, by + bh * 0.74)

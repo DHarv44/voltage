@@ -19,7 +19,7 @@ function kitWith(
 }
 
 /** A POCKET drum machine running; the others follow its CLK. */
-function pocketBand(k: Kit, with_?: 'pocketbass' | 'pocketmelody' | 'pocketrobot'): void {
+function pocketBand(k: Kit, with_?: 'pocketbass' | 'pocketmelody' | 'pocketrobot' | 'pocketspeak'): void {
   const p = k.add('pocket', { run: 1, write: 0, tempo: 104 })
   if (!with_) return void toOut(k, [p, 'out'])
   // followers only step on the clock while their own PLAY is on
@@ -85,6 +85,11 @@ export const RHYTHM_STARTERS: Record<string, Starter> = {
   pocket: { howTo: 'POCKET playing its beat. WRITE on: pick a sound, toggle its steps.', build: (k) => pocketBand(k) },
   pocketbass: { howTo: 'POCKET BASS following POCKET’s clock. Drag a step up or down to change its note.', build: (k) => pocketBand(k, 'pocketbass') },
   pocketmelody: { howTo: 'POCKET MELODY following POCKET’s clock. Drag steps to change notes; right-click for chords.', build: (k) => pocketBand(k, 'pocketmelody') },
+  pocketspeak: {
+    howTo:
+      'POCKET SPEAK singing over POCKET’s beat: da da ti la, bo ma, ah. Drag a step up or down for its note, right-click it to change its syllable. Try VOICE (CHOIR, WHISPER) and A (the throat’s size).',
+    build: (k) => pocketBand(k, 'pocketspeak'),
+  },
   pocketoffice: {
     howTo:
       'POCKET OFFICE: a typist at work as a beat. Keys between the beats, the space bar on them, a staple on 2 and 4, the bell at the end of the line, the carriage return. WRITE on: pick a sound, toggle its steps; right-click a step to lock A / B there.',

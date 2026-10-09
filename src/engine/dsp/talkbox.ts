@@ -2,17 +2,17 @@ import type { ModuleSpec } from '../../modules/types'
 import { Dsp } from './base'
 
 /** Formant frequencies (Hz) of U O A E I (adult male), and their bandwidth Qs. */
-const F: number[][] = [
+export const F: number[][] = [
   [300, 870, 2240],
   [570, 840, 2410],
   [730, 1090, 2440],
   [530, 1840, 2480],
   [270, 2290, 3010],
 ]
-const GAINS = [1, 0.55, 0.3]
+export const GAINS = [1, 0.55, 0.3]
 
 /** Zero-delay state-variable band-pass, retuned every sample (cheap: one tan). */
-class Formant {
+export class Formant {
   private ic1 = 0
   private ic2 = 0
   run(x: number, g: number, k: number): number {

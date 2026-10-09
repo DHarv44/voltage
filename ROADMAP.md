@@ -16,7 +16,7 @@ extend VOLTAGE.
 - AC/DC-coupled output; 24-bit WAV master recorder; jack voltage probe.
 - Module audio (LOOP slots, SAMPLE) persisted in IndexedDB and restored on reload and undo.
 
-### Modules (136)
+### Modules (137)
 (Grouped here by family; the library's own categories are in `modules/types.ts` CATEGORIES.)
 - **POCKET family**: POCKET (drums), POCKET OFFICE (the drum POCKET with an office kit: TYPE, SPACE,
   STAPLE and BELL as struck modal clicks retuned ±4 % per hit, RETURN a speeding ratchet then a slam,
@@ -29,7 +29,10 @@ extend VOLTAGE.
   outs; an invader on the LCD), POCKET ROBOT (a live lead: SAW / SQUARE / ring-modulated BUZZ through
   a swept resonant low-pass, GLIDE (legato played notes and GLIDE steps swoop in from the last pitch),
   FX DRY / ECHO (3/16) / CRUSH with B the amount; WRITE off by default so the buttons play; REC writes
-  each press into the nearest step while it runs; a robot head on the LCD). Drag a step to set its note, right-click for its flag; off WRITE the
+  each press into the nearest step while it runs; a robot head on the LCD), POCKET SPEAK (a note and
+  a syllable per step: AH EE OO, DA and BO (voiced burst, formants sliding in), TI (an unvoiced puff),
+  MA (a closed-mouth hum that opens), LA (a glide from the l shape); ROBOT / CHOIR / WHISPER through
+  the talk box's three formants; A the throat's size, B how long; a singing face). Drag a step to set its note, right-click for its flag; off WRITE the
   buttons are a keyboard. They follow each other's CLK.
 - **Systems**: MONO-1 (semi-modular mono), STUDIO-3 (2600-style), GROOVE-1 (drum machine), SKETCHBOOK
   (portable workstation), KIN-8 (DFAM-style percussion: two VCOs, noise, ladder, three decays, 8-step
@@ -266,7 +269,7 @@ extend VOLTAGE.
     SAMPLE/LOOP buffers).
   - ~~POCKET ARCADE~~: done (see Modules).
   - ~~POCKET ROBOT~~: done (see Modules).
-  - POCKET SPEAK: syllables per step with pitch locks (formant voice from the talk box).
+  - ~~POCKET SPEAK~~: done (see Modules).
   - ~~POCKET OFFICE~~: done (see Modules).
   - Shared upgrades: 16 hold-to-play punch-in effects (stutter, loop, filter sweep, crush, retrigger,
     reverse), several patterns per pocket chained into a song, a family LCD with its own animated mascot.
