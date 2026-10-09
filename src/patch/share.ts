@@ -1,5 +1,5 @@
 import { SPECS } from '../modules'
-import { BUFFER_SLOTS } from '../audio/buffers'
+import { holdsAudio } from '../audio/buffers'
 import { sanitize } from './persist'
 import type { Patch } from './types'
 
@@ -53,7 +53,7 @@ async function pipe(bytes: Uint8Array<ArrayBuffer>, stream: CompressionStream | 
 
 /** The link for a patch (on whatever address the app is running from). */
 export async function shareLink(patch: Patch, title: string, note: string): Promise<string> {
-  const hadAudio = patch.modules.some((m) => BUFFER_SLOTS[m.type])
+  const hadAudio = patch.modules.some((m) => holdsAudio(m.type))
   const body = JSON.stringify({ v: VERSION, t: title.trim().slice(0, 80), n: note.trim().slice(0, 400), a: hadAudio ? 1 : 0, p: compact(patch) })
   const packed = await pipe(new TextEncoder().encode(body), new CompressionStream('deflate-raw'))
   return `${location.origin}${location.pathname}#${HASH_KEY}=${toB64(packed)}`

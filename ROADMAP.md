@@ -261,7 +261,10 @@ extend VOLTAGE.
   Parameter locks (a `lock` step: picks the step, opens the page, locks the knob; starts from the
   groovebox lesson's rack) and a tour of Pocket Band. Instruments: theremin, omnichord, stylus organ,
   harp. Later, if wanted: music box, tanpura, gamelan, singing bowl, TALLY, LATTICE.
-- **XY pad extras**: multi-touch → poly cables on tablets; save the recorded gesture with the patch.
+- **XY pad extras**: ~~save the recorded gesture with the patch~~ (done: each finished take goes to
+  the buffer store like LOOP audio, comes back on reload / undo, and re-locks to the clock when one
+  arrives; XY is in BUFFER_SLOTS but NOT_AUDIO, so no WAV export). Still: multi-touch → poly cables
+  on tablets.
 - **POCKET family** (calculator-sized grooveboxes that clock each other over CLK; our own names, look and
   sounds; no third-party trademarks, artwork, LCD characters or samples):
   - ~~POCKET BASS~~ and ~~POCKET MELODY~~: done (see Modules).

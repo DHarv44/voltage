@@ -5,8 +5,12 @@ import { bufferStore } from './bufferStore'
 import { engine } from './engine'
 import { encodeWav24 } from './wav'
 
-/** Module types that hold audio, and how many slots each has. */
-export const BUFFER_SLOTS: Record<string, number> = { loop: 4, sample: 1, turntable: 1, lpedal: 1, fourtrack: 4, chop: 1, sketchbook: 4 }
+/** Module types that hold a buffer (audio, or XY's recorded gesture), and how many slots each has. */
+export const BUFFER_SLOTS: Record<string, number> = { loop: 4, sample: 1, turntable: 1, lpedal: 1, fourtrack: 4, chop: 1, sketchbook: 4, xy: 1 }
+/** Buffers that aren't sound (no WAV export, not "audio" for share links). */
+export const NOT_AUDIO = new Set(['xy'])
+/** Does this module type hold audio? */
+export const holdsAudio = (type: string): boolean => !!BUFFER_SLOTS[type] && !NOT_AUDIO.has(type)
 
 const MAX_FILE_SECONDS = 60
 

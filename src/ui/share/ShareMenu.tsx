@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { BUFFER_SLOTS } from '../../audio/buffers'
+import { holdsAudio } from '../../audio/buffers'
 import { shareLink } from '../../patch/share'
 import { patchStore } from '../../patch/store'
 
@@ -21,7 +21,7 @@ export function ShareMenu() {
     return () => window.removeEventListener('pointerdown', close)
   }, [open])
 
-  const hasAudio = patchStore.get().modules.some((m) => BUFFER_SLOTS[m.type])
+  const hasAudio = patchStore.get().modules.some((m) => holdsAudio(m.type))
   const copy = async () => {
     const link = await shareLink(patchStore.get(), title, note)
     try {

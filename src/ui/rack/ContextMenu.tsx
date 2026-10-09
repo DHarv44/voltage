@@ -1,7 +1,7 @@
 import { SPECS } from '../../modules'
 import { hpOf } from '../../modules/size'
 import { actions, patchStore } from '../../patch/store'
-import { BUFFER_SLOTS, buffers } from '../../audio/buffers'
+import { BUFFER_SLOTS, buffers, holdsAudio } from '../../audio/buffers'
 import type { MenuState } from './useRackInteractions'
 import { MenuSettings, settingsHost } from './MenuSettings'
 import { useMenuBox } from './useMenuBox'
@@ -37,7 +37,7 @@ export function ContextMenu({ menu, onClose }: { menu: MenuState; onClose: () =>
         </div>
       )}
       {host && <MenuSettings host={host} own={host.id === m.id} />}
-      {BUFFER_SLOTS[m.type] && (
+      {holdsAudio(m.type) && (
         <button
           onClick={run(async () => {
             let saved = 0

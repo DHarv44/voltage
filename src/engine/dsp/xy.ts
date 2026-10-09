@@ -57,6 +57,18 @@ export class XyDsp extends Dsp {
     this.glide = 1 - Math.exp(-1 / (0.002 * fs))
   }
 
+  /** Recordings already handed over to be saved. */
+  private takesSaved = 0
+
+  /** The saved gesture comes back with the patch. */
+  loadBuffer(_slot: number, _rate: number, data: Float32Array): void {
+    this.loop.load(data)
+  }
+
+  dumpBuffer(): { rate: number; data: Float32Array } | null {
+    return this.loop.len ? { rate: LOOP_RATE, data: this.loop.snapshot() } : null
+  }
+
   onUi(ev: UiEvent): void {
     if (ev.kind === 'xy') {
       this.held = ev.down
@@ -153,6 +165,11 @@ export class XyDsp extends Dsp {
       if (++this.recN >= this.recEvery) {
         this.recN = 0
         this.loop.record(this.x, this.y, this.tp, this.held)
+      }
+      // a newly finished recording is saved with the patch
+      if (this.loop.takes !== this.takesSaved) {
+        this.takesSaved = this.loop.takes
+        this.bufferOut.push({ slot: 0, rate: LOOP_RATE, data: this.loop.snapshot() })
       }
       this.speed += (Math.hypot(this.vx, this.vy) - this.speed) * (1 - Math.exp(-dt / 0.05))
       const dx = this.x - 0.5

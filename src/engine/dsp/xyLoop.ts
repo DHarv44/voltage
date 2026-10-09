@@ -21,6 +21,10 @@ export class GestureLoop {
   private period = 0
   private loopPulses = 0
   private edgeCount = 0
+  /** A loaded loop snaps to the clock once it has heard one. */
+  private snapPending = false
+  /** Counts finished recordings (the module saves each new one). */
+  takes = 0
 
   arm(): void {
     if (this.state === 2) return this.stop()
@@ -53,12 +57,35 @@ export class GestureLoop {
     this.len = this.rec
     this.pos = 0
     this.playing = true
-    // Snap to the clock: a whole number of pulses, at least one.
+    this.snap()
+    this.takes++
+  }
+
+  /** Snap to the clock: a whole number of pulses, at least one. */
+  private snap(): void {
     if (this.period > 0) {
       const secs = this.len / LOOP_RATE
       this.loopPulses = Math.max(1, Math.round(secs / this.period))
       this.edgeCount = 0
     } else this.loopPulses = 0
+    this.snapPending = false
+  }
+
+  /** The finished loop (a view of it: x, y, pressure, gate per frame). */
+  snapshot(): Float32Array {
+    return this.buf.subarray(0, this.len * FRAME)
+  }
+
+  /** A saved loop comes back: it plays, and locks to the clock when one arrives. */
+  load(data: Float32Array): void {
+    const n = Math.min(this.buf.length, data.length - (data.length % FRAME))
+    this.buf.set(data.subarray(0, n))
+    this.len = n / FRAME
+    this.state = 0
+    this.pos = 0
+    this.playing = this.len > 1
+    this.loopPulses = 0
+    this.snapPending = this.playing
   }
 
   /** RST: a playing loop goes back to its top (its clock count with it). */
@@ -82,6 +109,10 @@ export class GestureLoop {
       this.pulses++
     }
     if (!clocked) this.period = 0
+    if (this.snapPending && this.period > 0 && edge) {
+      this.snap()
+      this.pos = 0
+    }
     if (!this.playing || !this.len) return
     this.pos += dt * LOOP_RATE
     if (this.loopPulses && edge && ++this.edgeCount >= this.loopPulses) {
