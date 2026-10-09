@@ -163,7 +163,9 @@ can play the music and the music can drive the visuals.
   plate** whose sand finds the shape of the note; a **murmuration** of starlings over a reed bed at
   dusk. Each bird only follows its neighbours, so the swirling shapes and the dark waves that ripple
   through the flock are its own. A falcon (TRIG, or tap the sky) blows it apart; as the light goes
-  the waves come faster, then the whole flock pours down into the reeds to roost.
+  the waves come faster, then the whole flock pours down into the reeds to roost. And **rain on a
+  pond**: every drop is a GATE with its own DEPTH (how near it fell), so the rain plays a melody;
+  the lily pad's bob on the crossing rings is MOTION, and a storm (RATE up) brings lightning.
 - **The garden** is a meadow through days and nights. Daisies, tulips, sunflowers (they turn to follow
   the sun) and dandelions (their seed clocks blow away and come up where the seeds land) live whole
   lives: they close at night, drop petals as they die, fall into the grass and rot away. Trees grow

@@ -290,8 +290,11 @@ extend VOLTAGE.
   the flock as a whole (heading, radius, turning waves, falcon stoops, a five-minute dusk ending in
   the roost) and the screen flies up to 1200 boids (ui/vision/flock.ts: seven-ish neighbours on a
   hashed grid, a goal felt only past the flock's edge, waves that swerve each bird as the front
-  passes; birds look bigger side-on), in front of 3D reeds), and the other new scenes (coral reef,
-  rain on a pond) built in 3D so there's something to see wherever you zoom.
+  passes; birds look bigger side-on), in front of 3D reeds), ~~RAIN~~ (done: the engine drops rain
+  (RATE, FEED), a GATE and DEPTH per drop, the lily pad's bob from the same ripple() the water
+  shader differentiates, lightning when it pours; the screen: a reflective pond seen from the bank,
+  pads, streaks, splash crowns, a 3D tree line), and the coral reef, built in 3D so there's
+  something to see wherever you zoom.
 
 ## Pinned for later: cloud saving, short links and a public gallery
 Goal: short links anyone can open; public patches browsable on the site; private patches only their

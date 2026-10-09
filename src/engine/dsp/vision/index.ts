@@ -8,6 +8,7 @@ import { Fireflies } from './fireflies'
 import { Aurora } from './aurora'
 import { Cymatics } from './cymatics'
 import { Murmuration } from './murmuration'
+import { Rain } from './rain'
 import type { Creature, CreatureInput, CreatureOutput } from './creature'
 import type { UiEvent } from '../../protocol'
 
@@ -75,7 +76,7 @@ export class VisionDsp extends Dsp {
 
   constructor(spec: ModuleSpec, fs: number, seed: number) {
     super(spec, fs, seed)
-    this.creatures = [new Jelly(this.rng), new Garden(this.rng), new Fireflies(this.rng), new Aurora(this.rng), new Cymatics(this.rng), new Murmuration(this.rng)]
+    this.creatures = [new Jelly(this.rng), new Garden(this.rng), new Fireflies(this.rng), new Aurora(this.rng), new Cymatics(this.rng), new Murmuration(this.rng), new Rain(this.rng)]
     this.blocks = this.creatures.map((_, k) => this.led.subarray(sceneBlock(k), sceneBlock(k) + LED_BLOCK))
     this.fingers = this.creatures.map(() => new Finger())
     this.ci = {
