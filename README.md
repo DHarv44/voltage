@@ -154,8 +154,9 @@ match), ☆ stars a module into Favourites, and the last few you added sit under
 
 ### VISION: living scenes you patch
 A glass tank with a creature in it, running on the same clock as the audio. CV steers it (TRIG,
-FEED, GLOW, PITCH, MOVE) and its movements come back out as voltages (GATE, MOTION, STATE, LIGHT),
-so the visuals can play the music and the music can drive the visuals.
+FEED, GLOW, PITCH, MOVE) and its movements come back out as voltages (GATE, MOTION, STATE, LIGHT,
+and DEPTH: how near the jelly is to the glass, or each scene's nearest equivalent), so the visuals
+can play the music and the music can drive the visuals.
 
 - **Five scenes:** a bioluminescent **jellyfish** that swims in 3D (long notes carry it further); a
   **garden** (below); **fireflies** that fall into sync; an **aurora** with substorms; a **Chladni

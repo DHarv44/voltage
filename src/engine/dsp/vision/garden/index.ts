@@ -175,6 +175,7 @@ export class Garden implements Creature {
     o.sway = Math.max(-5, Math.min(5, sway * 5))
     o.grow = Math.min(10, (life / this.plants.length) * 20)
     o.light = Math.min(10, glowLight * 10)
+    o.depth = Math.min(10, this.seeds.highest() * 8) // how high the dandelion seeds are flying
     this.publish(led, sway, glowLight, life, wilt, i)
   }
 

@@ -284,7 +284,9 @@ extend VOLTAGE.
     already has its own mascot). See Modules.
 - **VISION extras**: ~~TOUCH X / Y / GATE outputs~~ (done: VISION only, the finger on the scene that
   drives the jacks, 0–10 V with y up, held on lift, gate while down; VISION CORE has no glass so no
-  jacks), a DEPTH output for the jelly, and the new scenes (coral reef, rain on a pond, starling
+  jacks), ~~a DEPTH output~~ (done, on VISION and VISION CORE: the jelly's distance from the glass,
+  the garden's highest seed, the fireflies' swarm drifting nearer and further (FF_NEAR, drawn too),
+  the aurora's height, the cymatics plate's knock ringing), and the new scenes (coral reef, rain on a pond, starling
   murmuration) built in 3D so there's something to see wherever you zoom.
 
 ## Pinned for later: cloud saving, short links and a public gallery

@@ -14,9 +14,9 @@ const jack = (kind: 'in' | 'out', id: string): Control => ({ kind, jack: id, x: 
 const SURFACE_Y = 14
 
 /** A surface over everything above the packed rows. */
-function panel(hp: number, rows: (Control | null)[][], spec: Pick<ModuleSpec, 'params' | 'inputs' | 'outputs'>, name: string) {
+function panel(hp: number, rows: (Control | null)[][], spec: Pick<ModuleSpec, 'params' | 'inputs' | 'outputs'>, name: string, maxPitch?: number) {
   const W = hp * HP_MM
-  const layout = packRows(rows, spec, W, { gap: 2.4 })
+  const layout = packRows(rows, spec, W, { gap: 2.4, maxPitch })
   return [{ kind: 'surface' as const, name, x: 4, y: SURFACE_Y, w: W - 8, h: layout.top - SURFACE_Y - 3 }, ...layout.controls]
 }
 
@@ -65,13 +65,15 @@ export const metronome: ModuleSpec = {
   controls: panel(
     12,
     [
-      [knob('bpm', 'L'), knob('beats', 'M')],
+      [knob('bpm', 'L'), null, knob('beats', 'M')],
       [knob('sub'), knob('sound'), knob('accent'), knob('level')],
       [sw('run'), jack('in', 'clk'), jack('in', 'run'), jack('in', 'rst'), jack('out', 'rsto')],
       ['beat', 'bar', 'sub', 'out'].map((id) => jack('out', id)),
     ],
     { params: metParams, inputs: metIn, outputs: metOut },
     'metronome',
+    // one pitch for every row, so the rows of four and five share columns
+    (12 * HP_MM - 12) / 4,
   ),
 }
 

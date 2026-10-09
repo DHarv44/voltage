@@ -52,6 +52,7 @@ export class Cymatics implements Creature {
     o.gate = this.gate > 0 ? 10 : 0
     o.light = Math.min(10, light * 10)
     o.grow = (mode / (PLATE_MODES.length - 1)) * 10
+    o.depth = this.knock * 10 // the plate still ringing from a knock
     o.sway = Math.max(-5, Math.min(5, Math.sin(this.ph * Math.PI * 2) * (drive + this.knock) * 5))
     led[VS.action] = drive
     led[VS.glow] = light

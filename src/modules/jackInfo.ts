@@ -206,7 +206,13 @@ OVERRIDES['tally:in:gate'] = { signal: 'gate', what: 'Plays TALLY’s voice from
 OVERRIDES['tally:out:rhy'] = { signal: 'audio', what: 'The rhythm box on its own (for its own effects or channel).' }
 OVERRIDES['tally:in:clk'] = { signal: 'clock', what: 'Clock in (16ths, CLOCK’s ×4): the rhythm box steps with the rack.' }
 // resets that mean something particular
-for (const t of ['vision', 'visioncore']) OVERRIDES[`${t}:in:rst`] = { signal: 'reset', what: 'A pulse starts every scene in the tank over (patch CLOCK’s RST so the visuals begin with the song).' }
+for (const t of ['vision', 'visioncore']) {
+  OVERRIDES[`${t}:in:rst`] = { signal: 'reset', what: 'A pulse starts every scene in the tank over (patch CLOCK’s RST so the visuals begin with the song).' }
+  OVERRIDES[`${t}:out:depth`] = {
+    signal: 'cv',
+    what: 'How near, 0–10 V: the jelly’s distance from the glass (10 V against it), how high the garden’s seeds are flying, how close the fireflies’ swarm is, how high the aurora reaches, the cymatics plate still ringing from a knock.',
+  }
+}
 for (const t of ['vector', 'waterfall']) OVERRIDES[`${t}:in:rst`] = { signal: 'reset', what: 'A pulse wipes the screen clean.' }
 OVERRIDES['loop:in:rst'] = { signal: 'reset', what: 'A pulse sends the loop back to its start, on the downbeat.' }
 OVERRIDES['life:in:rst'] = { signal: 'reset', what: 'A pulse sends the scan back to the first column (the colony keeps its shape).' }

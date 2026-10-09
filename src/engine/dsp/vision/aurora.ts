@@ -49,6 +49,7 @@ export class Aurora implements Creature {
     o.light = Math.min(10, light * 10)
     o.sway = Math.max(-5, Math.min(5, sway * 5))
     o.grow = this.energy * 10
+    o.depth = Math.min(10, this.activity * 10) // a storm lifts the curtains higher
     led[VS.action] = this.activity
     led[VS.glow] = light
     led[VS.hue] = hueOf(i.hue, i.hueV)

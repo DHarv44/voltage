@@ -18,6 +18,8 @@ export const CYM = { m: VS_EXTRA, n: VS_EXTRA + 1, mode: VS_EXTRA + 2, knock: VS
 /** Fireflies: up to this many (COUNT picks how many fly), each publishing its
  *  brightness (−1 = not flying). */
 export const FIREFLIES = 48
+/** Fireflies: the swarm nearer the glass (+1) or further off (−1). */
+export const FF_NEAR = VS_EXTRA + FIREFLIES
 
 /** COUNT (0..1, default ½ = each scene's classic look) → how many of each
  *  scene's things there are. Shared by the engine and the renderer. */
@@ -45,6 +47,7 @@ export const VISION_LEDS = LED_BLOCK * (1 + VISION_SCENES.length)
  *  | GATE   | stroke       | each new stage  | meadow flash   | onset         | new mode / knock    |
  *  | MOTION | tentacles    | stems           | drift          | curtains      | buzz                |
  *  | STATE  | size         | how alive       | sync           | energy        | mode number         |
+ *  | DEPTH  | how near     | seeds' height   | swarm's depth  | curtain height| knock's ring        |
  *
  *  Jack ids stay as first named (hue, sway, grow) so saved patches keep their
  *  cables. LINK carries no voltage: patch it into VISION VIEW modules. */
@@ -62,6 +65,7 @@ export const VISION_OUTPUTS: ModuleSpec['outputs'] = [
   { id: 'grow', label: 'STATE' },
   { id: 'light', label: 'LIGHT' },
   { id: 'link', label: 'LINK' },
+  { id: 'depth', label: 'DEPTH' },
 ]
 /** VISION (the one with glass) adds the glass as a touch pad: where the finger
  *  is on the scene driving the jacks (0–10 V, held when it lifts) and a gate
@@ -102,7 +106,7 @@ const PITCH = 11.5
 const VISION_CONTROLS: Control[] = [
   ...(['scene', 'rate', 'hue', 'glow', 'count'] as const).map((param): Control => ({ kind: 'knob', param, x: 0, y: 0, size: 'S' })),
   ...(['trig', 'feed', 'glow', 'hue', 'move', 'rst'] as const).map((jack): Control => ({ kind: 'in', jack, x: 0, y: 0 })),
-  ...(['gate', 'sway', 'grow', 'light', 'link', 'tx', 'ty', 'tgate'] as const).map((jack): Control => ({ kind: 'out', jack, x: 0, y: 0 })),
+  ...(['gate', 'sway', 'grow', 'light', 'depth', 'link', 'tx', 'ty', 'tgate'] as const).map((jack): Control => ({ kind: 'out', jack, x: 0, y: 0 })),
 ]
 
 /** Split controls into as few even rows as fit across `w` mm. */

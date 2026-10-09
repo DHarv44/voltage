@@ -57,9 +57,10 @@ export class VisionDsp extends Dsp {
   private readonly trig = new Schmitt()
   private readonly rst = new Schmitt()
   private readonly ci: CreatureInput
-  private readonly co: CreatureOutput = { gate: 0, sway: 0, grow: 0, light: 0 }
+  private readonly co: CreatureOutput = { gate: 0, sway: 0, grow: 0, light: 0, depth: 0 }
   /** Where the scenes not on the jacks put their outputs (nobody reads them). */
-  private readonly idle: CreatureOutput = { gate: 0, sway: 0, grow: 0, light: 0 }
+  private readonly idle: CreatureOutput = { gate: 0, sway: 0, grow: 0, light: 0, depth: 0 }
+  private readonly oDepth = this.oi('depth')
   /** Each scene's block of the LED channel (block 0 mirrors the selected one). */
   private readonly blocks: Float32Array[]
   /** Touches on the glass, one per scene (a VIEW can touch any scene). */
@@ -158,6 +159,7 @@ export class VisionDsp extends Dsp {
     o[1] += (co.sway - o[1]) * this.glide
     o[2] += (co.grow - o[2]) * this.glide
     o[3] += (co.light - o[3]) * this.glide
+    o[this.oDepth] += (co.depth - o[this.oDepth]) * this.glide
     // the finger on the scene driving the jacks: where it is (held when it lifts), and down or not
     if (this.oTx >= 0) {
       const f = this.fingers[this.scene]

@@ -1,4 +1,4 @@
-import { countOf, FIREFLIES, VS, VS_EXTRA } from '../../../modules/specs/vision'
+import { countOf, FF_NEAR, FIREFLIES, VS, VS_EXTRA } from '../../../modules/specs/vision'
 import type { Rng } from '../util'
 import { hueOf, Wander, type Creature, type CreatureInput, type CreatureOutput } from './creature'
 
@@ -22,8 +22,11 @@ export class Fireflies implements Creature {
   /** A finger dragged across the meadow herds them along. */
   private herd = 0
   private readonly drift: Wander
+  /** The swarm drifting nearer the glass or further off (DEPTH). */
+  private readonly near: Wander
 
   constructor(private readonly rng: Rng) {
+    this.near = new Wander(rng, 0.08, 0.2)
     for (let k = 0; k < FIREFLIES; k++) {
       this.ph[k] = rng.next()
       this.freq[k] = 1 + rng.gauss() * 0.08 // each fly's own tempo
@@ -35,7 +38,7 @@ export class Fireflies implements Creature {
   reset(): void {
     for (let k = 0; k < FIREFLIES; k++) this.ph[k] = this.rng.next()
     this.gate = this.lastMean = this.herd = 0
-    this.drift.v = 0
+    this.drift.v = this.near.v = 0
   }
 
   step(i: CreatureInput, o: CreatureOutput, led: Float32Array): void {
@@ -79,6 +82,9 @@ export class Fireflies implements Creature {
     o.grow = r * 10
     o.sway = Math.max(-5, Math.min(5, (this.drift.step(dt) + this.herd) * 5 + i.move * 0.2))
     o.light = Math.min(10, glow * 10)
+    const near = Math.max(-1, Math.min(1, this.near.step(dt)))
+    o.depth = (near + 1) * 5
+    led[FF_NEAR] = near
     led[VS.action] = r
     led[VS.glow] = glow
     led[VS.hue] = hueOf(i.hue, i.hueV)

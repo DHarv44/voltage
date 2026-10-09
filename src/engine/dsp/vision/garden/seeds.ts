@@ -60,6 +60,13 @@ export class Seeds {
     }
   }
 
+  /** The highest seed in the air (scene units; 0 with none aloft). */
+  highest(): number {
+    let h = 0
+    for (let k = 0; k < GARDEN_SEEDS; k++) if (this.y[k] > h) h = this.y[k]
+    return h
+  }
+
   publish(led: Float32Array, base: number): void {
     for (let k = 0; k < GARDEN_SEEDS; k++) {
       const o = base + k * SEED_VALUES

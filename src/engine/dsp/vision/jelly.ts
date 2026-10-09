@@ -171,6 +171,7 @@ export class Jelly implements Creature {
     o.sway = Math.max(-5, Math.min(5, sway * 5))
     o.grow = this.size * 10
     o.light = Math.min(10, light * 10)
+    o.depth = this.z * 10 // 10 V right up against the glass
 
     led[VS.action] = this.c
     led[VS.x] = this.x

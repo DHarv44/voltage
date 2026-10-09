@@ -28,12 +28,14 @@ export interface CreatureInput {
   opts: { sky: number; trees: number; flora: number; bugs: number }
 }
 
-/** What a creature drives: its four output voltages. State goes to `led`. */
+/** What a creature drives: its output voltages (DEPTH 0–10 V: how near, or
+ *  each scene's nearest equivalent). State goes to `led`. */
 export interface CreatureOutput {
   gate: number
   sway: number
   grow: number
   light: number
+  depth: number
 }
 
 export interface Creature {

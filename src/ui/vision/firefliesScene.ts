@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { FIREFLIES, VS_EXTRA } from '../../modules/specs/vision'
+import { FF_NEAR, FIREFLIES, VS_EXTRA } from '../../modules/specs/vision'
 import { backdrop, CameraRig, disposeScene, glowPoints, rand, standardCamera, VIEW_H } from './common'
 import { MEADOW_SKY } from './flowerParts'
 import type { SceneFactory } from './types'
@@ -33,6 +33,7 @@ export const firefliesScene: SceneFactory = (aspect, seed) => {
   const W = VIEW_H * aspect
   const col = new THREE.Color()
   const rig = new CameraRig(camera, sky)
+  let near = 0
   return {
     scene,
     camera,
@@ -45,19 +46,21 @@ export const firefliesScene: SceneFactory = (aspect, seed) => {
       // the flies answer a flash wherever it is; drags read left/right
       return { x: u, y: 1 - v }
     },
-    update(s, _dt, t, px, led) {
+    update(s, dt, t, px, led) {
       sky.material.uniforms.uT.value = t
       const cp = core.geometry.attributes.position.array as Float32Array
       const ct = core.geometry.attributes.tint.array as Float32Array
       const hp = halo.geometry.attributes.position.array as Float32Array
       const ht = halo.geometry.attributes.tint.array as Float32Array
       col.setHSL((0.17 + (s.hue - 0.55) * 0.3 + 1) % 1, 0.9, 0.6)
+      // the swarm drifts nearer the glass and away again (the DEPTH jack)
+      near += ((led?.[FF_NEAR] ?? 0) - near) * Math.min(1, dt * 3)
       for (let k = 0; k < FIREFLIES; k++) {
         const p = path[k]
         // MOTION (drift, MOVE, a herding finger) carries the whole swarm
         const x = p.x * W * 0.85 + Math.sin(t * p.fx + p.ph) * 0.25 + s.sway * 0.3
         const y = -VIEW_H * 0.6 + p.y * VIEW_H * 1.1 + Math.sin(t * p.fy * 2 + p.ph) * 0.12
-        const z = p.z + Math.sin(t * p.fz + p.ph * 1.3) * 0.25
+        const z = p.z + Math.sin(t * p.fz + p.ph * 1.3) * 0.25 + near * 0.6
         // −1: not flying tonight (COUNT); hidden entirely
         const raw = led?.[VS_EXTRA + k] ?? (k < 24 ? 0 : -1)
         const b = raw < 0 ? 0 : raw * 1.6
