@@ -268,8 +268,10 @@ extend VOLTAGE.
   correlation, 4096-sample frames for the screen's FFT (ui/surfaces/fft.ts, shared with
   WATERFALL)), ~~piano roll + song arranger~~ (done: PIANO ROLL, 96 note slots as params
   s/l/n/v, voice allocation free-first then nearest-its-end, poly out; ARRANGER, 16 sections
-  b/p/m, PAT a 16th early, PART gates on the bar; both drawn and edited on canvas faces); next:
-  per-module presets.
+  b/p/m, PAT a 16th early, PART gates on the bar; both drawn and edited on canvas faces),
+  ~~per-module presets~~ (done: right-click → Presets; patch/modulePresets.ts in localStorage
+  `voltage.modulePresets.v1`, cleaned against the spec on load; cloud saving can carry them).
+  The gaps batch is done; next: cloud saving (sign-in still to discuss).
 - **Tutorial suite**: ~~sequencing, drums, effects~~ (lessons 5–7 of the course), ~~polyphony,
   semi-modular normals, a tour of Acid House~~ (done: the Learn menu is now three courses: Synth
   fundamentals (continuous), Beyond the basics, Tours of the factory racks; a `disconnect` step pulls a
@@ -361,7 +363,7 @@ Our own versions throughout: inspired by the classics, our own names, panels and
     resonator (Rings-style)~~ (done: KALEIDO, RESONATOR).
   - EDM: sidechain, multiband ("OTT"-style), supersaw.
   - Stereo: ~~panner, mid/side widener, auto-pan~~ (done: PANNER, WIDENER), ping-pong delay.
-- **Beyond modules**: per-module presets (save a module's settings), ~~song mode / arranger~~
+- **Beyond modules**: ~~per-module presets~~ (done), ~~song mode / arranger~~
   (done: ARRANGER), velocity + aftertouch routing and MPE input, Scala / just-intonation tunings.
 
 ## Systems (whole instruments, our own names and looks)

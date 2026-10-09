@@ -78,7 +78,9 @@ case. **Walkthrough** does each step for you; **Guided** lets you do it and move
 - **Right-click an empty part of a row → Remove row.** If it has modules in it you're asked first:
   move them into free space in the other rows (if they fit), remove them with it, or cancel.
 - **Right-click a module:** Duplicate, Reset knobs, Export audio (for modules that record), **Size**
-  (for resizable screens), any deeper settings it has (VISION's garden), and Remove.
+  (for resizable screens), any deeper settings it has (VISION's garden), **Presets** (name and
+  save this module's settings, then load them onto any module of the same kind, in any rack; one
+  undo step), and Remove.
 
 ### Knobs, switches and cables
 | Do this | To |

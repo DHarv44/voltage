@@ -4,6 +4,7 @@ import { actions, patchStore } from '../../patch/store'
 import { BUFFER_SLOTS, buffers, holdsAudio } from '../../audio/buffers'
 import type { MenuState } from './useRackInteractions'
 import { MenuSettings, settingsHost } from './MenuSettings'
+import { MenuPresets } from './MenuPresets'
 import { useMenuBox } from './useMenuBox'
 
 export function ContextMenu({ menu, onClose }: { menu: MenuState; onClose: () => void }) {
@@ -37,6 +38,7 @@ export function ContextMenu({ menu, onClose }: { menu: MenuState; onClose: () =>
         </div>
       )}
       {host && <MenuSettings host={host} own={host.id === m.id} />}
+      <MenuPresets m={m} onDone={onClose} />
       {holdsAudio(m.type) && (
         <button
           onClick={run(async () => {
