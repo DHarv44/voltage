@@ -66,6 +66,30 @@ export const GAP_STARTERS: Record<string, Starter> = {
       toOut(k, voice(k, null, m.gate, { audio: [s, 'out'], filter: { type: 'vcf', params: { cutoff: 2600, res: 0.15 }, out: 'lp2' }, env: { d: 0.3, s: 0.5 } }).out)
     },
   },
+  kaleido: {
+    howTo: 'KALEIDO is a whole voice: a riff on V/OCT and TRIG, no filter or VCA needed (the low-pass gate plays each note). Step through MODEL, then turn HARMONICS, TIMBRE and MORPH in each; an LFO is already slowly moving TIMBRE.',
+    build(k) {
+      const m = melody(k, { phrase: PHRASES.berlin })
+      const kal = k.add('kaleido', { model: 2, harm: 0.4, timbre: 0.35, morph: 0.2, decay: 0.35 })
+      const lfo = k.add('lfo', { rate: 0.08 })
+      k.wire(m.pitch, [kal, 'voct'])
+      k.wire(m.trig, [kal, 'trig'])
+      k.wire([lfo, 'tri'], [kal, 'timbre'])
+      const p = k.add('plate', { decay: 0.55, mix: 0.25 })
+      k.wire([kal, 'out'], [p, 'in'])
+      toOut(k, [p, 'l'], [p, 'r'], 0.5)
+    },
+  },
+  resonator: {
+    howTo: 'Sympathetic strings, strummed by a slow tune: each note rings on four strings tuned to a chord, and four voices overlap. Turn STRUCTURE for other chords, DAMPING for how long they ring, MODEL MODAL for bells.',
+    build(k) {
+      const m = melody(k, { phrase: PHRASES.slow })
+      const r = k.add('resonator', { model: 1, poly: 2, structure: 0.5, bright: 0.6, damp: 0.35 })
+      k.wire(m.pitch, [r, 'voct'])
+      k.wire(m.trig, [r, 'strum'])
+      toOut(k, [r, 'odd'], [r, 'even'], 0.75)
+    },
+  },
   trackhold: {
     howTo: 'T&H follows a slow random wander while each eighth-note gate is high and freezes it when the gate drops; a quantizer keeps it in A minor. Channel 2 (S&H) shows the difference. Try MODE 1 HOLD.',
     build(k) {

@@ -258,8 +258,11 @@ extend VOLTAGE.
 - **Gaps in the module range** (chosen 2026-10-09; then cloud saving): ~~stereo (PANNER with
   auto-pan, WIDENER)~~, ~~CV tools (QUAD LFO, CHANCE, SWITCH, T&H)~~ (done: specs/stereoTools.ts,
   specs/cvTools.ts; knob texts in paramGlossary3.ts, jack texts in jackInfo2.ts, rigs in
-  starters/gaps.ts); next: macro oscillator + resonator, tuner + analyser (spectrum, LUFS,
-  correlation), piano roll + song arranger, per-module presets.
+  starters/gaps.ts), ~~macro oscillator + resonator~~ (done: KALEIDO, eight models, LPG on TRIG,
+  STRING / MODAL struck by TRIG or each new note; RESONATOR, MODAL 24 modes from string to bar,
+  STRINGS sympathetic chords, STRING; IN drives the sounding voice, STRUM / onset / new note
+  strums, POLY 1–4, ODD / EVEN; both share engine/dsp/kstring.ts); next: tuner + analyser
+  (spectrum, LUFS, correlation), piano roll + song arranger, per-module presets.
 - **Tutorial suite**: ~~sequencing, drums, effects~~ (lessons 5–7 of the course), ~~polyphony,
   semi-modular normals, a tour of Acid House~~ (done: the Learn menu is now three courses: Synth
   fundamentals (continuous), Beyond the basics, Tours of the factory racks; a `disconnect` step pulls a
@@ -347,8 +350,8 @@ Our own versions throughout: inspired by the classics, our own names, panels and
   - Mono: full acid sequencer, 3-osc Model-D-style system.
   - Modular: ~~quad LFO, probability gates (Bernoulli-style), sequential switch, track & hold~~
     (done: QUAD LFO, CHANCE, SWITCH, T&H). Ratchet gates: open.
-  - Digital: FM, sample-based drum kit (LinnDrum-style), macro oscillator (Plaits-style), resonator
-    (Rings-style).
+  - Digital: FM, sample-based drum kit (LinnDrum-style), ~~macro oscillator (Plaits-style),
+    resonator (Rings-style)~~ (done: KALEIDO, RESONATOR).
   - EDM: sidechain, multiband ("OTT"-style), supersaw.
   - Stereo: ~~panner, mid/side widener, auto-pan~~ (done: PANNER, WIDENER), ping-pong delay.
 - **Beyond modules**: per-module presets (save a module's settings), song mode / arranger (chain

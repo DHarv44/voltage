@@ -23,6 +23,21 @@ export const GAP_OVERRIDES: Record<string, string> = {
   // SWITCH
   'sswitch:steps': 'How many of the four positions it steps through before going round again.',
   'sswitch:order': 'How it moves on each clock: UP (1, 2, 3, 4, 1…), PING-PONG (back and forth), or RANDOM.',
+  // KALEIDO
+  'kaleido:model': 'How the sound is made: VA (two analog oscillators), FOLD (a wavefolder), FM (two operators), VOWEL (a singing throat), ADDITIVE (harmonics drawn in), CHORD (four oscillators in a chord), STRING (plucked), MODAL (a struck bell or bar). The three knobs below change meaning with it.',
+  'kaleido:tune': 'The pitch in semitones, on top of V/OCT.',
+  'kaleido:harm': 'The first macro: VA the interval to the second oscillator; FOLD the second harmonic; FM the ratio; VOWEL the throat size; ADDITIVE which harmonic is loudest; CHORD which chord; STRING where it’s plucked; MODAL how out of tune the overtones are (string to bell).',
+  'kaleido:timbre': 'The brightness macro: VA the pulse width; FOLD how hard it folds; FM how much FM; VOWEL which vowel; ADDITIVE how many harmonics; CHORD the voicing; STRING and MODAL how bright the strike is.',
+  'kaleido:morph': 'The third macro: VA saw into pulse; FOLD lopsided folding; FM feedback (grit); VOWEL breath; ADDITIVE odd into even harmonics (hollow to full); CHORD saw into organ; STRING and MODAL how long it rings.',
+  'kaleido:decay': 'With TRIG patched, how long each note takes to fade through the low-pass gate (it darkens as it closes, like a plucked or struck thing).',
+  // RESONATOR
+  'resonator:model': 'MODAL: a struck or bowed object (bar, bell, plate). STRINGS: four strings tuned to a chord, ringing in sympathy. STRING: a single plucked string.',
+  'resonator:poly': 'How many voices ring at once: each strum takes the next one, so earlier notes keep ringing under the new one.',
+  'resonator:tune': 'The pitch in semitones, on top of V/OCT.',
+  'resonator:structure': 'MODAL: how the overtones are spaced, from a string’s (in tune) to a bar’s or bell’s (clangy). STRINGS: which chord the four strings are tuned to.',
+  'resonator:bright': 'How much of the high overtones ring: dark and woody to bright and glassy.',
+  'resonator:damp': 'How quickly it stops ringing: right damps it to a short thunk, left lets it ring for seconds.',
+  'resonator:pos': 'Where it’s struck or plucked: near the edge is thin and bright, the middle round and hollow.',
   // T&H
   'trackhold:m1': 'Channel 1: TRACK follows the input while the gate is high and freezes when it drops; S&H takes one sample on each rise; HOLD is the reverse of TRACK.',
   'trackhold:m2': 'Channel 2’s mode (TRACK, S&H or HOLD). Its input and gate copy channel 1’s when nothing is patched to them.',

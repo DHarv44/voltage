@@ -80,6 +80,7 @@ import { accident, macro, scenes } from './specs/perform'
 import { coach, maelzel, metronome } from './specs/metronomes'
 import { panner, widener } from './specs/stereoTools'
 import { chance, qlfo, sswitch, trackhold } from './specs/cvTools'
+import { kaleido, resonator } from './specs/macroVoices'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -143,6 +144,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   harp,
   stylophone,
   complexOsc,
+  kaleido,
   wave,
   sub,
   noise,
@@ -185,6 +187,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   ensemble,
   tune,
   chamber,
+  resonator,
   shimmer,
   grains,
   shift,

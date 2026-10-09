@@ -89,6 +89,7 @@ export const CATALOG: Record<string, Entry> = {
   vco: { tags: ['bass', 'melody'], aka: ['oscillator', 'saw', 'square', 'pwm', 'sync'] },
   complex: { tags: ['melody', 'texture'], aka: ['buchla 259', 'west coast', 'complex oscillator', 'fm', 'wavefolder'] },
   wave: { tags: ['melody', 'texture'], aka: ['wavetable', 'ppg', 'morph'] },
+  kaleido: { tags: ['melody', 'bass', 'chords', 'texture'], aka: ['plaits', 'braids', 'mutable instruments', 'macro oscillator', 'fm', 'wavefolder', 'formant', 'vowel', 'additive', 'karplus', 'pluck', 'modal', 'low pass gate'] },
   sub: { tags: ['bass'], aka: ['sub octave', 'divider', 'octave down'] },
   noise: { tags: ['texture', 'beat'], aka: ['white noise', 'pink noise', 'red noise', 'brown noise'] },
   // Filters
@@ -166,6 +167,7 @@ export const CATALOG: Record<string, Entry> = {
   ensemble: { tags: ['stereo', 'texture'], aka: ['solina', 'string ensemble', 'chorus'] },
   tune: { tags: ['melody'], aka: ['auto-tune', 'autotune', 'pitch correction', 'robot voice'] },
   chamber: { tags: ['space', 'ambient'], aka: ['room', 'reverb', 'echo chamber', 'acoustics'] },
+  resonator: { tags: ['ambient', 'texture', 'melody', 'stereo', 'chords'], aka: ['rings', 'mutable instruments', 'modal', 'sympathetic strings', 'karplus', 'physical model', 'resonant', 'bell', 'string'] },
   shimmer: { tags: ['space', 'ambient', 'stereo'], aka: ['shimmer', 'reverb', 'octave reverb', 'eno', 'blackhole', 'bigsky', 'cloud', 'freeze'] },
   grains: {
     tags: ['ambient', 'texture', 'record', 'stereo'],
