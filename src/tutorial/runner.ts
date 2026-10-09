@@ -158,6 +158,7 @@ class TutorialRunner {
     if (a?.kind === 'add') return [{ target: { lib: a.type } }]
     if (a?.kind === 'disconnect') return [{ target: { mod: a.to[0], jack: a.to[1], dir: 'in' } }]
     if (a?.kind === 'touch') return [{ target: { mod: a.mod, surface: true } }]
+    if (a?.kind === 'step') return [{ target: { mod: a.mod, param: a.param, bit: a.bit } }]
     return step.target ? [{ target: step.target }] : []
   }
 
@@ -239,6 +240,10 @@ class TutorialRunner {
         return this.played
       case 'touch':
         return this.touched.has(a.name ? `${this.id(a.mod)}:${a.name}` : this.id(a.mod))
+      case 'step': {
+        const v = Math.round(this.module(a.mod)?.params[a.param] ?? 0)
+        return ((v >>> a.bit) & 1) === (a.on ? 1 : 0)
+      }
       case 'add': {
         // whichever module of that type you added (click or drag) gets the name
         if (this.state.mods[a.as] && this.module(a.as)) return true
@@ -315,6 +320,13 @@ class TutorialRunner {
       case 'disconnect':
         actions.removeCablesAt(this.id(a.to[0]), a.to[1])
         return
+      case 'step': {
+        const m = this.module(a.mod)
+        if (!m) return
+        const v = Math.round(m.params[a.param] ?? 0)
+        actions.setParam(m.id, a.param, a.on ? v | (1 << a.bit) : v & ~(1 << a.bit))
+        return
+      }
       case 'set': {
         const m = this.module(a.mod)
         const ps = m && SPECS[m.type].params.find((p) => p.id === a.param)

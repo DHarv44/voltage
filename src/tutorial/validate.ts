@@ -57,6 +57,14 @@ export function validateLessons(lessons: Lesson[], continuous = true): string[] 
         const to = mods[a.to[0]]
         if (!patch.cables.some((c) => c.to.mod === to && c.to.jack === a.to[1])) errors.push(`${where(i)}: nothing patched into ${a.to.join('.')} to pull out`)
         patch.cables = patch.cables.filter((c) => !(c.to.mod === to && c.to.jack === a.to[1]))
+      } else if (a.kind === 'step') {
+        const m = patch.modules.find((x) => x.id === mods[a.mod])
+        if (!m || !SPECS[m.type].params.some((p) => p.id === a.param)) errors.push(`${where(i)}: no step row ${a.mod}.${a.param}`)
+        else {
+          const v = Math.round(m.params[a.param] ?? 0)
+          if (((v >>> a.bit) & 1) === (a.on ? 1 : 0)) errors.push(`${where(i)}: step ${a.bit + 1} of ${a.param} is already ${a.on ? 'on' : 'off'}`)
+          m.params[a.param] = a.on ? v | (1 << a.bit) : v & ~(1 << a.bit)
+        }
       } else if (a.kind === 'set') {
         const m = patch.modules.find((x) => x.id === mods[a.mod])
         if (!m || !SPECS[m.type].params.some((p) => p.id === a.param)) errors.push(`${where(i)}: no knob ${a.mod}.${a.param}`)

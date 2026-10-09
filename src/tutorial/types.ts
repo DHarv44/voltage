@@ -9,6 +9,8 @@ export type Target =
   | { lib: string }
   /** A module's played surface (strings, plate, antennas…). */
   | { mod: string; surface: true }
+  /** One key of a step grid: bit `bit` of the bitmask param `param`. */
+  | { mod: string; param: string; bit: number }
 
 /** One gesture of a demo on a played surface, `at` seconds in. */
 export interface SurfaceDemo {
@@ -29,6 +31,8 @@ export type Action =
   /** Pull the cable out of an input (right-click the jack). */
   | { kind: 'disconnect'; to: [string, string] }
   | { kind: 'set'; mod: string; param: string; value: number }
+  /** Light (or clear) one step of a step grid: bit `bit` of a bitmask param. */
+  | { kind: 'step'; mod: string; param: string; bit: number; on: boolean }
   /** Notes in semitones from C4 (played for you, or: play any key yourself). */
   | { kind: 'play'; notes: number[]; spacing?: number; hold?: number }
   /** Play a module's surface (`name`: only that gesture counts); walkthrough

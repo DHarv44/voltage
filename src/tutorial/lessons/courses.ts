@@ -3,6 +3,7 @@ import { FUNDAMENTALS } from './fundamentals'
 import { omnichordLesson, thereminLesson } from './instruments'
 import { polyphony } from './polyphony'
 import { semimodular } from './semimodular'
+import { grooveLesson, lockstepLesson } from './systems'
 import { acidTour } from './tours'
 import { jellyTour, stringsTour, westTour } from './tours2'
 
@@ -25,7 +26,7 @@ export const COURSES: Course[] = [
   {
     title: 'Beyond the basics',
     note: 'Lessons on their own, each starting from an empty case.',
-    lessons: [polyphony, semimodular, thereminLesson, omnichordLesson],
+    lessons: [polyphony, semimodular, grooveLesson, lockstepLesson, thereminLesson, omnichordLesson],
     continuous: false,
   },
   {

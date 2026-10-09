@@ -197,8 +197,8 @@ Band** rack.
 **Learn → Synth fundamentals** is one continuous course, from an empty case to a whole track
 (oscillators → filters → envelopes and VCAs → modulation → sequencing → drums → effects). Each
 lesson picks up where the last ended, and **Finish** leaves you with the rack you built. **Beyond the
-basics** has lessons on their own (polyphony and chords; a semi-modular and its normals; playing the
-theremin and the omnichord), and **Tours**
+basics** has lessons on their own (polyphony and chords; a semi-modular and its normals; the GROOVE-1
+drum machine and the LOCKSTEP groovebox; playing the theremin and the omnichord), and **Tours**
 take a factory rack apart module by module (Acid House, Jellyfish Dream, Poly Strings, West Coast:
 who keeps time, who plays, and the knobs that make the sound).
 

@@ -17,14 +17,25 @@ export function targetPoint(p: Patch, t: Target): (Pt & { r: number }) | null {
     const pt = jackPos(m, t.jack, t.dir)
     return pt && { ...pt, r: 7 * PX }
   }
-  if ('surface' in t) {
-    // a played surface: a ring round its middle, as wide as it is tall
+  // a played surface: a ring round its middle, as wide as it is tall (also
+  // where knobs and steps drawn on a module's own face are)
+  const face = () => {
     const s = controlsOf(m).find((k) => k.kind === 'surface')
     if (!s || s.kind !== 'surface') return null
     return { x: moduleLeft(m.hp) + (s.x + s.w / 2) * PX, y: rowTop(m.row) + (s.y + s.h / 2) * PX, r: (Math.min(s.w, s.h) / 2) * PX }
   }
+  if ('surface' in t) return face()
+  if ('bit' in t) {
+    // one key of a step grid: its row is the one holding this mask param
+    for (const c of controlsOf(m)) {
+      if (c.kind !== 'steps') continue
+      const row = c.rows.findIndex((r) => r.p.includes(t.param))
+      if (row >= 0) return { x: moduleLeft(m.hp) + (c.x + t.bit * c.dx) * PX, y: rowTop(m.row) + (c.y + row * c.dy) * PX, r: c.dx * 0.7 * PX }
+    }
+    return face()
+  }
   const c = controlsOf(m).find((k) => (k.kind === 'knob' || k.kind === 'switch') && k.param === t.param)
-  if (!c || !('x' in c)) return null
+  if (!c || !('x' in c)) return face()
   return { x: moduleLeft(m.hp) + c.x * PX, y: rowTop(m.row) + c.y * PX, r: 9 * PX }
 }
 

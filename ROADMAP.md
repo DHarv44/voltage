@@ -242,8 +242,10 @@ extend VOLTAGE.
   cable). Tours: Acid House, Jellyfish Dream, Poly Strings, West Coast (`type#n` names the n-th of a
   type). Played instruments: the theremin and the omnichord (a `touch` step notices a surface being
   played, via engine.uiListeners, and walkthrough / Show me replays a demo gesture on it; the surface
-  gets a ring). Still: the drum machine and the groovebox systems, tours of the POCKET racks, more
-  instruments.
+  gets a ring). Systems: GROOVE-1 (program a beat on the grid, swing, A→B fill) and LOCKSTEP
+  (tracks, a step, a page and knob, mutes, patterns, chain); a `step` action lights one key of a step
+  grid (a bitmask bit), ringed on the grid; targets drawn on a module's own face ring the face. Still:
+  tours of the POCKET racks, more instruments, a parameter-lock lesson.
 - **XY pad extras**: multi-touch → poly cables on tablets; save the recorded gesture with the patch.
 - **POCKET family** (calculator-sized grooveboxes that clock each other over CLK; our own names, look and
   sounds; no third-party trademarks, artwork, LCD characters or samples):
