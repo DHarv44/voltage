@@ -3,7 +3,7 @@ import type { Rng } from './util'
 import { C4, TAU } from './util'
 
 /** Most modes a note can hold (partials, plus extra strings on the low ones). */
-const MAXM = 48
+const MAXM = 64
 /** The lowest partials ring on every string of the note (that's where the
  *  unison beating and the two-stage decay are heard); higher ones on one. */
 const SHARED = 5
@@ -39,6 +39,11 @@ export class GrandVoice {
   private cull = 0
   private knock = 0
   private knockLp = 0
+  /** Modes below this are the low partials (all their strings); the phantom
+   *  partials' strength and its slow part. */
+  private lowN = 0
+  private phantom = 0
+  private phantomDc = 0
   live = false
   pitch = 0
   vel = 0
@@ -53,7 +58,8 @@ export class GrandVoice {
     const B = m.b4 * Math.pow(2, pitch * (pitch > 0 ? m.bPerOct : 0.25))
     let strings = pitch < -2.3 ? 1 : pitch < -1.25 ? 2 : 3
     if (soft) strings = Math.max(1, strings - 1)
-    const partials = Math.max(5, Math.min(36, Math.round(36 * Math.pow(2, -Math.max(0, pitch + 2) * 0.6))))
+    // the bass needs its many overtones (a low string's brilliance is up there)
+    const partials = Math.max(5, Math.min(56, Math.round(56 * Math.pow(2, -Math.max(0, pitch + 2.5) * 0.7))))
     // the felt: a soft blow is long and dull, a hard one short and bright
     // (felt stiffens as it's squeezed), and up the keys hammers are smaller
     const contact = Math.min((4.5 - 3.5 * vel) / 1000, 1.2 / f) * (1.25 - 0.7 * bright) * (soft ? 1.3 : 1)
@@ -66,6 +72,7 @@ export class GrandVoice {
     const damped = 0.15 + 0.3 * Math.max(0, -pitch) / 3
     const cents = unison * 2 * m.unison
     let k = 0
+    this.lowN = MAXM
     for (let p = 1; p <= partials && k < MAXM; p++) {
       const fp = f * p * Math.sqrt(1 + B * p * p)
       if (fp > fs * 0.45) break
@@ -73,6 +80,7 @@ export class GrandVoice {
       const felt = 1 / (1 + Math.pow(fp * contact * 0.5, steep))
       const amp = (blow * comb * felt) / Math.pow(p, 0.7)
       const t = ring1 / (1 + Math.pow(fp / 1800, 2) * 0.9)
+      if (p === SHARED + 1) this.lowN = k
       const copies = p <= SHARED ? strings : 1
       for (let j = 0; j < copies && k < MAXM; j++, k++) {
         const hz = fp * Math.pow(2, (cents * (copies > 1 ? STRING_DETUNE[j] : 0) + (rng.next() - 0.5) * 0.3) / 1200)
@@ -89,6 +97,11 @@ export class GrandVoice {
     }
     for (let j = k; j < this.n; j++) this.on[j] = 0
     this.n = k
+    if (this.lowN > k) this.lowN = k // (fewer partials than SHARED: all of them are low)
+    // phantom partials: a bass string struck hard stretches as it swings, and
+    // that longitudinal motion sounds at the sums of its overtones (the growl
+    // of a low note played loud)
+    this.phantom = 0.35 * Math.min(1, Math.max(0, -pitch / 3)) * vel * vel
     this.knock = knock * (0.3 + 0.7 * vel)
     this.live = true
   }
@@ -102,6 +115,7 @@ export class GrandVoice {
   step(noise: number, knockK: number, knockDecay: number): number {
     if (!this.live) return 0
     let y = 0
+    let low = 0
     for (let k = 0; k < this.n; k++) {
       if (!this.on[k]) continue
       const g = this.g[k]
@@ -110,6 +124,14 @@ export class GrandVoice {
       this.re[k] = re
       this.im[k] = im
       y += im
+      if (k < this.lowN) low += im
+    }
+    if (this.phantom > 0) {
+      // squaring the low partials gives their sums (and differences); the
+      // slow part is taken off so only the new tones are added
+      const sq = low * low * this.phantom
+      this.phantomDc += (sq - this.phantomDc) * 0.002
+      y += sq - this.phantomDc
     }
     if (this.knock > 1e-4) {
       this.knockLp += (noise - this.knockLp) * knockK
