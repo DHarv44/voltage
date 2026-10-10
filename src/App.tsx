@@ -8,10 +8,13 @@ import { TutorialBubble } from './ui/tutorial/TutorialBubble'
 import { Toast } from './ui/Toast'
 import { StartScreen } from './ui/StartScreen'
 import { Inspector } from './ui/inspector/Inspector'
+import { PerformStrip } from './ui/PerformStrip'
+import { usePerform } from './ui/perform'
 
 export function App() {
+  const performing = usePerform()
   return (
-    <div className="app">
+    <div className={performing ? 'app performing' : 'app'}>
       <GlobalDefs />
       <TopBar />
       <SharedBanner />
@@ -24,6 +27,7 @@ export function App() {
       <TutorialBubble />
       <Toast />
       <StartScreen />
+      <PerformStrip />
     </div>
   )
 }

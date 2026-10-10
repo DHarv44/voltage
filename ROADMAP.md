@@ -272,10 +272,11 @@ extend VOLTAGE.
   every jack with its signal and whether it's patched). Library: panel miniatures drawn from
   the spec (library/PanelThumb.tsx) in every row, a hover card (library/LibraryCard.tsx: bigger
   picture, tagline, tags, Add ready-to-play rig / Add on its own), tags behind Filter ▾ with the
-  ones in use as removable chips. Was: phase 3, the Inspector
-  (the selected module: explanations, presets, size, settings, rig) and a library with panel
-  pictures, hover cards and tags in a Filter popover; phase 4, the visual system pass and a
-  performance mode (F hides the chrome).
+  ones in use as removable chips. Phase 4 (done on the branch): performance mode (` or ☰ → View;
+  ui/perform.ts, ui/PerformStrip.tsx) hides the top bar, library, Inspector and share banner,
+  leaving the rack and a faded POWER / Leave strip; Esc leaves. Visual pass: keyboard focus rings
+  on every control, no chrome text under 11px. (` rather than F, which the computer keyboard
+  plays.) Next: merge into master when approved.
 - **Gaps in the module range** (chosen 2026-10-09; then cloud saving): ~~stereo (PANNER with
   auto-pan, WIDENER)~~, ~~CV tools (QUAD LFO, CHANCE, SWITCH, T&H)~~ (done: specs/stereoTools.ts,
   specs/cvTools.ts; knob texts in paramGlossary3.ts, jack texts in jackInfo2.ts, rigs in

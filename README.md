@@ -90,6 +90,8 @@ case. **Walkthrough** does each step for you; **Guided** lets you do it and move
 - **The library** shows each module's panel in miniature; rest the pointer on one for a bigger
   picture and **Add ready-to-play rig** / **Add on its own**. **Filter** narrows it by what
   modules are for.
+- **Performance mode** (the **`** key, or ☰ → View) hides everything but the rack; a faint strip
+  in the corner keeps POWER and the way out. **Esc** (or **`** again) leaves it.
 - **Right-click a module:** Duplicate, Reset knobs, Export audio (for modules that record), **Size**
   (for resizable screens), any deeper settings it has (VISION's garden), **Presets** (name and
   save this module's settings, then load them onto any module of the same kind, in any rack; one

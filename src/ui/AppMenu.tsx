@@ -2,6 +2,7 @@ import { useState, useSyncExternalStore } from 'react'
 import { RAIL_SIZES, railHp, usedHp } from '../patch/layout'
 import { actions, patchStore } from '../patch/store'
 import { DeviceModal } from './cloud/DeviceModal'
+import { perform } from './perform'
 import { settings, useSettings } from './settings'
 import { usePopover } from './usePopover'
 
@@ -63,6 +64,9 @@ export function AppMenu() {
                 Fit
               </button>
             </label>
+            <button className="app-wide" onClick={run(() => perform.set(true))}>
+              Performance mode: just the rack <kbd>` · Esc leaves</kbd>
+            </button>
             <label className="app-row">
               <span>Cables</span>
               <input type="range" min={0.15} max={1} step={0.05} value={s.cableOpacity} onChange={(e) => settings.set({ cableOpacity: Number(e.target.value) })} />
