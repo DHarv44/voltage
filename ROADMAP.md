@@ -255,6 +255,16 @@ extend VOLTAGE.
   more doubling in their rigs). The newer systems have no direct path: patch them to OUT.
 
 ## Up next
+- **UI / UX redesign** (branch `ui-redesign`, 2026-10-09): three zones (Add | Play | Understand),
+  plain words in the chrome, a visual system. Phase 1 (done on the branch): a start screen that is
+  also the audio-unlock click (first visit: hear something / learn / start empty; a shared rack's
+  title and note; Esc closes it silently; not on lessons), POWER as a switch in the middle of a
+  three-part top bar, the ☰ menu (rack files, case rows / width, view, hints, analog realism),
+  "Sandbox" for scratch. Next: phase 2, one model for saving (a named rack with a saved state,
+  My racks local + cloud, one Share dialog: short link / quick link / file); phase 3, the Inspector
+  (the selected module: explanations, presets, size, settings, rig) and a library with panel
+  pictures, hover cards and tags in a Filter popover; phase 4, the visual system pass and a
+  performance mode (F hides the chrome).
 - **Gaps in the module range** (chosen 2026-10-09; then cloud saving): ~~stereo (PANNER with
   auto-pan, WIDENER)~~, ~~CV tools (QUAD LFO, CHANCE, SWITCH, T&H)~~ (done: specs/stereoTools.ts,
   specs/cvTools.ts; knob texts in paramGlossary3.ts, jack texts in jackInfo2.ts, rigs in

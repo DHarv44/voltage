@@ -47,7 +47,7 @@ export function SharedBanner() {
       <b>{name}</b>
       {s.note && <span className="share-note">{s.note}</span>}
       {s.hadAudio && <span className="share-warn">Recordings (LOOP, SAMPLE…) don’t travel in links: those modules arrive empty.</span>}
-      <span className="share-hint">Press POWER ON to hear it.</span>
+      <span className="share-hint">Switch POWER on to hear it.</span>
       <div className="spacer" />
       {saved ? (
         <span className="share-saved">Saved as “{saved}” in Patches ✓</span>
