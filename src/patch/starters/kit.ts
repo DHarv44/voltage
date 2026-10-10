@@ -164,6 +164,7 @@ export function rollOnFm(k: Kit): string {
   k.wire([pr, 'pitch'], [fm, 'voct'])
   k.wire([pr, 'gate'], [fm, 'gate'])
   k.wire([pr, 'vel'], [fm, 'vel'])
+  k.wire([pr, 'ped'], [fm, 'sus'])
   k.wire([fm, 'out'], [pan, 'in'])
   toOut(k, [pan, 'l'], [pan, 'r'], 0.5)
   return fm

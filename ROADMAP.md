@@ -53,8 +53,8 @@ extend VOLTAGE.
   piano: GRAND / UPRIGHT / HONKY; up to 36 stiff-string partials as phasors, 1–3 strings on the
   lowest five with their own detune and ring (two-stage decay), felt hammer contact time and
   strike-position comb, dampers (none above F#6), 24 sympathetic strings under the pedal, una
-  corda, three soundboard peaks, culling of dead modes)~~. Later: a pedal lane on the PIANO ROLL;
-  more GRAND partials in the bass if the CPU allows; hammer–string nonlinearity (phantom partials).
+  corda, three soundboard peaks, culling of dead modes)~~, ~~PIANO ROLL velocity and pedal lanes
+  (PEDAL out; p0–p3 bitmasks; ui/surfaces/pianoRollLanes.ts)~~. Later: more GRAND partials in the bass if the CPU allows; hammer–string nonlinearity (phantom partials).
   - **FM-4** (four-operator FM voice, 8 notes): nine factory voices (E.PIANO, BASS, BELL, BRASS, ORGAN,
     MARIMBA, CLAV, PAD, LEAD) as operator recipes, reshaped by macro knobs (BRIGHT scales the
     modulators, DECAY stretches the envelopes, FEEDBK, DETUNE, ATTACK, RELEASE, VEL SENS) and an ALGO

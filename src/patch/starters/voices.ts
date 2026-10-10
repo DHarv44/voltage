@@ -10,25 +10,27 @@ export const VOICE_STARTERS: Record<string, Starter> = {
   },
   stage: {
     howTo:
-      'STAGE’s tine piano playing four bars from a PIANO ROLL (Am, F, C, G under a melody), panning speaker to speaker on its own tremolo. Notes drawn softer ring round and bell-like, harder ones bark: drag a note’s velocity on the roll. Turn VOICING and BELL; switch MODEL to REED for the nasal bite. Unpatch GATE to play it from your keys.',
+      'STAGE’s tine piano playing four bars from a PIANO ROLL (Am, F, C, G under a melody), panning speaker to speaker on its own tremolo. Notes drawn softer ring round and bell-like, harder ones bark: drag a note’s bar in the roll’s VEL lane. The roll’s PEDAL lane works the sustain pedal (SUS). Turn VOICING and BELL; switch MODEL to REED for the nasal bite. Unpatch GATE to play it from your keys.',
     build(k) {
       const pr = k.add('pianoroll')
       const ep = k.add('stage', { voicing: 0.5, trem: 0.45, rate: 4.2 })
       k.wire([pr, 'pitch'], [ep, 'voct'])
       k.wire([pr, 'gate'], [ep, 'gate'])
       k.wire([pr, 'vel'], [ep, 'vel'])
+      k.wire([pr, 'ped'], [ep, 'sus'])
       toOut(k, [ep, 'l'], [ep, 'r'], 0.6)
     },
   },
   grand: {
     howTo:
-      'GRAND playing four bars from a PIANO ROLL (Am, F, C, G under a melody), each note at the velocity drawn on the roll. Try MODEL (GRAND, UPRIGHT, HONKY), BRIGHT and UNISON. Patch a gate to SUS for the sustain pedal (the free strings ring along) or SOFT for the una corda. Unpatch GATE to play it from your keys.',
+      'GRAND playing four bars from a PIANO ROLL (Am, F, C, G under a melody), each note at the velocity drawn on the roll. Try MODEL (GRAND, UPRIGHT, HONKY), BRIGHT and UNISON. The roll’s PEDAL lane works the sustain pedal (the free strings ring along); its VEL lane sets how hard each note is struck. A gate on SOFT is the una corda. Unpatch GATE to play it from your keys.',
     build(k) {
       const pr = k.add('pianoroll')
       const gp = k.add('grand')
       k.wire([pr, 'pitch'], [gp, 'voct'])
       k.wire([pr, 'gate'], [gp, 'gate'])
       k.wire([pr, 'vel'], [gp, 'vel'])
+      k.wire([pr, 'ped'], [gp, 'sus'])
       toOut(k, [gp, 'l'], [gp, 'r'], 0.6)
     },
   },

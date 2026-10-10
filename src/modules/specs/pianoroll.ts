@@ -43,6 +43,22 @@ const slotParams: ParamSpec[] = Array.from({ length: PR_SLOTS }, (_, i): ParamSp
   ]
 }).flat()
 
+/** The sustain pedal lane: one param per bar, a bit per 16th (down = 1). The
+ *  factory part pedals as a pianist would: down just after each chord change
+ *  (step 2 of the bar), up on the change itself, so each chord rings into the
+ *  melody without blurring into the next. */
+export const PEDAL_DEF = 0xfffe
+const pedalParams: ParamSpec[] = Array.from({ length: PR_MAX_BARS }, (_, b): ParamSpec => ({
+  id: `p${b}`,
+  label: `PEDAL ${b + 1}`,
+  min: 0,
+  max: 0xffff,
+  def: PEDAL_DEF,
+  stepped: true,
+}))
+/** Is the pedal down on step s (0-based, across the bars)? */
+export const pedalAt = (bits: number, s: number): boolean => ((Math.round(bits) >> s % PR_STEPS_PER_BAR) & 1) === 1
+
 const prParams: ParamSpec[] = [
   { id: 'tempo', label: 'BPM', min: 40, max: 220, def: 92, unit: 'bpm' },
   { id: 'bars', label: 'BARS', min: 1, max: PR_MAX_BARS, def: 4, stepped: true },
@@ -52,6 +68,7 @@ const prParams: ParamSpec[] = [
   { id: 'run', label: 'PLAY', min: 0, max: 1, def: 1, stepped: true, options: ['STOP', 'PLAY'] },
   { id: 'view', label: 'VIEW', min: 0, max: PR_ROWS - PR_SHOWN, def: 15, stepped: true },
   ...slotParams,
+  ...pedalParams,
 ]
 const prIn: ModuleSpec['inputs'] = [
   { id: 'clk', label: 'CLK' },
@@ -63,17 +80,20 @@ const prOut: ModuleSpec['outputs'] = [
   { id: 'gate', label: 'GATE', poly: true },
   { id: 'vel', label: 'VEL', poly: true },
   { id: 'eol', label: 'EOL' },
+  { id: 'ped', label: 'PEDAL' },
 ]
 
 /** A piano roll: draw notes on a grid (time across, pitch up), as long as you
  *  like and as many at once as you like. They come out on poly cables (one
  *  voice per note sounding), so it plays chords into the poly modules, or its
- *  first voice into anything mono. Its own tempo, or 16ths on CLK. */
+ *  first voice into anything mono. Under the grid, a velocity lane and a
+ *  sustain pedal lane (PEDAL out: patch it to a piano's SUS). Its own tempo,
+ *  or 16ths on CLK. */
 export const pianoroll: ModuleSpec = {
   type: 'pianoroll',
   title: 'PIANO ROLL',
   name: 'Piano Roll',
-  tagline: 'Draw notes on a grid, chords and all, up to four bars; poly pitch, gate and velocity out; its own tempo or 16ths on CLK',
+  tagline: 'Draw notes on a grid, chords and all, up to four bars, with velocity and sustain-pedal lanes; poly pitch, gate and velocity out, PEDAL out; its own tempo or 16ths on CLK',
   category: 'Sequencers',
   hp: 36,
   panel: SLATE,
@@ -84,7 +104,7 @@ export const pianoroll: ModuleSpec = {
   controls: (() => {
     const w = 36 * HP_MM
     const { controls, top } = packRows(
-      [[knob('tempo'), knob('bars'), knob('oct'), knob('voices'), knob('swing'), { kind: 'switch', param: 'run', x: 0, y: 0 }, jack('in', 'clk'), jack('in', 'rst'), jack('in', 'trans'), jack('out', 'pitch'), jack('out', 'gate'), jack('out', 'vel'), jack('out', 'eol')]],
+      [[knob('tempo'), knob('bars'), knob('oct'), knob('voices'), knob('swing'), { kind: 'switch', param: 'run', x: 0, y: 0 }, jack('in', 'clk'), jack('in', 'rst'), jack('in', 'trans'), jack('out', 'pitch'), jack('out', 'gate'), jack('out', 'vel'), jack('out', 'ped'), jack('out', 'eol')]],
       { params: prParams, inputs: prIn, outputs: prOut },
       w,
       { gap: 1.6 },

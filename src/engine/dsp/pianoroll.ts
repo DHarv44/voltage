@@ -1,5 +1,5 @@
 import type { ModuleSpec } from '../../modules/types'
-import { PR_SLOTS, PR_STEPS_PER_BAR, PRL } from '../../modules/specs/pianoroll'
+import { pedalAt, PR_SLOTS, PR_STEPS_PER_BAR, PRL } from '../../modules/specs/pianoroll'
 import { Dsp, MAX_VOICES } from './base'
 import { PocketClock } from './pocketClock'
 
@@ -18,6 +18,8 @@ export class PianoRollDsp extends Dsp {
   private readonly oGate = this.oi('gate')
   private readonly oVel = this.oi('vel')
   private readonly oEol = this.oi('eol')
+  private readonly oPed = this.oi('ped')
+  private readonly pP0 = this.pi('p0')
   private readonly pTempo = this.pi('tempo')
   private readonly pBars = this.pi('bars')
   private readonly pOct = this.pi('oct')
@@ -102,6 +104,9 @@ export class PianoRollDsp extends Dsp {
     this.chans[this.oGate] = voices
     this.chans[this.oVel] = voices
     this.out[this.oEol] = this.eol > 0 ? 10 : 0
+    // the sustain pedal lane: down or up on the step playing
+    const s = this.step
+    this.out[this.oPed] = running && s >= 0 && pedalAt(p[this.pP0 + Math.floor(s / PR_STEPS_PER_BAR)], s) ? 10 : 0
     if (this.eol > 0) this.eol--
     this.led[PRL.step] = this.step
   }

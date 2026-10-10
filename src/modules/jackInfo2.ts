@@ -81,6 +81,7 @@ MORE_JACKS['stage:in:sus'] = { signal: 'gate', what: 'The sustain pedal: while i
 MORE_JACKS['stage:in:vel'] = { signal: 'cv', what: 'Velocity per note, 0–10 V: soft notes are round and bell-like, hard ones bark (TINE) or bite (REED).' }
 MORE_JACKS['stage:in:voct'] = { signal: 'pitch', what: 'The notes (a poly cable from POLY·CV or the PIANO ROLL plays a chord). With GATE empty it transposes the keys.' }
 MORE_JACKS['stage:in:gate'] = { signal: 'gate', what: 'Each note’s gate: its rise is the hammer, its fall lands the damper. Empty: STAGE plays from your keys.' }
+MORE_JACKS['pianoroll:out:ped'] = { signal: 'gate', what: 'The sustain pedal lane: high on the steps where the pedal is drawn down. Patch to a piano’s SUS (GRAND, STAGE, FM-4).' }
 MORE_JACKS['grand:in:sus'] = { signal: 'gate', what: 'The sustain pedal: while it’s high every damper is lifted, so notes you let go ring on and the free strings ring along in sympathy. A MIDI sustain pedal works too.' }
 MORE_JACKS['grand:in:soft'] = { signal: 'gate', what: 'The soft pedal (una corda): while it’s high the hammers strike one string fewer, with a softer part of the felt: quieter and darker.' }
 MORE_JACKS['grand:in:vel'] = { signal: 'cv', what: 'Velocity per note, 0–10 V: soft notes are quiet and round, hard ones loud and bright.' }
