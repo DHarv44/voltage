@@ -5,7 +5,7 @@ export { emptyRack } from './racks'
 /** Skipped when the rack is already on (continuing from the last lesson). */
 export const powerStep = (text: string, listen?: string): Step => ({
   text,
-  task: 'Switch POWER on, in the middle of the top bar.',
+  task: 'Switch POWER on, at the right of the top bar.',
   listen,
   target: { ui: 'power' },
   action: { kind: 'power' },

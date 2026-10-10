@@ -43,7 +43,7 @@ npm run dev
 ```
 
 Open <http://localhost:5204> and click **▶ Start** (browsers only allow sound after a click, so
-every visit begins with that one). **POWER**, in the middle of the top bar, switches the sound off
+every visit begins with that one). **POWER**, at the right of the top bar next to REC, switches the sound off
 and on again; the **☰** menu holds files, the case's size, view and settings.
 
 | Command | What it does |

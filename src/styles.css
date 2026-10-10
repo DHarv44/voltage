@@ -83,7 +83,7 @@ summary:focus-visible {
 /* three parts: where you are | the transport | what you do with the rack */
 .topbar {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 1fr auto;
   align-items: center;
   gap: 14px;
   padding: 7px 12px;
@@ -92,8 +92,7 @@ summary:focus-visible {
   font-size: 13px;
 }
 .tb-left,
-.tb-right,
-.tb-transport {
+.tb-right {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -101,8 +100,10 @@ summary:focus-visible {
 }
 .tb-right {
   justify-content: flex-end;
-  flex-wrap: wrap;
   gap: 6px;
+}
+.tb-right > :not(.status) {
+  flex-shrink: 0;
 }
 .tb-sep {
   width: 1px;
@@ -550,65 +551,10 @@ summary:focus-visible {
   font-size: 11px;
   letter-spacing: 0.06em;
 }
-/* POWER: a switch, so it reads as a control (and says which way it is) */
-.power {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 6px 14px 6px 8px;
-  border-radius: 20px;
-  border: 1px solid #3a3c41;
-  background: linear-gradient(#2a2b2f, #1c1d20);
-  color: var(--text);
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  cursor: pointer;
-}
-.power:hover:not(:disabled) {
-  border-color: #55585e;
-}
-.power-switch {
-  position: relative;
-  width: 34px;
-  height: 18px;
-  border-radius: 9px;
-  background: #0f1012;
-  border: 1px solid #3a3c41;
-  transition: background 0.15s;
-}
-.power-knob {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #6a6c71;
-  transition:
-    left 0.15s,
-    background 0.15s;
-}
-.power-state {
-  min-width: 26px;
-  font-size: 11px;
-  color: var(--muted);
-}
-.power.on {
-  border-color: #7a2a22;
-}
-.power.on .power-switch {
-  background: #4a1612;
-  border-color: #b3261e;
-}
-.power.on .power-knob {
-  left: 18px;
-  background: #ff3b2f;
-  box-shadow: 0 0 8px #ff3b2f;
-}
-.power.on .power-state {
-  color: #ffb3aa;
-}
-.rec {
+/* POWER and REC: the same square transport buttons, each with a lamp
+   (button.x outranks `.tb-right > button`) */
+button.power,
+button.rec {
   display: flex;
   align-items: center;
   gap: 7px;
@@ -617,10 +563,35 @@ summary:focus-visible {
   border: 1px solid #3a3c41;
   background: linear-gradient(#2a2b2f, #1c1d20);
   color: var(--text);
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.1em;
   font-variant-numeric: tabular-nums;
   cursor: pointer;
+}
+button.power:hover:not(:disabled),
+button.rec:hover:not(:disabled) {
+  border-color: #55585e;
+}
+.power-lamp {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #2c3a2c;
+  transition:
+    background 0.15s,
+    box-shadow 0.15s;
+}
+button.rec {
+  justify-content: center;
+  width: 118px; /* fits STOP 00:00, so starting a recording moves nothing */
+}
+button.power.on {
+  border-color: #2f6b3a;
+}
+.power.on .power-lamp {
+  background: #4dff6a;
+  box-shadow: 0 0 8px #4dff6a;
 }
 .rec:disabled {
   opacity: 0.4;
@@ -647,6 +618,10 @@ summary:focus-visible {
   }
 }
 .status {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
