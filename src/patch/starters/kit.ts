@@ -28,6 +28,14 @@ export class Kit {
     return id
   }
 
+  /** Start the next module on a fresh row (e.g. screens alone on the top
+   *  row, so no cable hangs across the glass). */
+  newRow(): void {
+    if (this.hp === 0) return
+    this.row++
+    this.hp = 0
+  }
+
   wire(from: Jack, to: Jack): void {
     this.b.wire(from[0], from[1], to[0], to[1])
   }
