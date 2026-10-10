@@ -4,13 +4,21 @@ import type { MidiEvent } from '../protocol'
 import { Dsp, MAX_VOICES } from './base'
 import { Biquad } from './biquad'
 import { GrandVoice } from './grandVoice'
-import { KeyVoices, SusGate } from './keyVoices'
+import { KeyVoices } from './keyVoices'
+import { PedalPool } from './pedalPool'
 import { Mode } from './modal'
 import { C4, TAU } from './util'
 
 /** Strings left free by the sustain pedal that ring along in sympathy:
  *  chromatic, two octaves from C2. */
 const SYMPATHY = 24
+/** The free strings ring this long (time constant, s) and, at their own
+ *  pitch, this loud against what drives them: a halo, not a drone. */
+const SYM_TAU = 1.2
+const SYM_GAIN = 0.12
+/** Strings sounding at once: more than the poly cable carries, since notes
+ *  the pedal holds keep their strings while new ones are played. */
+const POOL = 16
 /** How the soundboard's three resonances lean (dB at BODY full). */
 const BODY_DB = [7, 5, 4]
 
@@ -35,13 +43,13 @@ export class GrandDsp extends Dsp {
     level: this.pi('level'),
   }
   private readonly keys: KeyVoices
-  private readonly sus = new SusGate()
   private readonly voices: GrandVoice[]
+  private readonly pool: PedalPool
   private readonly rawWas = new Uint8Array(MAX_VOICES)
-  private readonly gateWas = new Uint8Array(MAX_VOICES)
-  /** Each key's place in the stereo field (left gain, right gain). */
-  private readonly panL = new Float64Array(MAX_VOICES)
-  private readonly panR = new Float64Array(MAX_VOICES)
+  /** Each voice's place in the stereo field (left gain, right gain). */
+  private readonly panL = new Float64Array(POOL)
+  private readonly panR = new Float64Array(POOL)
+  private readonly symDrive: number
   private readonly sympathy: Mode[]
   private readonly bodyL: Biquad[]
   private readonly bodyR: Biquad[]
@@ -55,8 +63,10 @@ export class GrandDsp extends Dsp {
   constructor(spec: ModuleSpec, fs: number, seed: number) {
     super(spec, fs, seed)
     this.keys = new KeyVoices(fs)
-    this.voices = Array.from({ length: MAX_VOICES }, () => new GrandVoice())
+    this.voices = Array.from({ length: POOL }, () => new GrandVoice())
+    this.pool = new PedalPool(this.voices)
     this.sympathy = Array.from({ length: SYMPATHY }, () => new Mode())
+    this.symDrive = SYM_GAIN * (1 - Math.exp(-1 / (SYM_TAU * fs)))
     this.bodyL = [0, 1, 2].map(() => new Biquad(fs))
     this.bodyR = [0, 1, 2].map(() => new Biquad(fs))
     this.knockK = 1 - Math.exp((-TAU * 900) / fs)
@@ -70,7 +80,7 @@ export class GrandDsp extends Dsp {
 
   /** The free strings: long-ringing with the dampers up, quickly hushed when they land. */
   private tuneSympathy(up: boolean): void {
-    for (let k = 0; k < SYMPATHY; k++) this.sympathy[k].tune(C4 * Math.pow(2, (k - 24) / 12), up ? 1.2 : 0.03, this.fs)
+    for (let k = 0; k < SYMPATHY; k++) this.sympathy[k].tune(C4 * Math.pow(2, (k - 24) / 12), up ? SYM_TAU : 0.03, this.fs)
   }
 
   /** The soundboard's resonances for this MODEL and BODY (only when they change). */
@@ -101,60 +111,72 @@ export class GrandDsp extends Dsp {
       this.tuneSympathy(pedal)
     }
     const width = p[this.P.width]
+    const pool = this.pool
+    // the pedal comes up: every note it was holding is damped
+    if (!pedal) for (let i = 0; i < POOL; i++) if (pool.pedalHeld[i]) {
+      pool.pedalHeld[i] = 0
+      this.voices[i].damp()
+    }
+
+    // the keys: each new note takes its own strings from the pool
+    for (let c = 0; c < n; c++) {
+      let raw: boolean
+      let pitch: number
+      let vel: number
+      if (cvGate) {
+        raw = this.pin(this.iGate, c) > 1
+        pitch = this.pin(this.iV, c)
+        vel = velPatched ? Math.min(1, Math.max(0, this.pin(this.iVel, c) / 10)) : 0.65
+      } else {
+        raw = this.keys.held(c)
+        pitch = this.keys.pitch[c] + this.in[this.iV]
+        vel = this.keys.vel[c]
+      }
+      if (raw && !this.rawWas[c]) {
+        const i = pool.down(c, pitch)
+        this.voices[i].strike(pitch, vel, soft, m, p[this.P.bright], p[this.P.decay], p[this.P.unison], m.knock * p[this.P.hammer] * 2, fs, this.rng)
+        // the player's view: bass on the left, treble on the right
+        const pan = Math.max(-1, Math.min(1, (pitch + 0.5) / 3.5)) * width
+        this.panL[i] = Math.cos((pan + 1) * 0.25 * Math.PI) * Math.SQRT2
+        this.panR[i] = Math.sin((pan + 1) * 0.25 * Math.PI) * Math.SQRT2
+      } else if (!raw && this.rawWas[c]) {
+        const i = pool.up(c, pedal)
+        if (i >= 0) this.voices[i].damp()
+      }
+      this.rawWas[c] = raw ? 1 : 0
+    }
 
     let l = 0
     let r = 0
     let mono = 0
-    for (let v = 0; v < MAX_VOICES; v++) {
-      const gv = this.voices[v]
-      if (v < n) {
-        let raw: boolean
-        let pitch: number
-        let vel: number
-        if (cvGate) {
-          raw = this.pin(this.iGate, v) > 1
-          pitch = this.pin(this.iV, v)
-          vel = velPatched ? Math.min(1, Math.max(0, this.pin(this.iVel, v) / 10)) : 0.65
-        } else {
-          raw = this.keys.held(v)
-          pitch = this.keys.pitch[v] + this.in[this.iV]
-          vel = this.keys.vel[v]
-        }
-        const g = this.sus.hold(v, raw, pedal)
-        if (raw && !this.rawWas[v]) {
-          gv.strike(pitch, vel, soft, m, p[this.P.bright], p[this.P.decay], p[this.P.unison], m.knock * p[this.P.hammer] * 2, fs, this.rng)
-          // the player's view: bass on the left, treble on the right
-          const pan = Math.max(-1, Math.min(1, (pitch + 0.5) / 3.5)) * width
-          this.panL[v] = Math.cos((pan + 1) * 0.25 * Math.PI) * Math.SQRT2
-          this.panR[v] = Math.sin((pan + 1) * 0.25 * Math.PI) * Math.SQRT2
-        } else if (!g && this.gateWas[v]) gv.damp()
-        this.rawWas[v] = raw ? 1 : 0
-        this.gateWas[v] = g ? 1 : 0
-      }
+    for (let i = 0; i < POOL; i++) {
+      const gv = this.voices[i]
       if (!gv.live) {
-        this.led[v] = 0
+        if (i < MAX_VOICES) this.led[i] = 0
         continue
       }
       const y = gv.step(this.rng.next() * 2 - 1, this.knockK, this.knockDecay)
-      l += y * this.panL[v]
-      r += y * this.panR[v]
+      l += y * this.panL[i]
+      r += y * this.panR[i]
       mono += y
-      this.led[v] = Math.min(1, Math.abs(y) * 3)
+      if (i < MAX_VOICES) this.led[i] = Math.min(1, Math.abs(y) * 3)
     }
 
-    // the strings the pedal has freed ring along with what's played
+    // the strings the pedal has freed ring along, faintly, with what's played
+    // (driven so that a tone at a string's own pitch rings it at SYM_GAIN of
+    // its level, not built up over its whole long ring)
     let sym = 0
     if (pedal) for (let k = 0; k < SYMPATHY; k++) {
       const s = this.sympathy[k]
-      s.drive(mono * 0.0025)
+      s.drive(mono * this.symDrive)
       sym += s.step()
     } else if (this.symLive > 0) {
       this.symLive--
       for (let k = 0; k < SYMPATHY; k++) sym += this.sympathy[k].step()
     }
     if (pedal) this.symLive = Math.round(0.3 * fs)
-    l += sym * 0.6
-    r += sym * 0.6
+    l += sym
+    r += sym
 
     // the soundboard, then a gentle limit
     for (let i = 0; i < 3; i++) {

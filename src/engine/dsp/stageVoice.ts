@@ -28,6 +28,7 @@ export class StageVoice {
   private readonly modes = [new Mode(), new Mode(), new Mode()]
   /** The note (Hz), how hard it was struck (0..1), model, live or not. */
   f = 0
+  pitch = 0
   vel = 0
   private model = TINE
   live = false
@@ -41,6 +42,10 @@ export class StageVoice {
    *  as far as the felt's contact time lets them (a soft blow is long and
    *  dull, a hard one short and bright). */
   strike(pitch: number, vel: number, model: number, bell: number, decay: number, fs: number): void {
+    // a different note on this voice starts from rest (the same note struck
+    // again takes the new blow on top)
+    if (this.live && Math.abs(pitch - this.pitch) > 0.002) for (const m of this.modes) m.re = m.im = 0
+    this.pitch = pitch
     this.f = C4 * Math.pow(2, pitch)
     this.vel = vel
     this.model = model
@@ -56,11 +61,19 @@ export class StageVoice {
       if (hz > fs * 0.45) continue
       const felt = 1 / (1 + Math.pow(hz * contact * 1.6, 4)) // the felt's spectrum
       const share = k === 0 ? 1 : k === 1 ? 0.12 + 0.5 * bell : 0.04 + 0.12 * bell
-      m.strike(amp * share * felt) // a ringing tine struck again takes the new blow on top
+      this.blow[k] = amp * share * felt // a ringing tine struck again takes the new blow on top
     }
+    // the blow lands over the felt's contact time, not in one sample (no click)
+    this.blowN = Math.max(4, Math.round(contact * fs))
+    this.blowAt = 0
     if (!this.live) this.primed = false
     this.live = true
   }
+
+  /** The hammer's blow still being delivered: per mode, over blowN samples. */
+  private readonly blow = new Float64Array(MODES)
+  private blowN = 0
+  private blowAt = 0
 
   /** The pickup's last reading is from this note (no jump on its first sample). */
   private primed = false
@@ -75,6 +88,12 @@ export class StageVoice {
   step(voicing: number, fs: number, noise: number, thumpK: number, thumpDecay: number): number {
     if (!this.live) return 0
     const m = this.modes
+    if (this.blowAt < this.blowN) {
+      // a raised-cosine push: the felt squeezes and lets go
+      const w = (1 - Math.cos((TAU * (this.blowAt + 0.5)) / this.blowN)) / this.blowN
+      for (let k = 0; k < MODES; k++) m[k].strike(this.blow[k] * w)
+      this.blowAt++
+    }
     const x = m[0].step() + m[1].step() + m[2].step()
     let y: number
     if (this.model === TINE) {

@@ -1,9 +1,14 @@
 import type { ModuleSpec } from '../../modules/types'
 import type { MidiEvent } from '../protocol'
 import { Dsp, MAX_VOICES } from './base'
-import { KeyVoices, SusGate } from './keyVoices'
+import { KeyVoices } from './keyVoices'
+import { PedalPool } from './pedalPool'
 import { REED, StageVoice, TINE } from './stageVoice'
 import { TAU } from './util'
+
+/** Voices sounding at once: more than the poly cable carries, so notes the
+ *  pedal holds keep ringing while new ones are played. */
+const POOL = 16
 
 /** STAGE: eight modelled electric-piano keys (see stageVoice.ts), a preamp
  *  and the tremolo: TINE pans speaker to speaker, REED pulses in volume. */
@@ -23,10 +28,9 @@ export class StageDsp extends Dsp {
     level: this.pi('level'),
   }
   private readonly keys: KeyVoices
-  private readonly sus = new SusGate()
   private readonly voices: StageVoice[]
+  private readonly pool: PedalPool
   private readonly rawWas = new Uint8Array(MAX_VOICES)
-  private readonly gateWas = new Uint8Array(MAX_VOICES)
   private readonly thumpK: number
   private readonly thumpDecay: number
   private trem = 0
@@ -34,7 +38,8 @@ export class StageDsp extends Dsp {
   constructor(spec: ModuleSpec, fs: number, seed: number) {
     super(spec, fs, seed)
     this.keys = new KeyVoices(fs)
-    this.voices = Array.from({ length: MAX_VOICES }, () => new StageVoice())
+    this.voices = Array.from({ length: POOL }, () => new StageVoice())
+    this.pool = new PedalPool(this.voices)
     this.thumpK = 1 - Math.exp((-TAU * 160) / fs)
     this.thumpDecay = Math.exp(-1 / (0.03 * fs))
   }
@@ -51,33 +56,42 @@ export class StageDsp extends Dsp {
     const cvGate = this.patched[this.iGate] === 1
     const n = cvGate ? Math.max(this.inChans(this.iGate), this.inChans(this.iV)) : MAX_VOICES
     const velPatched = this.patched[this.iVel] === 1
-    const pedal = this.in[this.iSus] > 1
+    const pedal = this.in[this.iSus] > 1 || this.keys.pedalDown
+    const pool = this.pool
+    // the pedal comes up: every note it was holding is damped
+    if (!pedal) for (let i = 0; i < POOL; i++) if (pool.pedalHeld[i]) {
+      pool.pedalHeld[i] = 0
+      this.voices[i].damp(fs, 0.5)
+    }
+
+    // the keys: each new note takes its own voice from the pool
+    for (let c = 0; c < n; c++) {
+      let raw: boolean
+      let pitch: number
+      let vel: number
+      if (cvGate) {
+        raw = this.pin(this.iGate, c) > 1
+        pitch = this.pin(this.iV, c)
+        vel = velPatched ? Math.min(1, Math.max(0, this.pin(this.iVel, c) / 10)) : 0.7
+      } else {
+        raw = this.keys.held(c)
+        pitch = this.keys.pitch[c] + this.in[this.iV]
+        vel = this.keys.vel[c]
+      }
+      if (raw && !this.rawWas[c]) this.voices[pool.down(c, pitch)].strike(pitch, vel, model, p[this.P.bell], p[this.P.decay], fs)
+      else if (!raw && this.rawWas[c]) {
+        const i = pool.up(c, pedal)
+        if (i >= 0) this.voices[i].damp(fs, 0.5)
+      }
+      this.rawWas[c] = raw ? 1 : 0
+    }
 
     let sum = 0
-    for (let v = 0; v < MAX_VOICES; v++) {
-      const sv = this.voices[v]
-      if (v < n) {
-        let raw: boolean
-        let pitch: number
-        let vel: number
-        if (cvGate) {
-          raw = this.pin(this.iGate, v) > 1
-          pitch = this.pin(this.iV, v)
-          vel = velPatched ? Math.min(1, Math.max(0, this.pin(this.iVel, v) / 10)) : 0.7
-        } else {
-          raw = this.keys.held(v)
-          pitch = this.keys.pitch[v] + this.in[this.iV]
-          vel = this.keys.vel[v]
-        }
-        const g = this.sus.hold(v, raw, pedal)
-        if (raw && !this.rawWas[v]) sv.strike(pitch, vel, model, p[this.P.bell], p[this.P.decay], fs)
-        else if (!g && this.gateWas[v]) sv.damp(fs, 0.5)
-        this.rawWas[v] = raw ? 1 : 0
-        this.gateWas[v] = g ? 1 : 0
-      }
+    for (let i = 0; i < POOL; i++) {
+      const sv = this.voices[i]
       const y = sv.live ? sv.step(voicing, fs, this.rng.next() * 2 - 1, this.thumpK, this.thumpDecay) : 0
       sum += y
-      this.led[v] = sv.live ? Math.min(1, Math.abs(y) * 2) : 0
+      if (i < MAX_VOICES) this.led[i] = sv.live ? Math.min(1, Math.abs(y) * 2) : 0
     }
 
     // the preamp: unity for a quiet note, rounding off chords and hard hits,
