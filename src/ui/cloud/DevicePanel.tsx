@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { adminKey, cloud, ownerKey, validKey } from '../../cloud/api'
-import { copy } from './SavePanel'
+import { copy } from './shared'
 
 /** This browser's owner key: copy it to another device to see and edit your
  *  racks there, or bring a key here from another device. Also where the admin

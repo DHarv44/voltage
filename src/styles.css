@@ -83,6 +83,157 @@ button {
   border-color: var(--accent);
 }
 
+/* the rack's name: what it's called and where it's kept */
+.rack-title {
+  position: relative;
+  min-width: 0;
+}
+.rack-name {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  max-width: 340px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+.rack-name:hover,
+.rack-name.active {
+  background: #222327;
+  border-color: #34363b;
+}
+.rack-name b {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  font-weight: 600;
+}
+.rack-where {
+  white-space: nowrap;
+  color: #7fbf8f;
+  font-size: 11px;
+}
+.rack-where.sandbox {
+  color: var(--accent);
+}
+.rack-name i {
+  font-style: normal;
+  color: var(--muted);
+  font-size: 11px;
+}
+.rack-menu {
+  width: 290px;
+}
+
+/* windows for things bigger than a menu */
+.modal {
+  width: min(460px, 100%);
+  max-height: 86vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  background: #1f2024;
+  border: 1px solid #3a3c41;
+  box-shadow: 0 20px 56px rgba(0, 0, 0, 0.65);
+  font-size: 13px;
+}
+.modal.wide {
+  width: min(600px, 100%);
+}
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px 10px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  border-bottom: 1px solid #2c2e33;
+}
+.modal-x {
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 15px;
+  cursor: pointer;
+}
+.modal-x:hover {
+  color: var(--text);
+}
+.modal-body {
+  overflow-y: auto;
+}
+.modal .share-panel {
+  width: auto;
+}
+/* buttons in panels: secondary by default, primary for the main action */
+.modal .cloud-actions button,
+.modal .cloud-search button {
+  padding: 6px 12px;
+  border-radius: 5px;
+  border: 1px solid #3a3c41;
+  background: #26282d;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.modal .cloud-actions button:hover:not(:disabled) {
+  background: #2e3036;
+}
+.modal .cloud-actions button.primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #17140f;
+  font-weight: 600;
+}
+.modal .cloud-actions button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.share-dialog {
+  padding: 14px 16px 16px;
+}
+.share-way {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #23252a;
+}
+.share-way > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.share-way > div:first-child b {
+  font-size: 14px;
+}
+.share-way > div:first-child span {
+  color: var(--muted);
+  font-size: 12px;
+}
+.share-link {
+  word-break: break-all;
+}
+.tb-right .share-btn {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #17140f;
+  font-weight: 600;
+}
+.tb-right .share-btn:hover {
+  filter: brightness(1.08);
+  background: var(--accent);
+}
+.history-list {
+  padding: 6px 10px 12px;
+}
+
 /* the start screen: the click every visit needs anyway */
 .start-screen {
   position: fixed;

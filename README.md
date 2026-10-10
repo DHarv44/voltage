@@ -94,8 +94,8 @@ case. **Walkthrough** does each step for you; **Guided** lets you do it and move
 |---|---|
 | Scroll over a knob, or drag it up/down (left or middle button) | Turn it (hold **Shift** for fine control) |
 | Double-click a knob | Reset it to its default |
-| Drag from a jack to another jack | Patch a cable (output → input); dropping on an input replaces its cable. With **Jack hints** on (top bar), every jack the cable could go to rings while you drag (free inputs from an output, every output from an input), the ones carrying the same kind of signal ring brightest in that kind's colour (audio blue, pitch yellow, gates/triggers/clocks orange, CV violet), and the jack it will land on glows with its name |
-| Hover a jack | What it is: its name, the kind of signal (with the same colour), what it does, and the live voltage. With **Explain** on (top bar), a plain-words explanation of that kind of signal too (what a gate is, what V/OCT means) |
+| Drag from a jack to another jack | Patch a cable (output → input); dropping on an input replaces its cable. With **Jack hints** on (☰ menu), every jack the cable could go to rings while you drag (free inputs from an output, every output from an input), the ones carrying the same kind of signal ring brightest in that kind's colour (audio blue, pitch yellow, gates/triggers/clocks orange, CV violet), and the jack it will land on glows with its name |
+| Hover a jack | What it is: its name, the kind of signal (with the same colour), what it does, and the live voltage. With **Explanations** on (☰ menu), a plain-words explanation of that kind of signal too (what a gate is, what V/OCT means) |
 | On a touchscreen: hold a finger still on a jack, knob or switch | Its tooltip (the same as hovering); it stays a moment after you lift. Move the finger instead and the cable comes, or the knob turns |
 | Hover a knob or switch | Its name, its value and how to use it. With **Explain** on, what it does in plain words (what CUTOFF or RESONANCE does, what SWING is, what this module's odd ones mean) |
 | Drag a cable's end out of an input | Unplug it |
@@ -246,10 +246,14 @@ who keeps time, who plays, and the knobs that make the sound).
 
 ## Saving and sharing
 
-- **Your rack saves itself** in the browser as you work.
-- **Patches → Save current rack…** keeps named racks in the browser; the same menu has the
-  factory racks.
-- **Songs** loads a whole track in the style of an era, from 1975 Berlin School to 2017 lo-fi
+- **Your rack saves itself** in the browser as you work. Its **name** sits in the top bar with
+  where it's kept (in this browser, online too, or a sandbox that isn't saved); click it to
+  rename it, open **My racks**, save a copy, open or save a `.voltage` file, or start a new rack.
+- **My racks** has everything of yours in one window: racks kept in this browser, racks saved
+  online (with their links), and **Earlier versions** of this rack.
+- **Explore** has things to load and pull apart: **Songs**, **Example racks** and the **Gallery**
+  of racks people have shared.
+- **Songs** load a whole track in the style of an era, from 1975 Berlin School to 2017 lo-fi
   hip-hop (16 so far): Electro, Synth-Pop, Italo Disco, Acid House, Detroit, Rave, Jungle, Dub
   Techno, Filter House, UK Garage, Trance, Trap, Synthwave and more. Each is the rack that plays
   it, built on that era's signature trick (the 303-style squelch ridden by hand, the octave-jumping
@@ -257,25 +261,23 @@ who keeps time, who plays, and the knobs that make the sound).
   filter-house sweep, the 808 as a bassline, worn tape over everything, loops of different lengths
   drifting apart). The notes are all our own. Loading replaces
   the rack (Ctrl+Z brings yours back); power on, then pull it apart.
-- **Export / Import** writes and reads a `.voltage` file: the whole rack with every recording in it
-  (LOOP, SAMPLE, tape, CHOP, XY gestures), for backups or moving to another computer. Older `.json`
-  patch files still import.
-- **Earlier versions:** the Patches menu keeps your rack as it was over the last hours and days (a
+- **A `.voltage` file** (the rack's menu) is the whole rack with every recording in it (LOOP,
+  SAMPLE, tape, CHOP, XY gestures), for backups or moving to another computer. Older `.json` patch
+  files still open.
+- **Earlier versions** (in My racks) keep your rack as it was over the last hours and days (a
   snapshot every couple of minutes while it changes, the last 50 kept); load one to go back (Ctrl+Z
   undoes that).
-- **Cloud** saves the rack, recordings and all (up to 20 MB), to the VOLTAGE server and gives it a
-  short link (`/p/abc12345`). No account: this browser has a private code that owns what it saves
-  (**This device** shows it; paste it on another computer to see and edit your racks there).
-  Each rack is **Private**, **Link only** or **Public** (listed in **Browse** once the admin has
-  looked at it). **My racks** opens, re-shares, changes or deletes them; saving a rack you opened
-  from your own link offers **Update**. Short links open in a scratch rack, with **Keep this rack**
-  (recordings included) and **Report**.
-- **Share** copies a link to the rack, with an optional title and note for whoever you send it to.
-  The whole patch is packed into the link (after the `#`), so nothing is uploaded anywhere. Links
-  open in a **scratch rack** that never touches the recipient's own patch; they can **Keep this
-  rack** to save it into their Patches.
-- Recordings made inside modules (LOOP, SAMPLE, the looper, 4-TRACK…) are kept in the browser with
-  your rack, but don't travel in links or patch files yet.
+- **Share** (top right) hands the rack on three ways, each with a title and a note:
+  - **Short link** (`/p/abc12345`): saved online, recordings and all (up to 20 MB). **Private**,
+    **Link only** or **Public** (in the gallery once the admin has looked at it); a rack you
+    shared before can be **updated** under the same link. No account: this browser has a private
+    code that owns what it saves (☰ → **Your racks on other devices** shows it; paste it on another
+    computer to see and edit your racks there).
+  - **Quick link**: the whole patch packed into the link itself, nothing uploaded (recordings
+    don't fit).
+  - **File**: a `.voltage` download.
+- Links open in a **sandbox** that never touches the recipient's own rack; they can **Keep this
+  rack** (recordings included) into My racks, or **Report** a gallery rack.
 
 **`?scratch`:** add `?scratch` to the address for a throwaway rack that is never saved, for trying
 things without touching your own rack.

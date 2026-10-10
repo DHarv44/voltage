@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { cloud, shortLink, type CloudMeta, type Visibility } from '../../cloud/api'
 import { cloudCurrent } from '../../cloud/current'
-import { copy, VISIBILITY } from './SavePanel'
+import { copy, VISIBILITY } from './shared'
 
 const STATUS: Record<string, string> = { pending: 'waiting for review', approved: 'in the gallery', rejected: 'not accepted for the gallery' }
 export const sizeOf = (b: number) => (b > 1e6 ? `${(b / 1e6).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1e3))} KB`)

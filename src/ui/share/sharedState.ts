@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react'
 import { SCRATCH } from '../../patch/persist'
 import { openShared, sharedInHash, type Shared } from '../../patch/share'
+import { rackName } from '../../patch/rackName'
 import { actions } from '../../patch/store'
 import type { Recording } from '../../patch/bundle'
 
@@ -49,6 +50,7 @@ export function bootShared(): boolean {
   void openShared(data).then((s) => {
     if (!s) return set({ kind: 'bad' })
     actions.load(s.patch)
+    rackName.set(s.title || 'Shared rack')
     set({ kind: 'open', ...s })
   })
   return false

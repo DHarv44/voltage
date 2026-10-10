@@ -1,5 +1,6 @@
 import { buffers } from '../audio/buffers'
 import { SCRATCH } from '../patch/persist'
+import { rackName } from '../patch/rackName'
 import { actions } from '../patch/store'
 import { sharedPatch } from '../ui/share/sharedState'
 import { cloud } from './api'
@@ -18,6 +19,7 @@ export async function openCloud(id: string): Promise<void> {
     buffers.adopt(b.recordings)
     actions.load(b.patch)
     if (meta.mine) cloudCurrent.set(meta)
+    rackName.set(meta.title || 'Shared rack')
     sharedPatch.set({ kind: 'open', patch: b.patch, title: meta.title, note: meta.note, hadAudio: false, cloudId: id, mine: meta.mine, recordings: b.recordings })
   } catch (e) {
     sharedPatch.set({ kind: 'bad', why: e instanceof Error ? e.message : undefined })

@@ -260,8 +260,13 @@ extend VOLTAGE.
   also the audio-unlock click (first visit: hear something / learn / start empty; a shared rack's
   title and note; Esc closes it silently; not on lessons), POWER as a switch in the middle of a
   three-part top bar, the ☰ menu (rack files, case rows / width, view, hints, analog realism),
-  "Sandbox" for scratch. Next: phase 2, one model for saving (a named rack with a saved state,
-  My racks local + cloud, one Share dialog: short link / quick link / file); phase 3, the Inspector
+  "Sandbox" for scratch. Phase 2 (done on the branch): one model for saving. The rack has a name
+  (patch/rackName.ts) and a "where it's kept" in the top bar; its menu: rename, My racks (this
+  browser / online / earlier versions), save a copy, open / save a .voltage file, new. Explore
+  (songs, example racks, gallery) replaces Songs and Patches; one Share window (short link with
+  visibility, quick link, file) replaces Share and Cloud; your device code and the admin tab moved
+  to ☰ → Your racks on other devices. Shared helpers: ui/usePopover.ts, ui/Modal.tsx. Next:
+  phase 3, the Inspector
   (the selected module: explanations, presets, size, settings, rig) and a library with panel
   pictures, hover cards and tags in a Filter popover; phase 4, the visual system pass and a
   performance mode (F hides the chrome).

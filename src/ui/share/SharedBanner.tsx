@@ -50,9 +50,9 @@ export function SharedBanner() {
       <span className="share-hint">Switch POWER on to hear it.</span>
       <div className="spacer" />
       {saved ? (
-        <span className="share-saved">Saved as “{saved}” in Patches ✓</span>
+        <span className="share-saved">Saved as “{saved}” in My racks ✓</span>
       ) : (
-        <button onClick={keep} title="Save it to your own Patches list (your current rack isn’t touched)">
+        <button onClick={keep} title="Keep a copy in My racks (your own rack isn’t touched)">
           Keep this rack
         </button>
       )}

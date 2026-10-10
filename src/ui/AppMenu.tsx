@@ -1,43 +1,19 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
-import { buffers } from '../audio/buffers'
-import { exportRack, unpack } from '../patch/bundle'
+import { useState, useSyncExternalStore } from 'react'
 import { RAIL_SIZES, railHp, usedHp } from '../patch/layout'
 import { actions, patchStore } from '../patch/store'
+import { DeviceModal } from './cloud/DeviceModal'
 import { settings, useSettings } from './settings'
+import { usePopover } from './usePopover'
 
-/** The ☰ menu: everything you set once or reach for now and then (files,
- *  the case's size, view, hints and the analog realism), so the top bar keeps
- *  only what you use while playing. */
+/** The ☰ menu: what you set once or reach for now and then (the case's size,
+ *  view, hints, your racks on other devices, the analog realism), so the top
+ *  bar keeps only what you use while playing. The rack's own things (files,
+ *  copies, My racks) are in its name's menu. */
 export function AppMenu() {
-  const [open, setOpen] = useState(false)
-  const root = useRef<HTMLDivElement>(null)
-  const fileRef = useRef<HTMLInputElement>(null)
+  const { open, setOpen, toggle, root } = usePopover()
+  const [devices, setDevices] = useState(false)
   const patch = useSyncExternalStore(patchStore.subscribe, patchStore.get)
   const s = useSettings()
-
-  useEffect(() => {
-    if (!open) return
-    const close = (e: PointerEvent) => {
-      if (!root.current?.contains(e.target as Node)) setOpen(false)
-    }
-    const esc = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
-    window.addEventListener('pointerdown', close)
-    window.addEventListener('keydown', esc)
-    return () => {
-      window.removeEventListener('pointerdown', close)
-      window.removeEventListener('keydown', esc)
-    }
-  }, [open])
-
-  // a .voltage file carries the recordings too; older .json patch files still import
-  const importFile = async (f: File | undefined) => {
-    if (!f) return
-    const b = await unpack(new Uint8Array(await f.arrayBuffer()))
-    if (!b) return alert('That isn’t a VOLTAGE file.')
-    buffers.adopt(b.recordings)
-    actions.load(b.patch)
-    setOpen(false)
-  }
   const run = (fn: () => void) => () => {
     fn()
     setOpen(false)
@@ -45,17 +21,11 @@ export function AppMenu() {
 
   return (
     <div className="app-menu" ref={root}>
-      <button className={open ? 'menu-btn active' : 'menu-btn'} onClick={() => setOpen((o) => !o)} title="Menu: files, the rack’s size, view and settings" aria-label="Menu">
+      <button className={open ? 'menu-btn active' : 'menu-btn'} onClick={toggle} title="Menu: the case’s size, view, hints and settings" aria-label="Menu">
         ☰
       </button>
       {open && (
         <div className="app-menu-panel">
-          <section>
-            <h4>Rack</h4>
-            <button onClick={run(actions.clear)}>New empty rack <kbd>Ctrl+Z undoes</kbd></button>
-            <button onClick={() => fileRef.current?.click()}>Open a file…</button>
-            <button onClick={run(() => void exportRack(patchStore.get()))}>Save as a file (.voltage, with recordings)</button>
-          </section>
           <section>
             <h4>Case</h4>
             <div className="app-row">
@@ -114,6 +84,10 @@ export function AppMenu() {
             </label>
           </section>
           <section>
+            <h4>Online</h4>
+            <button onClick={run(() => setDevices(true))}>Your racks on other devices…</button>
+          </section>
+          <section>
             <h4>Analog realism</h4>
             <label className="app-check">
               <input type="checkbox" checked={s.psuSag} onChange={(e) => settings.set({ psuSag: e.target.checked })} />
@@ -130,16 +104,7 @@ export function AppMenu() {
           </section>
         </div>
       )}
-      <input
-        ref={fileRef}
-        type="file"
-        accept=".voltage,application/json,.json"
-        hidden
-        onChange={(e) => {
-          void importFile(e.target.files?.[0])
-          e.target.value = ''
-        }}
-      />
+      {devices && <DeviceModal onClose={() => setDevices(false)} />}
     </div>
   )
 }
