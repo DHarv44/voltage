@@ -43,6 +43,7 @@ import { TallyFace } from './tally/Face'
 import { Metronome } from './metronome/Metronome'
 import { Maelzel } from './metronome/Maelzel'
 import { Coach } from './metronome/Coach'
+import { ClockFace } from './metronome/ClockFace'
 import { TunerScreen } from './TunerScreen'
 import { Analyser } from './Analyser'
 import { PianoRoll } from './PianoRoll'
@@ -99,6 +100,7 @@ export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
   metronome: Metronome,
   maelzel: Maelzel,
   coach: Coach,
+  clockface: ClockFace,
   tunerscreen: TunerScreen,
   analyser: Analyser,
   pianoroll: PianoRoll,

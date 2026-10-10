@@ -2,6 +2,12 @@ import { spread } from '../panelMetrics'
 import { HP_MM, type Control, type ModuleSpec, type ParamSpec } from '../types'
 import { BLACK, SAND } from './panels'
 
+/** CLOCK's LEDs: the quarter-note blink, which beat of the bar (−1 stopped),
+ *  a flash that dies away over each beat, and how many bars it's played. */
+export const CLKL = { blink: 0, beat: 1, flash: 2, bar: 3 } as const
+
+/** The master clock. Its screen shows the tempo, the beat of the bar (1
+ *  bigger) and the bar count: the rack's metronome you can see. */
 export const clock: ModuleSpec = {
   type: 'clock',
   title: 'CLOCK',
@@ -25,14 +31,15 @@ export const clock: ModuleSpec = {
     { id: 'sync', label: 'SYNC', min: 0, max: 1, def: 0, stepped: true, options: ['INT', 'MIDI IN'] },
     { id: 'mout', label: 'MIDI OUT', min: 0, max: 1, def: 0, stepped: true, options: ['OFF', 'MIDI OUT'] },
   ],
-  leds: 1,
+  leds: 4,
   controls: [
-    { kind: 'knob', param: 'bpm', x: 20.3, y: 27, size: 'L' },
-    { kind: 'switch', param: 'run', x: 7.5, y: 52 },
-    { kind: 'switch', param: 'sync', x: 20.3, y: 52 },
-    { kind: 'switch', param: 'mout', x: 33.1, y: 52 },
-    { kind: 'in', jack: 'reset', x: 20.3, y: 70 },
-    { kind: 'led', index: 0, x: 33.1, y: 70, color: '#ffb02e' },
+    { kind: 'knob', param: 'bpm', x: 20.3, y: 23, size: 'L' },
+    { kind: 'switch', param: 'run', x: 7.5, y: 44 },
+    { kind: 'switch', param: 'sync', x: 20.3, y: 44 },
+    { kind: 'switch', param: 'mout', x: 33.1, y: 44 },
+    { kind: 'surface', name: 'clockface', x: 3.5, y: 52, w: 33.6, h: 14 },
+    { kind: 'in', jack: 'reset', x: 20.3, y: 76 },
+    { kind: 'led', index: 0, x: 33.1, y: 76, color: '#ffb02e' },
     { kind: 'out', jack: 'x4', x: 7.5, y: 92 },
     { kind: 'out', jack: 'x2', x: 20.3, y: 92 },
     { kind: 'out', jack: 'x1', x: 33.1, y: 92 },

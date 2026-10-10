@@ -1,3 +1,4 @@
+import { CLKL } from '../../modules/specs/sequencing'
 import type { MidiEvent } from '../protocol'
 import { Dsp } from './base'
 import { Schmitt } from './cores'
@@ -39,6 +40,9 @@ export class ClockDsp extends Dsp {
   private showIn = 0
   // sending MIDI clock
   private lastTick = -1
+  /** Bars played since it started (the screen's counter). */
+  private bars = 0
+  private lastPhase = 0
 
   constructor(...args: ConstructorParameters<typeof Dsp>) {
     super(...args)
@@ -90,6 +94,8 @@ export class ClockDsp extends Dsp {
     const running = this.p[this.pRun] >= 0.5 && (!midi || (this.midiRunning && (this.ticks >= 0 || this.pendingTicks > 0)))
     if (this.reset.rise(this.in[this.iReset]) || (running && !this.wasRunning)) {
       if (!midi) this.phase = 0
+      this.bars = 0
+      this.lastPhase = 0
       this.rstPulse = Math.round(0.003 * this.fs)
       this.lastTick = -1
       if (!midi && this.p[this.pOut] >= 0.5) midiOut.push(MIDI_START)
@@ -104,7 +110,14 @@ export class ClockDsp extends Dsp {
     }
     o[5] = this.rstPulse > 0 ? 10 : 0
     if (this.rstPulse > 0) this.rstPulse--
-    this.led[0] = o[2] / 10
+    this.led[CLKL.blink] = o[2] / 10
+    // the screen: which beat, a flash dying away across it, the bar count
+    if (this.phase < this.lastPhase - 0.5) this.bars++
+    this.lastPhase = this.phase
+    const beat = this.phase * 4
+    this.led[CLKL.beat] = running ? Math.floor(beat) : -1
+    this.led[CLKL.flash] = running ? 1 - (beat - Math.floor(beat)) : 0
+    this.led[CLKL.bar] = this.bars
     // MIDI OUT: a clock byte on each 96th of the bar (not while following MIDI: no loops)
     if (running && !midi && this.p[this.pOut] >= 0.5) {
       const tk = Math.floor(this.phase * TICKS_PER_BAR)
