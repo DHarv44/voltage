@@ -1259,6 +1259,55 @@ button.power.on {
   color: var(--text);
   border-color: #4a4c52;
 }
+.lib-all {
+  margin-left: auto;
+}
+.lib-fold {
+  margin-left: 6px;
+  padding: 0 8px;
+  border-radius: 4px;
+  border: 1px solid #34363b;
+  background: transparent;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 20px;
+  cursor: pointer;
+}
+.lib-fold:hover {
+  color: var(--text);
+  border-color: #4a4c52;
+}
+/* folded: a thin rail that opens it again */
+.library.folded {
+  width: 30px;
+  padding: 0;
+  overflow: hidden;
+}
+.lib-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  padding: 10px 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.lib-rail:hover {
+  background: #1d1f23;
+  color: var(--text);
+}
+.lib-rail-arrow {
+  font-size: 16px;
+}
+.lib-rail-label {
+  writing-mode: vertical-rl;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+}
 .lib-search {
   display: flex;
   gap: 6px;

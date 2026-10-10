@@ -42,9 +42,11 @@ npm install
 npm run dev
 ```
 
-Open <http://localhost:5204> and click **▶ Start** (browsers only allow sound after a click, so
-every visit begins with that one). **POWER**, at the right of the top bar next to REC, switches the sound off
-and on again; the **☰** menu holds files, the case's size, view and settings.
+Open <http://localhost:5204>. A first visit (or an empty rack) shows a start screen whose
+**▶ Start** is the click browsers need before they allow sound; when your rack is already there,
+it just waits for **POWER** (at the right of the top bar, next to REC). The **☰** menu holds the
+case's size, view and settings. **‹** at the top of the module library folds it to a thin rail
+(click the rail, or press **/**, to bring it back).
 
 | Command | What it does |
 |---|---|

@@ -1,6 +1,6 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import { engine } from '../audio/engine'
-import { actions } from '../patch/store'
+import { actions, patchStore } from '../patch/store'
 import { COURSES } from '../tutorial/lessons/courses'
 import { tutorial } from '../tutorial/runner'
 import { useShared } from './share/sharedState'
@@ -21,16 +21,21 @@ const remember = () => {
   }
 }
 
-/** The start screen. Browsers won't play sound until you click, so the first
- *  click of every visit is this one: ▶ Start switches the sound on. A first
- *  visit also gets three ways in; a shared rack shows what it is. Esc or a
- *  click beside it closes it without sound (patching silently is fine).
- *  Lessons have their own start, so it stays out of their way. */
+/** Worth a start screen: a first visit, or coming back to an empty rack (with
+ *  nothing loaded there's nothing to switch on yet). A rack that's already
+ *  there just waits for POWER. Lessons have their own start. */
+const wanted = (first: boolean, sharing: boolean) =>
+  !new URLSearchParams(location.search).has('learn') && (first || (!sharing && patchStore.get().modules.length === 0))
+
+/** The start screen. Browsers won't play sound until you click, so ▶ Start
+ *  is that click: it switches the sound on. A first visit gets three ways in;
+ *  a shared rack shows what it is. Esc or a click beside it closes it without
+ *  sound (patching silently is fine). */
 export function StartScreen() {
   const st = useSyncExternalStore(engine.subscribe, engine.getStatus)
   const shared = useShared()
-  const [open, setOpen] = useState(() => !new URLSearchParams(location.search).has('learn'))
   const [first] = useState(firstVisit)
+  const [open, setOpen] = useState(() => wanted(first, shared.kind !== 'none'))
 
   useEffect(() => {
     if (st.power) setOpen(false)

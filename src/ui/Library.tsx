@@ -20,7 +20,7 @@ const closedKey = (name: string) => `~${name}`
  *  match, / jumps here), tag chips, your favourites and recent modules, then
  *  every module in its category. */
 export function Library() {
-  const { libOpen, favs, recent, libTags } = useSettings()
+  const { libOpen, libHidden, favs, recent, libTags } = useSettings()
   const [query, setQuery] = useState('')
   const input = useRef<HTMLInputElement>(null)
   const q = query.trim()
@@ -33,13 +33,14 @@ export function Library() {
     [],
   )
 
-  // "/" anywhere (outside a text field) jumps to the search box
+  // "/" anywhere (outside a text field) jumps to the search box (opening the library if folded)
   useEffect(() => {
     const key = (e: globalThis.KeyboardEvent) => {
       const t = e.target as HTMLElement | null
       if (e.key !== '/' || (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable))) return
       e.preventDefault()
-      input.current?.focus()
+      if (settings.get().libHidden) settings.set({ libHidden: false })
+      requestAnimationFrame(() => input.current?.focus())
     }
     window.addEventListener('keydown', key)
     return () => window.removeEventListener('keydown', key)
@@ -61,6 +62,16 @@ export function Library() {
     }
   }
 
+  if (libHidden)
+    return (
+      <aside className="library folded">
+        <button className="lib-rail" onClick={() => settings.set({ libHidden: false })} title="Show the module library ( / searches it)" aria-label="Show the module library">
+          <span className="lib-rail-arrow">›</span>
+          <span className="lib-rail-label">MODULES</span>
+        </button>
+      </aside>
+    )
+
   return (
     <aside className="library">
       <div className="lib-top">
@@ -70,6 +81,9 @@ export function Library() {
           onClick={() => settings.set({ libOpen: allOpen ? libOpen.filter((n) => !CATEGORIES.includes(n as never)) : [...new Set([...libOpen, ...CATEGORIES])] })}
         >
           {allOpen ? 'Collapse all' : 'Expand all'}
+        </button>
+        <button className="lib-fold" onClick={() => settings.set({ libHidden: true })} title="Fold the library away (more room for the rack)" aria-label="Hide the module library">
+          ‹
         </button>
       </div>
       <div className="lib-search">

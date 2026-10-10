@@ -6,6 +6,8 @@ export interface Settings {
   cableOpacity: number
   /** Library sections the user has open (by category name, plus 'help'). */
   libOpen: string[]
+  /** The library is folded away to a thin rail. */
+  libHidden: boolean
   /** Library: starred modules (in the order starred) and the last few added. */
   favs: string[]
   recent: string[]
@@ -25,6 +27,7 @@ const DEFAULTS: Settings = {
   zoom: null,
   cableOpacity: 0.85,
   libOpen: ['Systems'],
+  libHidden: false,
   favs: [],
   recent: [],
   libTags: [],

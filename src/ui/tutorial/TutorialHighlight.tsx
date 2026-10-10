@@ -5,6 +5,7 @@ import type { Patch } from '../../patch/types'
 import { tutorial } from '../../tutorial/runner'
 import type { Target } from '../../tutorial/types'
 import { jackPos, moduleLeft, PX, rowTop, type Pt } from '../geometry'
+import { settings } from '../settings'
 import { cablePath } from '../rack/CableLayer'
 import { libTarget } from './libTarget'
 
@@ -62,6 +63,7 @@ export function TutorialHighlight({ width, height }: { width: number; height: nu
   // The module's row in the library glows (or its section header, until opened).
   useEffect(() => {
     if (!lib) return
+    if (settings.get().libHidden) settings.set({ libHidden: false }) // the row must be there to point at
     let lit: Element | null = null
     const update = () => {
       const el = libTarget(lib)?.el ?? null
