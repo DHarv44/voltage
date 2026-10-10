@@ -296,6 +296,145 @@ button {
   margin: 0;
 }
 
+/* the Cloud menu */
+.preset-list.cloud-panel {
+  width: 420px;
+  padding: 0;
+}
+.cloud-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 6px 6px 0;
+  border-bottom: 1px solid #2c2e33;
+}
+.cloud-tabs button {
+  border: 0;
+  border-radius: 4px 4px 0 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 6px 10px;
+  font-size: 12px;
+}
+.cloud-tabs button.on {
+  background: #2a2c31;
+  color: var(--text);
+}
+.cloud-body {
+  width: auto;
+  padding: 10px 12px;
+}
+.cloud-body > p {
+  margin: 0 0 8px;
+}
+.cloud-vis {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.share-panel .cloud-vis label {
+  display: grid;
+  grid-template-columns: auto 70px 1fr;
+  align-items: center;
+  gap: 6px;
+  flex-direction: row;
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.share-panel .cloud-vis label.on {
+  background: #26282d;
+}
+.cloud-vis b {
+  color: var(--text);
+  font-weight: 600;
+}
+.cloud-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.cloud-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+}
+.cloud-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.cloud-open {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  text-decoration: none;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.cloud-open:hover {
+  background: #2a2c31;
+}
+.cloud-open span {
+  color: var(--muted);
+  font-size: 11px;
+}
+.cloud-item select {
+  font-size: 11px;
+  background: #15171b;
+  color: var(--text);
+  border: 1px solid #3a3d44;
+  border-radius: 4px;
+}
+.cloud-search {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.cloud-search input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 13px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  border: 1px solid #3a3d44;
+  background: #15171b;
+  color: var(--text);
+}
+.cloud-key {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cloud-key code {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 11px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  background: #15171b;
+  color: var(--text);
+}
+.cloud-admin summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
 .tut-strip {
   display: flex;
   align-items: center;

@@ -17,6 +17,7 @@ import { lintPanels } from './ui/panel/lint'
 import { tutorial } from './tutorial/runner'
 import { validateCourses } from './tutorial/validate'
 import { bootShared } from './ui/share/sharedState'
+import { bootCloud } from './cloud/open'
 import './styles.css'
 
 if (import.meta.env.DEV) {
@@ -31,7 +32,7 @@ if (import.meta.env.DEV) {
 
 // A shared link (#p=…) opens in a scratch rack; if this page isn't one, it
 // reloads as one and nothing else here needs to start.
-if (!bootShared()) {
+if (!bootShared() && !bootCloud()) {
   initQwerty((ev) => engine.midi(ev))
   tutorial.boot() // opens a lesson if the URL names one (lessons run in a scratch rack)
   disableRackAutoscroll()

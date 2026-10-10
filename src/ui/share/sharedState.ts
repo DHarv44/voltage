@@ -2,9 +2,15 @@ import { useSyncExternalStore } from 'react'
 import { SCRATCH } from '../../patch/persist'
 import { openShared, sharedInHash, type Shared } from '../../patch/share'
 import { actions } from '../../patch/store'
+import type { Recording } from '../../patch/bundle'
 
-/** The shared patch this page was opened with: loading, opened, or broken. */
-export type SharedState = { kind: 'none' } | { kind: 'loading' } | { kind: 'bad' } | ({ kind: 'open' } & Shared)
+/** The shared patch this page was opened with: loading, opened, or broken.
+ *  A cloud short link (/p/…) also says which rack and brings its recordings. */
+export type SharedState =
+  | { kind: 'none' }
+  | { kind: 'loading' }
+  | { kind: 'bad'; why?: string }
+  | ({ kind: 'open'; cloudId?: string; mine?: boolean; recordings?: Recording[] } & Shared)
 
 let state: SharedState = { kind: 'none' }
 const subs = new Set<() => void>()
@@ -22,6 +28,7 @@ export const sharedPatch = {
     }
   },
   dismiss: () => set({ kind: 'none' }),
+  set,
 }
 
 export function useShared(): SharedState {

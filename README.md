@@ -34,8 +34,8 @@ singing bowl to a vinyl record, is synthesised.
 
 ## Quick start
 
-You need a current [Node.js](https://nodejs.org) (22 or newer recommended) and a modern desktop
-browser (Chrome, Edge, Firefox or Safari).
+You need [Node.js](https://nodejs.org) 24 or newer (the server uses its built-in SQLite and runs
+TypeScript directly) and a modern desktop browser (Chrome, Edge, Firefox or Safari).
 
 ```bash
 npm install
@@ -47,12 +47,18 @@ allow audio to start after a click, so the rack always starts powered down.
 
 | Command | What it does |
 |---|---|
-| `npm run dev` | Development server with hot reload on port 5204 |
-| `npm run build` | Type-check, then build the static site into `dist/` |
-| `npm run typecheck` | Type-check only |
+| `npm run dev` | Development server with hot reload on port 5204 (it passes `/api` to 5205) |
+| `npm run server` | The cloud server on port 5205 (restarts on changes; data in `./data`) |
+| `npm run build` | Type-check, then build the site into `dist/` |
+| `npm start` | The production server: the built site plus the cloud API |
+| `npm run typecheck` | Type-check the app and the server |
 
-**Deploying:** `npm run build` produces a fully static site in `dist/` (HTML, JS, CSS; no server
-needed). The live version is hosted on Railway from this repository.
+**Deploying:** Railway builds (`npm run build`) and runs `npm start` from this repository. The
+server (`server/`, no dependencies beyond Node) serves `dist/` and the `/api` for cloud racks,
+storing them in one SQLite file. Its settings (Railway → Variables): `DATA_DIR` where a volume is
+mounted (otherwise racks vanish on every deploy), `ADMIN_KEY` (a long random string; the admin tab
+in Cloud → This device asks for it), and `PORT` (Railway sets it). Without the server the site
+still works; only the Cloud menu can't reach anything.
 
 ---
 
@@ -256,6 +262,13 @@ who keeps time, who plays, and the knobs that make the sound).
 - **Earlier versions:** the Patches menu keeps your rack as it was over the last hours and days (a
   snapshot every couple of minutes while it changes, the last 50 kept); load one to go back (Ctrl+Z
   undoes that).
+- **Cloud** saves the rack, recordings and all (up to 20 MB), to the VOLTAGE server and gives it a
+  short link (`/p/abc12345`). No account: this browser has a private code that owns what it saves
+  (**This device** shows it; paste it on another computer to see and edit your racks there).
+  Each rack is **Private**, **Link only** or **Public** (listed in **Browse** once the admin has
+  looked at it). **My racks** opens, re-shares, changes or deletes them; saving a rack you opened
+  from your own link offers **Update**. Short links open in a scratch rack, with **Keep this rack**
+  (recordings included) and **Report**.
 - **Share** copies a link to the rack, with an optional title and note for whoever you send it to.
   The whole patch is packed into the link (after the `#`), so nothing is uploaded anywhere. Links
   open in a **scratch rack** that never touches the recipient's own patch; they can **Keep this

@@ -344,10 +344,14 @@ sharing), which stays as the no-account option.
   at most every 2 min when changed, 50 kept, in the Patches menu; patch/bundle.ts packs the patch
   and every recording, gzipped JSON with base64 Float32, also the cloud upload format;
   buffers.adopt / read carry recordings into scratch racks).
-- **No accounts yet (chosen 2026-10-09)**: short links that carry recordings, owned by a random
-  owner key per browser (My patches, update, delete, private / unlisted / public, move the key to
-  another device with a code); a public gallery where submissions wait for admin approval; admin
-  page opened with an ADMIN_KEY set on Railway. Accounts (Google, passkeys, magic links) can claim
+- ~~**No accounts yet (chosen 2026-10-09)**~~ (done, waiting on the Railway volume and ADMIN_KEY):
+  server/ (Node 24, node:http + node:sqlite, TypeScript run directly; db.ts, api.ts, http.ts,
+  main.ts serving dist/ with SPA fallback); bundles stored as uploaded (gzipped .voltage, 20 MB,
+  checked on the way in); owner = SHA-256 of the browser's random key (X-Owner-Key); ids 8 chars;
+  per-IP limits; unopened racks swept after a year (approved gallery ones stay); public = pending
+  until approved, again after any change of contents. App: src/cloud (api, current, open: /p/:id
+  → scratch rack with recordings via buffers.adopt), ui/cloud (Save, My racks, Browse, This device
+  with the code and the admin key, Admin queue). Accounts (Google, passkeys, magic links) can claim
   owner keys later.
 
 ## Pinned for later: what big synth artists use (gap review)

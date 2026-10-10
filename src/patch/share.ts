@@ -56,7 +56,7 @@ export async function shareLink(patch: Patch, title: string, note: string): Prom
   const hadAudio = patch.modules.some((m) => holdsAudio(m.type))
   const body = JSON.stringify({ v: VERSION, t: title.trim().slice(0, 80), n: note.trim().slice(0, 400), a: hadAudio ? 1 : 0, p: compact(patch) })
   const packed = await pipe(new TextEncoder().encode(body), new CompressionStream('deflate-raw'))
-  return `${location.origin}${location.pathname}#${HASH_KEY}=${toB64(packed)}`
+  return `${location.origin}/#${HASH_KEY}=${toB64(packed)}`
 }
 
 /** The packed patch in this page's address, if there is one. */

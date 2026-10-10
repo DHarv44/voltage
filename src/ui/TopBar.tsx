@@ -9,6 +9,7 @@ import { PresetMenu } from './PresetMenu'
 import { SongMenu } from './SongMenu'
 import { LearnMenu } from './tutorial/LearnMenu'
 import { ShareMenu } from './share/ShareMenu'
+import { CloudMenu } from './cloud/CloudMenu'
 import { actions, history, patchStore } from '../patch/store'
 import { settings, useSettings } from './settings'
 
@@ -39,7 +40,7 @@ export function TopBar() {
       {SCRATCH && (
         <span className="scratch-badge" title="?scratch mode: this rack is never saved">
           SCRATCH · NOT SAVED
-          <button onClick={() => (location.href = location.pathname)} title="Leave this scratch rack and go back to your own saved rack">
+          <button onClick={() => (location.href = `${location.origin}/`)} title="Leave this scratch rack and go back to your own saved rack">
             My rack ↩
           </button>
         </span>
@@ -138,6 +139,7 @@ export function TopBar() {
         <SongMenu />
         <LearnMenu />
         <ShareMenu />
+        <CloudMenu />
         <button onClick={exportPatch} title="Save the whole rack, recordings and all, as a .voltage file">
           Export
         </button>

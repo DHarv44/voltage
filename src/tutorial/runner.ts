@@ -54,19 +54,19 @@ class TutorialRunner {
 
   /** Open a lesson (navigates to a scratch rack with the lesson in the URL). */
   open(id: string, mode: TutorialMode): void {
-    location.href = `${location.pathname}?scratch&${URL_KEY}=${encodeURIComponent(id)}&mode=${mode}`
+    location.href = `/?scratch&${URL_KEY}=${encodeURIComponent(id)}&mode=${mode}`
   }
 
-  /** Back to your own rack. */
+  /** Back to your own rack (from the root: never a cloud rack's /p/… link). */
   exit(): void {
-    location.href = location.pathname
+    location.href = '/'
   }
 
   /** End the lesson but keep the rack you built to play with (still a
    *  scratch rack: your saved patch is never touched). */
   finish(): void {
     this.state = { ...this.state, lesson: null, index: 0, done: false, playPrompt: false, notice: undefined }
-    history.replaceState(null, '', `${location.pathname}?scratch`)
+    history.replaceState(null, '', '/?scratch')
     this.emit()
   }
 
@@ -124,7 +124,7 @@ class TutorialRunner {
     this.state.lesson = next
     this.state.index = 0
     this.snapshots = []
-    history.replaceState(null, '', `${location.pathname}?scratch&${URL_KEY}=${encodeURIComponent(next.id)}&mode=${this.state.mode}`)
+    history.replaceState(null, '', `/?scratch&${URL_KEY}=${encodeURIComponent(next.id)}&mode=${this.state.mode}`)
     await this.enter()
   }
 
