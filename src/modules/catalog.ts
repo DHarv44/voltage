@@ -160,6 +160,10 @@ export const CATALOG: Record<string, Entry> = {
   ghost: { tags: ['generative', 'melody'], aka: ['ai', 'call and response', 'improviser'] },
   progression: { tags: ['chords', 'generative'], aka: ['chord progression', 'harmony', 'voice leading'] },
   bandmate: { tags: ['beat', 'generative', 'plays itself'], aka: ['drummer', 'ai drummer', 'fills'] },
+  combocore: {
+    tags: ['beat', 'bass', 'generative', 'plays itself'],
+    aka: ['band', 'backing band', 'band in a box', 'trio', 'band creator', 'accompaniment', 'drums and bass', 'chord follower', 'guitar', 'learn chords'],
+  },
   // Simulations
   bounce: { tags: ['generative', 'beat'], aka: ['physics', 'gravity', 'balls'] },
   tumbler: { tags: ['generative', 'melody'], aka: ['physics', 'spinning', 'polygon', 'balls'] },

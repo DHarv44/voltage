@@ -3,6 +3,7 @@ import { hpOf } from '../../modules/size'
 import { fits } from '../layout'
 import { sanitize } from '../persist'
 import type { Patch } from '../types'
+import { COMBO_STARTERS } from './combo'
 import { CONTROL_STARTERS } from './control'
 import { EFFECT_STARTERS } from './effects'
 import { GAP_STARTERS } from './gaps'
@@ -32,6 +33,7 @@ export const STARTERS: Record<string, Starter> = {
   ...OTHER_STARTERS,
   ...GAP_STARTERS,
   ...VISION_STARTERS,
+  ...COMBO_STARTERS,
 }
 
 /** A module's rig as a patch fragment, laid out for a `rail`-HP case. */

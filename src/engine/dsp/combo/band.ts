@@ -75,6 +75,13 @@ export class Band {
     this.playing = true
   }
 
+  /** Back to the top of the part playing (RST), on the next sample. */
+  restart(): void {
+    this.pos = 0
+    this.next = 0
+    this.partStart = true
+  }
+
   /** Stop at the next bar line with a last hit (or straight away). */
   stop(ending: boolean): void {
     if (ending && this.playing && this.countIn === 0) this.ending = true

@@ -81,6 +81,38 @@ MORE_JACKS['stage:in:sus'] = { signal: 'gate', what: 'The sustain pedal: while i
 MORE_JACKS['stage:in:vel'] = { signal: 'cv', what: 'Velocity per note, 0–10 V: soft notes are round and bell-like, hard ones bark (TINE) or bite (REED).' }
 MORE_JACKS['stage:in:voct'] = { signal: 'pitch', what: 'The notes (a poly cable from POLY·CV or the PIANO ROLL plays a chord). With GATE empty it transposes the keys.' }
 MORE_JACKS['stage:in:gate'] = { signal: 'gate', what: 'Each note’s gate: its rise is the hammer, its fall lands the damper. Empty: STAGE plays from your keys.' }
+// COMBO and COMBO CORE
+const COMBO_TYPES = ['combocore']
+for (const t of COMBO_TYPES) {
+  const J: Record<string, { signal: 'audio' | 'pitch' | 'gate' | 'cv' | 'clock' | 'reset' | 'trigger'; what: string }> = {
+    'in:in': { signal: 'audio', what: 'Your playing to teach it (patch AUDIO IN: a guitar, keys, a voice). With GATE patched it learns from V/OCT and GATE instead.' },
+    'in:voct': { signal: 'pitch', what: 'Notes to teach it from (a poly cable from the keys, POLY·CV or the PIANO ROLL): exact chords, no listening needed. Used with GATE.' },
+    'in:gate': { signal: 'gate', what: 'The gates of the notes on V/OCT. Patched, COMBO learns from the cables rather than IN.' },
+    'in:clk': { signal: 'clock', what: 'A clock in 16ths (CLOCK’s 1/16): the band plays at its tempo instead of the one you taught.' },
+    'in:rst': { signal: 'reset', what: 'A pulse sends the band back to the top of the part.' },
+    'in:band': { signal: 'gate', what: 'A footswitch for BAND: press to teach, press on the same downbeat to finish, press to stop; hold two seconds to forget the part.' },
+    'in:next': { signal: 'trigger', what: 'A pulse cues the next learned part (it comes in at the end of this one, after a fill).' },
+    'in:part': { signal: 'cv', what: 'Picks the part: 0–2 V part 1, 2–4 V part 2, up to 8–10 V part 5 (ARRANGER can run the song).' },
+    'out:kick': { signal: 'trigger', what: 'The drummer’s kick: a trigger for a KICK module.' },
+    'out:snare': { signal: 'trigger', what: 'The snare (and the rolls in fills).' },
+    'out:hat': { signal: 'trigger', what: 'The closed hi-hat.' },
+    'out:ohat': { signal: 'trigger', what: 'The open hi-hat.' },
+    'out:ride': { signal: 'trigger', what: 'The ride cymbal.' },
+    'out:tom': { signal: 'trigger', what: 'The toms (fills and tom grooves).' },
+    'out:perc': { signal: 'trigger', what: 'The style’s percussion: tambourine, shaker, clap, conga or rim.' },
+    'out:crash': { signal: 'trigger', what: 'A crash: at the top of each part, and on high intensity.' },
+    'out:acc': { signal: 'trigger', what: 'High on accented hits: patch to the drum modules’ ACC.' },
+    'out:bass': { signal: 'pitch', what: 'The bass line’s pitch (V/OCT), following your chords.' },
+    'out:bgate': { signal: 'gate', what: 'The bass line’s gate: high while each bass note sounds.' },
+    'out:chord': { signal: 'pitch', what: 'A poly cable: the chord you taught, playing now (patch to a poly voice for a pad).' },
+    'out:root': { signal: 'pitch', what: 'The root of the chord playing now.' },
+    'out:clko': { signal: 'clock', what: 'The band’s clock in 16ths: everything else can follow it.' },
+    'out:rsto': { signal: 'reset', what: 'A pulse at the top of each part.' },
+    'out:link': { signal: 'cv', what: 'Patch to a FOOTSWITCH or a LOOPER: they work with this band.' },
+  }
+  for (const [k, v] of Object.entries(J)) MORE_JACKS[`${t}:${k}`] = v
+}
+
 MORE_JACKS['pianoroll:out:ped'] = { signal: 'gate', what: 'The sustain pedal lane: high on the steps where the pedal is drawn down. Patch to a piano’s SUS (GRAND, STAGE, FM-4).' }
 MORE_JACKS['grand:in:sus'] = { signal: 'gate', what: 'The sustain pedal: while it’s high every damper is lifted, so notes you let go ring on and the free strings ring along in sympathy. A MIDI sustain pedal works too.' }
 MORE_JACKS['grand:in:soft'] = { signal: 'gate', what: 'The soft pedal (una corda): while it’s high the hammers strike one string fewer, with a softer part of the felt: quieter and darker.' }

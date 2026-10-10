@@ -1,3 +1,15 @@
+/** COMBO and COMBO CORE's panel (the same knobs on both). */
+function comboTexts(type: string): Record<string, string> {
+  return {
+    [`${type}:genre`]: 'The genre the band plays the selected part in: blues, R&B, rock, alternative, metal, pop, electronic pop, hip-hop, country, folk, Latin, jazz. Each part keeps its own.',
+    [`${type}:style`]: 'One of the genre’s twelve styles (1–9 in 4/4, 10–12 in 3/4). The lights on the screen suggest styles: green ones match the meter and feel you played, amber ones the meter.',
+    [`${type}:tempo`]: 'Plays faster or slower than you taught it (the middle is your tempo). Ignored when a clock is patched to CLK.',
+    [`${type}:alt`]: 'ALT TIME: another reading of your tempo, at double or half time, for the selected part.',
+    [`${type}:sbass`]: 'The bass player: ACTIVE plays the style’s line, ROOTS the same rhythm on each chord’s root, BAR one root a bar, held.',
+    [`${type}:count`]: 'Four clicks of the sticks before the band comes in (when you start it with BAND; after teaching, it comes straight in).',
+  }
+}
+
 /** More of the knob glossary (`type:param`): the modules that filled the
  *  gaps in the range (stereo tools, CV tools, …). Merged into OVERRIDES. */
 export const GAP_OVERRIDES: Record<string, string> = {
@@ -67,6 +79,8 @@ export const GAP_OVERRIDES: Record<string, string> = {
   'stage:trem': 'Tremolo depth: TINE pans from speaker to speaker, REED pulses in volume.',
   'stage:rate': 'Tremolo speed.',
   'stage:level': 'Output level.',
+  // COMBO
+  ...comboTexts('combocore'),
   // GRAND
   'grand:model': 'GRAND: long strings, a big soundboard, a long ring. UPRIGHT: shorter, stiffer strings in a boxier case. HONKY: the saloon upright with its unisons tuned wide.',
   'grand:bright': 'How hard the hammer felt is: from dark and woolly to bright and ringing (playing harder brightens it too).',

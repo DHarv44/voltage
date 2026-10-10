@@ -37,7 +37,7 @@ export const clock: ModuleSpec = {
     { kind: 'switch', param: 'run', x: 7.5, y: 44 },
     { kind: 'switch', param: 'sync', x: 20.3, y: 44 },
     { kind: 'switch', param: 'mout', x: 33.1, y: 44 },
-    { kind: 'surface', name: 'clockface', x: 3.5, y: 52, w: 33.6, h: 14 },
+    { kind: 'surface', name: 'clockface', x: 3.5, y: 56, w: 33.6, h: 12 },
     { kind: 'in', jack: 'reset', x: 20.3, y: 76 },
     { kind: 'led', index: 0, x: 33.1, y: 76, color: '#ffb02e' },
     { kind: 'out', jack: 'x4', x: 7.5, y: 92 },

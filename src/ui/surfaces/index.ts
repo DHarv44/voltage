@@ -44,6 +44,7 @@ import { Metronome } from './metronome/Metronome'
 import { Maelzel } from './metronome/Maelzel'
 import { Coach } from './metronome/Coach'
 import { ClockFace } from './metronome/ClockFace'
+import { ComboScreen } from './ComboScreen'
 import { TunerScreen } from './TunerScreen'
 import { Analyser } from './Analyser'
 import { PianoRoll } from './PianoRoll'
@@ -101,6 +102,7 @@ export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
   maelzel: Maelzel,
   coach: Coach,
   clockface: ClockFace,
+  comboscreen: ComboScreen,
   tunerscreen: TunerScreen,
   analyser: Analyser,
   pianoroll: PianoRoll,
