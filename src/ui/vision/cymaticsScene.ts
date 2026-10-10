@@ -54,6 +54,7 @@ export const cymaticsScene: SceneFactory = (aspect, seed) => {
       sign = (led?.[CYM.mode] ?? 0) % 2 === 0 ? -1 : 1
       const knock = led?.[CYM.knock] ?? 0
       const tilt = led?.[CYM.tilt] ?? 0
+      const tiltY = led?.[CYM.tiltY] ?? 0
       const drive = s.action
       const pos = sand.geometry.attributes.position.array as Float32Array
       const tint = sand.geometry.attributes.tint.array as Float32Array
@@ -69,7 +70,7 @@ export const cymaticsScene: SceneFactory = (aspect, seed) => {
         const gx = (amp(u[i] + e, v[i]) ** 2 - a * a) / e
         const gy = (amp(u[i], v[i] + e) ** 2 - a * a) / e
         u[i] = Math.min(1, Math.max(0, u[i] + (rnd() - 0.5) * shake - gx * 0.0006 * drive + tilt * 0.0015))
-        v[i] = Math.min(1, Math.max(0, v[i] + (rnd() - 0.5) * shake - gy * 0.0006 * drive))
+        v[i] = Math.min(1, Math.max(0, v[i] + (rnd() - 0.5) * shake - gy * 0.0006 * drive + tiltY * 0.0015))
         pos[i * 3] = (u[i] * 2 - 1) * S
         pos[i * 3 + 1] = (v[i] * 2 - 1) * S
         // a knock lifts the grains off the plate for a moment

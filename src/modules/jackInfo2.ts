@@ -76,3 +76,24 @@ export const MORE_JACKS: Record<string, { signal?: Signal; what?: string }> = {
   'trackhold:out:out1': { signal: 'cv', what: 'Channel 1: following, or frozen.' },
   'trackhold:out:out2': { signal: 'cv', what: 'Channel 2: following, or frozen.' },
 }
+
+// VISION's beat and steering (the tank and the CORE), and a VIEW's own jacks
+for (const t of ['vision', 'visioncore']) {
+  MORE_JACKS[`${t}:in:clk`] = {
+    signal: 'clock',
+    what: 'The beat (CLOCK’s 1/4): every scene moves in time. The jelly twitches and glows (a full stroke each bar if TRIG is empty), flowers rock, fireflies flash, the aurora flares, the plate knocks, raindrops fall; the starlings and the fish turn on each bar.',
+  }
+  MORE_JACKS[`${t}:in:x`] = { signal: 'cv', what: 'Steer across: −5 V the left, +5 V the right. The jelly swims there, the flock and the school fly there, the fireflies gather, the insects follow, the curtains drift, the plate tilts, the rain falls there.' }
+  MORE_JACKS[`${t}:in:y`] = { signal: 'cv', what: 'Steer up and down: −5 V the bottom (or the near water), +5 V the top. Patch an LFO to X and another a quarter-cycle on (QUAD LFO) to Y and the creatures circle.' }
+}
+const VIEW_OUT: Record<string, string> = {
+  gate: 'The GATE of the scene this VIEW shows (whatever the CORE’s OUT knob says): each VIEW plays its own scene.',
+  sway: 'MOTION of the scene this VIEW shows.',
+  grow: 'STATE of the scene this VIEW shows.',
+  light: 'LIGHT of the scene this VIEW shows.',
+  depth: 'DEPTH of the scene this VIEW shows.',
+  tx: 'Where your finger is across this VIEW’s glass, 0–10 V (held when you lift off).',
+  ty: 'Where your finger is up this VIEW’s glass, 0–10 V.',
+  tgate: 'High while a finger is on this VIEW’s glass.',
+}
+for (const [j, what] of Object.entries(VIEW_OUT)) MORE_JACKS[`visionview:out:${j}`] = { signal: j === 'gate' || j === 'tgate' ? 'gate' : 'cv', what }

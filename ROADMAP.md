@@ -338,6 +338,14 @@ extend VOLTAGE.
   polyps glowing at the tips), brain coral (ridged domes), sea fans (lattice shader) and an
   anemone (instanced tentacles) swaying with the surge, clownfish, sand caustics, sun shafts).
   All built in 3D so there's something to see wherever you zoom.
+- **VISION controls pass** (2026-10-10, user review): ~~CORE's SCENE → OUT; VIEW's LINKED → = CORE;
+  each VIEW gets the jacks of the scene it shows~~ (done: engine/dsp/vision/view.ts reads the
+  tank's per-scene outputs through the LINK cable's srcMod), ~~CLK on every scene~~ (beat / bar /
+  pulse in CreatureInput), ~~X / Y steering~~ (the user's pick over camera moves), ~~funk rigs, the
+  CORE rig with three VIEWs~~ (patch/starters/vision.ts), ~~garden to scale~~ (the garden's own
+  tree just behind the bed, a dozen flowers tall grown; the rest at the edge of the wood), MOTION
+  levels evened out (jelly, aurora). Not done: camera moves per VIEW (CAMERA knob, CUT input),
+  pinned unless asked.
 
 ## Pinned for later: cloud saving, short links and a public gallery
 Goal: short links anyone can open; public patches browsable on the site; private patches only their

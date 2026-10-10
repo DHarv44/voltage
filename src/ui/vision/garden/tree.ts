@@ -6,9 +6,10 @@ import { growShape, MAX_BRANCHES, MAX_LEAVES, poseShape, type TreeShape } from '
 
 const BARK = new THREE.Color(0.3, 0.22, 0.15)
 
-/** Where a tree at x (0..1) stands across the scene: wider than the flower
- *  bed, so they frame it. */
-export const treeX = (x: number, width: number): number => (x - 0.5) * width * 1.5
+/** Where a tree at x (0..1) stands across the scene: the garden's own tree
+ *  (slot 0) somewhere behind the middle of the flower bed, the others spread
+ *  wide along the edge of the wood. */
+export const treeX = (slot: number, x: number, width: number): number => (x - 0.5) * width * (slot === 0 ? 0.6 : 5)
 
 /** One tree's state from the engine (see TREE in specs/garden). */
 export interface TreeState {
@@ -64,7 +65,8 @@ export class TreeView {
     this.root.add(this.hinge)
   }
 
-  update(st: TreeState, floor: number, width: number, sway: number, t: number): void {
+  /** `slot`: which tree this is (0 is the garden's own; see treeX). */
+  update(slot: number, st: TreeState, floor: number, width: number, sway: number, t: number): void {
     const visible = st.fade > 0.01
     this.root.visible = visible
     if (!visible) {
@@ -89,7 +91,7 @@ export class TreeView {
     const full = treeHeight(st.x, st.g)
     const scale = full / this.posedH
     const ratio = this.posedH / shape.fullH // local units per full-grown unit, at this scale
-    this.root.position.set(treeX(st.x, width), floor - (1 - st.fade) * 0.1, treeDepth(st.x))
+    this.root.position.set(treeX(slot, st.x, width), floor - (1 - st.fade) * 0.1, treeDepth(slot, st.x))
     this.root.scale.setScalar(scale)
     // a slow sway in the wind; then over it goes (slowly at first)
     this.hinge.rotation.z = -this.lean * 1.45 * st.fall * st.fall - sway * 0.012 * (1 - st.fall) + Math.sin(t * 0.4) * 0.004

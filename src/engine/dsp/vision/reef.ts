@@ -75,14 +75,17 @@ export class Reef implements Creature {
     if (tc.touching && !tc.tap) {
       gx = tc.x
       gy = tc.y
+    } else if (i.steer) {
+      gx = i.sx
+      gy = i.sy
     }
     const k = 1 - Math.exp(-dt / 2)
     this.x += (Math.max(0.15, Math.min(0.85, gx)) - this.x) * k
     this.y += (Math.max(0.3, Math.min(0.85, gy)) - this.y) * k
     this.z += (Math.max(0, Math.min(1, 0.5 + this.wz.step(dt) * 0.45)) - this.z) * k
 
-    // the school wheels round as one now and then
-    if (rng.next() < dt * i.rate * 0.3) {
+    // the school wheels round as one now and then (with CLK, on the bar)
+    if (i.bar || (!i.clocked && rng.next() < dt * i.rate * 0.3)) {
       this.turns++
       this.turnDir = rng.next() < 0.5 ? -1 : 1
       this.gate = 0.012
@@ -116,6 +119,8 @@ export class Reef implements Creature {
     // plankton on the current opens the polyps
     const food = i.feedPatched ? Math.min(1, i.feed / 5) : 0.35
     this.polyps += (food - this.polyps) * (1 - Math.exp(-dt / 3))
+    // CLK: the polyps flinch shut a little on every beat and open again
+    const polyps = Math.max(0, this.polyps - i.pulse * 0.35)
 
     // sun through the waves: a restless flicker
     const shimmer = 0.5 + 0.25 * Math.sin(TAU * 0.7 * this.t) + 0.25 * Math.sin(TAU * 1.13 * this.t + 1)
@@ -131,7 +136,7 @@ export class Reef implements Creature {
     led[VS.glow] = light
     led[VS.hue] = hueOf(i.hue, i.hueV)
     led[VS.sway] = surge
-    led[VS.grow] = this.polyps
+    led[VS.grow] = polyps
     led[VS.gate] = this.gate > 0 ? 1 : 0
     led[REEF.z] = this.z
     led[REEF.spread] = this.spread
@@ -144,7 +149,7 @@ export class Reef implements Creature {
     led[REEF.sy] = this.sy
     led[REEF.scare] = this.scare
     led[REEF.surge] = surge
-    led[REEF.polyps] = this.polyps
+    led[REEF.polyps] = polyps
     led[REEF.turns] = this.turns
     led[REEF.turnDir] = this.turnDir
   }

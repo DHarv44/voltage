@@ -11,16 +11,6 @@ function beside(k: Kit, type: string, params: Record<string, number> = {}): stri
   return m
 }
 
-/** A VISION tank that the tune plays: each note strikes it, the pitch colours it. */
-function visionRig(k: Kit, type: 'vision' | 'visioncore'): string {
-  const t = tune(k)
-  const v = k.add(type)
-  k.wire(t.gate, [v, 'trig'])
-  k.wire(t.pitch, [v, 'hue'])
-  toOut(k, t.out)
-  return v
-}
-
 export const OTHER_STARTERS: Record<string, Starter> = {
   mixer: {
     howTo: 'Three parts on MIX: drums on 1, a dub bass on 2, a slow lead on 3. Balance them with the channel levels; INV is the whole mix upside down.',
@@ -189,27 +179,6 @@ export const OTHER_STARTERS: Record<string, Starter> = {
       const vca = k.add('vca', { gain: 0.35 })
       k.wire([osc, 'sqr'], [vca, 'in'])
       toOut(k, [vca, 'out'])
-    },
-  },
-  vision: {
-    howTo:
-      'The tune plays the jellyfish: every note is a bell stroke, the pitch is its colour. The glass is a touch pad too: touch the water, and TOUCH X / Y / TOUCH send where your finger is and a gate.',
-    build: (k) => void visionRig(k, 'vision'),
-  },
-  visioncore: {
-    howTo: 'VISION CORE played by the tune, shown on a VISION VIEW.',
-    build(k) {
-      const core = visionRig(k, 'visioncore')
-      const view = k.add('visionview')
-      k.wire([core, 'link'], [view, 'link'])
-    },
-  },
-  visionview: {
-    howTo: 'A VISION VIEW showing a VISION CORE the tune plays. Change the VIEW’s SCENE.',
-    build(k) {
-      const core = visionRig(k, 'visioncore')
-      const view = k.add('visionview')
-      k.wire([core, 'link'], [view, 'link'])
     },
   },
   vector: {

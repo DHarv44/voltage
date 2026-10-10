@@ -49,12 +49,21 @@ export class Rain implements Creature {
     this.gate = 0.005
   }
 
+  /** A drop anywhere on the pond, or (X / Y patched) from a shower over the point. */
+  private where(i: CreatureInput, size: number): void {
+    const rng = this.rng
+    if (!i.steer) return this.drop(rng.next(), rng.next(), size)
+    this.drop(Math.max(0.02, Math.min(0.98, i.sx + rng.gauss() * 0.08)), Math.max(0.02, Math.min(0.98, i.sy + rng.gauss() * 0.1)), size)
+  }
+
   step(i: CreatureInput, o: CreatureOutput, led: Float32Array): void {
     const dt = i.dt
     const rng = this.rng
     const rate = i.rate * 12 + (i.feedPatched ? Math.min(30, i.feed * 3) : 0)
     this.heavy += (rate - this.heavy) * (1 - Math.exp(-dt / 4))
-    if (rng.next() < rate * dt) this.drop(rng.next(), rng.next(), 0.3 + rng.next() * 0.4)
+    if (rng.next() < rate * dt) this.where(i, 0.3 + rng.next() * 0.4)
+    // CLK: a fat drop on every beat, so the pond plays in time
+    if (i.beat) this.where(i, i.bar ? 0.95 : 0.6)
     if (i.trig) this.drop(0.15 + rng.next() * 0.7, 0.2 + rng.next() * 0.6, 1.6) // a fish rises
     const tc = i.touch
     if (tc.tap) this.drop(tc.x, tc.y, 0.9)

@@ -10,9 +10,11 @@ const FIELD_DEPTH = 18
  *  into the haze, with real grass blades (among the flowers too) that sway
  *  with the wind. (The light and haze are the sky's: see sky.ts.) */
 export function gardenGround(scene: THREE.Scene, ground: number, span: number, rnd: () => number): { sway(wind: number, t: number): void } {
-  const lawn = new THREE.Mesh(new THREE.PlaneGeometry(span * 8, 40), new THREE.MeshStandardMaterial({ color: 0x3d6b2c, roughness: 1 })) // the grass's own average, so gaps don't show
+  // the lawn runs from well behind the furthest-back camera (a grown tree's
+  // wide shot) to deep in the haze
+  const lawn = new THREE.Mesh(new THREE.PlaneGeometry(span * 30, 140), new THREE.MeshStandardMaterial({ color: 0x3d6b2c, roughness: 1 })) // the grass's own average, so gaps don't show
   lawn.rotation.x = -Math.PI / 2
-  lawn.position.set(0, ground, -12)
+  lawn.position.set(0, ground, -20)
   lawn.receiveShadow = true
   scene.add(lawn)
 

@@ -297,8 +297,8 @@ const o: Record<string, string> = {
   'pocketarcade:drums': 'The noise drums: OFF, BEAT (kick, snare, hats) or BUSY (a running game-music beat).',
   'bandmate:style': 'Which kind of drummer: rock, funk, house, hip-hop or bossa nova.',
   'vision:scene': 'Which living scene is in the tank.',
-  'visioncore:scene': 'Which living scene is in the tank.',
-  'visionview:scene': 'LINKED shows what the linked tank shows; or pick a scene of its own.',
+  'visioncore:scene': 'Which scene comes OUT of the jacks. Every scene lives at once; each VIEW shows (and plays) whichever you pick on it.',
+  'visionview:scene': '= CORE follows the CORE’s OUT knob; or pick a scene of its own. This VIEW’s jacks play the scene it shows.',
 }
 // SEQ-8's step knobs and gates
 for (let i = 1; i <= 8; i++) {

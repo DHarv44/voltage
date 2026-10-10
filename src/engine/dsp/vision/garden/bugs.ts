@@ -59,9 +59,9 @@ export class Bugs {
   }
 
   /** Returns how many flowers were pollinated this tick. */
-  step(dt: number, light: number, plants: Plant[], wind: number, bees: number, flies: number, flick: number): number {
+  step(dt: number, light: number, plants: Plant[], wind: number, bees: number, flies: number, flick: number, lure = false, lx = 0.5, ly = 0.5): number {
     let pollinated = 0
-    let anyOpen = false
+    let anyOpen = lure // a lure brings them in even with nothing in flower
     for (let i = 0; i < plants.length; i++) if (plants[i].inviting) anyOpen = true
     for (let k = 0; k < this.bugs.length; k++) {
       const b = this.bugs[k]
@@ -81,15 +81,22 @@ export class Bugs {
         this.depart(b, plants) // TRIG or a tap shakes them off
         b.vy = 0.5
       }
-      if (b.target < 0 && !b.leaving) {
+      if (lure && b.land > 0) this.depart(b, plants) // called away from its flower
+      else if (lure) b.target = -1
+      if (b.target < 0 && !b.leaving && !lure) {
         b.target = this.choose(k, plants, b.pollen)
         if (b.target < 0 && (b.idle += dt) > BORED) b.leaving = true
       }
-      // where it's heading: a flower's head, a hover spot, or off the screen
+      // where it's heading: a flower's head, a hover spot, the lure, or off the screen
       let tx: number
       let ty: number
       let tz: number
-      if (b.leaving) {
+      if (lure && !b.leaving) {
+        // a loose cloud round the point, each in its own orbit
+        tx = lx + Math.sin(b.t * 0.9 + b.phase) * 0.06
+        ty = 0.05 + ly * 1.1 + Math.cos(b.t * 1.3 + b.phase) * 0.06
+        tz = 0.1 + Math.sin(b.t * 0.7 + b.phase * 2) * 0.15
+      } else if (b.leaving) {
         tx = b.x < 0.5 ? -0.2 : 1.2
         ty = 0.9
         tz = b.z

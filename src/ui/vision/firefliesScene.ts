@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { FF_NEAR, FIREFLIES, VS_EXTRA } from '../../modules/specs/vision'
+import { FF_GATHER, FF_NEAR, FIREFLIES, VS, VS_EXTRA } from '../../modules/specs/vision'
 import { backdrop, CameraRig, disposeScene, glowPoints, rand, standardCamera, VIEW_H } from './common'
 import { MEADOW_SKY } from './flowerParts'
 import type { SceneFactory } from './types'
@@ -55,11 +55,17 @@ export const firefliesScene: SceneFactory = (aspect, seed) => {
       col.setHSL((0.17 + (s.hue - 0.55) * 0.3 + 1) % 1, 0.9, 0.6)
       // the swarm drifts nearer the glass and away again (the DEPTH jack)
       near += ((led?.[FF_NEAR] ?? 0) - near) * Math.min(1, dt * 3)
+      // X / Y: the swarm gathers into a loose ball round the point
+      const g = led?.[FF_GATHER] ?? 0
+      const cx = ((led?.[VS.x] ?? 0.5) - 0.5) * W * 1.6
+      const cy = -VIEW_H * 0.6 + (led?.[VS.y] ?? 0.5) * VIEW_H * 1.5
       for (let k = 0; k < FIREFLIES; k++) {
         const p = path[k]
         // MOTION (drift, MOVE, a herding finger) carries the whole swarm
-        const x = p.x * W * 0.85 + Math.sin(t * p.fx + p.ph) * 0.25 + s.sway * 0.3
-        const y = -VIEW_H * 0.6 + p.y * VIEW_H * 1.1 + Math.sin(t * p.fy * 2 + p.ph) * 0.12
+        const fx = p.x * W * 0.85 + Math.sin(t * p.fx + p.ph) * 0.25 + s.sway * 0.3
+        const fy = -VIEW_H * 0.6 + p.y * VIEW_H * 1.1 + Math.sin(t * p.fy * 2 + p.ph) * 0.12
+        const x = fx + (cx + (fx - s.sway * 0.3) * 0.18 - fx) * g
+        const y = fy + (cy + (p.y - 0.5) * 0.35 + Math.sin(t * p.fy * 2 + p.ph) * 0.08 - fy) * g
         const z = p.z + Math.sin(t * p.fz + p.ph * 1.3) * 0.25 + near * 0.6
         // −1: not flying tonight (COUNT); hidden entirely
         const raw = led?.[VS_EXTRA + k] ?? (k < 24 ? 0 : -1)

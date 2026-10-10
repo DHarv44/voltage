@@ -190,19 +190,31 @@ can play the music and the music can drive the visuals.
   barracuda (TRIG) scatters the school into a flashing bait ball.
 - **The garden** is a meadow through days and nights. Daisies, tulips, sunflowers (they turn to follow
   the sun) and dandelions (their seed clocks blow away and come up where the seeds land) live whole
-  lives: they close at night, drop petals as they die, fall into the grass and rot away. Trees grow
-  behind them over minutes, turn and drop their leaves in their last autumn and come down, and the
-  camera pulls back to fit them. Bees and butterflies carry pollen between flowers of a kind, and only
+  lives: they close at night, drop petals as they die, fall into the grass and rot away. The
+  garden's own tree comes up among them as a sapling no taller than the flowers and grows over
+  minutes to a dozen times their height, the camera pulling back from the flower bed until they are
+  flecks of colour at its foot (other trees stand back at the edge of the wood); in its last autumn
+  it turns, drops its leaves and comes down, and the shot closes in on the flowers again. Bees and butterflies carry pollen between flowers of a kind, and only
   pollinated flowers seed beside themselves, so where the insects go decides what spreads.
   **Right-click** for its settings: sky (a day/night **CYCLE**, or day, golden hour, dusk, night),
   trees, which flowers, and how many insects. A VISION VIEW's menu sets its linked tank's garden.
+- **CLK** (a quarter-note clock) puts every scene on the beat: the jelly twitches and glows (a
+  full stroke each bar when TRIG is empty), the flowers rock, the fireflies flash, the aurora
+  flares, the plate knocks, a drop falls; the starlings and the fish turn on each bar.
+- **X / Y** (−5 V … +5 V) steer the creature: the jelly swims there, the flock and the school fly
+  there, the fireflies gather into a ball round the point, the bees and butterflies follow it, the
+  curtains drift there, the plate tilts toward it, the rain falls there. A QUAD LFO on X and Y
+  sends them round in circles.
 - **COUNT:** how many of each thing (up to a smack of six jellies, ten plants, 48 fireflies).
 - **The glass is a touch screen:** poke the jelly, plant a seed, flash a torch at the fireflies,
   set off a substorm, knock the plate.
 - **Pan and zoom:** scroll or pinch to zoom (toward the pointer), middle-drag or two fingers to pan.
   A touch still lands on what you see. Hover the glass for ⟲ to reset the view.
-- **VISION CORE + VISION VIEW:** run the creatures in a slim screenless module and show them on any
-  number of VIEW screens, each with its own scene and its own pan and zoom.
+- **VISION CORE + VISION VIEW:** every scene lives at once in the CORE (a slim screenless module;
+  its **OUT** knob picks which scene comes out of its own jacks). Show them on any number of VIEW
+  screens: each picks its scene (**= CORE** follows OUT) and has its own pan and zoom and its own
+  jacks for that scene (GATE, MOTION, STATE, LIGHT, DEPTH, TOUCH X / Y / TOUCH), so three VIEWs
+  are three scenes you can patch.
 - **Sizes:** right-click → Size (12 / 20 / 28 / 40 HP). Hover the glass for full screen or a pop-out
   window.
 

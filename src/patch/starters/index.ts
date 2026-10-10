@@ -14,6 +14,7 @@ import { PROCESSOR_STARTERS } from './processors'
 import { RHYTHM_STARTERS } from './rhythm'
 import { SOURCE_STARTERS } from './sources'
 import type { Starter } from './types'
+import { VISION_STARTERS } from './vision'
 import { VOICE_STARTERS } from './voices'
 
 export type { Starter } from './types'
@@ -30,6 +31,7 @@ export const STARTERS: Record<string, Starter> = {
   ...RHYTHM_STARTERS,
   ...OTHER_STARTERS,
   ...GAP_STARTERS,
+  ...VISION_STARTERS,
 }
 
 /** A module's rig as a patch fragment, laid out for a `rail`-HP case. */

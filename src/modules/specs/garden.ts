@@ -82,6 +82,10 @@ export const daylight = (tod: number): number => ease(-0.12, 0.25, sunHeight(tod
 export const plantHeight = (size: number, species: number, g: number): number => 1.05 * size * (TALL[species] ?? 1) * ease(0, 0.8, g) + 0.02
 /** How far back in the bed a plant at x stands (stable for that spot). */
 export const plantDepth = (x: number): number => 0.15 + (hash(x) - 0.5) * 0.9
-/** A tree at x: how far back it stands, and how big it gets. */
-export const treeDepth = (x: number): number => -1.9 - hash(x * 3.7 + 1) * 2.2
-export const treeHeight = (x: number, g: number): number => (0.2 + 3.6 * Math.pow(g, 0.85)) * (0.8 + hash(x * 2.3) * 0.45)
+/** A tree at x: how far back it stands (the first is the garden's own tree,
+ *  just behind the flower bed; the rest stand back at the edge of the wood). */
+export const treeDepth = (slot: number, x: number): number => (slot === 0 ? -0.55 : -9 - hash(x * 3.7 + 1) * 6)
+/** How tall a tree at x is at growth g, to scale with the flowers (about a
+ *  stem's length, a third of a metre or so): a sapling no taller than them,
+ *  a grown tree a dozen times taller. */
+export const treeHeight = (x: number, g: number): number => (0.25 + 13 * Math.pow(g, 0.85)) * (0.8 + hash(x * 2.3) * 0.4)

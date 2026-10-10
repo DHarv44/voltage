@@ -26,6 +26,11 @@ const KEYS: Key[] = [
   { at: 0.8, top: [0.22, 0.45, 0.85], mid: [0.48, 0.68, 0.92], low: [0.78, 0.87, 0.95], light: [1, 0.97, 0.9], lightI: 2.4, hemiSky: [0.75, 0.85, 1], hemiGround: [0.3, 0.32, 0.2], hemiI: 1.5, stars: 0 },
 ]
 
+/** The sun and moon's arcs are drawn a few units round the garden; the light
+ *  stands this many times further off, well above a grown tree's crown, so
+ *  the whole tree falls inside its shadow camera. */
+const SUN_DIST = 5
+
 const mixRGB = (a: RGB, b: RGB, t: number, out: THREE.Color) => out.setRGB(a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t)
 
 /** Sky shader: a three-band gradient with stars, a glow on the sun's side
@@ -84,13 +89,14 @@ export class GardenSky {
     this.sun.shadow.normalBias = 0.01
     this.sun.shadow.radius = 3
     const sc = this.sun.shadow.camera
-    // big enough for the trees' shadows at any time of day
-    sc.left = -span * 1.3
-    sc.right = span * 1.3
-    sc.top = 7
-    sc.bottom = -7
+    // big enough for the garden tree's shadow at any time of day (the sun
+    // stands SUN_DIST times further off than its arc below, above the crown)
+    sc.left = -span * 2.5
+    sc.right = span * 2.5
+    sc.top = 18
+    sc.bottom = -18
     sc.near = 0.5
-    sc.far = 25
+    sc.far = 80
     this.hemi = new THREE.HemisphereLight(0xffffff, 0x000000, 1)
     scene.add(this.sun, this.sun.target, this.hemi)
     scene.fog = new THREE.Fog(0xffffff, 3.2, 9)
@@ -130,7 +136,10 @@ export class GardenSky {
     const night = Math.min(1, Math.max(0, (-s - 0.05) / 0.2))
     const sx = -Math.cos(arc) * 3
     const sy = Math.max(0.6, Math.sin(arc) * 4)
-    this.sun.position.set(sx + (-1.8 - sx) * night, ground + sy + (3.5 - sy) * night, 2 + (1.5 - 2) * night)
+    this.sun.position
+      .set(sx + (-1.8 - sx) * night, sy + (3.5 - sy) * night, 2 + (1.5 - 2) * night)
+      .multiplyScalar(SUN_DIST)
+      .add(this.sun.target.position)
     this.sunYaw = night > 0.5 ? -Math.PI / 2 : Math.atan2(-Math.cos(arc), 0.35) // sunflowers wait facing east at night
     u.uSunSide.value = 0.5 - Math.cos(arc) * 0.75
     ;(u.uGlow.value as THREE.Color).setRGB(0.35, 0.18, 0.05).multiplyScalar(Math.max(0, 1 - Math.abs(s) * 3) * (1 - night))

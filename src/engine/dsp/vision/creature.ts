@@ -26,7 +26,23 @@ export interface CreatureInput {
   count: number
   /** Menu settings (option indexes; see VISION_SETTINGS). */
   opts: { sky: number; trees: number; flora: number; bugs: number }
+  /** CLK: a beat arrived this tick; which beat it is (0, 1, 2, 3, 0… so
+   *  `bar` is beat 0 of four); `pulse` jumps to 1 on each beat and dies away
+   *  (for things that throb in time). All quiet with CLK unpatched. */
+  beat: boolean
+  bar: boolean
+  pulse: number
+  /** CLK is patched (scenes that keep their own time hand it to the clock). */
+  clocked: boolean
+  /** X / Y: a point to steer the scene's creature toward (0..1 across and up;
+   *  −5 V … +5 V on the jacks, 0 V the middle). `steer` while either is patched. */
+  steer: boolean
+  sx: number
+  sy: number
 }
+
+/** A beat's pulse dies away over this long (s). */
+export const PULSE_S = 0.14
 
 /** What a creature drives: its output voltages (DEPTH 0–10 V: how near, or
  *  each scene's nearest equivalent). State goes to `led`. */
@@ -79,6 +95,9 @@ export const smoothstep = (a: number, b: number, x: number): number => {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)))
   return t * t * (3 - 2 * t)
 }
+
+/** Steer a position toward the X / Y point (when patched), easing over `tau` s. */
+export const steerTo = (v: number, goal: number, dt: number, tau: number): number => v + (goal - v) * (1 - Math.exp(-dt / tau))
 
 /** Volts on a HUE input: each octave walks once round the colour wheel, so a note
  *  always has the same colour. */

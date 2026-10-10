@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { countOf } from '../../modules/specs/vision'
+import { AUR_STEER, countOf, VS } from '../../modules/specs/vision'
 import { backdrop, CameraRig, disposeScene, rand, standardCamera, VIEW_H } from './common'
 import { ARCTIC_SKY } from './flowerParts'
 import type { SceneFactory } from './types'
@@ -56,6 +56,7 @@ export const auroraScene: SceneFactory = (aspect, seed) => {
     meshes.push(mesh)
     return mat
   })
+  const home = meshes.map((m) => m.position.clone())
   const rig = new CameraRig(camera, sky)
   return {
     scene,
@@ -69,10 +70,18 @@ export const auroraScene: SceneFactory = (aspect, seed) => {
       // anywhere in the sky: tap for a substorm, drag to push the curtains
       return { x: u, y: 1 - v }
     },
-    update(s, _dt, t) {
+    update(s, _dt, t, _px, led) {
       sky.material.uniforms.uT.value = t
       const n = countOf.curtains(s.count)
-      meshes.forEach((m, k) => (m.visible = k < n))
+      // X / Y carries the whole sky of curtains across and up
+      const st = led?.[AUR_STEER] ?? 0
+      const ox = ((led?.[VS.x] ?? 0.5) - 0.5) * VIEW_H * aspect * 1.4 * st
+      const oy = ((led?.[VS.y] ?? 0.5) - 0.5) * VIEW_H * 1.2 * st
+      meshes.forEach((m, k) => {
+        m.visible = k < n
+        m.position.x = home[k].x + ox * (1 - k * 0.08)
+        m.position.y = home[k].y + oy
+      })
       curtains.forEach((m, k) => {
         m.uniforms.uT.value = t * (1 + k * 0.15)
         m.uniforms.uAct.value = s.action * Math.max(0.25, 1 - k * 0.2) * (0.5 + s.glow * 0.6)

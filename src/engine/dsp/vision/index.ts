@@ -10,11 +10,11 @@ import { Cymatics } from './cymatics'
 import { Murmuration } from './murmuration'
 import { Rain } from './rain'
 import { Reef } from './reef'
-import type { Creature, CreatureInput, CreatureOutput } from './creature'
+import { PULSE_S, type Creature, type CreatureInput, type CreatureOutput } from './creature'
 import type { UiEvent } from '../../protocol'
 
 /** A finger on one scene's glass (scene-space 0..1). */
-class Finger {
+export class Finger {
   tap = false
   down = false
   x = 0.5
@@ -24,17 +24,14 @@ class Finger {
   seenY = 0.5
 }
 
-/** VISION VIEW: only a screen. The tank it shows runs in the linked module. */
-export class VisionViewDsp extends Dsp {
-  tick(): void {}
-}
-
 /** Creatures live at control rate: one step every BLOCK samples. */
 const BLOCK = 32
+const clamp01 = (v: number) => Math.max(0, Math.min(1, v))
 
 /** VISION tank. Hosts one creature per scene, all alive at once at control
- *  rate (so linked VIEWs can watch any of them); the selected one drives the
- *  jacks, smoothed to audio rate so CV never steps audibly. */
+ *  rate (so linked VIEWs can watch, and play, any of them); the SCENE (OUT)
+ *  knob's one drives the jacks, smoothed to audio rate so CV never steps
+ *  audibly. Every scene's outputs are kept for the VIEWs (see view.ts). */
 export class VisionDsp extends Dsp {
   private readonly pScene = this.pi('scene')
   private readonly pRate = this.pi('rate')
@@ -51,25 +48,31 @@ export class VisionDsp extends Dsp {
   private readonly iHue = this.ii('hue')
   private readonly iMove = this.ii('move')
   private readonly iRst = this.ii('rst')
+  private readonly iClk = this.ii('clk')
+  private readonly iX = this.ii('x')
+  private readonly iY = this.ii('y')
   /** The glass as a touch pad (VISION only; VISION CORE has no glass: −1). */
   private readonly oTx = this.spec.outputs.findIndex((j) => j.id === 'tx')
   private readonly oTy = this.spec.outputs.findIndex((j) => j.id === 'ty')
   private readonly oTgate = this.spec.outputs.findIndex((j) => j.id === 'tgate')
-  private scene = 0
+  /** The scene on the jacks (SCENE / OUT). */
+  scene = 0
   private readonly creatures: Creature[]
   private readonly trig = new Schmitt()
   private readonly rst = new Schmitt()
+  private readonly clk = new Schmitt()
   private readonly ci: CreatureInput
-  private readonly co: CreatureOutput = { gate: 0, sway: 0, grow: 0, light: 0, depth: 0 }
-  /** Where the scenes not on the jacks put their outputs (nobody reads them). */
-  private readonly idle: CreatureOutput = { gate: 0, sway: 0, grow: 0, light: 0, depth: 0 }
+  /** Each scene's outputs, every control tick (VIEWs play the scene they show). */
+  readonly outs: CreatureOutput[]
   private readonly oDepth = this.oi('depth')
   /** Each scene's block of the LED channel (block 0 mirrors the selected one). */
   private readonly blocks: Float32Array[]
   /** Touches on the glass, one per scene (a VIEW can touch any scene). */
-  private readonly fingers: Finger[]
+  readonly fingers: Finger[]
   private n = 0
   private edge = false
+  private beatEdge = false
+  private beats = 0
   private feedEnv = 0
   private readonly envUp: number
   private readonly envDown: number
@@ -80,10 +83,12 @@ export class VisionDsp extends Dsp {
     this.creatures = [new Jelly(this.rng), new Garden(this.rng), new Fireflies(this.rng), new Aurora(this.rng), new Cymatics(this.rng), new Murmuration(this.rng), new Rain(this.rng), new Reef(this.rng)]
     this.blocks = this.creatures.map((_, k) => this.led.subarray(sceneBlock(k), sceneBlock(k) + LED_BLOCK))
     this.fingers = this.creatures.map(() => new Finger())
+    this.outs = this.creatures.map(() => ({ gate: 0, sway: 0, grow: 0, light: 0, depth: 0 }))
     this.ci = {
       dt: BLOCK / fs, trig: false, trigPatched: false, held: false, feed: 0, feedPatched: false, glowCv: 0, hueV: 0, move: 0, rate: 0, hue: 0, glow: 0, count: 0.5,
       touch: { tap: false, touching: false, x: 0.5, y: 0.5, dx: 0, dy: 0 },
       opts: { sky: 3, trees: 2, flora: 0, bugs: 1 },
+      beat: false, bar: false, pulse: 0, clocked: false, steer: false, sx: 0.5, sy: 0.5,
     }
     this.envUp = 1 - Math.exp(-1 / (0.01 * fs))
     this.envDown = 1 - Math.exp(-1 / (0.3 * fs))
@@ -110,8 +115,12 @@ export class VisionDsp extends Dsp {
   tick(): void {
     const x = this.in
     // RST: every scene in the tank starts over (so the visuals can begin with the song)
-    if (this.rst.rise(x[this.iRst])) for (let k = 0; k < this.creatures.length; k++) this.creatures[k].reset()
+    if (this.rst.rise(x[this.iRst])) {
+      for (let k = 0; k < this.creatures.length; k++) this.creatures[k].reset()
+      this.beats = 0
+    }
     if (this.trig.rise(x[this.iTrig])) this.edge = true
+    if (this.clk.rise(x[this.iClk])) this.beatEdge = true
     const a = Math.abs(x[this.iFeed])
     this.feedEnv += (a - this.feedEnv) * (a > this.feedEnv ? this.envUp : this.envDown)
 
@@ -135,6 +144,17 @@ export class VisionDsp extends Dsp {
       ci.opts.flora = Math.round(this.p[this.pFlora])
       ci.opts.bugs = Math.round(this.p[this.pBugs])
       this.edge = false
+      // CLK: count the beats (a bar is four), and a pulse that dies away after each
+      ci.clocked = this.patched[this.iClk] === 1
+      ci.beat = this.beatEdge
+      ci.bar = this.beatEdge && this.beats % 4 === 0
+      if (this.beatEdge) this.beats++
+      this.beatEdge = false
+      ci.pulse = ci.beat ? 1 : ci.pulse * Math.exp(-ci.dt / PULSE_S)
+      // X / Y: ±5 V across and up the scene
+      ci.steer = this.patched[this.iX] === 1 || this.patched[this.iY] === 1
+      ci.sx = clamp01(0.5 + x[this.iX] / 10)
+      ci.sy = clamp01(0.5 + x[this.iY] / 10)
       // Every scene lives all the time (views may watch any of them); the
       // SCENE knob picks which one drives the jacks and the main glass.
       const scene = Math.min(this.creatures.length - 1, Math.max(0, Math.round(this.p[this.pScene])))
@@ -151,13 +171,13 @@ export class VisionDsp extends Dsp {
         f.tap = false
         f.seenX = f.x
         f.seenY = f.y
-        this.creatures[k].step(ci, k === scene ? this.co : this.idle, this.blocks[k])
+        this.creatures[k].step(ci, this.outs[k], this.blocks[k])
       }
       this.led.copyWithin(0, sceneBlock(scene), sceneBlock(scene) + LED_BLOCK)
     }
 
     const o = this.out
-    const co = this.co
+    const co = this.outs[this.scene]
     o[0] = co.gate // gates stay sharp
     o[1] += (co.sway - o[1]) * this.glide
     o[2] += (co.grow - o[2]) * this.glide

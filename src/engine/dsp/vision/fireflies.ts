@@ -1,6 +1,6 @@
-import { countOf, FF_NEAR, FIREFLIES, VS, VS_EXTRA } from '../../../modules/specs/vision'
+import { countOf, FF_GATHER, FF_NEAR, FIREFLIES, VS, VS_EXTRA } from '../../../modules/specs/vision'
 import type { Rng } from '../util'
-import { hueOf, Wander, type Creature, type CreatureInput, type CreatureOutput } from './creature'
+import { hueOf, steerTo, Wander, type Creature, type CreatureInput, type CreatureOutput } from './creature'
 
 const TAU = Math.PI * 2
 /** Coupling with FEED unpatched: they find each other within a minute or so. */
@@ -21,6 +21,10 @@ export class Fireflies implements Creature {
   private lastMean = 0
   /** A finger dragged across the meadow herds them along. */
   private herd = 0
+  /** Gathered round the X / Y point (0..1), and where it is. */
+  private gather = 0
+  private gx = 0.5
+  private gy = 0.5
   private readonly drift: Wander
   /** The swarm drifting nearer the glass or further off (DEPTH). */
   private readonly near: Wander
@@ -37,7 +41,8 @@ export class Fireflies implements Creature {
   /** Dusk again: every fly on its own clock, out of step. */
   reset(): void {
     for (let k = 0; k < FIREFLIES; k++) this.ph[k] = this.rng.next()
-    this.gate = this.lastMean = this.herd = 0
+    this.gate = this.lastMean = this.herd = this.gather = 0
+    this.gx = this.gy = 0.5
     this.drift.v = this.near.v = 0
   }
 
@@ -50,6 +55,12 @@ export class Fireflies implements Creature {
     // own flash (phase advance), so a few taps in time pull them together.
     const tc = i.touch
     if (tc.tap) for (let k = 0; k < n; k++) this.ph[k] += (1 - this.ph[k]) * 0.6
+    // CLK: each beat is a flash they answer, so the meadow flashes in time
+    if (i.beat) for (let k = 0; k < n; k++) this.ph[k] += (1 - this.ph[k]) * 0.45
+    // X / Y: the swarm gathers round the point and follows it
+    this.gather = steerTo(this.gather, i.steer ? 1 : 0, dt, 1.5)
+    this.gx = steerTo(this.gx, i.steer ? i.sx : 0.5, dt, 0.8)
+    this.gy = steerTo(this.gy, i.steer ? i.sy : 0.5, dt, 0.8)
     this.herd += ((tc.touching ? Math.max(-1, Math.min(1, (tc.dx / dt) * 0.5)) : 0) - this.herd) * (1 - Math.exp(-dt / 0.8))
     const K = i.feedPatched ? Math.min(2, i.feed / 4) : DEFAULT_COUPLING
     // order parameter: the meadow's mean phase and how tightly they agree
@@ -85,6 +96,9 @@ export class Fireflies implements Creature {
     const near = Math.max(-1, Math.min(1, this.near.step(dt)))
     o.depth = (near + 1) * 5
     led[FF_NEAR] = near
+    led[FF_GATHER] = this.gather
+    led[VS.x] = this.gx
+    led[VS.y] = this.gy
     led[VS.action] = r
     led[VS.glow] = glow
     led[VS.hue] = hueOf(i.hue, i.hueV)

@@ -78,6 +78,9 @@ export class Murmuration implements Creature {
     if (tc.touching) {
       gx = tc.x
       gy = tc.y
+    } else if (i.steer) {
+      gx = i.sx
+      gy = i.sy
     }
     gx = Math.max(0.1, Math.min(0.9, gx))
     gy = Math.max(0.25, Math.min(0.9, gy)) * (1 - roost) + 0.02 * roost
@@ -89,7 +92,9 @@ export class Murmuration implements Creature {
     this.z += (Math.max(0, Math.min(1, 0.5 + this.wz.step(dt) * 0.45)) - this.z) * k
 
     // turning waves (more of them as the light goes, the show before the roost) and falcons
-    if (flying && this.rng.next() < dt * i.rate * 0.6 * (1 + 2 * smoothstep(0.6, 0.85, this.dusk))) {
+    // (with CLK patched the waves come on the bar instead, the show in time)
+    const wave = i.bar || (!i.clocked && this.rng.next() < dt * i.rate * 0.6 * (1 + 2 * smoothstep(0.6, 0.85, this.dusk)))
+    if (flying && wave) {
       this.waves++
       this.waveDir = this.rng.next() < 0.5 ? -1 : 1
       this.gate = 0.012
@@ -102,7 +107,8 @@ export class Murmuration implements Creature {
 
     // a falcon blows the flock apart (a flash expansion); FEED packs them tighter
     const cohesion = i.feedPatched ? 1.4 - Math.min(1, i.feed / 5) * 0.9 : 1
-    const goal = SPREAD * (1 + this.panic * 1.4) * cohesion * (1 - roost * 0.6)
+    // the flock breathes out on every beat
+    const goal = SPREAD * (1 + this.panic * 1.4 + i.pulse * 0.25) * cohesion * (1 - roost * 0.6)
     this.spread += (goal - this.spread) * (1 - Math.exp(-dt / 0.8))
 
     const light = Math.max(0, Math.min(1.5, i.glow * (1 - this.dusk * 0.85) + i.glowCv / 10))

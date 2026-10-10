@@ -13,13 +13,20 @@ export const VISION_SCENES = ['JELLY', 'GARDEN', 'FIREFLIES', 'AURORA', 'CYMATIC
  *  lean toward/away from the glass (radians). */
 export const JELLY_Z = VS_EXTRA
 export const JELLY_PITCH = VS_EXTRA + 1
-/** Cymatics: mode m, n, index, a knock's decaying jolt, the plate's tilt. */
-export const CYM = { m: VS_EXTRA, n: VS_EXTRA + 1, mode: VS_EXTRA + 2, knock: VS_EXTRA + 3, tilt: VS_EXTRA + 4 } as const
+/** Cymatics: mode m, n, index, a knock's decaying jolt, the plate's tilt
+ *  across and up (−1..1: the sand slides that way). */
+export const CYM = { m: VS_EXTRA, n: VS_EXTRA + 1, mode: VS_EXTRA + 2, knock: VS_EXTRA + 3, tilt: VS_EXTRA + 4, tiltY: VS_EXTRA + 5 } as const
 /** Fireflies: up to this many (COUNT picks how many fly), each publishing its
  *  brightness (−1 = not flying). */
 export const FIREFLIES = 48
 /** Fireflies: the swarm nearer the glass (+1) or further off (−1). */
 export const FF_NEAR = VS_EXTRA + FIREFLIES
+/** Fireflies: how tightly the swarm has gathered round the X / Y point (0..1;
+ *  the point itself is VS.x / VS.y). */
+export const FF_GATHER = FF_NEAR + 1
+/** Aurora: how far the X / Y point has carried the curtains (VS.x / VS.y are
+ *  the point; this is how much it counts, 0..1). */
+export const AUR_STEER = VS_EXTRA
 /** Murmuration (the flock's centre is VS.x / VS.y, 0..1 across and up the
  *  sky): how near (0..1), its radius (scene units), panic 0..1, where the
  *  falcon is diving (0..1) and how long ago it stooped (s, −1 none), how many
@@ -112,9 +119,12 @@ export const VISION_LEDS = LED_BLOCK * (1 + VISION_SCENES.length)
  *  | MOTION | tentacles    | stems           | drift          | curtains      | buzz                | swinging        | the lily pad bob | the surge          |
  *  | STATE  | size         | how alive       | sync           | energy        | mode number         | how dense       | how hard it rains| polyps open        |
  *  | DEPTH  | how near     | seeds' height   | swarm's depth  | curtain height| knock's ring        | how near        | where it fell    | school's nearness  |
+ *  | CLK    | bell twitch  | flowers bob     | flash on beat  | flare on beat | knock on beat       | wave each bar   | a drop each beat | turn each bar      |
+ *  | X / Y  | swims there  | insects follow  | swarm gathers  | curtains move | plate tilts         | flock goes there| rain falls there | school goes there  |
  *
  *  Jack ids stay as first named (hue, sway, grow) so saved patches keep their
- *  cables. LINK carries no voltage: patch it into VISION VIEW modules. */
+ *  cables (new jacks go on the end). LINK carries no voltage: patch it into
+ *  VISION VIEW modules. */
 export const VISION_INPUTS: ModuleSpec['inputs'] = [
   { id: 'trig', label: 'TRIG' },
   { id: 'feed', label: 'FEED' },
@@ -122,6 +132,9 @@ export const VISION_INPUTS: ModuleSpec['inputs'] = [
   { id: 'hue', label: 'PITCH' },
   { id: 'move', label: 'MOVE' },
   { id: 'rst', label: 'RST' },
+  { id: 'clk', label: 'CLK' },
+  { id: 'x', label: 'X' },
+  { id: 'y', label: 'Y' },
 ]
 export const VISION_OUTPUTS: ModuleSpec['outputs'] = [
   { id: 'gate', label: 'GATE' },
@@ -131,15 +144,14 @@ export const VISION_OUTPUTS: ModuleSpec['outputs'] = [
   { id: 'link', label: 'LINK' },
   { id: 'depth', label: 'DEPTH' },
 ]
-/** VISION (the one with glass) adds the glass as a touch pad: where the finger
- *  is on the scene driving the jacks (0–10 V, held when it lifts) and a gate
- *  while it's down. */
-const TANK_OUTPUTS: ModuleSpec['outputs'] = [
-  ...VISION_OUTPUTS,
+/** The glass as a touch pad: where the finger is on the scene (0–10 V, held
+ *  when it lifts) and a gate while it's down. On VISION and every VIEW. */
+export const TOUCH_OUTPUTS: ModuleSpec['outputs'] = [
   { id: 'tx', label: 'TOUCH X' },
   { id: 'ty', label: 'TOUCH Y' },
   { id: 'tgate', label: 'TOUCH' },
 ]
+const TANK_OUTPUTS: ModuleSpec['outputs'] = [...VISION_OUTPUTS, ...TOUCH_OUTPUTS]
 export const VISION_PARAMS: ModuleSpec['params'] = [
   { id: 'scene', label: 'SCENE', min: 0, max: VISION_SCENES.length - 1, def: 0, stepped: true, options: [...VISION_SCENES] },
   { id: 'rate', label: 'RATE', min: 0.05, max: 2, def: 0.4, curve: 'exp', unit: 'Hz' },
@@ -169,7 +181,7 @@ const PITCH = 11.5
 /** VISION's controls, in reading order: knobs, then inputs, then outputs. */
 const VISION_CONTROLS: Control[] = [
   ...(['scene', 'rate', 'hue', 'glow', 'count'] as const).map((param): Control => ({ kind: 'knob', param, x: 0, y: 0, size: 'S' })),
-  ...(['trig', 'feed', 'glow', 'hue', 'move', 'rst'] as const).map((jack): Control => ({ kind: 'in', jack, x: 0, y: 0 })),
+  ...(['trig', 'feed', 'glow', 'hue', 'move', 'rst', 'clk', 'x', 'y'] as const).map((jack): Control => ({ kind: 'in', jack, x: 0, y: 0 })),
   ...(['gate', 'sway', 'grow', 'light', 'depth', 'link', 'tx', 'ty', 'tgate'] as const).map((jack): Control => ({ kind: 'out', jack, x: 0, y: 0 })),
 ]
 
@@ -188,7 +200,7 @@ export function rowsThatFit<T>(items: T[], w: number, pitch = PITCH): T[][] {
 function visionLayout(hp: number): Control[] {
   const w = hp * HP_MM
   const spec = { params: VISION_PARAMS, inputs: VISION_INPUTS, outputs: TANK_OUTPUTS }
-  const { controls, top } = packRows(rowsThatFit(VISION_CONTROLS, w), spec, w)
+  const { controls, top } = packRows(rowsThatFit(VISION_CONTROLS, w), spec, w, { grid: true, maxPitch: PITCH + 2 })
   return [
     { kind: 'vision', x: 2.5, y: GLASS_TOP, w: w - 5, h: top - GLASS_GAP - GLASS_TOP },
     { kind: 'led', index: VS.gate, x: w / 2, y: 2.9, color: '#5ef2ff' },

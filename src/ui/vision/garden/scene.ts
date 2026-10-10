@@ -40,14 +40,17 @@ const shotPos = new THREE.Vector3()
 const shotAt = new THREE.Vector3()
 const elevation = (dx: number, dy: number, dz: number) => Math.atan2(dy, Math.hypot(dx, dz))
 
+/** Furthest the wide shot pulls back (a grown tree a dozen flowers tall). */
+const MAX_REACH = 40
+
 /** How far the wide shot must pull back for a point (a tree top) to be in frame. */
 function reachFor(x: number, y: number, z: number): number {
-  for (let r = 0; r < 12; r += 0.1) {
+  for (let r = 0; r < MAX_REACH; r += 0.2) {
     wideShot(r, 0, shotPos, shotAt)
     const look = elevation(shotAt.x - shotPos.x, shotAt.y - shotPos.y, shotAt.z - shotPos.z)
     if (elevation(x - shotPos.x, y - shotPos.y, z - shotPos.z) - look <= TOP_ROOM) return r
   }
-  return 12
+  return MAX_REACH
 }
 
 /** A garden at the edge of a meadow: flowers of several kinds living whole
@@ -58,7 +61,7 @@ export const flowerScene: SceneFactory = (aspect, seed) => {
   const rnd = rand(seed)
   const scene = new THREE.Scene()
   const camera = standardCamera(aspect)
-  camera.far = 40
+  camera.far = 120 // the shot pulls a long way back for a grown tree
   camera.updateProjectionMatrix()
   const sky = backdrop(aspect, GARDEN_SKY)
   scene.add(sky)
@@ -172,7 +175,8 @@ export const flowerScene: SceneFactory = (aspect, seed) => {
           }
         }
       })
-      // trees, and how far back the shot must stand to see the tallest
+      // trees, and how far back the shot must stand to take in the garden's
+      // own tree (the ones at the edge of the wood can run out of the top)
       let need = 0
       trees.forEach((tv, k) => {
         const b = GARDEN.trees + k * TREE_VALUES
@@ -182,10 +186,10 @@ export const flowerScene: SceneFactory = (aspect, seed) => {
         tree.autumn = led?.[b + TREE.autumn] ?? 0
         tree.fall = led?.[b + TREE.fall] ?? 0
         tree.fade = led?.[b + TREE.fade] ?? 0
-        tv.update(tree, ground, width, s.sway, t)
-        if (tree.fade > 0.01) {
+        tv.update(k, tree, ground, width, s.sway, t)
+        if (k === 0 && tree.fade > 0.01) {
           const tall = treeHeight(tree.x, tree.g) * Math.cos((tree.fall * Math.PI) / 2) * 1.08 // + the crown
-          need = Math.max(need, reachFor(treeX(tree.x, width), ground + tall, treeDepth(tree.x)))
+          need = reachFor(treeX(0, tree.x, width), ground + tall, treeDepth(0, tree.x))
         }
       })
       wantReach = Math.max(0, need)

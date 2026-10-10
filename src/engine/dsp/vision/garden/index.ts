@@ -52,6 +52,8 @@ export class Garden implements Creature {
   private flick = 0
   /** Wind from a finger dragged across the glass. */
   private breath = 0
+  /** Which way the flowers rock on the next beat (CLK). */
+  private side = 1
   private readonly wind: Wander
   private readonly stem = new Spring2(2.6, 0.22)
 
@@ -83,6 +85,7 @@ export class Garden implements Creature {
     this.flown.fill(0)
     this.health = SUNLIGHT
     this.trigT = this.flick = this.breath = 0
+    this.side = 1
     this.wind.v = 0
     this.stem.pos = this.stem.vel = 0
   }
@@ -159,7 +162,9 @@ export class Garden implements Creature {
     this.flick *= Math.exp(-dt / 0.6)
 
     const gust = this.wind.step(dt) + i.move * 0.15 + this.breath
-    const sway = this.stem.step(Math.max(-1.2, Math.min(1.2, gust)), dt)
+    // CLK: the flowers rock to one side then the other, a beat each
+    if (i.beat) this.side = -this.side
+    const sway = this.stem.step(Math.max(-1.2, Math.min(1.2, gust)), dt) + i.pulse * this.side * 0.45
 
     // seeds on the wind take root where they land
     this.seeds.step(dt, sway)
@@ -167,7 +172,8 @@ export class Garden implements Creature {
       const x = this.seeds.landed[k]
       if (x >= 0) this.waiting(n)?.plantAt(x, DANDELION)
     }
-    if (this.bugs.step(dt, light, this.plants, sway, nBees, nFlies, this.flick) > 0) this.trigT = TRIG_LEN
+    // X / Y: the bees and butterflies follow the point instead of the flowers
+    if (this.bugs.step(dt, light, this.plants, sway, nBees, nFlies, this.flick, i.steer, i.sx, i.sy) > 0) this.trigT = TRIG_LEN
     for (let k = 0; k < this.trees.length; k++) this.trees[k].step(dt, speed, this.health, light, k < opts.trees, this.trees)
 
     const glowLight = Math.max(0, Math.min(1.5, i.glow * (0.2 + 0.5 * open + 0.8 * this.flick) + i.glowCv / 10))

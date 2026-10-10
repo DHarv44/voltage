@@ -1,6 +1,6 @@
 import { CYM, VS } from '../../../modules/specs/vision'
 import type { Rng } from '../util'
-import { hueOf, type Creature, type CreatureInput, type CreatureOutput } from './creature'
+import { hueOf, steerTo, type Creature, type CreatureInput, type CreatureOutput } from './creature'
 
 /** Chladni plate modes (m, n), in order of rising frequency (∝ m² + n²). */
 export const PLATE_MODES: [number, number][] = []
@@ -20,12 +20,15 @@ export class Cymatics implements Creature {
   private gate = 0
   private ph = 0
   private knock = 0
+  /** The plate's tilt across and up (−1..1). */
+  private tx = 0
+  private ty = 0
 
   constructor(_rng: Rng) {}
 
   reset(): void {
     this.mode = -1
-    this.gate = this.ph = this.knock = 0
+    this.gate = this.ph = this.knock = this.tx = this.ty = 0
   }
 
   step(i: CreatureInput, o: CreatureOutput, led: Float32Array): void {
@@ -43,6 +46,11 @@ export class Cymatics implements Creature {
       this.knock = 1
       this.gate = 0.012
     }
+    // CLK: a lighter knock on every beat, so the sand dances in time
+    if (i.beat) this.knock = Math.max(this.knock, 0.6)
+    // X / Y tilt the plate toward the point (MOVE tilts it across when they're unpatched)
+    this.tx = steerTo(this.tx, i.steer ? (i.sx - 0.5) * 2 : Math.max(-1, Math.min(1, i.move / 5)), dt, 0.4)
+    this.ty = steerTo(this.ty, i.steer ? (i.sy - 0.5) * 2 : 0, dt, 0.4)
     this.gate = Math.max(0, this.gate - dt)
     this.knock *= Math.exp(-dt / 0.25)
     const drive = i.feedPatched ? Math.min(1, i.feed / 4) : 0.7
@@ -64,6 +72,7 @@ export class Cymatics implements Creature {
     led[CYM.n] = n
     led[CYM.mode] = mode
     led[CYM.knock] = this.knock
-    led[CYM.tilt] = Math.max(-1, Math.min(1, i.move / 5))
+    led[CYM.tilt] = this.tx
+    led[CYM.tiltY] = this.ty
   }
 }

@@ -43,6 +43,8 @@ export class Jelly implements Creature {
   private fleeTilt = 0
   /** Water stirred by a finger dragging across the glass. */
   private stir = 0
+  /** Steering: rest between strokes toward the X / Y point (s). */
+  private wait = 0
   private readonly current: Wander
   private readonly currentZ: Wander
   private readonly trail = new Spring2(4, 0.28)
@@ -64,7 +66,7 @@ export class Jelly implements Creature {
     this.vx = this.vy = this.vz = this.tilt = this.pitch = this.flash = 0
     this.z = 0.3 + this.rng.next() * 0.4
     this.size = 0.5
-    this.fleeT = this.fleeTilt = this.stir = 0
+    this.fleeT = this.fleeTilt = this.stir = this.wait = 0
     this.current.v = this.currentZ.v = 0
     this.trail.pos = this.trail.vel = 0
   }
@@ -78,9 +80,25 @@ export class Jelly implements Creature {
 
   step(i: CreatureInput, o: CreatureOutput, led: Float32Array): void {
     const dt = i.dt
+    // X / Y: it can only swim by jetting, so it strokes when it has sunk below the
+    // point and holds off (sinking) when above it; the bell leans toward it
+    const below = i.steer && this.y < i.sy - 0.05
+    const above = i.steer && this.y > i.sy + 0.08
+    this.wait = Math.max(0, this.wait - dt)
+    if (below && !this.stroking && this.c < 0.15 && this.wait <= 0) {
+      this.pulse()
+      this.wait = 0.8
+    }
+    // CLK: the bell twitches and glows on every beat; with nothing on TRIG, a
+    // full stroke on each bar
+    if (i.beat) {
+      this.c = Math.max(this.c, 0.35)
+      this.flash = Math.max(this.flash, 0.6)
+      if (i.bar && !i.trigPatched && !above) this.pulse()
+    }
     if (i.trigPatched) {
       if (i.trig) this.pulse()
-    } else {
+    } else if (!above) {
       this.timer += dt * i.rate
       if (this.timer >= this.period) {
         this.timer -= this.period
@@ -125,7 +143,9 @@ export class Jelly implements Creature {
     // Body: jet along the bell axis, drag, sink, carried by the current.
     const ceiling = 1 - smoothstep(0.55, 0.92, this.y)
     const jet = this.stroking ? THRUST * ceiling * push : 0
-    const cur = this.current.step(dt) + i.move * 0.03 + this.stir
+    // (steering: it swims toward the X / Y point across the current)
+    const swim = i.steer ? Math.max(-0.2, Math.min(0.2, (i.sx - this.x) * 0.6)) : 0
+    const cur = this.current.step(dt) + i.move * 0.03 + this.stir + swim
     const curZ = this.currentZ.step(dt)
     // the jet runs along the bell's axis: leaned by tilt (sideways) and pitch (depth)
     const up = Math.cos(this.tilt) * Math.cos(this.pitch)
@@ -150,8 +170,9 @@ export class Jelly implements Creature {
       this.vy = Math.min(0, this.vy)
     }
     this.x = Math.min(0.94, Math.max(0.06, this.x))
-    // The bell leans into the current and steers back toward the middle.
-    const lean = this.fleeT > 0 ? this.fleeTilt : Math.max(-0.5, Math.min(0.5, cur * 4 + (0.5 - this.x) * 0.6))
+    // The bell leans into the current and steers back toward the middle (or the X / Y point).
+    const home = i.steer ? (i.sx - this.x) * 2.2 : (0.5 - this.x) * 0.6
+    const lean = this.fleeT > 0 ? this.fleeTilt : Math.max(-0.6, Math.min(0.6, cur * 4 + home))
     this.tilt += (lean - this.tilt) * (1 - Math.exp(-dt / (this.fleeT > 0 ? 0.15 : 0.8)))
     const leanZ = Math.max(-0.6, Math.min(0.6, curZ * 4 + (0.5 - this.z) * 0.8))
     this.pitch += (leanZ - this.pitch) * (1 - Math.exp(-dt / 0.8))
@@ -168,7 +189,7 @@ export class Jelly implements Creature {
     this.size = Math.min(1, Math.max(0.15, this.size))
 
     o.gate = this.stroking ? 10 : 0
-    o.sway = Math.max(-5, Math.min(5, sway * 5))
+    o.sway = Math.max(-5, Math.min(5, sway * 15))
     o.grow = this.size * 10
     o.light = Math.min(10, light * 10)
     o.depth = this.z * 10 // 10 V right up against the glass
