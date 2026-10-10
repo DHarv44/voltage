@@ -3,7 +3,7 @@ import { FM_ALGOS, FM_PATCHES } from '../../modules/specs/fmPatches'
 import { FML } from '../../modules/specs/synthVoices'
 import type { MidiEvent } from '../protocol'
 import { Dsp, MAX_VOICES } from './base'
-import { KeyVoices } from './keyVoices'
+import { KeyVoices, SusGate } from './keyVoices'
 import { C4, TAU, fastTanh } from './util'
 
 const OPS = 4
@@ -22,6 +22,7 @@ export class Fm4Dsp extends Dsp {
   private readonly iGate = this.ii('gate')
   private readonly iVel = this.ii('vel')
   private readonly iBright = this.ii('bright')
+  private readonly iSus = this.ii('sus')
   private readonly oPoly = this.oi('poly')
   private readonly P = {
     voice: this.pi('voice'),
@@ -37,6 +38,7 @@ export class Fm4Dsp extends Dsp {
     velo: this.pi('velo'),
   }
   private readonly keys: KeyVoices
+  private readonly sus = new SusGate()
   // per voice × operator
   private readonly ph = new Float64Array(MAX_VOICES * OPS)
   private readonly env = new Float64Array(MAX_VOICES * OPS)
@@ -48,6 +50,13 @@ export class Fm4Dsp extends Dsp {
   private readonly fb1 = new Float64Array(MAX_VOICES)
   private readonly fb2 = new Float64Array(MAX_VOICES)
   private readonly gateWas = new Uint8Array(MAX_VOICES)
+  /** The gate before the sustain pedal: a new note starts on its rising edge. */
+  private readonly rawWas = new Uint8Array(MAX_VOICES)
+  /** The damper's thump on release: its envelope and a low-passed noise. */
+  private readonly thumpE = new Float64Array(MAX_VOICES)
+  private readonly thumpLp = new Float64Array(MAX_VOICES)
+  private readonly thumpK: number
+  private readonly thumpDecay: number
   private readonly vel = new Float64Array(MAX_VOICES)
   private readonly pitch = new Float64Array(MAX_VOICES)
   private readonly opOut = new Float64Array(OPS)
@@ -61,6 +70,8 @@ export class Fm4Dsp extends Dsp {
     super(spec, fs, seed)
     this.keys = new KeyVoices(fs)
     for (let k = 0; k < OPS; k++) this.drift[k] = (this.rng.next() - 0.5) * 0.6 // cents
+    this.thumpK = 1 - Math.exp((-TAU * 180) / fs) // a felt damper: dull, low
+    this.thumpDecay = Math.exp(-1 / (0.035 * fs))
   }
 
   onMidi(ev: MidiEvent): void {
@@ -128,35 +139,58 @@ export class Fm4Dsp extends Dsp {
     const detune = p[this.P.detune]
     const tune = p[this.P.tune] / 12
     const velPatched = this.patched[this.iVel] === 1
+    // the sustain pedal: the SUS jack, or a MIDI pedal (CC64) on the keys
+    const pedal = this.in[this.iSus] > 1
+    const thump = patch.thump ?? 0
 
     let sum = 0
     for (let v = 0; v < n; v++) {
       // the note: from the cables, or from the keys
-      let g: boolean
+      let raw: boolean
       if (cvGate) {
-        g = this.pin(this.iGate, v) > 1
-        if (g && !this.gateWas[v]) {
+        raw = this.pin(this.iGate, v) > 1
+        if (raw && !this.rawWas[v]) {
           this.pitch[v] = this.pin(this.iV, v)
           this.vel[v] = velPatched ? Math.min(1, Math.max(0, this.pin(this.iVel, v) / 10)) : 0.8
         }
-        if (g) this.pitch[v] = this.pin(this.iV, v)
+        if (raw) this.pitch[v] = this.pin(this.iV, v)
       } else {
-        g = this.keys.held(v)
+        raw = this.keys.held(v)
         this.pitch[v] = this.keys.pitch[v] + this.in[this.iV]
-        if (g && !this.gateWas[v]) this.vel[v] = this.keys.vel[v]
+        if (raw && !this.rawWas[v]) this.vel[v] = this.keys.vel[v]
       }
-      if (g && !this.gateWas[v]) this.start(v)
-      else if (!g && this.gateWas[v]) for (let k = 0; k < OPS; k++) if (this.stage[v * OPS + k] !== IDLE) this.stage[v * OPS + k] = RELEASE
+      const g = this.sus.hold(v, raw, pedal)
+      if (raw && !this.rawWas[v]) this.start(v)
+      else if (!g && this.gateWas[v]) {
+        for (let k = 0; k < OPS; k++) if (this.stage[v * OPS + k] !== IDLE) this.stage[v * OPS + k] = RELEASE
+        if (thump > 0) this.thumpE[v] = thump * (0.4 + 0.6 * this.vel[v])
+      }
+      this.rawWas[v] = raw ? 1 : 0
       this.gateWas[v] = g ? 1 : 0
+
+      // the damper landing: a short, dull thud of low-passed noise
+      let thud = 0
+      if (this.thumpE[v] > 1e-4) {
+        this.thumpLp[v] += (this.rng.next() * 2 - 1 - this.thumpLp[v]) * this.thumpK
+        thud = this.thumpLp[v] * this.thumpE[v] * 0.6
+        this.thumpE[v] *= this.thumpDecay
+      } else this.thumpE[v] = 0
 
       const base = v * OPS
       if (this.stage[base] === IDLE && this.stage[base + 1] === IDLE && this.stage[base + 2] === IDLE && this.stage[base + 3] === IDLE) {
-        this.pout(this.oPoly, v, 0)
+        this.pout(this.oPoly, v, 5 * thud * p[this.P.level])
+        sum += thud
         continue
       }
       const f = C4 * Math.pow(2, this.pitch[v] + tune)
-      const velMod = 1 - sens + sens * this.vel[v] * 1.3
-      const velAmp = 1 - 0.5 * p[this.P.velo] + 0.5 * p[this.P.velo] * this.vel[v]
+      // velocity: soft notes round, hard ones bite (a curve, not a straight line:
+      // the brightness climbs fastest at the top, where a real tine barks)
+      const vv = this.vel[v]
+      const velMod = 1 - sens + sens * (0.2 + 1.3 * vv * vv)
+      // keyboard level scaling: brightness and loudness fall away up the keys
+      const up = Math.max(0, this.pitch[v])
+      const keyMod = Math.pow(2, -up * (patch.keyMod ?? 0))
+      const velAmp = (1 - 0.5 * p[this.P.velo] + 0.5 * p[this.P.velo] * vv) * Math.pow(2, -up * (patch.keyAmp ?? 0))
       let voice = 0
       for (let k = OPS - 1; k >= 0; k--) {
         const i = base + k
@@ -195,11 +229,11 @@ export class Fm4Dsp extends Dsp {
         if ((algo.carriers >> k) & 1) {
           voice += s * o.level
           this.opOut[k] = 0
-        } else this.opOut[k] = s * o.level * brightX * velMod
+        } else this.opOut[k] = s * o.level * brightX * velMod * keyMod
         const cents = (o.cents ?? 0) + this.drift[k] + detune * (k === 0 ? 0 : k === 1 ? 9 : k === 2 ? -9 : 4)
         this.ph[i] = (this.ph[i] + (f * o.ratio * (1 + cents * 0.000578)) / fs) % 1
       }
-      voice *= velAmp
+      voice = voice * velAmp + thud
       this.pout(this.oPoly, v, 5 * voice * p[this.P.level])
       sum += voice
     }

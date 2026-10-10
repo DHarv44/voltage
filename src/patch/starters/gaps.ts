@@ -112,7 +112,7 @@ export const GAP_STARTERS: Record<string, Starter> = {
     },
   },
   pianoroll: {
-    howTo: 'Four bars drawn on the PIANO ROLL (Am, F, C, G under a melody) played by FM-4’s electric piano through a chorus, each note at its own velocity. Click to add notes, drag them about, drag a note’s end to lengthen it, right-click to delete; scroll for higher or lower. Step FM-4’s VOICE for bells, brass or organ.',
+    howTo: 'Four bars drawn on the PIANO ROLL (Am, F, C, G under a melody) played by FM-4’s electric piano, each note at its own velocity, with a stage piano’s stereo tremolo (PANNER). Click to add notes, drag them about, drag a note’s end to lengthen it, right-click to delete; scroll for higher or lower. Step FM-4’s VOICE for bells, brass or organ.',
     build: (k) => void rollOnFm(k),
   },
   arranger: {

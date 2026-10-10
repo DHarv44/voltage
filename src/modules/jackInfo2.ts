@@ -77,6 +77,8 @@ export const MORE_JACKS: Record<string, { signal?: Signal; what?: string }> = {
   'trackhold:out:out2': { signal: 'cv', what: 'Channel 2: following, or frozen.' },
 }
 
+MORE_JACKS['fm4:in:sus'] = { signal: 'gate', what: 'The sustain pedal: while it’s high, notes you let go keep ringing until it falls (a footswitch, or any gate). A MIDI sustain pedal works on the keys too.' }
+
 // VISION's beat and steering (the tank and the CORE), and a VIEW's own jacks
 for (const t of ['vision', 'visioncore']) {
   MORE_JACKS[`${t}:in:clk`] = {

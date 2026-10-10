@@ -25,6 +25,7 @@ const fmIn: ModuleSpec['inputs'] = [
   { id: 'gate', label: 'GATE' },
   { id: 'vel', label: 'VEL' },
   { id: 'bright', label: 'BRIGHT' },
+  { id: 'sus', label: 'SUS' },
 ]
 const fmOut: ModuleSpec['outputs'] = [
   { id: 'out', label: 'OUT' },
@@ -37,8 +38,8 @@ const fmLayout = packRows(
     ['voice', 'algo', 'tune', 'level'].map(knob),
     ['bright', 'decay', 'fb', 'detune'].map(knob),
     [knob('att'), knob('rel'), knob('velo'), null],
-    fmIn.map((j) => jack('in', j.id)),
-    [null, null, jack('out', 'out'), jack('out', 'poly')],
+    ['voct', 'gate', 'vel', 'bright'].map((j) => jack('in', j)),
+    [jack('in', 'sus'), null, jack('out', 'out'), jack('out', 'poly')],
   ],
   { params: fmParams, inputs: fmIn, outputs: fmOut },
   FM_W,

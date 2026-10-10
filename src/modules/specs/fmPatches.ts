@@ -44,6 +44,13 @@ export interface FmPatch {
   /** How much velocity scales the modulators (brightness), 0–1. */
   velBright: number
   ops: [Op, Op, Op, Op]
+  /** Keyboard level scaling, per octave above C4: how much the modulators
+   *  (the brightness) and the carriers (the loudness) fall away up the keys,
+   *  as on a real piano (0 = none; 0.3 ≈ a quarter less per octave). */
+  keyMod?: number
+  keyAmp?: number
+  /** A soft thump when a key is let go (the damper landing), 0–1. */
+  thump?: number
 }
 
 const op = (ratio: number, level: number, a: number, d: number, s: number, r: number, cents = 0): Op => ({ ratio, level, a, d, s, r, cents })
@@ -56,6 +63,11 @@ export const FM_PATCHES: FmPatch[] = [
     fb: 0,
     velBright: 0.85,
     ops: [op(1, 0.8, 0.001, 3.2, 0, 0.35), op(1, 1.5, 0.001, 1.6, 0.05, 0.3), op(1, 0.35, 0.001, 1.2, 0, 0.3, 4), op(14, 1.6, 0.001, 0.12, 0, 0.1)],
+    // the tine's bark thins out up the keys, the top end is quieter, and the
+    // damper lands with a soft thump
+    keyMod: 0.35,
+    keyAmp: 0.18,
+    thump: 0.5,
   },
   {
     name: 'BASS',

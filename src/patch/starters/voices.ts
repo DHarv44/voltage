@@ -5,7 +5,7 @@ import type { Starter } from './types'
 export const VOICE_STARTERS: Record<string, Starter> = {
   fm4: {
     howTo:
-      'FM-4’s electric piano playing four bars from a PIANO ROLL (Am, F, C, G under a melody) through a chorus, each note at its own velocity. Turn BRIGHT (FM’s filter knob) and DECAY; step VOICE through BELL, BRASS, ORGAN; draw your own notes on the roll. Unpatch GATE to play it from your keys.',
+      'FM-4’s electric piano playing four bars from a PIANO ROLL (Am, F, C, G under a melody), each note at its own velocity (soft ones round, hard ones bark), swept from speaker to speaker by PANNER like a stage piano’s tremolo. Turn BRIGHT (FM’s filter knob) and DECAY; step VOICE through BELL, BRASS, ORGAN; draw your own notes on the roll. Unpatch GATE to play it from your keys; a sustain pedal (MIDI, or a gate on SUS) holds the notes.',
     build: (k) => void rollOnFm(k),
   },
   swarm: {
