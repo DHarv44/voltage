@@ -54,7 +54,10 @@ extend VOLTAGE.
   lowest five with their own detune and ring (two-stage decay), felt hammer contact time and
   strike-position comb, dampers (none above F#6), 24 sympathetic strings under the pedal, una
   corda, three soundboard peaks, culling of dead modes)~~, ~~PIANO ROLL velocity and pedal lanes
-  (PEDAL out; p0–p3 bitmasks; ui/surfaces/pianoRollLanes.ts)~~. Later: more GRAND partials in the bass if the CPU allows; hammer–string nonlinearity (phantom partials).
+  (PEDAL out; p0–p3 bitmasks; ui/surfaces/pianoRollLanes.ts)~~, ~~GRAND bass up to 56
+  partials (64 modes), phantom partials (the squared low partials, bass and hard blows only)~~,
+  ~~CLOCK beat display (clockface surface: tempo, BAR n.b, four beat lights)~~. Maybe later: a
+  transport readout in the top bar (tempo, bar.beat, beat dot from the rack's first CLOCK).
   - **FM-4** (four-operator FM voice, 8 notes): nine factory voices (E.PIANO, BASS, BELL, BRASS, ORGAN,
     MARIMBA, CLAV, PAD, LEAD) as operator recipes, reshaped by macro knobs (BRIGHT scales the
     modulators, DECAY stretches the envelopes, FEEDBK, DETUNE, ATTACK, RELEASE, VEL SENS) and an ALGO
