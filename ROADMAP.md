@@ -45,7 +45,14 @@ extend VOLTAGE.
   pitch/velocity sequencer), UNDERTONE (Subharmonicon-style: two VCOs with phase-locked subharmonics,
   two 4-step sequencers clocked by four polyrhythm dividers, OR/XOR, 12/8-tone equal or just quantizing),
   LOCKSTEP (FM groovebox: parameter locks, conditional trigs, polymeter), LATTICE (16×16 light grid).
-- **Polyphonic**: POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX.
+- **Polyphonic**: POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX. Pianos (2026-10-10, user: "both"
+  acoustic and electric): ~~FM-4 E.PIANO (velocity bark curve, keyboard level scaling, damper
+  thump), sustain pedal (MIDI CC64 in KeyVoices, SUS jack via SusGate)~~, ~~STAGE (modelled EP:
+  TINE = modes + magnetic-pickup flux derivative, REED = clamped-bar modes + electrostatic
+  1/(1−kx); felt contact time, dampers, stereo / volume tremolo)~~. Next: an acoustic piano
+  (grand and upright: stiff-string partials, 1–3 detuned strings per note, felt hammer,
+  soundboard, sustain pedal with sympathetic strings, una corda). Later: a pedal lane on the
+  PIANO ROLL.
   - **FM-4** (four-operator FM voice, 8 notes): nine factory voices (E.PIANO, BASS, BELL, BRASS, ORGAN,
     MARIMBA, CLAV, PAD, LEAD) as operator recipes, reshaped by macro knobs (BRIGHT scales the
     modulators, DECAY stretches the envelopes, FEEDBK, DETUNE, ATTACK, RELEASE, VEL SENS) and an ALGO

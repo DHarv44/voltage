@@ -8,6 +8,18 @@ export const VOICE_STARTERS: Record<string, Starter> = {
       'FM-4’s electric piano playing four bars from a PIANO ROLL (Am, F, C, G under a melody), each note at its own velocity (soft ones round, hard ones bark), swept from speaker to speaker by PANNER like a stage piano’s tremolo. Turn BRIGHT (FM’s filter knob) and DECAY; step VOICE through BELL, BRASS, ORGAN; draw your own notes on the roll. Unpatch GATE to play it from your keys; a sustain pedal (MIDI, or a gate on SUS) holds the notes.',
     build: (k) => void rollOnFm(k),
   },
+  stage: {
+    howTo:
+      'STAGE’s tine piano playing four bars from a PIANO ROLL (Am, F, C, G under a melody), panning speaker to speaker on its own tremolo. Notes drawn softer ring round and bell-like, harder ones bark: drag a note’s velocity on the roll. Turn VOICING and BELL; switch MODEL to REED for the nasal bite. Unpatch GATE to play it from your keys.',
+    build(k) {
+      const pr = k.add('pianoroll')
+      const ep = k.add('stage', { voicing: 0.5, trem: 0.45, rate: 4.2 })
+      k.wire([pr, 'pitch'], [ep, 'voct'])
+      k.wire([pr, 'gate'], [ep, 'gate'])
+      k.wire([pr, 'vel'], [ep, 'vel'])
+      toOut(k, [ep, 'l'], [ep, 'r'], 0.6)
+    },
+  },
   swarm: {
     howTo:
       'SWARM stabbing trance chords on an off-beat rhythm, a slow LFO opening its filter. Turn DETUNE (it opens up fast past halfway), SPREAD and MIX; raise ATTACK and RELEASE for a pad.',

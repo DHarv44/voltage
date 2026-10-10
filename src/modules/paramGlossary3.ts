@@ -58,4 +58,13 @@ export const GAP_OVERRIDES: Record<string, string> = {
   // T&H
   'trackhold:m1': 'Channel 1: TRACK follows the input while the gate is high and freezes when it drops; S&H takes one sample on each rise; HOLD is the reverse of TRACK.',
   'trackhold:m2': 'Channel 2’s mode (TRACK, S&H or HOLD). Its input and gate copy channel 1’s when nothing is patched to them.',
+  // STAGE
+  'stage:model': 'TINE: a hammer on a tine over a magnetic pickup (bell-like soft, barking hard), panned by its tremolo. REED: a hammer on a steel reed in an electrostatic pickup (nasal, biting), with a volume tremolo.',
+  'stage:voicing': 'Where the tine or reed sits against its pickup. Left: far off centre, round and pure. Right: close in, so every note bends into harmonics (more bell, more bark).',
+  'stage:bell': 'How hard the felt is: more of the tine’s high bell partial and metallic tick at the start of each note.',
+  'stage:decay': 'How long the notes ring while held (low notes always ring longer than high ones).',
+  'stage:drive': 'The preamp: clean at the left, warm in the middle, gritty when pushed, the more so the harder you play.',
+  'stage:trem': 'Tremolo depth: TINE pans from speaker to speaker, REED pulses in volume.',
+  'stage:rate': 'Tremolo speed.',
+  'stage:level': 'Output level.',
 }

@@ -77,7 +77,11 @@ export const MORE_JACKS: Record<string, { signal?: Signal; what?: string }> = {
   'trackhold:out:out2': { signal: 'cv', what: 'Channel 2: following, or frozen.' },
 }
 
-MORE_JACKS['fm4:in:sus'] = { signal: 'gate', what: 'The sustain pedal: while it’s high, notes you let go keep ringing until it falls (a footswitch, or any gate). A MIDI sustain pedal works on the keys too.' }
+MORE_JACKS['stage:in:sus'] = { signal: 'gate', what: 'The sustain pedal: while it’s high, notes you let go keep ringing until it falls. A MIDI sustain pedal works on the keys too.' }
+MORE_JACKS['stage:in:vel'] = { signal: 'cv', what: 'Velocity per note, 0–10 V: soft notes are round and bell-like, hard ones bark (TINE) or bite (REED).' }
+MORE_JACKS['stage:in:voct'] = { signal: 'pitch', what: 'The notes (a poly cable from POLY·CV or the PIANO ROLL plays a chord). With GATE empty it transposes the keys.' }
+MORE_JACKS['stage:in:gate'] = { signal: 'gate', what: 'Each note’s gate: its rise is the hammer, its fall lands the damper. Empty: STAGE plays from your keys.' }
+MORE_JACKS['fm4:in:sus'] ={ signal: 'gate', what: 'The sustain pedal: while it’s high, notes you let go keep ringing until it falls (a footswitch, or any gate). A MIDI sustain pedal works on the keys too.' }
 
 // VISION's beat and steering (the tank and the CORE), and a VIEW's own jacks
 for (const t of ['vision', 'visioncore']) {

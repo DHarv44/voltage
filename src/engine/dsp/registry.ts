@@ -80,6 +80,7 @@ import { MasterDsp } from './master'
 import { VocoderDsp } from './vocoder'
 import { LpgDsp } from './lpg'
 import { Fm4Dsp } from './fm4'
+import { StageDsp } from './stage'
 import { SwarmDsp } from './swarm'
 import { MotionDsp } from './motion'
 import { GrainsDsp } from './grains'
@@ -235,6 +236,7 @@ const CIRCUITS: Record<string, DspCtor> = {
   vocoder: VocoderDsp,
   lpg: LpgDsp,
   fm4: Fm4Dsp,
+  stage: StageDsp,
   swarm: SwarmDsp,
   motion: MotionDsp,
   grains: GrainsDsp,
