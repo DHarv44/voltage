@@ -20,6 +20,18 @@ export const VOICE_STARTERS: Record<string, Starter> = {
       toOut(k, [ep, 'l'], [ep, 'r'], 0.6)
     },
   },
+  grand: {
+    howTo:
+      'GRAND playing four bars from a PIANO ROLL (Am, F, C, G under a melody), each note at the velocity drawn on the roll. Try MODEL (GRAND, UPRIGHT, HONKY), BRIGHT and UNISON. Patch a gate to SUS for the sustain pedal (the free strings ring along) or SOFT for the una corda. Unpatch GATE to play it from your keys.',
+    build(k) {
+      const pr = k.add('pianoroll')
+      const gp = k.add('grand')
+      k.wire([pr, 'pitch'], [gp, 'voct'])
+      k.wire([pr, 'gate'], [gp, 'gate'])
+      k.wire([pr, 'vel'], [gp, 'vel'])
+      toOut(k, [gp, 'l'], [gp, 'r'], 0.6)
+    },
+  },
   swarm: {
     howTo:
       'SWARM stabbing trance chords on an off-beat rhythm, a slow LFO opening its filter. Turn DETUNE (it opens up fast past halfway), SPREAD and MIX; raise ATTACK and RELEASE for a pad.',

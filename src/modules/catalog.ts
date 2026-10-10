@@ -85,6 +85,10 @@ export const CATALOG: Record<string, Entry> = {
     tags: ['poly', 'chords', 'melody', 'stereo'],
     aka: ['electric piano', 'e.piano', 'ep', 'rhodes', 'fender', 'suitcase', 'wurlitzer', 'wurli', 'tine', 'reed', 'keys', 'piano', 'neo soul', 'tremolo'],
   },
+  grand: {
+    tags: ['poly', 'chords', 'melody', 'stereo'],
+    aka: ['piano', 'acoustic piano', 'grand piano', 'upright', 'honky tonk', 'saloon', 'keys', 'steinway', 'yamaha', 'ballad', 'classical', 'sustain pedal', 'una corda'],
+  },
   swarm: {
     tags: ['poly', 'chords', 'melody', 'stereo'],
     aka: ['supersaw', 'jp-8000', 'trance', 'edm', 'unison', 'detune', 'hoover', 'saw stack', 'synth voice'],

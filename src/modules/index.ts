@@ -64,6 +64,7 @@ import { console_, glue, master } from './specs/mixbus'
 import { lpg, vocoder } from './specs/voiceFx'
 import { fm4, swarm } from './specs/synthVoices'
 import { stage } from './specs/stage'
+import { grand } from './specs/grand'
 import { motion } from './specs/motion'
 import { grains, shift, shimmer } from './specs/ambient'
 import { tally } from './specs/tally'
@@ -105,6 +106,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   fm4,
   swarm,
   stage,
+  grand,
   tapekeys,
   kick,
   snare,

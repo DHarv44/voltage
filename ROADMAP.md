@@ -49,10 +49,12 @@ extend VOLTAGE.
   acoustic and electric): ~~FM-4 E.PIANO (velocity bark curve, keyboard level scaling, damper
   thump), sustain pedal (MIDI CC64 in KeyVoices, SUS jack via SusGate)~~, ~~STAGE (modelled EP:
   TINE = modes + magnetic-pickup flux derivative, REED = clamped-bar modes + electrostatic
-  1/(1−kx); felt contact time, dampers, stereo / volume tremolo)~~. Next: an acoustic piano
-  (grand and upright: stiff-string partials, 1–3 detuned strings per note, felt hammer,
-  soundboard, sustain pedal with sympathetic strings, una corda). Later: a pedal lane on the
-  PIANO ROLL.
+  1/(1−kx); felt contact time, dampers, stereo / volume tremolo)~~, ~~GRAND (modelled acoustic
+  piano: GRAND / UPRIGHT / HONKY; up to 36 stiff-string partials as phasors, 1–3 strings on the
+  lowest five with their own detune and ring (two-stage decay), felt hammer contact time and
+  strike-position comb, dampers (none above F#6), 24 sympathetic strings under the pedal, una
+  corda, three soundboard peaks, culling of dead modes)~~. Later: a pedal lane on the PIANO ROLL;
+  more GRAND partials in the bass if the CPU allows; hammer–string nonlinearity (phantom partials).
   - **FM-4** (four-operator FM voice, 8 notes): nine factory voices (E.PIANO, BASS, BELL, BRASS, ORGAN,
     MARIMBA, CLAV, PAD, LEAD) as operator recipes, reshaped by macro knobs (BRIGHT scales the
     modulators, DECAY stretches the envelopes, FEEDBK, DETUNE, ATTACK, RELEASE, VEL SENS) and an ALGO

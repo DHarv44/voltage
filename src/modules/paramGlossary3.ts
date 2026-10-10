@@ -67,4 +67,13 @@ export const GAP_OVERRIDES: Record<string, string> = {
   'stage:trem': 'Tremolo depth: TINE pans from speaker to speaker, REED pulses in volume.',
   'stage:rate': 'Tremolo speed.',
   'stage:level': 'Output level.',
+  // GRAND
+  'grand:model': 'GRAND: long strings, a big soundboard, a long ring. UPRIGHT: shorter, stiffer strings in a boxier case. HONKY: the saloon upright with its unisons tuned wide.',
+  'grand:bright': 'How hard the hammer felt is: from dark and woolly to bright and ringing (playing harder brightens it too).',
+  'grand:decay': 'How long the strings ring while held (the bass always rings longest).',
+  'grand:unison': 'How far apart the two or three strings of each note are tuned: from pure through the gentle beating of a real piano to honky-tonk.',
+  'grand:body': 'How much the soundboard and case colour the sound: more is warmer and woodier.',
+  'grand:hammer': 'The action’s own noise: the knock of the hammer and key.',
+  'grand:width': 'Stereo spread as the player hears it: bass on the left, treble on the right.',
+  'grand:level': 'Output level.',
 }
