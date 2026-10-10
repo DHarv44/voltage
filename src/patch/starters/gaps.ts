@@ -1,4 +1,4 @@
-import { beat, melody, mix, roomy, toOut, voice } from './kit'
+import { beat, melody, mix, toOut, voice } from './kit'
 import { GROOVES, PHRASES } from './material'
 import type { Starter } from './types'
 
@@ -112,22 +112,16 @@ export const GAP_STARTERS: Record<string, Starter> = {
     },
   },
   pianoroll: {
-    howTo: 'Four bars drawn on the PIANO ROLL (Am, F, C, G under a melody) played by a poly synth. Click to add notes, drag them about, drag a note’s end to lengthen it, right-click to delete; scroll for higher or lower.',
+    howTo: 'Four bars drawn on the PIANO ROLL (Am, F, C, G under a melody) played by FM-4’s electric piano through a chorus, each note at its own velocity. Click to add notes, drag them about, drag a note’s end to lengthen it, right-click to delete; scroll for higher or lower. Step FM-4’s VOICE for bells, brass or organ.',
     build(k) {
       const pr = k.add('pianoroll')
-      const vco = k.add('pvco', { fine: 0.05 })
-      const vcf = k.add('pvcf', { cutoff: 1600, res: 0.2, cv: 0.35 })
-      const vca = k.add('pvca', { gain: 0, cv: 1 })
-      const env = k.add('padsr', { a: 0.02, d: 0.5, s: 0.6, r: 0.4 })
-      const pm = k.add('polymix', { level: 0.6 })
-      k.wire([pr, 'pitch'], [vco, 'voct'])
-      k.wire([pr, 'gate'], [env, 'gate'])
-      k.wire([vco, 'saw'], [vcf, 'in'])
-      k.wire([env, 'env'], [vcf, 'cv'])
-      k.wire([vcf, 'lp'], [vca, 'in'])
-      k.wire([env, 'env'], [vca, 'cv'])
-      k.wire([vca, 'out'], [pm, 'in'])
-      roomy(k, [pm, 'sum'], 0.25, 0.5)
+      const fm = k.add('fm4', { voice: 0, detune: 0.35, level: 0.75 })
+      const ens = k.add('ensemble', { rate: 0.6, depth: 0.35, mix: 0.45 })
+      k.wire([pr, 'pitch'], [fm, 'voct'])
+      k.wire([pr, 'gate'], [fm, 'gate'])
+      k.wire([pr, 'vel'], [fm, 'vel'])
+      k.wire([fm, 'out'], [ens, 'in'])
+      toOut(k, [ens, 'l'], [ens, 'r'], 0.5)
     },
   },
   arranger: {

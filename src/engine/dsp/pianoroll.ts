@@ -64,8 +64,10 @@ export class PianoRollDsp extends Dsp {
       if (v < 0) {
         v = 0
         for (let k = 1; k < voices; k++) if (this.left[k] < this.left[v]) v = k
-        this.gap[v] = Math.round(RETRIG_S * this.fs)
       }
+      // every new note opens with the gap: a voice whose last note ended on
+      // this very step (back to back, or a chord change) must still retrigger
+      this.gap[v] = Math.round(RETRIG_S * this.fs)
       this.note[v] = Math.round(p[b + 2])
       this.left[v] = Math.max(1, Math.round(p[b + 1]))
       this.vel[v] = p[b + 3]
