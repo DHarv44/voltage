@@ -6,7 +6,8 @@ import { actions } from '../patch/store'
 import { LibraryItem, LibrarySection } from './library/LibrarySection'
 import { searchModules } from './library/search'
 import { shelf } from './library/shelf'
-import { TagChips } from './library/TagChips'
+import { LibraryCard } from './library/LibraryCard'
+import { ActiveTags, TagFilter } from './library/TagFilter'
 import { settings, useSettings } from './settings'
 
 const HELP = 'help'
@@ -75,13 +76,15 @@ export function Library() {
         <input
           ref={input}
           type="search"
-          placeholder="Search: name, sound, gear…  ( / )"
+          placeholder="Search modules  ( / )"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={keyDown}
         />
+        <TagFilter active={libTags} counts={counts} onToggle={toggleTag} onClear={() => settings.set({ libTags: [] })} />
       </div>
-      <TagChips active={libTags} counts={counts} onToggle={toggleTag} onClear={() => settings.set({ libTags: [] })} />
+      <ActiveTags active={libTags} onToggle={toggleTag} />
+      <LibraryCard />
 
       {filtering ? (
         <>
@@ -112,9 +115,9 @@ export function Library() {
 
       <LibrarySection title="How to use" open={libOpen.includes(HELP)} onToggle={() => toggle(HELP)}>
         <div className="lib-help">
-          <p>Search by name, by what you want (bass, reverb, beat…) or by the gear you know; every word must match. Enter adds the top result; / jumps to the search box. Tap tags to narrow the list; ☆ stars a module into Favourites.</p>
+          <p>Search by name, by what you want (bass, reverb, beat…) or by the gear you know; every word must match. Enter adds the top result; / jumps to the search box. Filter narrows the list by what modules are for; ☆ stars a module into Favourites. Rest the pointer on a module for its picture and its ready-to-play rig.</p>
           <p>Drag a module onto the rack to place it; anything in the way slides aside on drop. Click to drop it in the first free slot.</p>
-          <p>Move a panel by dragging its bare face (the title strip or any empty space); controls and screens never move it. Drop below the last row for a new row. Right-click a panel for more.</p>
+          <p>Move a panel by dragging its bare face (the title strip or any empty space); controls and screens never move it. Drop below the last row for a new row. Click a panel to see it explained in the Inspector; right-click it for a quick menu.</p>
           <p>Drag from a jack to patch. Drag a patched input to unplug it. Right-click a jack to pull its cables; Shift+right-click to recolour them.</p>
           <p>Knobs: scroll wheel up/down, or drag up/down with the left or middle button (Shift = fine). Double-click to reset. Click a switch to flip it.</p>
           <p>Keys A–K play notes (Z/X octave). Number keys 1–8 hit drum pads.</p>

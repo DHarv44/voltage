@@ -9,6 +9,7 @@ import type { PanelHandlers } from '../panel/ModulePanel'
 import { track } from '../pointer'
 import { resolve, slotAt, type DragPreview } from './dragPreview'
 import { holdForTip } from './touchHold'
+import { selection } from '../inspector/selection'
 
 export interface CableDrag extends Pt {
   anchor: JackRef
@@ -158,7 +159,8 @@ export function useRackInteractions(toLocal: (e: ClientPt) => Pt) {
           },
           () => {
             if (frame) cancelAnimationFrame(frame)
-            if (!lifted) return
+            // a click (not a move) shows the module in the Inspector
+            if (!lifted) return selection.set(id)
             const moved = cur.row !== m.row || cur.hp !== m.hp || Object.keys(cur.moves).length > 0
             if (moved) actions.placeModule(id, cur.row, cur.targetHp)
             setMove(null)

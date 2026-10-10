@@ -7,6 +7,7 @@ import { SharedBanner } from './ui/share/SharedBanner'
 import { TutorialBubble } from './ui/tutorial/TutorialBubble'
 import { Toast } from './ui/Toast'
 import { StartScreen } from './ui/StartScreen'
+import { Inspector } from './ui/inspector/Inspector'
 
 export function App() {
   return (
@@ -18,6 +19,7 @@ export function App() {
       <div className="main">
         <Library />
         <Rack />
+        <Inspector />
       </div>
       <TutorialBubble />
       <Toast />

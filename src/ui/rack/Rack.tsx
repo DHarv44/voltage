@@ -20,10 +20,12 @@ import { libraryDrag } from './libraryDrag'
 import { useRackInteractions } from './useRackInteractions'
 import { useLightShow } from './lightShow'
 import { TutorialHighlight } from '../tutorial/TutorialHighlight'
+import { useSelection } from '../inspector/selection'
 
 export function Rack() {
   const patch = useSyncExternalStore(patchStore.subscribe, patchStore.get)
   const lib = useSyncExternalStore(libraryDrag.subscribe, libraryDrag.get)
+  const selected = useSelection()
   const { zoom: zoomSetting, cableOpacity, jackHints } = useSettings()
   const scrollRef = useRef<HTMLDivElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
@@ -116,7 +118,7 @@ export function Rack() {
           {patch.modules.map((m) => {
             const at = place(m)
             return (
-              <ModulePanel key={m.id} inst={m} row={at.row} hp={at.hp} lifted={move?.id === m.id} handlers={handlers} fed={fed[m.id]?.join(',') ?? ''} />
+              <ModulePanel key={m.id} inst={m} row={at.row} hp={at.hp} lifted={move?.id === m.id} selected={selected === m.id} handlers={handlers} fed={fed[m.id]?.join(',') ?? ''} />
             )
           })}
           {move?.free && (

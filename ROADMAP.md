@@ -265,8 +265,14 @@ extend VOLTAGE.
   browser / online / earlier versions), save a copy, open / save a .voltage file, new. Explore
   (songs, example racks, gallery) replaces Songs and Patches; one Share window (short link with
   visibility, quick link, file) replaces Share and Cloud; your device code and the admin tab moved
-  to ☰ → Your racks on other devices. Shared helpers: ui/usePopover.ts, ui/Modal.tsx. Next:
-  phase 3, the Inspector
+  to ☰ → Your racks on other devices. Shared helpers: ui/usePopover.ts, ui/Modal.tsx. Phase 3
+  (done on the branch): click a panel (a press that doesn't move it) to select it (outlined);
+  the Inspector drawer on the right (ui/inspector: what it's for, add its rig, duplicate, reset,
+  export audio, remove, size, settings, presets, every knob with its value and explanation,
+  every jack with its signal and whether it's patched). Library: panel miniatures drawn from
+  the spec (library/PanelThumb.tsx) in every row, a hover card (library/LibraryCard.tsx: bigger
+  picture, tagline, tags, Add ready-to-play rig / Add on its own), tags behind Filter ▾ with the
+  ones in use as removable chips. Was: phase 3, the Inspector
   (the selected module: explanations, presets, size, settings, rig) and a library with panel
   pictures, hover cards and tags in a Filter popover; phase 4, the visual system pass and a
   performance mode (F hides the chrome).

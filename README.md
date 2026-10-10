@@ -84,6 +84,12 @@ case. **Walkthrough** does each step for you; **Guided** lets you do it and move
   widths real cases come in).
 - **Right-click an empty part of a row → Remove row.** If it has modules in it you're asked first:
   move them into free space in the other rows (if they fit), remove them with it, or cancel.
+- **Click a module** (its bare panel, not a control) to open the **Inspector** on the right: what
+  it's for, a button for its ready-to-play rig, every knob with its value and what it does, every
+  jack with what it carries, plus size, settings and presets. ✕ closes it.
+- **The library** shows each module's panel in miniature; rest the pointer on one for a bigger
+  picture and **Add ready-to-play rig** / **Add on its own**. **Filter** narrows it by what
+  modules are for.
 - **Right-click a module:** Duplicate, Reset knobs, Export audio (for modules that record), **Size**
   (for resizable screens), any deeper settings it has (VISION's garden), **Presets** (name and
   save this module's settings, then load them onto any module of the same kind, in any rack; one

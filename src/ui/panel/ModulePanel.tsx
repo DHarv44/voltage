@@ -37,6 +37,8 @@ interface Props {
   row: number
   hp: number
   lifted: boolean
+  /** Shown in the Inspector (outlined). */
+  selected?: boolean
   handlers: PanelHandlers
   /** The inputs with a cable in them, comma-separated (a string, so the memo
    *  only re-renders a panel when its own plugs change). */
@@ -45,11 +47,11 @@ interface Props {
 
 /** A panel in the rack. Only this outer box knows where it sits, so moving a
  *  panel (every pointer move of a drag) re-renders one div, not its controls. */
-export const ModulePanel = memo(function ModulePanel({ inst, row, hp, lifted, handlers, fed }: Props) {
+export const ModulePanel = memo(function ModulePanel({ inst, row, hp, lifted, selected, handlers, fed }: Props) {
   const w = hpOf(inst) * HP_MM
   return (
     <div
-      className={lifted ? 'module lifted' : 'module'}
+      className={`module${lifted ? ' lifted' : ''}${selected ? ' selected' : ''}`}
       style={{ left: moduleLeft(hp), top: rowTop(row), width: w * PX, height: PANEL_H_MM * PX }}
       onPointerDown={(e) => handlers.panelDown(inst.id, e)}
       onContextMenu={(e) => handlers.panelContext(inst.id, e)}

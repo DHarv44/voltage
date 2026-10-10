@@ -8,6 +8,8 @@ import { startItemDrag } from './itemDrag'
 import { loadStarter } from './loadStarter'
 import { shelf } from './shelf'
 import { catalogOf } from '../../modules/catalog'
+import { libHover } from './LibraryCard'
+import { PanelThumb } from './PanelThumb'
 
 interface SectionProps {
   title: string
@@ -44,7 +46,12 @@ export function LibraryItem({ spec, fav, top }: { spec: ModuleSpec; fav: boolean
       <button
         className="lib-item"
         data-lib-type={spec.type}
-        onPointerDown={(e) => startItemDrag(spec.type, e)}
+        onPointerEnter={(e) => e.pointerType === 'mouse' && libHover.enter(spec.type, e.currentTarget.getBoundingClientRect(), e.currentTarget.closest('.library')?.getBoundingClientRect())}
+        onPointerLeave={libHover.leave}
+        onPointerDown={(e) => {
+          libHover.close()
+          startItemDrag(spec.type, e)
+        }}
         onKeyDown={(e) => {
           if (e.key !== 'Enter' && e.key !== ' ') return
           actions.addModule(spec.type)
@@ -54,7 +61,8 @@ export function LibraryItem({ spec, fav, top }: { spec: ModuleSpec; fav: boolean
           e.preventDefault()
           setMenu({ x: e.clientX, y: e.clientY })
         }}
-        title={`${spec.name} (${spec.sizes ? `${spec.sizes[0]}–${spec.sizes[spec.sizes.length - 1]} HP, right-click a panel to resize` : `${spec.hp} HP`})\n${spec.tagline}\n${spec.category} · ${tags.join(', ')}\n\nDrag onto the rack, or click to add. Right-click for a ready-to-play version.`}
+        aria-label={`${spec.name}: ${spec.tagline}`}
+        aria-description={`${spec.category} · ${tags.join(', ')}. Drag onto the rack, or click to add. Right-click for a ready-to-play version.`}
       >
         <LibraryItemFace spec={spec} />
       </button>
@@ -110,7 +118,9 @@ function StarterMenu({ spec, x, y, onClose }: { spec: ModuleSpec; x: number; y: 
 function LibraryItemFace({ spec }: { spec: ModuleSpec }) {
   return (
     <>
-      <span className="swatch" style={{ background: spec.panel.bg, borderColor: spec.panel.accent }} />
+      <span className="lib-thumb">
+        <PanelThumb spec={spec} height={Math.min(34, (46 * 128.5) / (spec.hp * 5.08))} />
+      </span>
       <span className="lib-text">
         <span className="lib-name">
           {spec.name} <em>{spec.hp} HP</em>
