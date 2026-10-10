@@ -1629,6 +1629,9 @@ button.power.on {
 .rack-scroll {
   flex: 1;
   overflow: auto;
+  /* the scrollbar's room is kept even when it's not there, so it showing up
+     never narrows the rack (which would re-fit the zoom) */
+  scrollbar-gutter: stable;
   padding: 12px;
   background: radial-gradient(ellipse at 50% 0%, #1d1f23, #0c0d0f 70%);
   user-select: none;

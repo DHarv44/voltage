@@ -89,9 +89,12 @@ export function Rack() {
   const rows = patch.rows + (dragging ? 1 : 0) // a spare row to drop into
   const W = rackWidth(rail)
   const H = rackHeight(rows)
+  // the page always leaves room for that spare row, so starting a drag never
+  // changes the page's size (no scrollbar popping up, no rezoom mid-drag)
+  const roomH = rackHeight(patch.rows + 1)
   return (
     <div className="rack-scroll" ref={scrollRef}>
-      <div className="rack-sizer" style={{ width: W * zoom, height: H * zoom }}>
+      <div className="rack-sizer" style={{ width: W * zoom, height: roomH * zoom }}>
         <div
           className={cable && jackHints ? `rack hint-from-${cable.anchorDir} hint-fam-${dragFamily}` : 'rack'}
           ref={innerRef}
