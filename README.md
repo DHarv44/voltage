@@ -80,8 +80,11 @@ case. **Walkthrough** does each step for you; **Guided** lets you do it and move
   pads, mic…) come wired and waiting for you.
 - **Move a module:** drag its bare face: the title strip or any empty space. Controls, screens and
   played surfaces never move it, and a click doesn't nudge it (it lifts after a few pixels of drag,
-  a little more on touch). Neighbours slide aside when you drop it;
-  drop below the last row to start a new row.
+  a little more on touch). Where it lands: if there's room it goes right there (a sliver of a gap
+  of up to 3 HP snaps shut); if it only clips a neighbour (under 60% of it), nothing moves and it
+  settles beside it; drag it well over the panel next to it and the two swap; dropped onto a row
+  between panels, it goes in and only the panels in its way slide along. Drop below the last row
+  to start a new row.
 - **Rows and rails:** **+ Row / − Row**, and the **rails** selector (84 / 104 / 126 / 168 HP, the
   widths real cases come in).
 - **Right-click an empty part of a row → Remove row.** If it has modules in it you're asked first:

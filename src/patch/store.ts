@@ -3,6 +3,7 @@ import { defaultParams } from '../modules/params'
 import { hpOf } from '../modules/size'
 import { defaultPatch } from './defaultPatch'
 import { makeModule, uid } from './factory'
+import { placeDrop } from './drop'
 import { findSlot, placeWithPush, RAIL_SIZES, ROW_HP, usedHp } from './layout'
 import { loadSaved, sanitize, save } from './persist'
 import { withoutRow, withRig } from './rowOps'
@@ -95,7 +96,7 @@ export const actions = {
   placeModule(id: string, row: number, hp: number): boolean {
     const m = state.modules.find((x) => x.id === id)
     if (!m || row < 0 || row > state.rows) return false
-    const pl = placeWithPush(state, row, hp, hpOf(m), id)
+    const pl = placeDrop(state, row, hp, hpOf(m), id)
     if (!pl) return false
     set({
       ...state,
@@ -111,7 +112,7 @@ export const actions = {
   insertModule(type: string, row: number, hp: number): string | null {
     const spec = SPECS[type]
     if (!spec || row < 0 || row > state.rows) return null
-    const pl = placeWithPush(state, row, hp, spec.hp)
+    const pl = placeDrop(state, row, hp, spec.hp)
     if (!pl) return null
     const m = makeModule(type, row, pl.hp)
     set({

@@ -33,7 +33,7 @@ export const firstSound: Lesson = {
       action: { kind: 'add', type: 'mult', as: 'mult' },
     },
     {
-      text: 'Tip: you can move any module by dragging its panel (not a knob or jack); the others slide aside when you let go. Arrange them however you like.',
+      text: 'Tip: you can move any module by dragging its panel (not a knob or jack); drag it well over its neighbour and the two swap; just clipping one leaves it be. Arrange them however you like.',
     },
     powerStep('Now switch the rack on (nothing will sound yet: nothing is connected).'),
     {

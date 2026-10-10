@@ -130,7 +130,7 @@ export function Library() {
       <LibrarySection title="How to use" open={libOpen.includes(HELP)} onToggle={() => toggle(HELP)}>
         <div className="lib-help">
           <p>Search by name, by what you want (bass, reverb, beat…) or by the gear you know; every word must match. Enter adds the top result; / jumps to the search box. Filter narrows the list by what modules are for; ☆ stars a module into Favourites. Rest the pointer on a module for its picture and its ready-to-play rig.</p>
-          <p>Drag a module onto the rack to place it; anything in the way slides aside on drop. Click to drop it in the first free slot.</p>
+          <p>Drag a module onto the rack to place it: into a gap, or onto a panel to go in front of it (only what's in the way slides along); just clipping a panel leaves it be. Click to drop it in the first free slot.</p>
           <p>Move a panel by dragging its bare face (the title strip or any empty space); controls and screens never move it. Drop below the last row for a new row. Click a panel to see it explained in the Inspector; right-click it for a quick menu.</p>
           <p>Drag from a jack to patch. Drag a patched input to unplug it. Right-click a jack to pull its cables; Shift+right-click to recolour them.</p>
           <p>Knobs: scroll wheel up/down, or drag up/down with the left or middle button (Shift = fine). Double-click to reset. Click a switch to flip it.</p>

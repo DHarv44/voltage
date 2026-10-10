@@ -1,6 +1,7 @@
 import { SPECS } from '../../modules'
 import { hpOf } from '../../modules/size'
-import { placeWithPush, railHp } from '../../patch/layout'
+import { placeDrop } from '../../patch/drop'
+import { railHp } from '../../patch/layout'
 import type { ModuleInst, Patch } from '../../patch/types'
 import { GAP, HP_PX, ROW_PX, SIDE, rackHeight, rackWidth, type Placement, type Pt } from '../geometry'
 
@@ -31,7 +32,7 @@ export function slotAt(pt: Pt, grabX: number, grabY: number, rows: number): { ro
 export function resolve(base: Patch, id: string | null, type: string, row: number, hp: number): DragPreview | null {
   // a module being moved keeps its own (possibly resized) width
   const m = id ? base.modules.find((x) => x.id === id) : undefined
-  const pl = placeWithPush(base, row, hp, m ? hpOf(m) : SPECS[type].hp, id ?? undefined)
+  const pl = placeDrop(base, row, hp, m ? hpOf(m) : SPECS[type].hp, id ?? undefined)
   return pl ? { id, type, row, hp: pl.hp, targetHp: hp, moves: pl.moves } : null
 }
 
@@ -45,7 +46,7 @@ export function libraryPreview(type: string, pt: Pt, base: Patch): DragPreview |
 
 /** Where a module is drawn, given an in-progress drag. Only the dragged panel
  *  moves (with the pointer, between slots too: fractional row / hp);
- *  neighbours stay put (overlapped) and slide aside on drop. */
+ *  neighbours stay put (overlapped) and move on drop, if they must (see placeDrop). */
 export function placementOf(m: ModuleInst, pv: DragPreview | null): Placement {
   if (pv && m.id === pv.id) return pv.free ? { row: (pv.free.y - GAP) / (ROW_PX + GAP), hp: (pv.free.x - SIDE) / HP_PX } : { row: pv.row, hp: pv.hp }
   return m
