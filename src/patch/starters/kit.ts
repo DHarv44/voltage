@@ -153,6 +153,21 @@ export function roomy(k: Kit, src: Jack, plate = 0.3, vol?: number): void {
   toOut(k, [p, 'l'], [p, 'r'], vol)
 }
 
+/** The PIANO ROLL's four bars (Am, F, C, G under a melody) on FM-4's
+ *  electric piano through a chorus, each note at its own velocity: the rig of
+ *  both. Returns the FM-4. */
+export function rollOnFm(k: Kit): string {
+  const pr = k.add('pianoroll')
+  const fm = k.add('fm4', { voice: 0, detune: 0.35, level: 0.75 })
+  const ens = k.add('ensemble', { rate: 0.6, depth: 0.35, mix: 0.45 })
+  k.wire([pr, 'pitch'], [fm, 'voct'])
+  k.wire([pr, 'gate'], [fm, 'gate'])
+  k.wire([pr, 'vel'], [fm, 'vel'])
+  k.wire([fm, 'out'], [ens, 'in'])
+  toOut(k, [ens, 'l'], [ens, 'r'], 0.5)
+  return fm
+}
+
 /** To the speakers (stereo if given a right channel). */
 export function toOut(k: Kit, l: Jack, r?: Jack, vol = 0.55): string {
   const out = k.add('output', { vol })

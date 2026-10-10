@@ -1,20 +1,12 @@
-import { chords, toOut } from './kit'
+import { chords, rollOnFm, toOut } from './kit'
 import type { Starter } from './types'
 
 /** The complete poly voices: each plays the kind of part it's famous for. */
 export const VOICE_STARTERS: Record<string, Starter> = {
   fm4: {
     howTo:
-      'FM-4’s electric piano comping slow chords through a chorus. Turn BRIGHT (FM’s filter knob) and DECAY; step VOICE through BELL, BRASS, ORGAN. Unpatch GATE to play it from your keys.',
-    build(k) {
-      const c = chords(k, { bpm: 76, mood: 0.55 })
-      const fm = k.add('fm4', { voice: 0, detune: 0.35, level: 0.75 })
-      const ens = k.add('ensemble', { rate: 0.6, depth: 0.35, mix: 0.45 })
-      k.wire(c.notes, [fm, 'voct'])
-      k.wire(c.gate, [fm, 'gate'])
-      k.wire([fm, 'out'], [ens, 'in'])
-      toOut(k, [ens, 'l'], [ens, 'r'], 0.5)
-    },
+      'FM-4’s electric piano playing four bars from a PIANO ROLL (Am, F, C, G under a melody) through a chorus, each note at its own velocity. Turn BRIGHT (FM’s filter knob) and DECAY; step VOICE through BELL, BRASS, ORGAN; draw your own notes on the roll. Unpatch GATE to play it from your keys.',
+    build: (k) => void rollOnFm(k),
   },
   swarm: {
     howTo:

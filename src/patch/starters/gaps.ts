@@ -1,4 +1,4 @@
-import { beat, melody, mix, toOut, voice } from './kit'
+import { beat, melody, mix, rollOnFm, toOut, voice } from './kit'
 import { GROOVES, PHRASES } from './material'
 import type { Starter } from './types'
 
@@ -113,16 +113,7 @@ export const GAP_STARTERS: Record<string, Starter> = {
   },
   pianoroll: {
     howTo: 'Four bars drawn on the PIANO ROLL (Am, F, C, G under a melody) played by FM-4’s electric piano through a chorus, each note at its own velocity. Click to add notes, drag them about, drag a note’s end to lengthen it, right-click to delete; scroll for higher or lower. Step FM-4’s VOICE for bells, brass or organ.',
-    build(k) {
-      const pr = k.add('pianoroll')
-      const fm = k.add('fm4', { voice: 0, detune: 0.35, level: 0.75 })
-      const ens = k.add('ensemble', { rate: 0.6, depth: 0.35, mix: 0.45 })
-      k.wire([pr, 'pitch'], [fm, 'voct'])
-      k.wire([pr, 'gate'], [fm, 'gate'])
-      k.wire([pr, 'vel'], [fm, 'vel'])
-      k.wire([fm, 'out'], [ens, 'in'])
-      toOut(k, [ens, 'l'], [ens, 'r'], 0.5)
-    },
+    build: (k) => void rollOnFm(k),
   },
   arranger: {
     howTo: 'A song in six sections: the ARRANGER’s part gates bring the drums, bass, lead and hats in and out through VCA×4. Click a lane cell to change who plays where, drag a block’s edge for its length; PAT is ready for LOCKSTEP’s PAT.',
