@@ -267,6 +267,18 @@ extend VOLTAGE.
   more doubling in their rigs). The newer systems have no direct path: patch them to OUT.
 
 ## Up next
+- **COMBO** (2026-10-10; a band creator + looper in the spirit of a TRIO+; our own name, look and
+  sounds). Like VISION: **COMBO** (all-in-one: learn from audio or cables, 5 parts, built-in drums
+  and bass, looper, CV outs), **COMBO CORE** (the brain: learn, parts, band as CV gates/pitch,
+  CLK/RST, PART CV, LINK) and LINK peripherals **FOOTSWITCH** (BAND / LOOPER / PART stomps) and
+  **LOOPER** (per-part loops synced to the core). TRIO+ features kept: 12 genres × 12 styles (9 in
+  4/4, 3 in 3/4), style suggestion LEDs (green = meter + feel, amber = meter), ALT TIME (half /
+  double), SIMPLE BASS (active / roots / one root a bar), part intensity, cue-at-part-end with
+  fills, count-in, endings, per-part genre/style, loops per part with overdub + undo. Loop tempo
+  following is a toggle: STRETCH (granular, pitch kept) or TAPE (varispeed).
+  ~~Batch 1: style library + band engine~~ (specs/combo, engine/dsp/combo/band.ts). Next: the
+  learner (chroma + onsets from audio, notes from cables; tempo / meter / bars / chord per beat;
+  feel), COMBO CORE, COMBO's kit + bass + looper, the peripherals, the faces.
 - **UI / UX redesign** (branch `ui-redesign`, 2026-10-09): three zones (Add | Play | Understand),
   plain words in the chrome, a visual system. Phase 1 (done on the branch): a start screen that is
   also the audio-unlock click (first visit: hear something / learn / start empty; a shared rack's

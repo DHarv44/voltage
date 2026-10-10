@@ -38,16 +38,34 @@ export const chordName = (code: number): string => (code < 0 ? '–' : NOTE_NAME
  *  cousins, so they're left to what's played on cables). The root weighs a
  *  little extra, the fifth a little less. */
 export const LISTEN_QUALITIES = [0, 1, 2, 3, 4, 5, 6, 7, 9, 10]
+/** What each chord sounds like as pitch classes, overtones and all: every
+ *  chord tone, plus its third harmonic (a twelfth up: the fifth's pitch
+ *  class) and its fifth (two octaves and a third up). A C chord's E rings a
+ *  little B, so without these a plain C reads as Cmaj7. Relative to the root. */
+const SHAPES: Float64Array[] = QUALITIES.map((q) => {
+  const s = new Float64Array(12)
+  q.tones.forEach((t, i) => {
+    const w = i === 0 ? 1.15 : 1
+    s[t % 12] += w
+    s[(t + 7) % 12] += 0.35 * w
+    s[(t + 4) % 12] += 0.12 * w
+  })
+  return s
+})
+const SHAPE_NORM = SHAPES.map((s) => Math.sqrt(s.reduce((a, x) => a + x * x, 0)))
+
 export function templateScore(chroma: ArrayLike<number>, root: number, quality: number): number {
-  const q = QUALITIES[quality]
-  let inside = 0
-  let total = 0
-  for (let pc = 0; pc < 12; pc++) total += chroma[pc]
-  if (total <= 0) return 0
-  for (let i = 0; i < q.tones.length; i++) {
-    const w = i === 0 ? 1.25 : q.tones[i] === 7 ? 0.85 : 1
-    inside += chroma[(root + q.tones[i]) % 12] * w
-  }
-  // what the chord explains, less a little for each tone it asks for (simpler chords win ties)
-  return inside / total - 0.05 * q.tones.length
+  // the chroma with its floor taken off (noise lands on every pitch class)
+  let min = Infinity
+  for (let pc = 0; pc < 12; pc++) min = Math.min(min, chroma[pc])
+  let cc = 0
+  for (let pc = 0; pc < 12; pc++) cc += (chroma[pc] - min) ** 2
+  if (cc <= 0) return 0
+  // cosine between it and the chord's sound: a tone the chord claims but
+  // isn't sounding costs as much as one sounding that it doesn't explain
+  const s = SHAPES[quality]
+  let dot = 0
+  for (let i = 0; i < 12; i++) dot += (chroma[(root + i) % 12] - min) * s[i]
+  // (a three-note chord wins a near tie with its four-note cousin)
+  return (dot / (Math.sqrt(cc) * SHAPE_NORM[quality])) * (QUALITIES[quality].tones.length > 3 ? 0.98 : 1)
 }
