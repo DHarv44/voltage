@@ -40,6 +40,24 @@ export const SAMPLER_STARTERS: Record<string, Starter> = {
       toOut(k, mix(k, [[j, 'out'], sub.out], [0.8, 0.75]), undefined, 0.55)
     },
   },
+  deck: {
+    howTo:
+      'DECK playing the break, a choir and orchestra hits, with a bass line beside it. Drag the CROSSFADER right for scene B (the break filtered and crushed, the hits an octave down: a breakdown), back left for the drop. Press REC: the next bar of the bass becomes track 4’s own loop, sliced and playing at once. Click trigs to change them; drag the A and B sliders to make your own scenes.',
+    build(k) {
+      const clock = k.add('clock', { bpm: 112 })
+      const d = k.add('deck')
+      k.wire([clock, 'x4'], [d, 'clk'])
+      k.wire([clock, 'rst'], [d, 'rst'])
+      const seq = k.add('seq8', { s1: 0, s2: 0, s3: 0.25, s4: 0, s5: 0.4167, s6: 0.25, s7: 0.0833, s8: 0, g1: 1, g2: 1, g3: 1, g4: 0, g5: 1, g6: 1, g7: 1, g8: 1 })
+      k.wire([clock, 'x2'], [seq, 'clk'])
+      k.wire([clock, 'rst'], [seq, 'reset'])
+      const bass = voice(k, [seq, 'cv'], [seq, 'gate'], { osc: { type: 'vco', params: { coarse: -2 }, out: 'saw' }, filter: { type: 'vcf', params: { cutoff: 900, res: 0.35 }, out: 'lp4' }, env: { a: 0.002, d: 0.18, s: 0.4, r: 0.08 } })
+      k.wire(bass.out, [d, 'in'])
+      const m = mix(k, [[d, 'l'], bass.out], [0.85, 0.5])
+      const mr = mix(k, [[d, 'r'], bass.out], [0.85, 0.5])
+      toOut(k, m, mr, 0.55)
+    },
+  },
   dustbox: {
     howTo:
       'A boom-bap beat on DUSTBOX’s factory pads (a SEQ-8 picks the pad with PAD and plays it with TRIG). Hold FX for the effect (try STUTTER and TAPE STOP), turn GRIT and COMP. Press RESAMPLE to catch the beat with its effects onto pad 9, then play it from the pads.',

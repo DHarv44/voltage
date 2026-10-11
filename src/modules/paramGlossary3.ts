@@ -108,6 +108,12 @@ export const GAP_OVERRIDES: Record<string, string> = {
   'jungle:crunch': 'The 12-bit converter: more of it lowers the rate and the bits.',
   'jungle:level': 'Output level.',
   'jungle:run': 'Starts and stops it.',
+  // DECK
+  'deck:xf': 'The crossfader: every track from its scene A settings (left) to its scene B (right), cutoff, pitch, level and crush all at once.',
+  'deck:tempo': 'The tempo (when nothing is patched to CLK). Loops recorded here follow it.',
+  'deck:level': 'Output level.',
+  'deck:rectrk': 'The track REC records onto.',
+  'deck:run': 'Starts and stops the trigs.',
   // DUSTBOX
   'dustbox:fx': 'The punch-in effect: VINYL (a worn record), CRUSH (bits and rate), FILTER (left of centre low-pass, right high-pass), STUTTER (the last 1/8 or 1/16 repeated in time), TAPE STOP, DUB (an echo that rings on).',
   'dustbox:amount': 'How much of the effect (for FILTER: where it sweeps; STUTTER: 1/8 below half, 1/16 above).',
