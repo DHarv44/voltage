@@ -1,5 +1,5 @@
 import type { ModuleSpec } from '../../modules/types'
-import { pedalAt, PR_SLOTS, PR_STEPS_PER_BAR, PRL } from '../../modules/specs/pianoroll'
+import { pedalAt, PR_MAX_BARS, PR_SLOTS, PR_STEPS_PER_BAR, PRL } from '../../modules/specs/pianoroll'
 import { Dsp, MAX_VOICES } from './base'
 import { PocketClock } from './pocketClock'
 
@@ -38,7 +38,7 @@ export class PianoRollDsp extends Dsp {
 
   constructor(spec: ModuleSpec, fs: number, seed: number) {
     super(spec, fs, seed)
-    this.clock = new PocketClock(PR_STEPS_PER_BAR * 4, fs)
+    this.clock = new PocketClock(PR_STEPS_PER_BAR * PR_MAX_BARS, fs)
   }
 
   private release(): void {

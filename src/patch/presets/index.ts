@@ -8,6 +8,7 @@ import { acidHouse, drumKit, loopJam } from './rhythm'
 import { euclidPolyrhythm, jellyDream, polyStrings, studioBleeps, studioClassic, tapeAmbient } from './more'
 import { pocketBand, pocketBass, pocketBoomBap, pocketElectro, pocketLofi } from './pocket'
 import { deepHouse, trance } from './edm'
+import { voltageSong } from './voltageSong'
 
 export interface Preset {
   id: string
@@ -75,6 +76,13 @@ export const PRESETS: Preset[] = [
     description: 'EDM at 122 with swing: electric-piano chord stabs in D minor, a deep syncopated bass, the pump from the kick, a plate.',
     howTo: 'Power on: it plays itself. Try FM-4 VOICE (ORGAN), PROGRESSION MOOD, and the CONSOLE DUCK knobs.',
     build: deepHouse,
+  },
+  {
+    id: 'voltage-song',
+    name: 'Voltage (Full Song)',
+    description: 'A whole 2½-minute EDM track at 115.5, rebuilt from a song made in Suno: E minor, Em–C–D, a supersaw hook, rolling bass, pumping pad. ARRANGER plays intro, three drops, fills and a breakdown.',
+    howTo: 'Power on and let it play through. ARRANGER’s screen shows the sections; its PAT picks TR-16’s pattern and opens the filters (via SLEW). Edit the hook on the third PIANO ROLL.',
+    build: voltageSong,
   },
   {
     id: 'poly-strings',

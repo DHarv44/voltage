@@ -56,7 +56,12 @@ extend VOLTAGE.
   corda, three soundboard peaks, culling of dead modes)~~, ~~PIANO ROLL velocity and pedal lanes
   (PEDAL out; p0–p3 bitmasks; ui/surfaces/pianoRollLanes.ts)~~, ~~GRAND bass up to 56
   partials (64 modes), phantom partials (the squared low partials, bass and hard blows only)~~,
-  ~~CLOCK beat display (clockface surface: tempo, BAR n.b, four beat lights)~~. Maybe later: a
+  ~~CLOCK beat display (clockface surface: tempo, BAR n.b, four beat lights)~~, ~~PIANO ROLL up to
+  eight bars (PR_MAX_BARS 8, pedal p0–p7)~~, ~~"Voltage (Full Song)" example rack (presets/
+  voltageSong.ts): the user's Suno track rebuilt from an analysis of the recording (115.5 BPM,
+  E minor, Em–C–D–Em, the 8-bar hook transcribed per 16th); ARRANGER's PAT → TR-16 PAT (pattern
+  per section) and → SLEW → filter cutoffs + VCA×4 (each section's brightness and level); PART
+  gates switch bass / lead / pluck; checked against the original by band balance per section~~. Maybe later: a
   transport readout in the top bar (tempo, bar.beat, beat dot from the rack's first CLOCK).
   - **FM-4** (four-operator FM voice, 8 notes): nine factory voices (E.PIANO, BASS, BELL, BRASS, ORGAN,
     MARIMBA, CLAV, PAD, LEAD) as operator recipes, reshaped by macro knobs (BRIGHT scales the
@@ -77,7 +82,8 @@ extend VOLTAGE.
   knob morphing).
 - **Shapers**: FOLD, RING, SLEW, QUANT.
 - **Drums**: KICK, SNARE, CLAP, HATS, TOM, PERC, PADS, TOUCH (plates).
-- **Sequencing**: CLOCK, DIV, SEQ-8, TR-16 (A–D + song chains), EUCLID, TURING, ARP, CHORD.
+- **Sequencing**: CLOCK, DIV, SEQ-8, TR-16 (A–D + song chains, or PAT in: ARRANGER picks the
+  pattern on each bar line), EUCLID, TURING, ARP, CHORD.
 - **Metronomes** (shared click voice: TICK / WOOD / CLAVE / BEEP, the escapement CLACK, a bell):
   - METRONOME: beat 1 accented (higher, louder: ACCENT), 1–12 beats, 8ths / triplets / 16ths between,
     tap the screen for tempo (average of the last four taps), or follows CLK in 16ths (the gaps filled

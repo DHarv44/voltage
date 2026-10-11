@@ -57,7 +57,7 @@ export const GAP_OVERRIDES: Record<string, string> = {
   'analyser:target': 'The loudness you’re aiming for, in LUFS: about −14 for streaming services, −23 for broadcast, −9 to −6 for loud club masters. The bar and the integrated reading turn green near it.',
   // PIANO ROLL
   'pianoroll:tempo': 'The speed in beats per minute, when nothing is patched to CLK.',
-  'pianoroll:bars': 'How many bars it plays before going round again (1–4).',
+  'pianoroll:bars': 'How many bars it plays before going round again (1–8).',
   'pianoroll:oct': 'Moves every note up or down by octaves.',
   'pianoroll:voices': 'How many notes can sound at once (each one a channel of the poly cables). A mono synth hears the first.',
   'pianoroll:swing': 'Holds back every second 16th: a shuffled feel.',

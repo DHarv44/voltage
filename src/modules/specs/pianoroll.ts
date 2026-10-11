@@ -6,7 +6,7 @@ import { SLATE } from './panels'
  *  (steps), note (semitones up from C2) and velocity. */
 export const PR_SLOTS = 96
 export const PR_STEPS_PER_BAR = 16
-export const PR_MAX_BARS = 4
+export const PR_MAX_BARS = 8
 export const PR_ROWS = 48
 /** Rows on screen; VIEW is the lowest one shown. */
 export const PR_SHOWN = 30
@@ -93,7 +93,7 @@ export const pianoroll: ModuleSpec = {
   type: 'pianoroll',
   title: 'PIANO ROLL',
   name: 'Piano Roll',
-  tagline: 'Draw notes on a grid, chords and all, up to four bars, with velocity and sustain-pedal lanes; poly pitch, gate and velocity out, PEDAL out; its own tempo or 16ths on CLK',
+  tagline: 'Draw notes on a grid, chords and all, up to eight bars, with velocity and sustain-pedal lanes; poly pitch, gate and velocity out, PEDAL out; its own tempo or 16ths on CLK',
   category: 'Sequencers',
   hp: 36,
   panel: SLATE,

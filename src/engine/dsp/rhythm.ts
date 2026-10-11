@@ -63,6 +63,7 @@ export class Tr16Dsp extends Dsp {
   private iClk = this.ii('clk')
   private iRst = this.ii('rst')
   private iRec = Array.from({ length: TRACKS }, (_, t) => this.ii(`r${t + 1}`))
+  private iPat = this.ii('pat')
   private oAcc = this.oi('acc')
   private oTrk = Array.from({ length: TRACKS }, (_, t) => this.oi(`t${t + 1}`))
   /** Mask param indices per pattern A–D (8 tracks + accent each). */
@@ -103,8 +104,11 @@ export class Tr16Dsp extends Dsp {
     const p = this.p
     const len = Math.max(1, Math.round(p[this.pLen]))
     const pat = Math.round(p[this.pPat])
-    const chain = TR_CHAINS[pat]
-    if (!chain) this.playing = TR_PATTERN_MAP[pat] ?? 0
+    // PAT patched: its voltage picks A–D in 2.5 V bands (ARRANGER's PAT), read
+    // on each bar line, so a new pattern always starts on the one
+    const byCv = this.patched[this.iPat] === 1
+    const chain = byCv ? undefined : TR_CHAINS[pat]
+    if (!chain && !byCv) this.playing = TR_PATTERN_MAP[pat] ?? 0
 
     if (this.rst.rise(i[this.iRst])) {
       this.seq.reset()
@@ -114,7 +118,8 @@ export class Tr16Dsp extends Dsp {
     }
     const fire = this.seq.tick(this.clk.rise(i[this.iClk]), len, p[this.pSwing])
     if (fire >= 0) {
-      if (chain && fire === 0 && this.lastFired >= 0) {
+      if (byCv && (fire === 0 || this.lastFired < 0)) this.playing = Math.max(0, Math.min(3, Math.floor(i[this.iPat] / 2.5)))
+      else if (chain && fire === 0 && this.lastFired >= 0) {
         // Song mode: move to the next pattern in the chain at each bar.
         this.chainPos = (this.chainPos + 1) % chain.length
         this.playing = chain[this.chainPos]

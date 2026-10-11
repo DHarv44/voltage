@@ -303,8 +303,9 @@ who keeps time, who plays, and the knobs that make the sound).
 - **My racks** has everything of yours in one window: racks kept in this browser, racks saved
   online (with their links), and **Earlier versions** of this rack.
 - **Explore** has things to load and pull apart: **Songs**, **Example racks** (synths, grooves,
-  ambient, two EDM racks with the sidechain pump: Trance Anthem and Deep House) and the **Gallery**
-  of racks people have shared.
+  ambient, two EDM racks with the sidechain pump: Trance Anthem and Deep House, and **Voltage
+  (Full Song)**: a whole 2½-minute track rebuilt from a song made in Suno, ARRANGER playing its
+  intro, three drops, fills and breakdown) and the **Gallery** of racks people have shared.
 - **Songs** load a whole track in the style of an era, from 1975 Berlin School to 2017 lo-fi
   hip-hop (16 so far): Electro, Synth-Pop, Italo Disco, Acid House, Detroit, Rave, Jungle, Dub
   Techno, Filter House, UK Garage, Trance, Trap, Synthwave and more. Each is the rack that plays
