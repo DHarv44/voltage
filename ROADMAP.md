@@ -348,8 +348,11 @@ extend VOLTAGE.
   aren't in a bounce), ~~song-long automation~~ (AUTOMATION: 4 CV lanes × 32 points over up to
   128 bars, drawn on its screen, counts 16ths from RST), ~~TAKE/COMP~~ (TAKES: 4 takes × up to
   16 bars / 34 s, REC records the next pass from the top into the first empty take, comp per bar
-  (c0–c15, −1 silent) with 6 ms crossfades, per-bar peaks on LEDs, BUFFER_SLOTS takes: 4). Not
-  built: CONDUCTOR (tempo map; ARRANGER XL's per-section TEMPO covers most of it).
+  (c0–c15, −1 silent) with 6 ms crossfades, per-bar peaks on LEDs, BUFFER_SLOTS takes: 4),
+  ~~bounce includes page-side knob movers~~ (audio/bounceControllers.ts runs MOTION lanes, MACRO
+  sweeps and SCENES glides inside the worker; XY and ACCIDENT still not), ~~CONDUCTOR~~ (tempo
+  map: 16 segments × bars / from / to / meter 2–7, 50%-duty 1/16 1/8 BEAT BAR like CLOCK, TEMPO
+  CV 1 V per 100 BPM, TEMPO × scale, RUN gate in).
   ~~per-module presets~~ (done: right-click → Presets; patch/modulePresets.ts in localStorage
   `voltage.modulePresets.v1`, cleaned against the spec on load; cloud saving can carry them).
   The gaps batch is done; next: cloud saving (sign-in still to discuss).

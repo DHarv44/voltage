@@ -58,7 +58,7 @@ export function BounceMenu() {
             </button>
           ))}
           <div className="learn-note">
-            It starts from the top, as if POWER had just come on. Loops and samples are heard; keys and live inputs aren’t, nor knobs moved by MOTION, MACRO or SCENES (draw those moves on AUTOMATION instead: its lanes are in the bounce).
+            It starts from the top, as if POWER had just come on. Loops, samples and takes are heard, and knobs moved by MOTION, MACRO, SCENES and AUTOMATION; keys, live inputs and XY aren’t.
           </div>
         </div>
       )}

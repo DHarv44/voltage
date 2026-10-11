@@ -1,9 +1,13 @@
 import { Graph } from '../engine/graph'
 import type { ToEngine } from '../engine/protocol'
+import type { Patch } from '../patch/types'
+import { BounceControllers } from './bounceControllers'
 
 /** What the page sends: the patch, its recordings, how to know it's over. */
 export interface BounceJob {
   msg: Extract<ToEngine, { type: 'patch' }>
+  /** The patch itself: what MOTION, MACRO and SCENES learned (their targets). */
+  patch: Patch
   buffers: { id: string; slot: number; rate: number; data: Float32Array }[]
   rate: number
   /** The longest it may run (s). */
@@ -31,6 +35,8 @@ async function run(job: BounceJob): Promise<void> {
   const g = new Graph(job.rate)
   g.applyPatch(job.msg)
   for (const b of job.buffers) g.loadBuffer(b.id, b.slot, b.rate, b.data)
+  // the knob-movers the page would run
+  const moves = job.patch.modules.some((m) => m.type === 'motion' || m.type === 'macro' || m.type === 'scenes') ? new BounceControllers(job.patch, g, job.rate) : null
   const max = Math.ceil((job.maxSeconds * job.rate) / BLOCK) * BLOCK
   const L = new Float32Array(max)
   const R = new Float32Array(max)
@@ -42,6 +48,7 @@ async function run(job: BounceJob): Promise<void> {
   let reported = 0
   while (n < stopAt && !cancelled) {
     g.process(BLOCK, bl, br)
+    moves?.step(BLOCK)
     L.set(bl, n)
     R.set(br, n)
     n += BLOCK

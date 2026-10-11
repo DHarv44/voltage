@@ -110,6 +110,25 @@ export const SONG_STARTERS: Record<string, Starter> = {
       toOut(k, [plate, 'l'], [plate, 'r'], 0.55)
     },
   },
+  conductor: {
+    howTo:
+      'CONDUCTOR’s tempo map runs a little band: steady at 92, an accelerando up to 124, a bar of waltz (3/4: the kick on BEAT, the clap on each BAR’s downbeat), then a ritardando down to 76. Click a segment to select it and change its BARS, FROM, TO and METER along the bottom; TEMPO × scales the lot.',
+    build(k) {
+      const cd = k.add('conductor')
+      const kick = k.add('kick', { tune: 52, decay: 0.4, punch: 0.6 })
+      const clap = k.add('clap')
+      const hats = k.add('hats', { chd: 0.03 })
+      k.wire([cd, 'beat'], [kick, 'trig'])
+      k.wire([cd, 'bar'], [clap, 'trig'])
+      k.wire([cd, 'x2'], [hats, 'ch'])
+      const tm = k.add('turing', { change: 0.05 })
+      k.wire([cd, 'x2'], [tm, 'clk'])
+      const q = k.add('quant', { scale: 2 })
+      k.wire([tm, 'cv'], [q, 'in'])
+      const lead = voice(k, [q, 'out'], [cd, 'x2'], { osc: { type: 'vco', out: 'saw' }, filter: { type: 'vcf', params: { cutoff: 900, res: 0.3 }, out: 'lp4' }, filterCv: [cd, 'tempo'], env: { d: 0.15, s: 0.2, r: 0.1 } })
+      toOut(k, mix(k, [[kick, 'out'], [clap, 'out'], [hats, 'mix'], lead.out], [0.85, 0.5, 0.35, 0.6]), undefined, 0.6)
+    },
+  },
   takes: {
     howTo:
       'A TURING melody that keeps changing, into TAKES over a beat. Press REC: the next 4-bar pass is take 1; press it again for take 2, 3, 4 (each a different melody). Then click cells to build one line from the best bar of each take, and turn MONITOR off (or TURING’s LEVEL down) to hear just the comp.',

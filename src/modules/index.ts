@@ -94,6 +94,7 @@ import { chordtrack } from './specs/chordtrack'
 import { riser } from './specs/riser'
 import { automation } from './specs/automation'
 import { takes } from './specs/takes'
+import { conductor } from './specs/conductor'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -184,6 +185,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   slew,
   quant,
   clock,
+  conductor,
   metronome,
   maelzel,
   coach,

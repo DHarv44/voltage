@@ -77,6 +77,7 @@ class Bouncer {
     const expected = song ? songSeconds(song) + TAIL : (seconds ?? 60)
     const job: BounceJob = {
       msg,
+      patch,
       buffers: recs,
       rate: engine.getStatus().sampleRate || 48000,
       maxSeconds: song ? expected * 1.15 + 10 : expected,

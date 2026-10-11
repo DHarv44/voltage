@@ -79,6 +79,11 @@ export const GAP_OVERRIDES: Record<string, string> = {
   'chordtrack:oct': 'Moves the chords and the root up or down by octaves.',
   'chordtrack:voicing': 'CLOSE: every note within an octave. DROP 2: the second note from the top drops an octave (a guitarist’s and arranger’s favourite). OPEN: spread wide.',
   'chordtrack:run': 'Starts and stops it (starting again begins at bar 1).',
+  // CONDUCTOR
+  'conductor:len': 'How many segments the tempo map has (1–16).',
+  'conductor:scale': 'Scales every tempo in the map at once: the same shape, faster or slower.',
+  'conductor:loop': 'LOOP: start the map again after the last segment. ONCE: stop there (END pulses).',
+  'conductor:run': 'Starts and stops it (starting again begins at the first segment). With RUN patched, its gate must be high too.',
   // TAKES
   'takes:tempo': 'The speed in beats per minute, when nothing is patched to CLK.',
   'takes:bars': 'How long the passage is (1–16 bars): each take is one pass of it.',
