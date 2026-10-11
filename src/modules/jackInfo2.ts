@@ -174,6 +174,13 @@ MORE_JACKS['lightpen:in:in'] = { signal: 'audio', what: 'What REC records (up to
 MORE_JACKS['lightpen:in:rec'] = { signal: 'gate', what: 'A rising edge starts recording IN, the next one stops it.' }
 MORE_JACKS['lightpen:out:l'] = { signal: 'audio', what: 'Left (the voices spread a little across the stereo field).' }
 MORE_JACKS['lightpen:out:r'] = { signal: 'audio', what: 'Right.' }
+MORE_JACKS['tracker:in:clk'] = { signal: 'clock', what: 'A row on each edge (16ths from CLOCK or ARRANGER XL), its ticks spread between them.' }
+MORE_JACKS['tracker:in:rst'] = { signal: 'reset', what: 'Back to the top of the song.' }
+MORE_JACKS['tracker:in:in'] = { signal: 'audio', what: 'What SAMPLE records (up to 10 s) into sample 09, yours.' }
+MORE_JACKS['tracker:in:recg'] = { signal: 'gate', what: 'A rising edge starts sampling IN, the next one stops it.' }
+for (let c = 1; c <= 4; c++) MORE_JACKS[`tracker:out:ch${c}`] = { signal: 'audio', what: `Channel ${c} alone (before the output filters).` }
+MORE_JACKS['tracker:out:l'] = { signal: 'audio', what: 'Channels 1 and 4 (and a little of 2 and 3).' }
+MORE_JACKS['tracker:out:r'] = { signal: 'audio', what: 'Channels 2 and 3 (and a little of 1 and 4).' }
 MORE_JACKS['conductor:in:rst'] = { signal: 'reset', what: 'Back to the start of the map.' }
 MORE_JACKS['conductor:in:run'] = { signal: 'gate', what: 'Plays while high (and PLAY is on): a footswitch, or another module’s gate.' }
 MORE_JACKS['conductor:out:x4'] = { signal: 'clock', what: '16ths at the map’s tempo: clock the rack from here (sequencers, TR-16, ARRANGER XL’s CLK).' }

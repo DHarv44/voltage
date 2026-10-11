@@ -99,6 +99,15 @@ export const GAP_OVERRIDES: Record<string, string> = {
   'lightpen:scale': 'The scale of the grid’s eight rows.',
   'lightpen:oct': 'Moves the grid’s rows up or down an octave.',
   'lightpen:seq': 'Starts and stops the grid (the keys and V/OCT + GATE play either way).',
+  // TRACKER
+  'tracker:bpm': 'The tempo: ticks come BPM × 2 / 5 a second (125: fifty, the original’s video rate). An Fxx effect of 32 or more sets it too.',
+  'tracker:speed': 'Ticks a row (6 is the classic): fewer is faster. Effects like slides and vibrato move once a tick. An Fxx effect under 32 sets it too.',
+  'tracker:len': 'How many slots of the order list the song plays (click past the end on the screen to lengthen it, right-click to shorten).',
+  'tracker:level': 'Output level.',
+  'tracker:led': 'LED: the extra low-pass filter the power light switched in (darker, smoother).',
+  'tracker:model': 'EARLY: the first model’s fixed output filter (soft highs). LATER: none, brighter and grittier.',
+  'tracker:run': 'Starts and stops the song (starting again begins at the top).',
+  'tracker:rec': 'REC: notes you play on the keys are written into the cell under the cursor (with the sample shown at the top right), and the cursor moves down a row.',
   // CONDUCTOR
   'conductor:len': 'How many segments the tempo map has (1–16).',
   'conductor:scale': 'Scales every tempo in the map at once: the same shape, faster or slower.',

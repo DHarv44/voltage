@@ -156,6 +156,7 @@ export const CATALOG: Record<string, Entry> = {
   chordtrack: { tags: ['chords', 'sequence', 'poly'], aka: ['chord track', 'chord sequencer', 'progression', 'lead sheet', 'chord chart', 'harmony', 'daw'] },
   era: { tags: ['lo-fi', 'dirt'], aka: ['bitcrusher', 'bit crusher', 'decimator', 'sample rate reduction', 'aliasing', '12-bit', '8-bit', 'sp-1200', 'mpc', 'amiga', 'emulator', 'fairlight', 'lofi', 'converter'] },
   lightpen: { tags: ['melody', 'chords', 'lo-fi', 'sequence', 'poly'], aka: ['fairlight', 'cmi', 'page r', 'emulator', 'orchestra hit', 'orch stab', 'sampler', '8-bit sampler', 'workstation', 'choir', 'eighties', '80s'] },
+  tracker: { tags: ['sequence', 'lo-fi', 'beat', 'melody'], aka: ['tracker', 'protracker', 'soundtracker', 'amiga', 'mod', 'chiptune', 'demoscene', 'paula', 'module music', '8-bit', 'pattern'] },
   conductor: { tags: ['clock', 'sequence'], aka: ['tempo map', 'conductor', 'accelerando', 'ritardando', 'rubato', 'time signature', 'meter', 'waltz', '3/4', '7/8', 'odd meter', 'tempo change', 'clock'] },
   takes: { tags: ['record', 'sequence'], aka: ['takes', 'comping', 'comp', 'playlist', 'take lanes', 'punch in', 'best take', 'recorder', 'daw'] },
   automation: { tags: ['modulation', 'sequence'], aka: ['automation', 'automation lanes', 'envelope', 'breakpoint', 'filter sweep', 'fade', 'daw', 'song automation', 'function generator'] },

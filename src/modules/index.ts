@@ -97,6 +97,7 @@ import { takes } from './specs/takes'
 import { conductor } from './specs/conductor'
 import { era } from './specs/era'
 import { lightpen } from './specs/lightpen'
+import { tracker } from './specs/tracker'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -148,6 +149,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   loop,
   sample,
   lightpen,
+  tracker,
   turntable,
   chop,
   fourtrack,

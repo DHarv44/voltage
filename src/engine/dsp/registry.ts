@@ -118,6 +118,7 @@ import { TakesDsp } from './takes'
 import { ConductorDsp } from './conductor'
 import { EraDsp } from './era'
 import { LightpenDsp } from './lightpen'
+import { TrackerDsp } from './tracker'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -156,6 +157,7 @@ const CIRCUITS: Record<string, DspCtor> = {
   conductor: ConductorDsp,
   era: EraDsp,
   lightpen: LightpenDsp,
+  tracker: TrackerDsp,
   slew: SlewDsp,
   quant: QuantizerDsp,
   atten: AttenDsp,

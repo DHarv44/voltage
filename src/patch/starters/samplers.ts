@@ -25,6 +25,14 @@ export const SAMPLER_STARTERS: Record<string, Starter> = {
       toOut(k, [e, 'out'], undefined, 0.55)
     },
   },
+  tracker: {
+    howTo:
+      'TRACKER playing its factory song: a bass line on channel 1, the break’s own kick and snare cut out by the sample offset on channel 2, a bell tune with vibrato on 3, a choir pad on 4. Turn EDIT to REC, click a cell and play the keys to write notes; scroll on a cell’s note, sample or effect; switch the LED filter and the MODEL.',
+    build(k) {
+      const t = k.add('tracker')
+      toOut(k, [t, 'l'], [t, 'r'], 0.55)
+    },
+  },
   lightpen: {
     howTo:
       'LIGHTPEN’s grid playing the orchestra hit in C minor through its 8-bit converters, into a plate. Click cells on the green screen (a row is a note, lit cells in a row run on as one note); step SOUND to the choir or strings, ERA to later machines. Play the keys over it, or press REC to sample anything into IN and play it pitched.',

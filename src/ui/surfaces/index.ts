@@ -55,6 +55,7 @@ import { Automation } from './Automation'
 import { Takes } from './Takes'
 import { Conductor } from './Conductor'
 import { Lightpen } from './Lightpen'
+import { Tracker } from './Tracker'
 
 /** Played instrument surfaces, by the `name` a spec's surface control uses. */
 export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
@@ -119,4 +120,5 @@ export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
   takes: Takes,
   conductor: Conductor,
   lightpen: Lightpen,
+  tracker: Tracker,
 }
