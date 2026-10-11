@@ -88,10 +88,12 @@ const HP = 60
 const W = HP * HP_MM
 const layout = packRows(
   [
-    [knob('tempo'), knob('len'), knob('fade'), sw('loop'), sw('run'), jack('in', 'clk'), jack('in', 'rst'), jack('out', 'clko'), jack('out', 'rsto'), jack('out', 'bar'), jack('out', 'chg'), jack('out', 'end')],
-    [jack('out', 'pat'), jack('out', 'sec'), jack('out', 'scene'), jack('out', 'trans'), jack('out', 'fill'), jack('out', 'ramp'), null, null, null, null, null, null],
-    [...parts.map((n) => jack('out', `g${n}`)), null, null, null, null],
-    [...parts.map((n) => jack('out', `l${n}`)), null, null, null, null],
+    [
+      knob('tempo'), knob('len'), knob('fade'), sw('loop'), sw('run'), jack('in', 'clk'), jack('in', 'rst'),
+      jack('out', 'clko'), jack('out', 'rsto'), jack('out', 'bar'), jack('out', 'chg'), jack('out', 'end'),
+      jack('out', 'pat'), jack('out', 'sec'), jack('out', 'scene'), jack('out', 'trans'), jack('out', 'fill'), jack('out', 'ramp'),
+    ],
+    [...parts.map((n) => jack('out', `g${n}`)), null, null, ...parts.map((n) => jack('out', `l${n}`))],
   ],
   { params, inputs, outputs },
   W,

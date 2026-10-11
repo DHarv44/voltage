@@ -584,7 +584,8 @@ button.rec:hover:not(:disabled) {
 }
 /* BOUNCE: a fixed width too (its progress mustn't move anything) */
 button.bounce-btn {
-  width: 92px;
+  width: 104px;
+  white-space: nowrap;
   padding: 6px 8px;
   border-radius: 4px;
   border: 1px solid #3a3c41;
