@@ -44,7 +44,19 @@ extend VOLTAGE.
   (portable workstation), KIN-8 (DFAM-style percussion: two VCOs, noise, ladder, three decays, 8-step
   pitch/velocity sequencer), UNDERTONE (Subharmonicon-style: two VCOs with phase-locked subharmonics,
   two 4-step sequencers clocked by four polyrhythm dividers, OR/XOR, 12/8-tone equal or just quantizing),
-  LOCKSTEP (FM groovebox: parameter locks, conditional trigs, polymeter), LATTICE (16×16 light grid).
+  LOCKSTEP (FM groovebox: parameter locks, conditional trigs, polymeter; ALGO SAMPLE makes a track a
+  sampler: SAMPLE / START / LENGTH / BITS on the FM page, lockable, factory sounds or a LOADed file
+  per track, ROOT set to C4 on the switch), LATTICE (16×16 light grid), PACIFIC (Easel-style west
+  coast: complex osc with a sine wavefolder and SYMMETRY, linear through-zero FM from a mod osc that
+  can follow its pitch, two vactrol LPGs (LP / COMBO / VCA, from ENV / PULSER / SEQ), pulser
+  SELF / KEYS / OFF, envelope TRANSIENT / SUSTAINED / CYCLE, five-step sequencer, spring; 12-in /
+  8-out patch bay), MONARCH (Model D-style: three drifting oscillators with six waves, osc 3 FREE or
+  LO as the LFO, mod mix osc 3 ↔ noise onto pitch and filter, mixer overdriving the ladder, EXT
+  normalled to its own output for the feedback trick, filter and loudness contours with DECAY,
+  keyboard tracking OFF / 1/3 / 2/3 / FULL), HALCYON (Juno-style six DCO voices: saw, pulse with PWM
+  from LFO / MAN / ENV, sub, noise; HPF 0–3; resonant 4-pole; one ENV, VCA ENV / GATE; LFO with
+  delay; the stereo BBD chorus I / II / I+II; arpeggiator UP / U&D / DOWN × 1–3 octaves with HOLD,
+  on its rate or ARP CLK, arpeggiating chords from a poly cable too; a three-octave panel keyboard).
 - **Polyphonic**: POLY·CV, P-VCO, P-LADDER, P-ADSR, P-VCA, POLY MIX. Pianos (2026-10-10, user: "both"
   acoustic and electric): ~~FM-4 E.PIANO (velocity bark curve, keyboard level scaling, damper
   thump), sustain pedal (MIDI CC64 in KeyVoices, SUS jack via SusGate)~~, ~~STAGE (modelled EP:
@@ -545,7 +557,7 @@ Have: MONO-1, STUDIO-3, GROOVE-1, SKETCHBOOK, KIN-8, UNDERTONE, LOCKSTEP, LATTIC
        picked-step row; keys show ~): glides from the last note's pitch over half a step, legato if
        it still sounds, else a fresh attack that swoops in. Factory: bass breathes and slides up to
        its octave, hats auto-pan, the bell swells over four bars in plenty of reverb.
-     - Phase 2 is done; next for LOCKSTEP: the sampler voice (with the sampler core).
+     - Phase 2 is done. ~~The sampler voice~~ (done: ALGO SAMPLE).
   4. **Tenori-on-style light grid: LATTICE** (40 HP).
      - ~~Phase 1~~ (done): 16×16 lights, four layers drawn on the same grid (selected layer bright,
        the others dim, each its own colour); per layer MODE (SCORE: columns are time, rows pitch, a
@@ -625,9 +637,10 @@ material (no downloaded samples). Our own names; no Fairlight / Akai / MPC / SP 
 ## Next
 
 ### Systems
-- West-coast system: complex oscillator + low-pass gates + pulser + 5-step sequencer (Easel-style).
-- 3-oscillator mono system in the Model D tradition (ladder, mixer feedback trick).
-- Six-voice poly system: DCO-style voices, built-in chorus (Juno-style), arpeggiator.
+- ~~West-coast system~~ (PACIFIC), ~~3-oscillator mono~~ (MONARCH), ~~six-voice poly~~ (HALCYON),
+  ~~LOCKSTEP sampler voice~~ (ALGO SAMPLE): done. Later: PACIFIC's touch-plate keyboard and its
+  preamp / envelope follower; MONARCH's A-440 reference and pitch-wheel range; HALCYON's patch
+  memories and a velocity option; LOCKSTEP recording straight into a track (IN + REC).
 
 ### New modules
 - **Low-pass gate**: vactrol LPG with the real vactrol attack/decay response.
