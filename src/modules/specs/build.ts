@@ -1,18 +1,20 @@
 import { packRows } from '../panelMetrics'
 import { HP_MM, type Control, type ModuleSpec, type ParamSpec } from '../types'
 
-/** Panel rows in shorthand, top to bottom: `k:id` knob (M), `ks:id` small
+/** Panel rows in shorthand, top to bottom: `k:id` knob (M, `k:id:LABEL` for a
+ *  shorter printed label), `ks:id` small
  *  knob, `kl:id` large knob, `s:id` switch, `i:id` input, `o:id` output,
- *  `b:name:LABEL` button, `l:index` LED, `-` an empty slot. */
+ *  `b:name:LABEL` button, `l:index` LED, `f:slot:LABEL:accept` file button
+ *  (accept audio, midi or scl), `-` an empty slot. */
 export type Row = string[]
 
 function control(tok: string): Control | null {
   const [kind, a, b] = tok.split(':')
   switch (kind) {
     case 'k':
-      return { kind: 'knob', param: a, x: 0, y: 0, size: 'M' }
+      return { kind: 'knob', param: a, x: 0, y: 0, size: 'M', ...(b !== undefined ? { label: b } : {}) }
     case 'ks':
-      return { kind: 'knob', param: a, x: 0, y: 0, size: 'S' }
+      return { kind: 'knob', param: a, x: 0, y: 0, size: 'S', ...(b !== undefined ? { label: b } : {}) }
     case 'kl':
       return { kind: 'knob', param: a, x: 0, y: 0, size: 'L' }
     case 's':
@@ -25,6 +27,10 @@ function control(tok: string): Control | null {
       return { kind: 'button', name: a, x: 0, y: 0, label: b }
     case 'l':
       return { kind: 'led', index: Number(a), x: 0, y: 0 }
+    case 'f': {
+      const accept = tok.split(':')[3] as 'audio' | 'midi' | 'scl' | undefined
+      return { kind: 'file', slot: Number(a), x: 0, y: 0, label: b ?? 'LOAD', accept }
+    }
     default:
       return null
   }

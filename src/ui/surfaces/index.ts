@@ -62,6 +62,10 @@ import { Zones } from './Zones'
 import { HalcyonKeys } from './HalcyonKeys'
 import { Notes } from './Notes'
 import { Peq } from './Peq'
+import { DrumMap } from './DrumMap'
+import { MidiRoll } from './MidiRoll'
+import { Clips } from './Clips'
+import { Space } from './Space'
 
 /** Played instrument surfaces, by the `name` a spec's surface control uses. */
 export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
@@ -133,4 +137,8 @@ export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
   halcyonkeys: HalcyonKeys,
   notes: Notes,
   peq: Peq,
+  drummap: DrumMap,
+  midiroll: MidiRoll,
+  clips: Clips,
+  space: Space,
 }

@@ -65,6 +65,11 @@ import { compare, cvmath, gatedelay, merge, notes, ratchet, split, unison, xfade
 import { comb, flanger, formant, fshift, pingpong, rotary } from './specs/fx2'
 import { ngate, ott, peq, transient } from './specs/mixtools'
 import { choir, organ, wind } from './specs/instruments2'
+import { drummap, fortune, staircase } from './specs/seq2'
+import { midifile } from './specs/midifile'
+import { clips } from './specs/clips'
+import { space } from './specs/space'
+import { tuning } from './specs/tuning'
 import { undertone } from './specs/undertone'
 import { lockstep } from './specs/lockstep'
 import { lattice } from './specs/lattice'
@@ -213,6 +218,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   ring,
   slew,
   quant,
+  tuning,
   clock,
   conductor,
   metronome,
@@ -220,6 +226,11 @@ export const SPEC_LIST: ModuleSpec[] = [
   coach,
   div,
   seq8,
+  staircase,
+  drummap,
+  fortune,
+  clips,
+  midifile,
   pianoroll,
   arranger,
   arrangerxl,
@@ -265,6 +276,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   mixer,
   smix,
   panner,
+  space,
   widener,
   console_,
   glue,

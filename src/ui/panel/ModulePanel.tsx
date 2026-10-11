@@ -217,7 +217,7 @@ function ControlView({ c, spec, inst, handlers, fed }: { c: Control; spec: Modul
     case 'stomp':
       return <Stomp mod={inst.id} param={c.param} on={inst.params[c.param] >= 0.5} x={c.x} y={c.y} panel={spec.panel} />
     case 'file':
-      return <FileButton mod={inst.id} slot={c.slot} x={c.x} y={c.y} label={c.label} panel={spec.panel} />
+      return <FileButton mod={inst.id} slot={c.slot} x={c.x} y={c.y} label={c.label} accept={c.accept} panel={spec.panel} />
     case 'progress':
       return <Progress mod={inst.id} x={c.x} y={c.y} w={c.w} led={c.led} panel={spec.panel} />
     case 'steps':

@@ -136,6 +136,13 @@ import { OttDsp } from './mixtools/ott'
 import { OrganDsp } from './organ'
 import { WindDsp } from './wind'
 import { ChoirDsp } from './choir'
+import { DrumMapDsp } from './drummap'
+import { StaircaseDsp } from './staircase'
+import { FortuneDsp } from './fortune'
+import { MidiFileDsp } from './midifile'
+import { ClipsDsp } from './clips'
+import { SpaceDsp } from './space'
+import { TuningDsp } from './tuning'
 import { CompareDsp, CvMathDsp, GateDelayDsp, MergeDsp, NotesDsp, RatchetDsp, SplitDsp, UnisonDsp, XfadeDsp } from './tools'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
@@ -208,6 +215,13 @@ const CIRCUITS: Record<string, DspCtor> = {
   organ: OrganDsp,
   wind: WindDsp,
   choir: ChoirDsp,
+  drummap: DrumMapDsp,
+  staircase: StaircaseDsp,
+  fortune: FortuneDsp,
+  midifile: MidiFileDsp,
+  clips: ClipsDsp,
+  space: SpaceDsp,
+  tuning: TuningDsp,
   slew: SlewDsp,
   quant: QuantizerDsp,
   atten: AttenDsp,

@@ -6,9 +6,9 @@ import { engine } from './engine'
 import { encodeWav24 } from './wav'
 
 /** Module types that hold a buffer (audio, or XY's recorded gesture), and how many slots each has. */
-export const BUFFER_SLOTS: Record<string, number> = { loop: 4, sample: 1, turntable: 1, lpedal: 1, fourtrack: 4, chop: 1, sketchbook: 4, xy: 1, combo: 5, combolooper: 5, takes: 4, lightpen: 1, tracker: 1, dustbox: 16, jungle: 1, deck: 4, zones: 1, lockstep: 4 }
+export const BUFFER_SLOTS: Record<string, number> = { loop: 4, sample: 1, turntable: 1, lpedal: 1, fourtrack: 4, chop: 1, sketchbook: 4, xy: 1, combo: 5, combolooper: 5, takes: 4, lightpen: 1, tracker: 1, dustbox: 16, jungle: 1, deck: 4, zones: 1, lockstep: 4, midifile: 1 }
 /** Buffers that aren't sound (no WAV export, not "audio" for share links). */
-export const NOT_AUDIO = new Set(['xy'])
+export const NOT_AUDIO = new Set(['xy', 'midifile'])
 /** Does this module type hold audio? */
 export const holdsAudio = (type: string): boolean => !!BUFFER_SLOTS[type] && !NOT_AUDIO.has(type)
 
@@ -104,6 +104,13 @@ class BufferManager {
     } catch (err) {
       return `Couldn't read that file (${String(err)})`
     }
+  }
+
+  /** Hand a module data that isn't decoded audio (a MIDI file's notes): kept
+   *  like a recording, sent to the engine as a buffer. */
+  async loadData(id: string, slot: number, rate: number, data: Float32Array): Promise<void> {
+    if (!SCRATCH) await bufferStore.put(id, slot, { rate, data: data.slice() })
+    engine.send({ type: 'buffer', id, slot, rate, data })
   }
 
   /** Copy a module's audio out of the engine and download it as a WAV. */

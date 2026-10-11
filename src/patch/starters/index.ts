@@ -20,6 +20,7 @@ import { TOOL_STARTERS } from './tools'
 import { FX2_STARTERS } from './fx2'
 import { MIXTOOL_STARTERS } from './mixtools'
 import { INSTRUMENT2_STARTERS } from './instruments2'
+import { SEQ2_STARTERS } from './seq2'
 import type { Starter } from './types'
 import { VISION_STARTERS } from './vision'
 import { VOICE_STARTERS } from './voices'
@@ -46,6 +47,7 @@ export const STARTERS: Record<string, Starter> = {
   ...FX2_STARTERS,
   ...MIXTOOL_STARTERS,
   ...INSTRUMENT2_STARTERS,
+  ...SEQ2_STARTERS,
 }
 
 /** A module's rig as a patch fragment, laid out for a `rail`-HP case. */
