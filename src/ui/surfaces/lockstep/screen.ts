@@ -14,7 +14,11 @@ import {
   LS_PAGES,
   LS_PATTERNS,
   LS_RATIOS,
+  LS_SAMPLE,
+  LS_SAMPLES,
   LS_STEPS,
+  sampleBits,
+  sampleIndex,
   LS_TRACK_COLORS,
   LS_TRACKS,
   LSL,
@@ -63,6 +67,12 @@ export const hasLocks = (p: Record<string, number>, t: number, s: number, pat: n
 
 /** A knob's value as the screen shows it. */
 function show(id: string, v: number, ps: ParamSpec, p: Record<string, number>): string {
+  // a sampler track's FM page: the sample, start, length, bits
+  const knob = /^k(\d)_([0-3])$/.exec(id)
+  if (knob && Math.round(p[`algo${knob[1]}`] ?? 0) === LS_SAMPLE) {
+    if (knob[2] === '0') return LS_SAMPLES[sampleIndex(v)]
+    if (knob[2] === '3') return v > 0.02 ? `${sampleBits(v)}-BIT` : 'CLEAN'
+  }
   if (id.startsWith('k') && id.endsWith('_0')) return LS_RATIOS[ratioIndex(v)].join(':')
   // the LFO page: rate, bipolar amount, destination
   if (id.startsWith('k') && id.endsWith(`_${K.lfoSpd}`)) return LS_LFO_RATES[lfoRateIndex(v)]

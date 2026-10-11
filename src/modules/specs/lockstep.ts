@@ -15,6 +15,8 @@ import {
   LS_PAGES,
   LS_PATTERNS,
   LS_RETRIGS,
+  LS_SAMPLE,
+  LS_SAMPLE_KNOBS,
   microId,
   muteId,
   noteId,
@@ -97,6 +99,7 @@ export function encoderParams(p: Record<string, number>, sel: number): (string |
 
 export function encoderLabels(p: Record<string, number>): string[] {
   const page = Math.round(p.page ?? 0)
+  if (page === 0 && Math.round(p[`algo${Math.round(p.trk ?? 0)}`] ?? 0) === LS_SAMPLE) return LS_SAMPLE_KNOBS
   if (page < LOCK_PAGES) return LS_KNOBS[page]
   if (page === TRIG) return ['NOTE', 'COND', 'RETRIG', 'MICRO']
   if (page === TRACK) return ['ALGO', 'ROOT', 'LENGTH', 'SPEED']
@@ -123,7 +126,7 @@ const HP = 56
 const W = HP * HP_MM
 const jack = (kind: 'in' | 'out', id: string): Control => ({ kind, jack: id, x: 0, y: 0 })
 const jacks = packRows(
-  [[...inputs.map((j) => jack('in', j.id)), { kind: 'knob', param: 'master', x: 0, y: 0, size: 'S' }, ...outputs.map((j) => jack('out', j.id))]],
+  [[...inputs.map((j) => jack('in', j.id)), ...[0, 1, 2, 3].map((t): Control => ({ kind: 'file', slot: t, x: 0, y: 0, label: `LOAD ${t + 1}` })), { kind: 'knob', param: 'master', x: 0, y: 0, size: 'S' }, ...outputs.map((j) => jack('out', j.id))]],
   { params, inputs, outputs },
   W,
   { maxPitch: 30 },
@@ -136,7 +139,10 @@ const FACE_Y = 14
  *  and speed; every step can lock any of the twelve sound knobs (a
  *  parameter lock), carry its own note, and a condition (1:2, 50%, FILL…).
  *  Four patterns A–D share the sounds; a new one cues for the end of the bar;
- *  a CHAIN plays up to eight in turn; PAT in picks one by voltage. */
+ *  a CHAIN plays up to eight in turn; PAT in picks one by voltage. ALGO
+ *  SAMPLE makes a track a sampler (the factory sounds or a file LOADed onto
+ *  it): its FM page becomes SAMPLE, START, LENGTH and BITS, all lockable, so
+ *  each step can play its own sample or its own slice of the break. */
 export const lockstep: ModuleSpec = {
   type: 'lockstep',
   title: 'LOCKSTEP',

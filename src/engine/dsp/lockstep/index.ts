@@ -17,13 +17,20 @@ import {
   LS_CHAIN,
   LS_PAT_VOLTS,
   LS_PATTERNS,
+  LS_SAMPLE,
   LS_SPEED_X,
   LS_TRACKS,
   LSL,
   muteId,
 } from '../../../modules/specs/lockstepDefs'
+import { makeFactory, type FactorySample } from '../sampling/factory'
+import type { SampleData } from '../sampling/voice'
+import { SampleTrackVoice } from './sampler'
 import { condHolds, patternTables, swungPos, type PatIdx } from './tables'
 import { FmVoice } from './voice'
+
+const FACTORY_RATE = 32000
+const FACTORY_SOUNDS = 8
 
 const KNOBS = LOCK_PAGES * 4
 const LED_DECAY = 0.9992
@@ -76,7 +83,20 @@ export class LockstepDsp extends Dsp {
   private readonly rtGap = new Float64Array(LS_TRACKS)
   private readonly rtWait = new Float64Array(LS_TRACKS)
 
-  private readonly voices = Array.from({ length: LS_TRACKS }, () => new FmVoice(this.fs))
+  private readonly fm = Array.from({ length: LS_TRACKS }, () => new FmVoice(this.fs))
+  /** The sampler voices (ALGO = SAMPLE): the factory sounds, made the first
+   *  time one is played, and each track's OWN (from LOAD on the panel). */
+  private readonly factory: (FactorySample | null)[] = Array.from({ length: FACTORY_SOUNDS }, () => null)
+  private readonly own: SampleData[] = Array.from({ length: LS_TRACKS }, () => ({ data: new Float32Array(0), len: 0, rate: 48000 }))
+  private readonly smp = Array.from(
+    { length: LS_TRACKS },
+    (_, t) =>
+      new SampleTrackVoice(this.fs, (k) => {
+        if (k >= FACTORY_SOUNDS) return this.own[t].len ? { s: this.own[t], root: 60 } : null
+        const f = (this.factory[k] ??= makeFactory(k, FACTORY_RATE))
+        return { s: f, root: f.root }
+      }),
+  )
   private readonly vals = Array.from({ length: LS_TRACKS }, () => new Float64Array(KNOBS))
   /** Each track's absolute step count since PLAY (−1 = not started). */
   private readonly pos = new Float64Array(LS_TRACKS).fill(-1)
@@ -92,6 +112,21 @@ export class LockstepDsp extends Dsp {
   private wasRunning = false
   private rstOut = 0
   private oRst = this.oi('rsto')
+
+  /** Track t's voice: the sampler when its ALGO is SAMPLE, else FM. */
+  private voice(t: number): FmVoice | SampleTrackVoice {
+    return Math.round(this.p[this.algoIdx[t]]) === LS_SAMPLE ? this.smp[t] : this.fm[t]
+  }
+
+  loadBuffer(slot: number, rate: number, data: Float32Array): void {
+    if (slot < 0 || slot >= LS_TRACKS) return
+    this.own[slot] = { data: data.slice(), len: data.length, rate }
+  }
+
+  dumpBuffer(slot: number): { rate: number; data: Float32Array } | null {
+    const o = this.own[slot]
+    return o && o.len ? { rate: o.rate, data: o.data.slice(0, o.len) } : null
+  }
 
   private restart(): void {
     this.phase = 0
@@ -142,7 +177,7 @@ export class LockstepDsp extends Dsp {
     if (((p[d.tr[t]] >>> s) & 1) === 0) return
     if (p[this.muteIdx[t]] >= 0.5) return
     if (!condHolds(Math.round(p[d.cond[t][s]]), loop, fill, this.rng)) return
-    const v = this.voices[t]
+    const v = this.voice(t)
     const li = d.lock[t]
     for (let page = 0; page < LOCK_PAGES; page++) {
       const word = p[li[s * LOCK_PAGES + page]]
@@ -220,7 +255,7 @@ export class LockstepDsp extends Dsp {
     let verb = 0
     for (let t = 0; t < LS_TRACKS; t++) {
       const len = Math.max(1, Math.round(p[this.lenIdx[t]]))
-      const v = this.voices[t]
+      const v = this.voice(t)
       if (live) {
         const speed = LS_SPEED_X[Math.round(p[this.spdIdx[t]])]
         const x = swungPos((this.phase - this.origin) * speed, swing)

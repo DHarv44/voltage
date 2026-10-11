@@ -9,6 +9,7 @@ import {
   lockValue,
   LS_CONDS,
   LS_RETRIGS,
+  LS_SAMPLE,
   LS_STEPS,
   LS_TRACK_COLORS,
   LSL,
@@ -47,6 +48,14 @@ export function LockstepFace({ inst, spec, x, y, w, h }: SurfaceProps) {
   const live = () => patchStore.get().modules.find((m) => m.id === mod)?.params ?? inst.params
   const set = (id: string, v: number) => actions.setParam(mod, id, v)
   const sel = () => lockstepSel.get(mod)
+  /** An encoder's param; turning a track's ALGO to SAMPLE also sets its ROOT
+   *  to C4, where a sample plays at its own pitch (one undo step). */
+  const setKnob = (id: string, v: number) => {
+    const t = /^algo(\d)$/.exec(id)?.[1]
+    if (t !== undefined && Math.round(v) === LS_SAMPLE && Math.round(live()[id] ?? 0) !== LS_SAMPLE)
+      actions.setParams([[mod, id, v], [mod, `root${t}`, 0]], `sampler:${mod}`)
+    else set(id, v)
+  }
 
   const knobs = (): CanvasKnob[] => {
     const p = live()
@@ -58,7 +67,7 @@ export function LockstepFace({ inst, spec, x, y, w, h }: SurfaceProps) {
       if (!id) return []
       const ps = specOf(id)
       const base = { fx: ENC_X[i], fy: ENC_Y, fr: ENC_R, ps, label: labels[i] }
-      if (page >= LOCK_PAGES || s < 0) return [{ ...base, value: p[id] ?? ps.def, set: (v) => set(id, v) }]
+      if (page >= LOCK_PAGES || s < 0) return [{ ...base, value: p[id] ?? ps.def, set: (v) => setKnob(id, v) }]
       // a step is picked: this knob's lock on it
       const wid = lockId(t, s, page, Math.round(p.pat ?? 0))
       const lv = lockValue(p[wid] ?? 0, i)

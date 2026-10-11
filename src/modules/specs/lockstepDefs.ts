@@ -1,3 +1,5 @@
+import { SOUND_NAMES } from './sampling'
+
 /** LOCKSTEP's vocabulary, shared by the spec, the engine and the face. */
 
 export const LS_TRACKS = 4
@@ -28,7 +30,15 @@ export const lfoRateIndex = (v: number) => Math.min(LS_LFO_RATES.length - 1, Mat
 export const LS_LFO_DESTS = ['PITCH', 'FM DEPTH', 'CUTOFF', 'LEVEL', 'PAN', 'DELAY']
 export const LS_LFO_KNOB = [-1, 1, K.cutoff, K.level, K.pan, K.delay]
 export const lfoDestIndex = (v: number) => Math.min(LS_LFO_DESTS.length - 1, Math.floor(v * LS_LFO_DESTS.length))
-export const LS_ALGOS = ['PARALLEL', 'STACK', 'TWO', 'SPLIT', 'ORGAN', 'BRANCH']
+export const LS_ALGOS = ['PARALLEL', 'STACK', 'TWO', 'SPLIT', 'ORGAN', 'BRANCH', 'SAMPLE']
+/** The ALGO that makes a track a sampler: the FM page's knobs become these. */
+export const LS_SAMPLE = 6
+export const LS_SAMPLE_KNOBS = ['SAMPLE', 'START', 'LENGTH', 'BITS']
+/** What SAMPLE picks: the factory sounds, or the track's own (LOAD on the panel). */
+export const LS_SAMPLES = [...SOUND_NAMES, 'OWN']
+export const sampleIndex = (v: number) => Math.min(LS_SAMPLES.length - 1, Math.floor(v * LS_SAMPLES.length))
+/** BITS: 16 (clean) down to 4. */
+export const sampleBits = (v: number) => Math.round(16 - v * 12)
 /** Operator ratios C : A : B, picked by the RATIO knob. */
 export const LS_RATIOS = [
   [1, 1, 1],

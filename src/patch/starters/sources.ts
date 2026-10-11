@@ -123,7 +123,7 @@ export const SOURCE_STARTERS: Record<string, Starter> = {
   },
   lockstep: {
     howTo:
-      'LOCKSTEP playing four FM tracks. Pick a track, click steps to toggle trigs; right-click a step to select it, then turn a knob to lock it on that step (TRIG page: its note and condition). A–D are patterns: B a busier variation, C a breakdown (hold FILL for the kick), D blank: COPY one, pick D, PASTE. Tap CHAIN to play A A B C in turn (hold it to write your own).',
+      'LOCKSTEP playing four FM tracks. Pick a track, click steps to toggle trigs; right-click a step to select it, then turn a knob to lock it on that step (TRIG page: its note and condition). A–D are patterns: B a busier variation, C a breakdown (hold FILL for the kick), D blank: COPY one, pick D, PASTE. Tap CHAIN to play A A B C in turn (hold it to write your own). On the TRACK page, turn ALGO to SAMPLE and a track becomes a sampler: its FM page picks the SAMPLE (BREAK, then START to choose the slice), LENGTH and BITS, and locking SAMPLE or START on a step chops the break; LOAD puts your own file on a track.',
     build(k) {
       const g = k.add('lockstep', { run: 1 })
       toOut(k, [g, 'l'], [g, 'r'])
