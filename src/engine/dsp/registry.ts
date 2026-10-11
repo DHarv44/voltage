@@ -110,6 +110,9 @@ import { ResonatorDsp } from './resonator'
 import { AnalyserDsp, TunerDsp } from './meters'
 import { PianoRollDsp } from './pianoroll'
 import { ArrangerDsp } from './arranger'
+import { ArrangerXlDsp } from './arrangerXl'
+import { ChordTrackDsp } from './chordtrack'
+import { RiserDsp } from './riser'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -140,6 +143,9 @@ const CIRCUITS: Record<string, DspCtor> = {
   analyser: AnalyserDsp,
   pianoroll: PianoRollDsp,
   arranger: ArrangerDsp,
+  arrangerxl: ArrangerXlDsp,
+  chordtrack: ChordTrackDsp,
+  riser: RiserDsp,
   slew: SlewDsp,
   quant: QuantizerDsp,
   atten: AttenDsp,

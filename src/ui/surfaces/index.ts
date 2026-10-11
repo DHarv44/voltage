@@ -49,6 +49,8 @@ import { TunerScreen } from './TunerScreen'
 import { Analyser } from './Analyser'
 import { PianoRoll } from './PianoRoll'
 import { Arranger } from './Arranger'
+import { ArrangerXl } from './ArrangerXl'
+import { ChordTrack } from './ChordTrack'
 
 /** Played instrument surfaces, by the `name` a spec's surface control uses. */
 export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
@@ -107,4 +109,6 @@ export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
   analyser: Analyser,
   pianoroll: PianoRoll,
   arranger: Arranger,
+  arrangerxl: ArrangerXl,
+  chordtrack: ChordTrack,
 }

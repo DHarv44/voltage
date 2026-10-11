@@ -135,6 +135,43 @@ MORE_JACKS['grand:in:voct'] = { signal: 'pitch', what: 'The notes (a poly cable 
 MORE_JACKS['grand:in:gate'] = { signal: 'gate', what: 'Each note’s gate: its rise is the hammer, its fall lands the damper. Empty: GRAND plays from your keys.' }
 MORE_JACKS['fm4:in:sus'] = { signal: 'gate', what: 'The sustain pedal: while it’s high, notes you let go keep ringing until it falls (a footswitch, or any gate). A MIDI sustain pedal works on the keys too.' }
 
+// ARRANGER XL, CHORD TRACK, RISER
+const XL: Record<string, { signal: Signal; what: string }> = {
+  'in:clk': { signal: 'clock', what: 'Follows 16ths here instead of its own tempo (then each section’s TEMPO is ignored).' },
+  'in:rst': { signal: 'reset', what: 'Back to the first section.' },
+  'out:clko': { signal: 'clock', what: 'The song’s clock in 16ths, at each section’s tempo: clock the rest of the rack from here.' },
+  'out:rsto': { signal: 'reset', what: 'A pulse whenever the song starts over: patch to the sequencers’ RST.' },
+  'out:bar': { signal: 'clock', what: 'A pulse at the start of every bar.' },
+  'out:chg': { signal: 'trigger', what: 'A pulse at the start of each section (a crash, a reset).' },
+  'out:end': { signal: 'trigger', what: 'A pulse when the song ends (or goes round again).' },
+  'out:pat': { signal: 'cv', what: 'The section’s pattern letter (A, B, C, D in 2.5 V bands), a 16th early: patch to TR-16’s or LOCKSTEP’s PAT, LATTICE’s PAGE, or through SLEW to filters for a brightness per section.' },
+  'out:sec': { signal: 'cv', what: 'Which section is playing, 0–10 V in 32 steps.' },
+  'out:scene': { signal: 'cv', what: 'The section’s SCENE (1–8), held until another section names one: patch to SCENES’ SCENE so each section recalls its own mix.' },
+  'out:trans': { signal: 'pitch', what: 'The section’s key change, 1 V per octave (+2 semitones = 0.167 V): patch to CHORD TRACK’s or PIANO ROLL’s KEY / TRANSPOSE.' },
+  'out:fill': { signal: 'gate', what: 'High through the last bar of every section: start a drum fill or a RISER.' },
+  'out:ramp': { signal: 'cv', what: '0 → 10 V across the bar before a BUILD or DROP section (0 otherwise): patch to RISER’s RAMP, or a filter’s CV for a sweep up.' },
+}
+for (const [k, v] of Object.entries(XL)) MORE_JACKS[`arrangerxl:${k}`] = v
+for (let n = 1; n <= 8; n++) {
+  MORE_JACKS[`arrangerxl:out:g${n}`] = { signal: 'gate', what: `High in the sections where part ${n} plays (low on a drop’s silent beat): patch to a sequencer’s or voice’s gate path.` }
+  MORE_JACKS[`arrangerxl:out:l${n}`] = { signal: 'cv', what: `Part ${n}’s level, 0–10 V: like its GATE, but gliding in and out on a FADE. Patch to a VCA’s or VCA×4’s CV.` }
+}
+MORE_JACKS['chordtrack:in:clk'] = { signal: 'clock', what: '16ths: it follows these instead of its own tempo (ARRANGER XL’s CLK).' }
+MORE_JACKS['chordtrack:in:rst'] = { signal: 'reset', what: 'Back to bar 1.' }
+MORE_JACKS['chordtrack:in:trans'] = { signal: 'pitch', what: 'Transposes every chord, 1 V per octave (ARRANGER XL’s KEY for a key change).' }
+MORE_JACKS['chordtrack:out:notes'] = { signal: 'pitch', what: 'A poly cable: the chord’s notes, voice-led. Patch to a poly voice (SWARM, FM-4, STAGE, GRAND, P-VCO).' }
+MORE_JACKS['chordtrack:out:gate'] = { signal: 'gate', what: 'A poly cable: a gate per note, dropping for a moment on every chord change so each chord is played afresh.' }
+MORE_JACKS['chordtrack:out:root'] = { signal: 'pitch', what: 'The chord’s root, two octaves down (C2–B2): the bass note.' }
+MORE_JACKS['chordtrack:out:chg'] = { signal: 'trigger', what: 'A pulse on every chord change.' }
+MORE_JACKS['riser:in:gate'] = { signal: 'gate', what: 'A rise lasts while this is high (over LENGTH); when it falls, the impact lands.' }
+MORE_JACKS['riser:in:ramp'] = { signal: 'cv', what: 'Rise with this instead: 0–10 V is the way up, and when it drops back to 0 the impact lands (ARRANGER XL’s RAMP).' }
+MORE_JACKS['riser:in:clk'] = { signal: 'clock', what: '16ths: the snare roll lands on these (every 4, then 2, 1, then twice each).' }
+MORE_JACKS['riser:out:sweep'] = { signal: 'cv', what: '0–10 V, climbing with the rise and falling after it: patch to a filter’s CV to open it into the drop.' }
+MORE_JACKS['riser:out:rollo'] = { signal: 'trigger', what: 'The snare roll, speeding up as the rise climbs: patch to a SNARE’s TRIG.' }
+MORE_JACKS['riser:out:hit'] = { signal: 'trigger', what: 'A pulse as the rise lands: a crash, a sample, a reset.' }
+MORE_JACKS['riser:out:l'] = { signal: 'audio', what: 'The riser, impact and downlifter, left.' }
+MORE_JACKS['riser:out:r'] = { signal: 'audio', what: 'Right.' }
+
 // VISION's beat and steering (the tank and the CORE), and a VIEW's own jacks
 for (const t of ['vision', 'visioncore']) {
   MORE_JACKS[`${t}:in:clk`] = {

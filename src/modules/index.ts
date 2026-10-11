@@ -89,6 +89,9 @@ import { kaleido, resonator } from './specs/macroVoices'
 import { analyser, tuner } from './specs/meters'
 import { pianoroll } from './specs/pianoroll'
 import { arranger } from './specs/arranger'
+import { arrangerxl } from './specs/arrangerXl'
+import { chordtrack } from './specs/chordtrack'
+import { riser } from './specs/riser'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -186,6 +189,8 @@ export const SPEC_LIST: ModuleSpec[] = [
   seq8,
   pianoroll,
   arranger,
+  arrangerxl,
+  chordtrack,
   arp,
   chord,
   ghost,
@@ -195,6 +200,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   combocore,
   combofs,
   combolooper,
+  riser,
   bbd,
   tape,
   spring,

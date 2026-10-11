@@ -24,6 +24,7 @@ export const QUALITIES: Quality[] = [
   { name: 'm7♭5', tones: [0, 3, 6, 10], third: 3, fifth: 6, seventh: 10 },
   { name: 'aug', tones: [0, 4, 8], third: 4, fifth: 8, seventh: 10 },
   { name: '6', tones: [0, 4, 7, 9], third: 4, fifth: 7, seventh: 9 },
+  { name: 'add9', tones: [0, 4, 7, 14], third: 4, fifth: 7, seventh: 10 },
 ]
 
 export const NOTE_NAMES = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B']

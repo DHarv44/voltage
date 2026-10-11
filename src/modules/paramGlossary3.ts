@@ -67,6 +67,27 @@ export const GAP_OVERRIDES: Record<string, string> = {
   'arranger:len': 'How many sections the song has (the + on the screen adds one too).',
   'arranger:loop': 'LOOP goes back to the first section after the last; ONCE stops there with every part off.',
   'arranger:run': 'Starts and stops the song (starting again begins at the first section).',
+  // ARRANGER XL
+  'arrangerxl:tempo': 'The song’s tempo (a section with its own TEMPO plays at that instead), when nothing is patched to CLK.',
+  'arrangerxl:len': 'How many sections the song has (the + on the screen adds one too).',
+  'arrangerxl:fade': 'How many bars a FADE takes: parts glide in over the start of a FADE section, and the section before it glides out the parts it drops.',
+  'arrangerxl:loop': 'LOOP goes back to the first section after the last; ONCE stops there with every part off.',
+  'arrangerxl:run': 'Starts and stops the song (starting again begins at the first section).',
+  // CHORD TRACK
+  'chordtrack:tempo': 'The speed in beats per minute, when nothing is patched to CLK.',
+  'chordtrack:bars': 'How many bars of chords it plays before going round again (1–32).',
+  'chordtrack:oct': 'Moves the chords and the root up or down by octaves.',
+  'chordtrack:voicing': 'CLOSE: every note within an octave. DROP 2: the second note from the top drops an octave (a guitarist’s and arranger’s favourite). OPEN: spread wide.',
+  'chordtrack:run': 'Starts and stops it (starting again begins at bar 1).',
+  // RISER
+  'riser:len': 'How long a rise takes when a GATE starts it (with RAMP patched, the ramp sets the pace instead).',
+  'riser:noise': 'The white-noise sweep climbing through a tightening filter.',
+  'riser:tone': 'A detuned tone climbing two octaves with the rise.',
+  'riser:bright': 'How high the sweep and the tone climb, and how bright the downlifter starts.',
+  'riser:impact': 'The landing: a sub boom that sinks and a burst of noise, when the rise ends.',
+  'riser:down': 'The downlifter: noise falling away after the impact.',
+  'riser:level': 'Output level.',
+  'riser:roll': 'ROLL: the ROLL output fires a snare roll that speeds up as the rise climbs (every 4, 2, 1, then half a 16th of CLK).',
   // T&H
   'trackhold:m1': 'Channel 1: TRACK follows the input while the gate is high and freezes when it drops; S&H takes one sample on each rise; HOLD is the reverse of TRACK.',
   'trackhold:m2': 'Channel 2’s mode (TRACK, S&H or HOLD). Its input and gate copy channel 1’s when nothing is patched to them.',

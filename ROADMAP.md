@@ -333,6 +333,16 @@ extend VOLTAGE.
   WATERFALL)), ~~piano roll + song arranger~~ (done: PIANO ROLL, 96 note slots as params
   s/l/n/v, voice allocation free-first then nearest-its-end, poly out; ARRANGER, 16 sections
   b/p/m, PAT a 16th early, PART gates on the bar; both drawn and edited on canvas faces),
+  ~~song tools~~ (2026-10-11, user: "Song Arranger is cool… one that takes up more space, with
+  additional parts"): ARRANGER XL (specs/arrangerXl.ts, 60 HP, 32 sections × fields b/p/m/x/t/s/c/n,
+  8 parts with GATE + gliding LEVEL, transitions CUT/FADE/BUILD/DROP (drop = silent last beat),
+  FILL + RAMP, per-section tempo/KEY/SCENE, its own clock out; surface with a section editor
+  strip), CHORD TRACK (chordtrack.ts, 32 bars c/h codes+1, voice-led window voicing CLOSE/DROP
+  2/OPEN, per-voice retrigger gates, ROOT, KEY in; `add9` quality added to combo/chords.ts),
+  RISER (riser.ts: TPT-SVF noise sweep, detuned rising saws, roll on CLK, SWEEP CV, impact +
+  downlifter + HIT). The Voltage song rebuilt on all three (presets/voltageSong.ts +
+  voltageSongParts.ts). Next ideas, not built: CONDUCTOR (tempo map), song-long automation
+  lanes, SONG RECORDER (offline bounce to WAV), TAKE/COMP.
   ~~per-module presets~~ (done: right-click → Presets; patch/modulePresets.ts in localStorage
   `voltage.modulePresets.v1`, cleaned against the spec on load; cloud saving can carry them).
   The gaps batch is done; next: cloud saving (sign-in still to discuss).
