@@ -99,6 +99,7 @@ import { era } from './specs/era'
 import { lightpen } from './specs/lightpen'
 import { tracker } from './specs/tracker'
 import { dustbox } from './specs/dustbox'
+import { jungle } from './specs/jungle'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -152,6 +153,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   lightpen,
   tracker,
   dustbox,
+  jungle,
   turntable,
   chop,
   fourtrack,

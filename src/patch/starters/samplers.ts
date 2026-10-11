@@ -25,6 +25,21 @@ export const SAMPLER_STARTERS: Record<string, Starter> = {
       toOut(k, [e, 'out'], undefined, 0.55)
     },
   },
+  jungle: {
+    howTo:
+      'JUNGLE playing the factory break at 168 in its own edit (a roll, a reversed snare), stretched by the rack sampler’s cycles, with a sub bass under it. Press EDIT for a new edit; flip STRETCH to REPITCH for the chipmunk version; turn CYCLE for buzzier or stutterier stretching. Click a step, then a slice above, to give it that slice.',
+    build(k) {
+      const j = k.add('jungle')
+      const clock = k.add('clock', { bpm: 168 })
+      k.wire([clock, 'x4'], [j, 'clk'])
+      k.wire([clock, 'rst'], [j, 'rst'])
+      const seq = k.add('seq8', { s1: 0, s2: 0, s3: 0, s4: 0, s5: 0.25, s6: 0.25, s7: 0.0833, s8: 0.0833, g1: 1, g2: 0, g3: 0, g4: 1, g5: 1, g6: 0, g7: 1, g8: 0 })
+      k.wire([clock, 'x2'], [seq, 'clk'])
+      k.wire([clock, 'rst'], [seq, 'reset'])
+      const sub = voice(k, [seq, 'cv'], [seq, 'gate'], { osc: { type: 'vco', params: { coarse: -2 }, out: 'sin' }, filter: { type: 'vcf', params: { cutoff: 300, res: 0 }, out: 'lp4' }, env: { a: 0.005, d: 0.4, s: 0.8, r: 0.2 } })
+      toOut(k, mix(k, [[j, 'out'], sub.out], [0.8, 0.75]), undefined, 0.55)
+    },
+  },
   dustbox: {
     howTo:
       'A boom-bap beat on DUSTBOX’s factory pads (a SEQ-8 picks the pad with PAD and plays it with TRIG). Hold FX for the effect (try STUTTER and TAPE STOP), turn GRIT and COMP. Press RESAMPLE to catch the beat with its effects onto pad 9, then play it from the pads.',

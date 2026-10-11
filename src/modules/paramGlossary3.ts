@@ -99,6 +99,15 @@ export const GAP_OVERRIDES: Record<string, string> = {
   'lightpen:scale': 'The scale of the grid’s eight rows.',
   'lightpen:oct': 'Moves the grid’s rows up or down an octave.',
   'lightpen:seq': 'Starts and stops the grid (the keys and V/OCT + GATE play either way).',
+  // JUNGLE
+  'jungle:tempo': 'The tempo the break is played at (when nothing is patched to CLK): jungle sits around 160–175.',
+  'jungle:src': 'The break’s own tempo (the factory break is 120). With your own loop, set this to its tempo so the slices land on 16ths.',
+  'jungle:mode': 'REPITCH: faster is higher, the chipmunk break. CYCLIC: the break stays at its pitch, stretched by the rack sampler’s cycles, buzz and all.',
+  'jungle:cycle': 'CYCLIC’s piece length: short is a buzzy, metallic stretch; long a stuttery, doubled one.',
+  'jungle:pitch': 'The break up or down in semitones (on top of what REPITCH does).',
+  'jungle:crunch': 'The 12-bit converter: more of it lowers the rate and the bits.',
+  'jungle:level': 'Output level.',
+  'jungle:run': 'Starts and stops it.',
   // DUSTBOX
   'dustbox:fx': 'The punch-in effect: VINYL (a worn record), CRUSH (bits and rate), FILTER (left of centre low-pass, right high-pass), STUTTER (the last 1/8 or 1/16 repeated in time), TAPE STOP, DUB (an echo that rings on).',
   'dustbox:amount': 'How much of the effect (for FILTER: where it sweeps; STUTTER: 1/8 below half, 1/16 above).',
