@@ -17,7 +17,7 @@ interface Props {
 
 /** Patch cables hang under gravity: sag grows with length. Rest the pointer
  *  on a patched jack (or its plug) and its cables light up end to end, as in
- *  the lessons, while the rest dim: which wire goes where, at a glance. */
+ *  the lessons (the rest stay as they are): which wire goes where, at a glance. */
 export function CableLayer({ patch, place, drag, opacity, width, height }: Props) {
   const hover = useSyncExternalStore(jackHover.subscribe, jackHover.get)
   const byId = new Map(patch.modules.map((m) => [m.id, m]))
@@ -42,9 +42,7 @@ export function CableLayer({ patch, place, drag, opacity, width, height }: Props
           const poly = !!src && !!SPECS[src.type]?.outputs.find((j) => j.id === c.from.jack)?.poly
           if (!a || !b) return null
           return (
-            <g key={c.id} opacity={anyLit && !lit(c) ? 0.3 : 1}>
-              <Cable ax={a.x} ay={a.y} bx={b.x} by={b.y} color={c.color} poly={poly} />
-            </g>
+            <Cable key={c.id} ax={a.x} ay={a.y} bx={b.x} by={b.y} color={c.color} poly={poly} />
           )
         })}
       </g>

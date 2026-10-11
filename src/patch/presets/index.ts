@@ -80,7 +80,7 @@ export const PRESETS: Preset[] = [
   {
     id: 'voltage-song',
     name: 'Voltage (Full Song)',
-    description: 'A whole 2½-minute EDM track at 115.5, rebuilt from a song made in Suno: E minor, Em–C–D, a supersaw hook, rolling bass, pumping pad. ARRANGER plays intro, three drops, fills and a breakdown.',
+    description: 'A whole 2½-minute EDM track at 115.5, rebuilt from a song made in Suno: E minor, Em–C–D, a singing lead hook, rolling bass, a dark pumping pad. ARRANGER plays intro, three drops, fills and a breakdown.',
     howTo: 'Power on and let it play through. ARRANGER’s screen shows the sections; its PAT picks TR-16’s pattern and opens the filters (via SLEW). Edit the hook on the third PIANO ROLL.',
     build: voltageSong,
   },

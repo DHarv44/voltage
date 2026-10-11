@@ -5,7 +5,7 @@ import type { Patch } from '../types'
 
 /** "Voltage": the user's own track (made in Suno), rebuilt from an analysis of
  *  the recording: 115.5 BPM, E minor, Em – C – D – Em two bars each under an
- *  eight-bar supersaw hook, a rolling 16th bass and a pad pumping under a
+ *  eight-bar lead hook, a rolling 16th bass and a dark pad pumping under a
  *  four-on-the-floor kick. ARRANGER plays the whole 72-bar song: its PAT picks
  *  TR-16's pattern for each section and, smoothed by SLEW, how open the music
  *  is (dark intro, open drops, a sweep down into the breakdown); its PART
@@ -66,12 +66,12 @@ const SONG: [number, number, number][] = [
   [16, 2, BASS_P | PLUCK_P], // drop 1
   [7, 2, BASS_P | PLUCK_P],
   [1, 3, BASS_P | PLUCK_P], // kick roll and a beat of silence
-  [15, 2, BASS_P | LEAD_P | PLUCK_P], // drop 2: the hook on the supersaw
-  [1, 3, LEAD_P | PLUCK_P],
+  [15, 2, BASS_P | LEAD_P], // drop 2: the hook moves from the pluck to the lead
+  [1, 3, LEAD_P],
   [7, 1, BASS_P | PLUCK_P], // breakdown: no drums, the filter sweeps half shut
   [1, 3, BASS_P | PLUCK_P],
-  [13, 2, BASS_P | LEAD_P | PLUCK_P], // drop 3
-  [1, 3, LEAD_P | PLUCK_P],
+  [13, 2, BASS_P | LEAD_P], // drop 3
+  [1, 3, LEAD_P],
   [2, 0, 0], // the pad alone, closing
 ]
 
@@ -115,9 +115,10 @@ export function voltageSong(): Patch {
     return id
   }
 
-  // the pad: a supersaw on the chords, opened and closed by the section
+  // the pad: barely detuned saws on the chords, kept dark (under ~1 kHz in
+  // the drops) so the hook has the middle to itself; the section opens it
   const padRoll = clocked(roll(k, PAD, 4))
-  const pad = k.add('swarm', { detune: 0.4, mix: 0.55, spread: 0.85, cutoff: 130, res: 0.1, cvamt: 0.95, att: 0.03, rel: 0.35, level: 0.5 })
+  const pad = k.add('swarm', { detune: 0.15, mix: 0.3, spread: 0.85, cutoff: 110, res: 0.1, cvamt: 0.5, att: 0.03, rel: 0.35, level: 0.6 })
   k.wire([padRoll, 'pitch'], [pad, 'voct'])
   k.wire([padRoll, 'gate'], [pad, 'gate'])
   k.wire([bright, 'out'], [pad, 'cut'])
@@ -133,38 +134,52 @@ export function voltageSong(): Patch {
     env: { a: 0.002, d: 0.1, s: 0.45, r: 0.04 },
   })
 
-  // the hook: one roll, two voices: a pluck all song, the supersaw lead in drops 2 and 3
+  // the hook: one roll, two voices: a pluck (intro, drop 1, breakdown) whose
+  // filter snaps open and closes with each note, bright and clean like a
+  // plucked string; then one singing lead (drops 2 and 3)
   const hook = clocked(roll(k, HOOK, 1))
   const pluck = voice(k, [hook, 'pitch'], onlyIn(k, [hook, 'gate'], [ar, 'g3']), {
-    osc: { type: 'vco', params: { coarse: -1 }, out: 'saw' },
-    filter: { type: 'vcf', params: { cutoff: 200, res: 0.25, cv: 0.75 }, out: 'lp2' },
-    filterCv: [bright, 'out'],
-    env: { a: 0.001, d: 0.16, s: 0, r: 0.12 },
+    osc: { type: 'vco', out: 'saw' },
+    filter: { type: 'vcf', params: { cutoff: 900, res: 0.12, cv: 0.8 }, out: 'lp2' },
+    env: { a: 0.001, d: 0.25, s: 0, r: 0.2 },
   })
+  // and the section darkens it: ~1.3 kHz in the intro, ~5 kHz in the breakdown, open in the drops
+  const pluckTone = k.add('vcf', { cutoff: 700, res: 0.05, cv: 0.75 })
+  k.wire(pluck.out, [pluckTone, 'in'])
+  k.wire([bright, 'out'], [pluckTone, 'cv'])
   const echo = k.add('bbd', { time: (60 / BPM) * 0.75, fb: 0.35, mix: 0.3, mod: 0.1 })
-  k.wire(pluck.out, [echo, 'in'])
+  k.wire([pluckTone, 'lp2'], [echo, 'in'])
+  // the lead's vibrato fades in on held notes only (a singer's, not a wobble):
+  // ±5 V × 0.005, about a third of a semitone, through a VCA that opens slowly
+  const leadGate = onlyIn(k, [hook, 'gate'], [ar, 'g2'])
   const vib = k.add('lfo', { rate: 5.5 })
-  const lead = k.add('swarm', { detune: 0.3, mix: 0.6, spread: 0.6, cutoff: 7500, res: 0.12, att: 0.008, rel: 0.18, level: 0.42 })
-  // the pitch plus a touch of vibrato (±5 V × 0.005: about a third of a semitone)
+  const vibEnv = k.add('adsr', { a: 0.35, d: 0.01, s: 1, r: 0.05 })
+  const vibVca = k.add('vca', { gain: 0, cv: 1 })
+  k.wire(leadGate, [vibEnv, 'gate'])
+  k.wire([vib, 'tri'], [vibVca, 'in'])
+  k.wire([vibEnv, 'env'], [vibVca, 'cv'])
   const leadPitch = k.add('mixer', { l1: 1, l2: 0.005, l3: 0, l4: 0, master: 1 })
   k.wire([hook, 'pitch'], [leadPitch, 'in1'])
-  k.wire([vib, 'tri'], [leadPitch, 'in2'])
-  k.wire([leadPitch, 'out'], [lead, 'voct'])
-  k.wire(onlyIn(k, [hook, 'gate'], [ar, 'g2']), [lead, 'gate'])
+  k.wire([vibVca, 'out'], [leadPitch, 'in2'])
+  const lead = voice(k, [leadPitch, 'out'], leadGate, {
+    osc: { type: 'vco', out: 'saw' },
+    filter: { type: 'vcf', params: { cutoff: 2400, res: 0.1, cv: 0.2 }, out: 'lp2' },
+    env: { a: 0.012, d: 0.4, s: 0.75, r: 0.18 },
+  })
 
   // the mix: everything but the drums pumps under the kick, a plate on the send
   const drm = k.add('mixer', { l1: 0.65, l2: 0.7, l3: 0.5, l4: 0, master: 0.9 })
   k.wire(d.clap!, [drm, 'in1'])
   k.wire(d.hats!, [drm, 'in2'])
   k.wire(d.snare!, [drm, 'in3'])
-  const music = k.add('mixer', { l1: 0.6, l2: 0.55, l3: 0.55, l4: 0, master: 0.9 })
+  const music = k.add('mixer', { l1: 0.9, l2: 0.47, l3: 0, l4: 0, master: 0.9 })
   k.wire([echo, 'out'], [music, 'in1'])
-  k.wire([lead, 'l'], [music, 'in2'])
-  k.wire([lead, 'r'], [music, 'in3'])
+  k.wire(lead.out, [music, 'in2'])
   // the section's level too: the same smoothed PAT rides four VCAs (gain =
-  // 0.2 + PAT/10), so the intro sits ~8 dB under the drops, the breakdown
-  // ~3 dB, and the fills swell a little louder into each drop
-  const ride = k.add('vcamix', { lvl1: 0.2, lvl2: 0.2, lvl3: 0.2, lvl4: 0.2 })
+  // LEVEL + PAT/10), so the intro sits well under the drops and the fills
+  // swell into each one; the pad rides lowest, since nothing ducks it when
+  // the kick is out, the hook least (it carries the breakdown)
+  const ride = k.add('vcamix', { lvl1: 0.2, lvl2: 0.05, lvl3: 0.05, lvl4: 0.45 })
   ;[bass.out, [pad, 'l'] as Jack, [pad, 'r'] as Jack, [music, 'out'] as Jack].forEach((src, i) => {
     k.wire(src, [ride, `in${i + 1}`])
     k.wire([bright, 'out'], [ride, `cv${i + 1}`])
@@ -172,9 +187,9 @@ export function voltageSong(): Patch {
   const c = k.add('console', {
     lvl1: 0.85, lvl2: 0.72, snd2: 0.12, duck2: 0.15,
     lvl3: 0.85, duck3: 0.75,
-    lvl4: 0.55, pan4: -0.65, snd4: 0.3, duck4: 0.8,
-    lvl5: 0.55, pan5: 0.65, snd5: 0.3, duck5: 0.8,
-    lvl6: 0.72, snd6: 0.35, duck6: 0.45,
+    lvl4: 0.67, pan4: -0.65, snd4: 0.18, duck4: 0.95,
+    lvl5: 0.67, pan5: 0.65, snd5: 0.18, duck5: 0.95,
+    lvl6: 0.65, snd6: 0.25, duck6: 0.45,
     rel: 0.22, ret: 0.5, master: 0.8,
   })
   k.wire(d.kick!, [c, 'in1'])
