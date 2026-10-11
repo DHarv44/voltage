@@ -43,7 +43,7 @@ const PAD: Note[] = [
 const BASS: Note[] = [[0, 0, 29, 'E2'], [1, 13, 32, 'C2'], [3, 13, 32, 'D2'], [5, 13, 35, 'E2']]
 
 /** An eight-bar PIANO ROLL holding these notes (every other slot empty). */
-function roll(k: Kit, notes: Note[], voices: number, extra: Record<string, number> = {}): string {
+function roll(k: Kit, notes: Note[], voices: number, extra: Record<string, number> = {}, vel = 0.85): string {
   const p: Record<string, number> = { bars: 8, voices, view: 10, ...extra }
   for (let i = 0; i < PR_SLOTS; i++) {
     const n = notes[i]
@@ -51,7 +51,7 @@ function roll(k: Kit, notes: Note[], voices: number, extra: Record<string, numbe
     if (!n) continue
     p[`l${i}`] = n[2]
     p[`n${i}`] = row(n[3])
-    p[`v${i}`] = 0.85
+    p[`v${i}`] = vel
   }
   return k.add('pianoroll', p)
 }
@@ -149,8 +149,8 @@ export function voltageSong(): Patch {
   // the hook: one roll (an octave under the original), two voices: STAGE's
   // tine electric piano (intro, drop 1, breakdown), then one soft singing
   // lead (drops 2 and 3)
-  const hook = clocked(roll(k, HOOK, 1, { oct: -1 }))
-  const piano = k.add('stage', { model: 0, voicing: 0.4, bell: 0.45, decay: 0.45, drive: 0.15, trem: 0.15, level: 0.8 })
+  const hook = clocked(roll(k, HOOK, 1, { oct: -1 }, 1))
+  const piano = k.add('stage', { model: 0, voicing: 0.6, bell: 0.7, decay: 0.45, drive: 0.2, trem: 0.15, level: 1 })
   k.wire([hook, 'pitch'], [piano, 'voct'])
   k.wire(onlyIn(k, [hook, 'gate'], [ar, 'g3']), [piano, 'gate'])
   k.wire([hook, 'vel'], [piano, 'vel'])
@@ -183,14 +183,14 @@ export function voltageSong(): Patch {
   k.wire(d.clap!, [drm, 'in1'])
   k.wire(d.hats!, [drm, 'in2'])
   k.wire(d.snare!, [drm, 'in3'])
-  const music = k.add('mixer', { l1: 0.9, l2: 0.47, l3: 0, l4: 0, master: 0.9 })
+  const music = k.add('mixer', { l1: 1, l2: 0.25, l3: 0, l4: 0, master: 1 })
   k.wire([echo, 'out'], [music, 'in1'])
   k.wire(lead.out, [music, 'in2'])
   // the section's level too: the same smoothed PAT rides four VCAs (gain =
   // LEVEL + PAT/10), so the intro sits well under the drops and the fills
   // swell into each one; the pad rides lowest, since nothing ducks it when
   // the kick is out, the hook least (it carries the breakdown)
-  const ride = k.add('vcamix', { lvl1: 0.6, lvl2: 0.35, lvl3: 0.35, lvl4: 0.75 })
+  const ride = k.add('vcamix', { lvl1: 0.6, lvl2: 0.35, lvl3: 0.35, lvl4: 0.55 })
   ;[bass.out, [pad, 'l'] as Jack, [pad, 'r'] as Jack, [music, 'out'] as Jack].forEach((src, i) => {
     k.wire(src, [ride, `in${i + 1}`])
     k.wire([level, 'out'], [ride, `cv${i + 1}`])
@@ -198,9 +198,9 @@ export function voltageSong(): Patch {
   const c = k.add('console', {
     lvl1: 0.87, lvl2: 0.74, snd2: 0.12, duck2: 0.15,
     lvl3: 0.58, duck3: 0.75,
-    lvl4: 0.38, pan4: -0.65, snd4: 0.18, duck4: 0.95,
-    lvl5: 0.38, pan5: 0.65, snd5: 0.18, duck5: 0.95,
-    lvl6: 0.58, snd6: 0.25, duck6: 0.45,
+    lvl4: 0.32, pan4: -0.65, snd4: 0.18, duck4: 0.95,
+    lvl5: 0.32, pan5: 0.65, snd5: 0.18, duck5: 0.95,
+    lvl6: 1, snd6: 0.25, duck6: 0.45,
     rel: 0.22, ret: 0.5, master: 0.8,
   })
   // the drums ride the section too (gain 0.4 + 0.6 × level/10): softer
