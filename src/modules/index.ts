@@ -64,6 +64,7 @@ import { midiout, recv, send } from './specs/wiring'
 import { compare, cvmath, gatedelay, merge, notes, ratchet, split, unison, xfade } from './specs/tools'
 import { comb, flanger, formant, fshift, pingpong, rotary } from './specs/fx2'
 import { ngate, ott, peq, transient } from './specs/mixtools'
+import { choir, organ, wind } from './specs/instruments2'
 import { undertone } from './specs/undertone'
 import { lockstep } from './specs/lockstep'
 import { lattice } from './specs/lattice'
@@ -181,6 +182,9 @@ export const SPEC_LIST: ModuleSpec[] = [
   gamelan,
   bowl,
   harp,
+  organ,
+  wind,
+  choir,
   stylophone,
   complexOsc,
   kaleido,

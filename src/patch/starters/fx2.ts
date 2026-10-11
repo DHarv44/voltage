@@ -1,4 +1,4 @@
-import { beat, chords, melody, mix, toOut, voice, type Kit } from './kit'
+import { beat, melody, toOut, voice, type Kit } from './kit'
 import type { Starter } from './types'
 
 /** A short, plucky line (room for echoes between the notes). */
@@ -27,20 +27,6 @@ export const FX2_STARTERS: Record<string, Starter> = {
       const f = k.add('flanger')
       k.wire(b.out, [f, 'in'])
       toOut(k, [f, 'l'], [f, 'r'], 0.6)
-    },
-  },
-  rotary: {
-    howTo: 'Organ-ish chords through ROTARY, a slow square wave flipping it between SLOW and FAST every few bars: listen to the horn and drum ramp up and down. Turn DRIVE for the growl, HORN · DRUM for the balance.',
-    build(k) {
-      const c = chords(k, { bpm: 92 })
-      const h = k.add('halcyon', { vcamode: 1, pulse: 0, sub: 0.5, cutoff: 5000, chorus: 0, saw: 1, pwm: 0.2 })
-      k.wire(c.notes, [h, 'voct'])
-      k.wire(c.gate, [h, 'gate'])
-      const r = k.add('rotary')
-      k.wire(mix(k, [[h, 'l'], [h, 'r']], [0.6, 0.6]), [r, 'in'])
-      const lfo = k.add('lfo', { rate: 0.08 })
-      k.wire([lfo, 'sqr'], [r, 'fast'])
-      toOut(k, [r, 'l'], [r, 'r'], 0.55)
     },
   },
   fshift: {

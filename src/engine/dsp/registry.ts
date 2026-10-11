@@ -133,6 +133,9 @@ import { FormantDsp, FreqShiftDsp } from './fx2/spectral'
 import { EqDsp } from './mixtools/eq'
 import { NoiseGateDsp, TransientDsp } from './mixtools/dynamics'
 import { OttDsp } from './mixtools/ott'
+import { OrganDsp } from './organ'
+import { WindDsp } from './wind'
+import { ChoirDsp } from './choir'
 import { CompareDsp, CvMathDsp, GateDelayDsp, MergeDsp, NotesDsp, RatchetDsp, SplitDsp, UnisonDsp, XfadeDsp } from './tools'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
@@ -202,6 +205,9 @@ const CIRCUITS: Record<string, DspCtor> = {
   transient: TransientDsp,
   ngate: NoiseGateDsp,
   ott: OttDsp,
+  organ: OrganDsp,
+  wind: WindDsp,
+  choir: ChoirDsp,
   slew: SlewDsp,
   quant: QuantizerDsp,
   atten: AttenDsp,
