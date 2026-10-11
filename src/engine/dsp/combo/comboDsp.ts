@@ -94,7 +94,9 @@ export class ComboDsp extends ComboCoreDsp {
     if (b.bassOn) this.bassVoice.noteOn(b.bassPitch, b.bassVel)
     else if (this.bassWas && !b.bassGate) this.bassVoice.noteOff()
     this.bassWas = b.bassGate
-    const drums = this.kit.step() * p[this.M.drums]
+    this.kit.step()
+    const dl = this.kit.l * p[this.M.drums]
+    const dr = this.kit.r * p[this.M.drums]
     const bass = this.bassVoice.step() * p[this.M.bassl]
     // the looper: its stomp on a gate too
     if (this.loopIn.rise(this.in[this.iLoop])) this.pressLoop()
@@ -112,11 +114,13 @@ export class ComboDsp extends ComboCoreDsp {
       this.saveLoop(this.looper.closed)
       this.looper.closed = -1
     }
-    const band = (drums + bass) * 2.5
-    const mix = (x + band + loop) * p[this.M.level]
-    this.out[this.oL] = mix
-    this.out[this.oR] = mix
-    this.out[this.oBand] = band
+    // the band in stereo (the kit as the drummer hears it, the bass centred)
+    const bandL = (dl + bass) * 2.5
+    const bandR = (dr + bass) * 2.5
+    const level = p[this.M.level]
+    this.out[this.oL] = (x + bandL + loop) * level
+    this.out[this.oR] = (x + bandR + loop) * level
+    this.out[this.oBand] = (bandL + bandR) * 0.5
     // the looper's lights
     for (let i = 0; i < COMBO_PARTS; i++) this.led[CL.loops + i] = this.looper.state[i]
     const st = this.looper.state[lp]

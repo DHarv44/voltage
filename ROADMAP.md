@@ -291,7 +291,11 @@ extend VOLTAGE.
   ~~learner~~ (chroma.ts peak-picked chroma + bass chroma + flux; analyse.ts bar/meter/tempo
   search, bar-first chords with overtone-aware templates), ~~COMBO CORE~~ (coreDsp.ts, parts in
   params, comboscreen), ~~COMBO~~ (kit.ts, bassVoice.ts, partLooper.ts with WSOLA STRETCH / TAPE),
-  ~~FOOTSWITCH and LOOPER~~ (peripherals.ts). Later, if wanted: guitar FX per genre, a song
+  ~~FOOTSWITCH and LOOPER~~ (peripherals.ts), ~~realistic band (user: "child like")~~ (drumParts.ts:
+  Drum = membrane modes with tension bend + beater/stick click, Metal = plate resonances + bell
+  partials + stick tick with hat choke; kit.ts five kits, humanised timing/velocity, stereo
+  placement, drumRoom.ts; bassString.ts waveguide string with pluck shape/position, pickup comb,
+  hand damping, upright body; levels matched to the old kit per genre, CPU ~5%). Later, if wanted: guitar FX per genre, a song
   sequence inside COMBO (ARRANGER covers it), tempo following live playing.
 - **UI / UX redesign** (branch `ui-redesign`, 2026-10-09): three zones (Add | Play | Understand),
   plain words in the chrome, a visual system. Phase 1 (done on the branch): a start screen that is

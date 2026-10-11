@@ -1,5 +1,6 @@
 import type { Genre } from '../../../modules/specs/combo/genres'
 import { polyBlep } from '../util'
+import { PluckedString, type StringSpec } from './bassString'
 
 type BassName = Genre['bass']
 
@@ -14,9 +15,26 @@ const MODELS: Record<BassName, { open: number; settle: number; res: number; att:
   SUB: { open: 400, settle: 400, res: 0, att: 0.005, decay: 1.6, sus: 0.85, drive: 1.6, thump: 0, glide: 0.04 },
 }
 
+/** The real basses, as strings: fingers over the neck pickup (round, warm),
+ *  a pick near the bridge (bright, growling), a double bass plucked by hand
+ *  (short, woody, no pickup). */
+const STRINGS: Partial<Record<BassName, StringSpec>> = {
+  FINGER: { ring: 2.6, dull: 0.42, at: 0.28, snap: 0.15, pickup: 0.27, tone: 2400, drive: 1.2, gain: 1 },
+  PICK: { ring: 2.2, dull: 0.2, at: 0.12, snap: 0.9, pickup: 0.14, tone: 4800, drive: 1.8, gain: 2.6 },
+  UPRIGHT: { ring: 0.9, dull: 0.55, at: 0.3, snap: 0.1, pickup: 0, tone: 1700, drive: 1, gain: 3.5, body: [98, 190] },
+}
+
 /** COMBO's bass player: one voice, five instruments (fingers, a pick, a
- *  double bass, a filtered synth saw, an 808-style sub with its glide). */
+ *  double bass, as modelled strings; a filtered synth saw, an 808-style sub
+ *  with its glide). */
 export class BassVoice {
+  private readonly str: PluckedString
+  private readonly noise = () => {
+    this.rng ^= this.rng << 13
+    this.rng ^= this.rng >>> 17
+    this.rng ^= this.rng << 5
+    return (this.rng >>> 0) / 2147483648 - 1
+  }
   private m = MODELS.FINGER
   private name: BassName = 'FINGER'
   private ph = 0
@@ -33,7 +51,9 @@ export class BassVoice {
   private thumpLp = 0
   private rng = 0x9e3779b9
 
-  constructor(private readonly fs: number) {}
+  constructor(private readonly fs: number) {
+    this.str = new PluckedString(fs)
+  }
 
   setModel(name: BassName): void {
     this.name = name
@@ -48,13 +68,32 @@ export class BassVoice {
     this.stage = 0
     this.cut = this.m.open * (0.5 + 0.5 * vel)
     this.thump = this.m.thump * vel
+    const s = STRINGS[this.name]
+    if (s) this.str.pluck(s, this.target, vel, this.noise)
   }
 
   noteOff(): void {
     this.gate = false
+    if (STRINGS[this.name]) this.str.damp(this.target)
   }
 
   step(): number {
+    if (STRINGS[this.name]) return this.strStep()
+    return this.synthStep()
+  }
+
+  /** A real bass: the string, and the finger's thump on it. */
+  private strStep(): number {
+    let y = this.str.step() * 1.6
+    if (this.thump > 1e-4) {
+      this.thumpLp += (this.noise() - this.thumpLp) * 0.06
+      y += this.thumpLp * this.thump * 0.6
+      this.thump *= Math.exp(-1 / (0.018 * this.fs))
+    }
+    return y
+  }
+
+  private synthStep(): number {
     const fs = this.fs
     const m = this.m
     // pitch (the sub glides into each note)
@@ -88,10 +127,7 @@ export class BassVoice {
     let y = this.s2 * this.env * this.vel
     // the string's thump at the start of the note
     if (this.thump > 1e-4) {
-      this.rng ^= this.rng << 13
-      this.rng ^= this.rng >>> 17
-      this.rng ^= this.rng << 5
-      this.thumpLp += ((this.rng >>> 0) / 2147483648 - 1 - this.thumpLp) * 0.06
+      this.thumpLp += (this.noise() - this.thumpLp) * 0.06
       y += this.thumpLp * this.thump
       this.thump *= Math.exp(-1 / (0.018 * fs))
     }

@@ -189,9 +189,13 @@ Teach it a part by playing it, and its drummer and bass player play along.
   keeps its own genre and style. Press another PART while playing to cue it (it comes in at the
   end of this one, after a fill); press the playing part for high intensity. BAND stops with an
   ending; hold it two seconds to forget a part. COUNT-IN clicks four sticks first.
-- **COMBO** has its own synthesised kit and bass player (each genre's: a room kit for rock, a jazz
-  kit with brushes, a drum machine for electronic pop and hip-hop; finger, pick, upright, synth
-  or 808 bass) and a **looper**: LOOPER records exactly one pass of the part playing, then
+- **COMBO** has its own drummer and bass player, modelled rather than sampled: drumheads that
+  ring at their real modes and bend in pitch when hit hard, snare wires rattling with the head,
+  cymbals as resonant plates, the beater or stick on each, all in a stereo room, played with a
+  person's looseness (each hit a few ms late by its own feel, never twice the same). Each genre
+  has its kit (a room kit for rock, a jazz kit with brushes, a drum machine for electronic pop
+  and hip-hop) and its bass (finger, pick or upright as a plucked string through its pickup;
+  synth or 808). And a **looper**: LOOPER records exactly one pass of the part playing, then
   overdubs; UNDO, CLEAR; one loop per part, kept with the rack. **LOOP TEMPO** chooses what a loop
   does when the tempo moves: **STRETCH** keeps its pitch, **TAPE** varispeeds it.
 - **COMBO CORE** is the brain alone: drum triggers, bass V/OCT and gate, the chords (poly) and
