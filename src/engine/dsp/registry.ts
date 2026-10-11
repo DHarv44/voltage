@@ -125,6 +125,7 @@ import { DeckDsp } from './deck'
 import { ZonesDsp } from './zones'
 import { PacificDsp } from './pacific'
 import { MonarchDsp } from './monarch'
+import { HalcyonDsp } from './halcyon'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -170,6 +171,7 @@ const CIRCUITS: Record<string, DspCtor> = {
   zones: ZonesDsp,
   pacific: PacificDsp,
   monarch: MonarchDsp,
+  halcyon: HalcyonDsp,
   slew: SlewDsp,
   quant: QuantizerDsp,
   atten: AttenDsp,

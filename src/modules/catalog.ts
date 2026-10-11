@@ -46,6 +46,7 @@ export const CATALOG: Record<string, Entry> = {
   kin: { tags: ['beat', 'sequence', 'plays itself'], aka: ['dfam', 'drummer from another mother', 'moog', 'semi-modular'] },
   undertone: { tags: ['drone', 'ambient', 'generative', 'sequence', 'plays itself'], aka: ['subharmonicon', 'moog', 'polyrhythm', 'subharmonics'] },
   lockstep: { tags: ['beat', 'bass', 'sequence', 'stereo', 'plays itself'], aka: ['elektron', 'digitone', 'digitakt', 'p-lock', 'parameter lock', 'fm', 'groovebox'] },
+  halcyon: { tags: ['poly', 'chords', 'stereo', 'sequence'], aka: ['juno', 'juno-60', 'juno-106', 'roland', 'dco', 'poly synth', 'polysynth', 'chorus', 'arpeggiator', 'arp', 'pad', 'strings', '80s'] },
   monarch: { tags: ['bass', 'melody'], aka: ['minimoog', 'model d', 'moog', 'mono synth', 'monosynth', 'three oscillator', '3 osc', 'ladder', 'fat bass', 'lead', 'feedback'] },
   pacific: { tags: ['melody', 'sequence', 'plays itself', 'texture'], aka: ['music easel', 'easel', 'buchla', 'west coast', 'west-coast', 'complex oscillator', 'wavefolder', 'lpg', 'low pass gate', 'vactrol', 'bongo', 'semi-modular'] },
   lattice: { tags: ['generative', 'melody', 'beat', 'touch', 'plays itself'], aka: ['tenori-on', 'yamaha', 'grid', 'monome', 'light grid'] },

@@ -59,6 +59,7 @@ import { sketchbook } from './specs/sketchbook'
 import { kin } from './specs/kin'
 import { pacific } from './specs/pacific'
 import { monarch } from './specs/monarch'
+import { halcyon } from './specs/halcyon'
 import { undertone } from './specs/undertone'
 import { lockstep } from './specs/lockstep'
 import { lattice } from './specs/lattice'
@@ -117,6 +118,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   lattice,
   pacific,
   monarch,
+  halcyon,
   polycv,
   pvco,
   pvcf,

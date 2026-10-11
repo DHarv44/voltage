@@ -72,6 +72,21 @@ export const SOURCE_STARTERS: Record<string, Starter> = {
       toOut(k, [d, 'vca'], undefined, 0.5)
     },
   },
+  halcyon: {
+    howTo:
+      'HALCYON arpeggiating CHORD TRACK’s chords up and down two octaves in 16ths, through chorus II. Flip ARPEGGIO OFF to hear the chords as a pad; try CHORUS I and I+II; turn PWM and SUB; play the keyboard along the bottom (with ARPEGGIO on HOLD, a chord you play keeps going).',
+    build(k) {
+      const clock = k.add('clock', { bpm: 104 })
+      const ct = k.add('chordtrack', { tempo: 104 })
+      k.wire([clock, 'x4'], [ct, 'clk'])
+      k.wire([clock, 'rst'], [ct, 'rst'])
+      const h = k.add('halcyon', { arp: 1, arpmode: 1, cutoff: 2200, fenv: 0.25, d: 0.5, s: 0.4, r: 0.35 })
+      k.wire([ct, 'notes'], [h, 'voct'])
+      k.wire([ct, 'gate'], [h, 'gate'])
+      k.wire([clock, 'x4'], [h, 'clk'])
+      toOut(k, [h, 'l'], [h, 'r'], 0.55)
+    },
+  },
   monarch: {
     howTo:
       'MONARCH playing a bass line from SEQ-8: two saws and a square an octave below, drifting a little against each other, through the ladder with a snappy filter contour. Turn CUTOFF, EMPHASIS and CONTOUR; push EXT · FEEDBACK up for the feedback grit; set RANGE 3 to LO, FILTER MOD ON and MOD AMOUNT up for a wobble. Play the keys for a lead (RANGEs to 8’ and 4’).',
