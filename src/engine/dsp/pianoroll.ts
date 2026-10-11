@@ -82,7 +82,9 @@ export class PianoRollDsp extends Dsp {
     const running = p[this.pRun] >= 0.5
     const c = this.clock
     const stepped = c.tick(running, this.patched[this.iClk] === 1, this.in[this.iClk], p[this.pTempo], p[this.pSwing], this.in[this.iRst])
-    // starting over clears first: the step it starts on plays
+    // starting over clears first: the step it starts on plays. A CLK that has
+    // stopped lets every note go (it carries on from where it was if it resumes)
+    if (c.stalled(this.patched[this.iClk] === 1)) this.release()
     if (c.restarted || !running) {
       this.step = -1
       this.release()

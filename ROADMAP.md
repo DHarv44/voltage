@@ -61,7 +61,12 @@ extend VOLTAGE.
   voltageSong.ts): the user's Suno track rebuilt from an analysis of the recording (115.5 BPM,
   E minor, Em–C–D–Em, the 8-bar hook transcribed per 16th); ARRANGER's PAT → TR-16 PAT (pattern
   per section) and → SLEW → filter cutoffs + VCA×4 (each section's brightness and level); PART
-  gates switch bass / lead / pluck; checked against the original by band balance per section~~. Maybe later: a
+  gates switch bass / lead / pluck; checked against the original by band balance per section;
+  then made less synthy (STAGE tine piano + a soft triangle lead with delayed vibrato instead of
+  saws, dark barely-detuned pad), letters A intro < B breakdown < C fill < D drop, part 4 = a
+  fill envelope that dips the mix ~6 dB and swells into the drop (matched per beat)~~,
+  ~~PIANO ROLL lets its notes go when its CLK stops (PocketClock.stalled: no edge for 3 gaps,
+  ≥ 0.5 s), so stopping CLOCK doesn't leave a drone~~. Maybe later: a
   transport readout in the top bar (tempo, bar.beat, beat dot from the rack's first CLOCK).
   - **FM-4** (four-operator FM voice, 8 notes): nine factory voices (E.PIANO, BASS, BELL, BRASS, ORGAN,
     MARIMBA, CLAV, PAD, LEAD) as operator recipes, reshaped by macro knobs (BRIGHT scales the

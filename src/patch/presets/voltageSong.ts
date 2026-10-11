@@ -43,8 +43,8 @@ const PAD: Note[] = [
 const BASS: Note[] = [[0, 0, 29, 'E2'], [1, 13, 32, 'C2'], [3, 13, 32, 'D2'], [5, 13, 35, 'E2']]
 
 /** An eight-bar PIANO ROLL holding these notes (every other slot empty). */
-function roll(k: Kit, notes: Note[], voices: number): string {
-  const p: Record<string, number> = { bars: 8, voices, view: 10 }
+function roll(k: Kit, notes: Note[], voices: number, extra: Record<string, number> = {}): string {
+  const p: Record<string, number> = { bars: 8, voices, view: 10, ...extra }
   for (let i = 0; i < PR_SLOTS; i++) {
     const n = notes[i]
     p[`s${i}`] = n ? n[0] * 16 + n[1] : -1
@@ -56,22 +56,26 @@ function roll(k: Kit, notes: Note[], voices: number): string {
   return k.add('pianoroll', p)
 }
 
-/** The song: [bars, pattern (A intro, B breakdown, C drop, D fill), parts]. */
+/** The song: [bars, pattern, parts]. The letters climb in brightness and
+ *  level (A intro, B breakdown, C fill, D drop), so a fill sits just under
+ *  the drop and swells into it, as the original's do. */
 const BASS_P = 1
 const LEAD_P = 2
 const PLUCK_P = 4
+/** Part 4: a fill bar (the mix dips and swells back into the drop). */
+const FILL_P = 8
 const SONG: [number, number, number][] = [
-  [7, 0, BASS_P | PLUCK_P], // intro: bass and pluck through a closed filter
-  [1, 3, BASS_P | PLUCK_P], // kick roll, the filter flying open
-  [16, 2, BASS_P | PLUCK_P], // drop 1
-  [7, 2, BASS_P | PLUCK_P],
-  [1, 3, BASS_P | PLUCK_P], // kick roll and a beat of silence
-  [15, 2, BASS_P | LEAD_P], // drop 2: the hook moves from the pluck to the lead
-  [1, 3, LEAD_P],
+  [7, 0, BASS_P | PLUCK_P], // intro: bass and piano through a closed filter
+  [1, 2, BASS_P | PLUCK_P | FILL_P], // the roll builds, the filter opening
+  [16, 3, BASS_P | PLUCK_P], // drop 1
+  [7, 3, BASS_P | PLUCK_P],
+  [1, 2, BASS_P | PLUCK_P | FILL_P],
+  [15, 3, BASS_P | LEAD_P], // drop 2: the hook moves from the piano to the lead
+  [1, 2, LEAD_P | FILL_P],
   [7, 1, BASS_P | PLUCK_P], // breakdown: no drums, the filter sweeps half shut
-  [1, 3, BASS_P | PLUCK_P],
-  [13, 2, BASS_P | LEAD_P], // drop 3
-  [1, 3, LEAD_P],
+  [1, 2, BASS_P | PLUCK_P | FILL_P],
+  [13, 3, BASS_P | LEAD_P], // drop 3
+  [1, 2, LEAD_P | FILL_P],
   [2, 0, 0], // the pad alone, closing
 ]
 
@@ -90,8 +94,9 @@ export function voltageSong(): Patch {
     bars: [
       { ch: '..x...x...x...x.' },
       {},
+      // the fill: nothing on the first half, kicks then a snare roll filling in toward the drop
+      { kick: '........x.x.xxxx', snare: '............xxxx' },
       { kick: 'x...x...x...x...', clap: '....x.......x...', ch: 'xx.xxx.xxx.xxx.x', oh: '..x...x...x...x.', acc: '..x...x...x...x.' },
-      { kick: 'xxxxxxxxxxxx....', snare: '....x.x.xxxx....', acc: '........xxxx....' },
     ],
     kick: { tune: 50, decay: 0.45, punch: 0.7, drive: 0.35 },
     clap: { tone: 1300, decay: 0.25 },
@@ -107,8 +112,15 @@ export function voltageSong(): Patch {
   k.wire([d.clock, 'rst'], [ar, 'rst'])
   k.wire([ar, 'pat'], [d.tr, 'pat'])
   // the section's brightness: PAT (1.25 … 8.75 V) smoothed into the filters
-  const bright = k.add('slew', { rise: 0.9, fall: 3 })
+  const bright = k.add('slew', { rise: 0.9, fall: 1.2 })
   k.wire([ar, 'pat'], [bright, 'in'])
+  // the section's level: the same, less a fill envelope (part 4) that drops
+  // the mix ~6 dB as a fill starts and lets it swell back over the bar
+  const fillEnv = k.add('adsr', { a: 0.001, d: 2.6, s: 0, r: 0.05 })
+  k.wire([ar, 'g4'], [fillEnv, 'gate'])
+  const level = k.add('mixer', { l1: 1, l2: 0.52, l3: 0, l4: 0, master: 1 })
+  k.wire([bright, 'out'], [level, 'in1'])
+  k.wire([fillEnv, 'inv'], [level, 'in2'])
   const clocked = (id: string) => {
     k.wire([d.clock, 'x4'], [id, 'clk'])
     k.wire([d.clock, 'rst'], [id, 'rst'])
@@ -118,7 +130,7 @@ export function voltageSong(): Patch {
   // the pad: barely detuned saws on the chords, kept dark (under ~1 kHz in
   // the drops) so the hook has the middle to itself; the section opens it
   const padRoll = clocked(roll(k, PAD, 4))
-  const pad = k.add('swarm', { detune: 0.15, mix: 0.3, spread: 0.85, cutoff: 110, res: 0.1, cvamt: 0.5, att: 0.03, rel: 0.35, level: 0.6 })
+  const pad = k.add('swarm', { detune: 0.15, mix: 0.3, spread: 0.85, cutoff: 110, res: 0.1, cvamt: 0.4, att: 0.03, rel: 0.35, level: 0.6 })
   k.wire([padRoll, 'pitch'], [pad, 'voct'])
   k.wire([padRoll, 'gate'], [pad, 'gate'])
   k.wire([bright, 'out'], [pad, 'cut'])
@@ -134,18 +146,17 @@ export function voltageSong(): Patch {
     env: { a: 0.002, d: 0.1, s: 0.45, r: 0.04 },
   })
 
-  // the hook: one roll, two voices: a pluck (intro, drop 1, breakdown) whose
-  // filter snaps open and closes with each note, bright and clean like a
-  // plucked string; then one singing lead (drops 2 and 3)
-  const hook = clocked(roll(k, HOOK, 1))
-  const pluck = voice(k, [hook, 'pitch'], onlyIn(k, [hook, 'gate'], [ar, 'g3']), {
-    osc: { type: 'vco', out: 'saw' },
-    filter: { type: 'vcf', params: { cutoff: 900, res: 0.12, cv: 0.8 }, out: 'lp2' },
-    env: { a: 0.001, d: 0.25, s: 0, r: 0.2 },
-  })
+  // the hook: one roll (an octave under the original), two voices: STAGE's
+  // tine electric piano (intro, drop 1, breakdown), then one soft singing
+  // lead (drops 2 and 3)
+  const hook = clocked(roll(k, HOOK, 1, { oct: -1 }))
+  const piano = k.add('stage', { model: 0, voicing: 0.4, bell: 0.45, decay: 0.45, drive: 0.15, trem: 0.15, level: 0.8 })
+  k.wire([hook, 'pitch'], [piano, 'voct'])
+  k.wire(onlyIn(k, [hook, 'gate'], [ar, 'g3']), [piano, 'gate'])
+  k.wire([hook, 'vel'], [piano, 'vel'])
   // and the section darkens it: ~1.3 kHz in the intro, ~5 kHz in the breakdown, open in the drops
   const pluckTone = k.add('vcf', { cutoff: 700, res: 0.05, cv: 0.75 })
-  k.wire(pluck.out, [pluckTone, 'in'])
+  k.wire([piano, 'l'], [pluckTone, 'in'])
   k.wire([bright, 'out'], [pluckTone, 'cv'])
   const echo = k.add('bbd', { time: (60 / BPM) * 0.75, fb: 0.35, mix: 0.3, mod: 0.1 })
   k.wire([pluckTone, 'lp2'], [echo, 'in'])
@@ -162,13 +173,13 @@ export function voltageSong(): Patch {
   k.wire([hook, 'pitch'], [leadPitch, 'in1'])
   k.wire([vibVca, 'out'], [leadPitch, 'in2'])
   const lead = voice(k, [leadPitch, 'out'], leadGate, {
-    osc: { type: 'vco', out: 'saw' },
-    filter: { type: 'vcf', params: { cutoff: 2400, res: 0.1, cv: 0.2 }, out: 'lp2' },
+    osc: { type: 'vco', out: 'tri' },
+    filter: { type: 'vcf', params: { cutoff: 2400, res: 0.05, cv: 0.2 }, out: 'lp2' },
     env: { a: 0.012, d: 0.4, s: 0.75, r: 0.18 },
   })
 
   // the mix: everything but the drums pumps under the kick, a plate on the send
-  const drm = k.add('mixer', { l1: 0.65, l2: 0.7, l3: 0.5, l4: 0, master: 0.9 })
+  const drm = k.add('mixer', { l1: 0.65, l2: 0.85, l3: 0.5, l4: 0, master: 0.9 })
   k.wire(d.clap!, [drm, 'in1'])
   k.wire(d.hats!, [drm, 'in2'])
   k.wire(d.snare!, [drm, 'in3'])
@@ -179,21 +190,29 @@ export function voltageSong(): Patch {
   // LEVEL + PAT/10), so the intro sits well under the drops and the fills
   // swell into each one; the pad rides lowest, since nothing ducks it when
   // the kick is out, the hook least (it carries the breakdown)
-  const ride = k.add('vcamix', { lvl1: 0.2, lvl2: 0.05, lvl3: 0.05, lvl4: 0.45 })
+  const ride = k.add('vcamix', { lvl1: 0.6, lvl2: 0.35, lvl3: 0.35, lvl4: 0.75 })
   ;[bass.out, [pad, 'l'] as Jack, [pad, 'r'] as Jack, [music, 'out'] as Jack].forEach((src, i) => {
     k.wire(src, [ride, `in${i + 1}`])
-    k.wire([bright, 'out'], [ride, `cv${i + 1}`])
+    k.wire([level, 'out'], [ride, `cv${i + 1}`])
   })
   const c = k.add('console', {
-    lvl1: 0.85, lvl2: 0.72, snd2: 0.12, duck2: 0.15,
-    lvl3: 0.85, duck3: 0.75,
-    lvl4: 0.67, pan4: -0.65, snd4: 0.18, duck4: 0.95,
-    lvl5: 0.67, pan5: 0.65, snd5: 0.18, duck5: 0.95,
-    lvl6: 0.65, snd6: 0.25, duck6: 0.45,
+    lvl1: 0.87, lvl2: 0.74, snd2: 0.12, duck2: 0.15,
+    lvl3: 0.58, duck3: 0.75,
+    lvl4: 0.38, pan4: -0.65, snd4: 0.18, duck4: 0.95,
+    lvl5: 0.38, pan5: 0.65, snd5: 0.18, duck5: 0.95,
+    lvl6: 0.58, snd6: 0.25, duck6: 0.45,
     rel: 0.22, ret: 0.5, master: 0.8,
   })
-  k.wire(d.kick!, [c, 'in1'])
-  k.wire([drm, 'out'], [c, 'in2'])
+  // the drums ride the section too (gain 0.4 + 0.6 × level/10): softer
+  // hats in the intro, and each fill dips and swells instead of slamming in
+  const drumRide = [d.kick!, [drm, 'out'] as Jack].map((src): Jack => {
+    const v = k.add('vca', { gain: 0.4, cv: 0.6 })
+    k.wire(src, [v, 'in'])
+    k.wire([level, 'out'], [v, 'cv'])
+    return [v, 'out']
+  })
+  k.wire(drumRide[0], [c, 'in1'])
+  k.wire(drumRide[1], [c, 'in2'])
   for (let i = 1; i <= 4; i++) k.wire([ride, `out${i}`], [c, `in${i + 2}`])
   k.wire(d.kick!, [c, 'sc'])
   const plate = k.add('plate', { decay: 0.7, damp: 0.55, mix: 1 })

@@ -12,6 +12,8 @@ export class PocketClock {
   private ph = 1
   private wasRunning = false
   private sinceEdge = 0
+  /** The last gap between CLK edges, however long (s). */
+  private lastGap = 0.125
   private clkOut = 0
   private rstOut = 0
   /** True on the sample it started over (RST in, or starting to run). */
@@ -48,6 +50,7 @@ export class PocketClock {
           this.stepLen = this.sinceEdge
           this.sixteenth += (this.sinceEdge - this.sixteenth) * 0.5 // swung edges average out
         }
+        this.lastGap = this.sinceEdge
         this.sinceEdge = 0
         advance = true
       }
@@ -65,6 +68,12 @@ export class PocketClock {
       this.clkOut = Math.round(0.005 * this.fs)
     }
     return advance
+  }
+
+  /** Following CLK and it has stopped: no edge for three of its own gaps
+   *  (and at least half a second), so a slow clock isn't mistaken for one. */
+  stalled(patched: boolean): boolean {
+    return patched && this.sinceEdge > Math.max(0.5, 3 * this.lastGap)
   }
 
   /** The RST out jack for this sample. */
