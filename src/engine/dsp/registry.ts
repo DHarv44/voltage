@@ -127,6 +127,9 @@ import { PacificDsp } from './pacific'
 import { MonarchDsp } from './monarch'
 import { HalcyonDsp } from './halcyon'
 import { MidiOutDsp, RecvDsp, SendDsp } from './wiring'
+import { CombDsp, FlangerDsp, PingPongDsp } from './fx2/delays'
+import { RotaryDsp } from './fx2/rotary'
+import { FormantDsp, FreqShiftDsp } from './fx2/spectral'
 import { CompareDsp, CvMathDsp, GateDelayDsp, MergeDsp, NotesDsp, RatchetDsp, SplitDsp, UnisonDsp, XfadeDsp } from './tools'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
@@ -186,6 +189,12 @@ const CIRCUITS: Record<string, DspCtor> = {
   merge: MergeDsp,
   unison: UnisonDsp,
   notes: NotesDsp,
+  pingpong: PingPongDsp,
+  flanger: FlangerDsp,
+  rotary: RotaryDsp,
+  fshift: FreqShiftDsp,
+  comb: CombDsp,
+  formant: FormantDsp,
   slew: SlewDsp,
   quant: QuantizerDsp,
   atten: AttenDsp,

@@ -1,5 +1,6 @@
 import type { ModuleSpec } from './types'
 import { MORE_JACKS } from './jackInfo2'
+import { JACKS_3 } from './jackInfo3'
 
 /** What a jack carries and what it's for, in plain words: the jack tooltip,
  *  its "Explain" text, and the patching hints (which jacks suit each other).
@@ -258,7 +259,7 @@ OVERRIDES['vision:out:tgate'] = { signal: 'gate', what: 'High while a finger is 
 OVERRIDES['lockstep:in:pat'] = { signal: 'cv', what: 'Picks the pattern by voltage (0–2.5 V A, to 5 V B, to 7.5 V C, above D), changing at the end of the bar: a sequencer or S&H arranges the song.' }
 OVERRIDES['motion:in:clk'] = { signal: 'clock', what: 'Clock in, in 16ths (CLOCK’s ×4): keeps the loops in time with the music.' }
 OVERRIDES['echo:in:cv'] = { signal: 'cv', what: 'Moves the RATE (the tape speed): the repeats bend in pitch.' }
-Object.assign(OVERRIDES, MORE_JACKS)
+Object.assign(OVERRIDES, MORE_JACKS, JACKS_3)
 
 export interface JackInfo {
   label: string

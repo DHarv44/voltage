@@ -17,6 +17,7 @@ import { SAMPLER_STARTERS } from './samplers'
 import { SONG_STARTERS } from './song'
 import { SOURCE_STARTERS } from './sources'
 import { TOOL_STARTERS } from './tools'
+import { FX2_STARTERS } from './fx2'
 import type { Starter } from './types'
 import { VISION_STARTERS } from './vision'
 import { VOICE_STARTERS } from './voices'
@@ -40,6 +41,7 @@ export const STARTERS: Record<string, Starter> = {
   ...SONG_STARTERS,
   ...SAMPLER_STARTERS,
   ...TOOL_STARTERS,
+  ...FX2_STARTERS,
 }
 
 /** A module's rig as a patch fragment, laid out for a `rail`-HP case. */
