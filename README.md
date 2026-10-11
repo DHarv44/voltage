@@ -302,7 +302,8 @@ who keeps time, who plays, and the knobs that make the sound).
   rename it, open **My racks**, save a copy, open or save a `.voltage` file, or start a new rack.
 - **My racks** has everything of yours in one window: racks kept in this browser, racks saved
   online (with their links), and **Earlier versions** of this rack.
-- **Explore** has things to load and pull apart: **Songs**, **Example racks** and the **Gallery**
+- **Explore** has things to load and pull apart: **Songs**, **Example racks** (synths, grooves,
+  ambient, two EDM racks with the sidechain pump: Trance Anthem and Deep House) and the **Gallery**
   of racks people have shared.
 - **Songs** load a whole track in the style of an era, from 1975 Berlin School to 2017 lo-fi
   hip-hop (16 so far): Electro, Synth-Pop, Italo Disco, Acid House, Detroit, Rave, Jungle, Dub

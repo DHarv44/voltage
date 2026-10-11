@@ -7,6 +7,7 @@ import { ambient, classicMono, monoLead, westCoast } from './synths'
 import { acidHouse, drumKit, loopJam } from './rhythm'
 import { euclidPolyrhythm, jellyDream, polyStrings, studioBleeps, studioClassic, tapeAmbient } from './more'
 import { pocketBand, pocketBass, pocketBoomBap, pocketElectro, pocketLofi } from './pocket'
+import { deepHouse, trance } from './edm'
 
 export interface Preset {
   id: string
@@ -57,9 +58,23 @@ export const PRESETS: Preset[] = [
   {
     id: 'ambient',
     name: 'Generative Ambient',
-    description: 'Clocked S&H picks pentatonic notes over a drone; long BBD and deep spring.',
+    description: 'Clocked S&H picks pentatonic notes over a soft drone, swelling in and out; long BBD and a big, dark plate.',
     howTo: 'Power on and let it play.',
     build: ambient,
+  },
+  {
+    id: 'trance',
+    name: 'Trance Anthem',
+    description: 'EDM at 138: four on the floor, a supersaw stabbing the off-beats under a breathing filter, a rolling bass, all pumping under the kick (CONSOLE ducking), into MASTER.',
+    howTo: 'Power on: it plays itself. Turn SWARM DETUNE and CUTOFF; turn the CONSOLE DUCK knobs for more or less pump.',
+    build: trance,
+  },
+  {
+    id: 'deep-house',
+    name: 'Deep House',
+    description: 'EDM at 122 with swing: electric-piano chord stabs in D minor, a deep syncopated bass, the pump from the kick, a plate.',
+    howTo: 'Power on: it plays itself. Try FM-4 VOICE (ORGAN), PROGRESSION MOOD, and the CONSOLE DUCK knobs.',
+    build: deepHouse,
   },
   {
     id: 'poly-strings',
