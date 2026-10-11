@@ -95,6 +95,8 @@ import { riser } from './specs/riser'
 import { automation } from './specs/automation'
 import { takes } from './specs/takes'
 import { conductor } from './specs/conductor'
+import { era } from './specs/era'
+import { lightpen } from './specs/lightpen'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -145,6 +147,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   ecosystem,
   loop,
   sample,
+  lightpen,
   turntable,
   chop,
   fourtrack,
@@ -207,6 +210,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   combofs,
   combolooper,
   riser,
+  era,
   bbd,
   tape,
   spring,
