@@ -31,6 +31,7 @@ export function Rack() {
   const innerRef = useRef<HTMLDivElement>(null)
   const rail = railHp(patch)
   const fitZoom = useFitZoom(scrollRef, rail)
+  const viewH = useViewHeight(scrollRef)
   const zoom = zoomSetting ?? fitZoom
   useLightShow(innerRef)
 
@@ -89,12 +90,14 @@ export function Rack() {
   const rows = patch.rows + (dragging ? 1 : 0) // a spare row to drop into
   const W = rackWidth(rail)
   const H = rackHeight(rows)
-  // the page always leaves room for that spare row, so starting a drag never
-  // changes the page's size (no scrollbar popping up, no rezoom mid-drag)
-  const roomH = rackHeight(patch.rows + 1)
+  // the page leaves room for that spare row when the window has the height to
+  // spare, so starting a drag doesn't pop a scrollbar up; when it hasn't, it
+  // leaves none (no scrollbar for a row that isn't there). The scrollbar's
+  // gutter is kept either way, so the zoom never changes mid-drag.
+  const sizerH = Math.max(rackHeight(patch.rows) * zoom, Math.min(rackHeight(patch.rows + 1) * zoom, viewH))
   return (
     <div className="rack-scroll" ref={scrollRef}>
-      <div className="rack-sizer" style={{ width: W * zoom, height: roomH * zoom }}>
+      <div className="rack-sizer" style={{ width: W * zoom, height: sizerH }}>
         <div
           className={cable && jackHints ? `rack hint-from-${cable.anchorDir} hint-fam-${dragFamily}` : 'rack'}
           ref={innerRef}
@@ -169,6 +172,21 @@ export function Rack() {
 }
 
 /** Zoom that fits the full rail width into the visible area. */
+/** The rack window's inner height (its padding taken off), kept current. */
+function useViewHeight(ref: React.RefObject<HTMLDivElement | null>): number {
+  const [h, setH] = useState(0)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const update = () => setH(el.clientHeight - 24)
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [ref])
+  return h
+}
+
 function useFitZoom(ref: React.RefObject<HTMLDivElement | null>, rail: number): number {
   const [z, setZ] = useState(0.8)
   useEffect(() => {
