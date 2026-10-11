@@ -154,6 +154,7 @@ export const CATALOG: Record<string, Entry> = {
   arranger: { tags: ['sequence', 'utility'], aka: ['song mode', 'arrangement', 'song arranger', 'timeline', 'sections', 'chain', 'intro', 'verse', 'chorus', 'mute', 'daw'] },
   arrangerxl: { tags: ['sequence', 'clock', 'utility'], aka: ['song mode', 'arrangement', 'song arranger', 'timeline', 'sections', 'intro', 'verse', 'chorus', 'drop', 'build', 'fade', 'key change', 'tempo map', 'daw', 'scene'] },
   chordtrack: { tags: ['chords', 'sequence', 'poly'], aka: ['chord track', 'chord sequencer', 'progression', 'lead sheet', 'chord chart', 'harmony', 'daw'] },
+  takes: { tags: ['record', 'sequence'], aka: ['takes', 'comping', 'comp', 'playlist', 'take lanes', 'punch in', 'best take', 'recorder', 'daw'] },
   automation: { tags: ['modulation', 'sequence'], aka: ['automation', 'automation lanes', 'envelope', 'breakpoint', 'filter sweep', 'fade', 'daw', 'song automation', 'function generator'] },
   riser: { tags: ['texture', 'beat', 'stereo'], aka: ['riser', 'uplifter', 'downlifter', 'build up', 'build-up', 'sweep', 'white noise', 'impact', 'boom', 'snare roll', 'edm', 'drop', 'fx'] },
   tr16: { tags: ['beat', 'sequence'], aka: ['drum sequencer', 'trigger sequencer', '808', 'song mode'] },

@@ -170,7 +170,7 @@ match), ☆ stars a module into Favourites, and the last few you added sit under
 | **Pedals** | Fuzz, wah, octave, chorus, tape echo, looper, valve amp, talk box |
 | **Sampling & Tape** | LOOP, SAMPLE, TURNTABLE (scratchable), CHOP (MPC-style), 4-TRACK |
 | **Controllers** | MIDI·CV, pads, touch plates, XY pad, audio in (mic/line), camera (motion), gamepad |
-| **Performance** | SCENES (rack snapshots), MACRO, ACCIDENT, **MOTION** (records a knob's movement and loops it in time: click a lane, turn any knob), **AUTOMATION** (four CV lanes drawn across a whole song, up to 128 bars, point to point: filter sweeps, swells, fades; follows ARRANGER XL's clock) |
+| **Performance** | SCENES (rack snapshots), MACRO, ACCIDENT, **MOTION** (records a knob's movement and loops it in time: click a lane, turn any knob), **AUTOMATION** (four CV lanes drawn across a whole song, up to 128 bars, point to point: filter sweeps, swells, fades; follows ARRANGER XL's clock), **TAKES** (record a passage up to four times in time with the song, then click the best bar of each take into one performance, the joins crossfaded; kept with the rack) |
 | **Visuals** | VISION, VISION CORE, VISION VIEW, vector CRT, spectrogram, light show, scope; meters: **ANALYSER** (spectrum with peak hold, loudness in LUFS (momentary, short-term, integrated, against a target), peaks, correlation; passes the sound through) and **TUNER** (needle and strobe, A4 415–466 Hz, PITCH and GATE out) |
 | **Output** | OUT, MONITOR, TAP (everything you hear, as a cable: resample the whole mix into SAMPLE, LOOP or CHOP) |
 

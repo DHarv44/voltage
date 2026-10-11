@@ -114,6 +114,7 @@ import { ArrangerXlDsp } from './arrangerXl'
 import { ChordTrackDsp } from './chordtrack'
 import { RiserDsp } from './riser'
 import { AutomationDsp } from './automation'
+import { TakesDsp } from './takes'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -148,6 +149,7 @@ const CIRCUITS: Record<string, DspCtor> = {
   chordtrack: ChordTrackDsp,
   riser: RiserDsp,
   automation: AutomationDsp,
+  takes: TakesDsp,
   slew: SlewDsp,
   quant: QuantizerDsp,
   atten: AttenDsp,

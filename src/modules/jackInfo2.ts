@@ -163,6 +163,11 @@ MORE_JACKS['chordtrack:out:notes'] = { signal: 'pitch', what: 'A poly cable: the
 MORE_JACKS['chordtrack:out:gate'] = { signal: 'gate', what: 'A poly cable: a gate per note, dropping for a moment on every chord change so each chord is played afresh.' }
 MORE_JACKS['chordtrack:out:root'] = { signal: 'pitch', what: 'The chord’s root, two octaves down (C2–B2): the bass note.' }
 MORE_JACKS['chordtrack:out:chg'] = { signal: 'trigger', what: 'A pulse on every chord change.' }
+MORE_JACKS['takes:in:in'] = { signal: 'audio', what: 'The part to record: a voice, an instrument, AUDIO IN.' }
+MORE_JACKS['takes:in:clk'] = { signal: 'clock', what: '16ths: takes are in time with these (ARRANGER XL’s or CLOCK’s CLK).' }
+MORE_JACKS['takes:in:rst'] = { signal: 'reset', what: 'Back to the top of the passage.' }
+MORE_JACKS['takes:in:rec'] = { signal: 'gate', what: 'A rising edge presses REC (a footswitch): the next pass from the top is recorded into the first empty take.' }
+MORE_JACKS['takes:out:out'] = { signal: 'audio', what: 'The comp: each bar from the take chosen for it (plus IN, with MONITOR on).' }
 MORE_JACKS['automation:in:clk'] = { signal: 'clock', what: '16ths: the lanes move along with these (ARRANGER XL’s CLK, so they follow the song).' }
 MORE_JACKS['automation:in:rst'] = { signal: 'reset', what: 'Back to bar 1 (ARRANGER XL’s RST).' }
 for (let l = 0; l < 4; l++) MORE_JACKS[`automation:out:cv${l}`] = { signal: 'cv', what: `Lane ${'ABCD'[l]}: 0–10 V (or ±5 V), gliding from point to point over the song. Patch to a filter’s CV, a VCA, an effect’s CV input.` }

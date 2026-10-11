@@ -110,6 +110,26 @@ export const SONG_STARTERS: Record<string, Starter> = {
       toOut(k, [plate, 'l'], [plate, 'r'], 0.55)
     },
   },
+  takes: {
+    howTo:
+      'A TURING melody that keeps changing, into TAKES over a beat. Press REC: the next 4-bar pass is take 1; press it again for take 2, 3, 4 (each a different melody). Then click cells to build one line from the best bar of each take, and turn MONITOR off (or TURING’s LEVEL down) to hear just the comp.',
+    build(k) {
+      const clock = k.add('clock', { bpm: 104 })
+      const d = kit(k, [{ kick: 'x...x...x...x...', snare: '....x.......x...', ch: 'x.x.x.x.x.x.x.x.' }])
+      k.wire([clock, 'x4'], [d.tr, 'clk'])
+      k.wire([clock, 'rst'], [d.tr, 'rst'])
+      const tm = k.add('turing', { change: 0.35 })
+      k.wire([clock, 'x2'], [tm, 'clk'])
+      const q = k.add('quant', { scale: 2 })
+      k.wire([tm, 'cv'], [q, 'in'])
+      const lead = voice(k, [q, 'out'], [clock, 'x2'], { osc: { type: 'vco', out: 'tri' }, filter: { type: 'vcf', params: { cutoff: 1800, res: 0.2 }, out: 'lp2' }, env: { d: 0.2, s: 0.3, r: 0.15 } })
+      const tk = k.add('takes')
+      k.wire(lead.out, [tk, 'in'])
+      k.wire([clock, 'x4'], [tk, 'clk'])
+      k.wire([clock, 'rst'], [tk, 'rst'])
+      toOut(k, mix(k, [d.out, [tk, 'out']], [0.7, 0.8]), undefined, 0.6)
+    },
+  },
   riser: {
     howTo:
       'A groove whose last two bars of every eight are a build: ARRANGER’s part 2 holds RISER’s GATE, the noise and tone climb, ROLL speeds a snare up on the clock, and when the gate falls the drop lands with an IMPACT and a downlifter. Try BRIGHT, TONE and IMPACT; patch SWEEP to a filter’s CV to open it into the drop.',

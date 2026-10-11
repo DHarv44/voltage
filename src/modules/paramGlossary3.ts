@@ -79,6 +79,12 @@ export const GAP_OVERRIDES: Record<string, string> = {
   'chordtrack:oct': 'Moves the chords and the root up or down by octaves.',
   'chordtrack:voicing': 'CLOSE: every note within an octave. DROP 2: the second note from the top drops an octave (a guitarist’s and arranger’s favourite). OPEN: spread wide.',
   'chordtrack:run': 'Starts and stops it (starting again begins at bar 1).',
+  // TAKES
+  'takes:tempo': 'The speed in beats per minute, when nothing is patched to CLK.',
+  'takes:bars': 'How long the passage is (1–16 bars): each take is one pass of it.',
+  'takes:level': 'The comp’s level at OUT.',
+  'takes:mon': 'ON: what comes in at IN is heard at OUT too (so you hear yourself while you record).',
+  'takes:run': 'Starts and stops it (starting again begins at the top of the passage).',
   // AUTOMATION
   'automation:tempo': 'The speed in beats per minute, when nothing is patched to CLK.',
   'automation:bars': 'How long the lanes are, in bars (up to 128): a whole song.',

@@ -93,6 +93,7 @@ import { arrangerxl } from './specs/arrangerXl'
 import { chordtrack } from './specs/chordtrack'
 import { riser } from './specs/riser'
 import { automation } from './specs/automation'
+import { takes } from './specs/takes'
 
 /** Module registry. Adding a module = a spec here + a DSP class in engine/dsp/registry. */
 export const SPEC_LIST: ModuleSpec[] = [
@@ -193,6 +194,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   arrangerxl,
   chordtrack,
   automation,
+  takes,
   arp,
   chord,
   ghost,
