@@ -642,6 +642,27 @@ material (no downloaded samples). Our own names; no Fairlight / Akai / MPC / SP 
   preamp / envelope follower; MONARCH's A-440 reference and pitch-wheel range; HALCYON's patch
   memories and a velocity option; LOCKSTEP recording straight into a track (IN + REC).
 
+### Utilities and module types (2026-10-12): done
+Discussed with the user after the systems; built in one go ("wrap up utilities and module types").
+- Utilities: wireless SEND / RECEIVE (eight channels, poly, summing; Dsp.link/deps make a RECEIVE
+  run after its SENDs), MIDI OUT (CV → MIDI notes and CCs; midiSend now sends whole messages),
+  RATCHET (clock ×N and bursts EVEN / SPEED UP / SLOW DOWN), GATE DELAY, COMPARE (window comparator
+  with hysteresis), CV MATH, XFADE, poly SPLIT / MERGE / UNISON, NOTES (ModuleInst.text, setText,
+  kept in share links).
+- Effects: PING-PONG (tempo-synced, ducking), FLANGER, ROTARY (horn + drum rotors with motor ramps,
+  Doppler, two mics), FREQ SHIFT (Hilbert allpass pair, SSB, feedback), COMB, FORMANT.
+- Mix tools: EQ (four bands, curve screen from engine/dsp/eqMath.ts), TRANSIENT, GATE (noise gate,
+  KEY, GATE out), OTT (3-band up/down compression, makeup with DEPTH).
+- Instruments: DRAWBAR (tonewheel organ), BREATH (flute jet / clarinet reed waveguides), CHOIR.
+- Sequencing: DRUM MAP (3 × 3 groove map, specs/drummapNodes.ts), STAIRCASE (stage sequencer),
+  FORTUNE (Marbles-style random), MIDI FILE (audio/parsers.ts SMF parser, factory Bach prelude,
+  file control `accept: 'midi'`), CLIPS (4 × 4 launcher, ties).
+- SPACE (binaural panner), TUNING (temperaments, EDOs, gamelan, Bohlen-Pierce, Scala via
+  `accept: 'scl'`).
+- Later: CLIPS longer clips and per-clip length; MIDI FILE tempo maps and a track picker; SPACE with
+  measured HRTFs; DRUM MAP more nodes and swing; global tuning for the keys; jackInfo2.ts (362 lines)
+  to split.
+
 ### New modules
 - **Low-pass gate**: vactrol LPG with the real vactrol attack/decay response.
 - **Physical models**: Karplus-Strong string, modal resonator (struck/bowed), formant filter, 16-band vocoder.
@@ -654,7 +675,7 @@ material (no downloaded samples). Our own names; no Fairlight / Akai / MPC / SP 
   - TR-16 step probability, ratchets and micro-timing.
 
 ### MIDI & sync
-- MIDI clock in and out; MIDI out (CV → MIDI) to drive external gear; MPE input to POLY·CV.
+- ~~MIDI clock in and out~~; ~~MIDI out (CV → MIDI)~~ (MIDI OUT); MPE input to POLY·CV.
 
 ### Realism
 - Neighbouring modules warm each other (a case temperature model); power-on thump.
