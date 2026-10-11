@@ -96,6 +96,7 @@ import { GhostDsp } from './ghost'
 import { ProgressionDsp } from './progression'
 import { BandmateDsp } from './bandmate'
 import { ComboCoreDsp } from './combo/coreDsp'
+import { ComboDsp } from './combo/comboDsp'
 import { AudioInDsp, CameraDsp, GamepadDsp } from './inputs'
 import { LightShowDsp, VectorDsp, WaterfallDsp } from './visualOut'
 import { AccidentDsp, MacroDsp, ScenesDsp } from './perform'
@@ -255,6 +256,7 @@ const CIRCUITS: Record<string, DspCtor> = {
   progression: ProgressionDsp,
   bandmate: BandmateDsp,
   combocore: ComboCoreDsp,
+  combo: ComboDsp,
   audioin: AudioInDsp,
   camera: CameraDsp,
   gamepad: GamepadDsp,

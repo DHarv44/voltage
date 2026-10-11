@@ -82,7 +82,11 @@ MORE_JACKS['stage:in:vel'] = { signal: 'cv', what: 'Velocity per note, 0–10 V:
 MORE_JACKS['stage:in:voct'] = { signal: 'pitch', what: 'The notes (a poly cable from POLY·CV or the PIANO ROLL plays a chord). With GATE empty it transposes the keys.' }
 MORE_JACKS['stage:in:gate'] = { signal: 'gate', what: 'Each note’s gate: its rise is the hammer, its fall lands the damper. Empty: STAGE plays from your keys.' }
 // COMBO and COMBO CORE
-const COMBO_TYPES = ['combocore']
+const COMBO_TYPES = ['combocore', 'combo']
+MORE_JACKS['combo:in:loop'] = { signal: 'gate', what: 'A footswitch for the LOOPER: record, then overdub, then play (it records one pass of the part playing).' }
+MORE_JACKS['combo:out:l'] = { signal: 'audio', what: 'The whole mix, left: your playing, the band and the loops.' }
+MORE_JACKS['combo:out:r'] = { signal: 'audio', what: 'The whole mix, right.' }
+MORE_JACKS['combo:out:bandout'] = { signal: 'audio', what: 'The band alone (drums and bass), to send somewhere else from your playing.' }
 for (const t of COMBO_TYPES) {
   const J: Record<string, { signal: 'audio' | 'pitch' | 'gate' | 'cv' | 'clock' | 'reset' | 'trigger'; what: string }> = {
     'in:in': { signal: 'audio', what: 'Your playing to teach it (patch AUDIO IN: a guitar, keys, a voice). With GATE patched it learns from V/OCT and GATE instead.' },

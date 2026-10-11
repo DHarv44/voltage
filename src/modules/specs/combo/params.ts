@@ -82,6 +82,8 @@ export const CL = {
   loops: 28,
   /** The BAND button's light (on while learning, pulsing on the beat while playing). */
   bandLed: 33,
+  /** The LOOPER button's light (the part's loop: recording, overdubbing, playing). */
+  loopLed: 34,
 } as const
-export const COMBO_LEDS = 34
+export const COMBO_LEDS = 35
 export const LEARN_FAILS = ['TOO SHORT', 'NOTHING HEARD', 'TEMPO?', 'NO CHORDS', 'TOO LONG']

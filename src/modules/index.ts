@@ -77,6 +77,7 @@ import { ghost } from './specs/ghost'
 import { progression } from './specs/progression'
 import { bandmate } from './specs/bandmate'
 import { combocore } from './specs/combo/core'
+import { combo } from './specs/combo/combo'
 import { audioin, camera, gamepad } from './specs/inputs'
 import { lightshow, vector, waterfall } from './specs/visualOut'
 import { accident, macro, scenes } from './specs/perform'
@@ -189,6 +190,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   ghost,
   progression,
   bandmate,
+  combo,
   combocore,
   bbd,
   tape,

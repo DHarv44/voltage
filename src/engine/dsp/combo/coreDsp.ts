@@ -40,6 +40,8 @@ export class ComboCoreDsp extends Dsp {
   }
   private wasPlaying = false
   private booted = false
+  /** The band's tempo this sample (learned beats a second). */
+  protected rateNow = 0
   // outputs (COMBO has only some of them: −1 when absent)
   private readonly oGates = ['kick', 'snare', 'hat', 'ohat', 'ride', 'tom', 'perc', 'crash'].map((id) => out(this.spec, id))
   private readonly oAcc = out(this.spec, 'acc')
@@ -131,7 +133,7 @@ export class ComboCoreDsp extends Dsp {
     this.writeParam(this.P.part, i)
   }
 
-  private sel(): number {
+  protected sel(): number {
     return Math.max(0, Math.min(COMBO_PARTS - 1, Math.round(this.p[this.P.part])))
   }
 
@@ -219,6 +221,7 @@ export class ComboCoreDsp extends Dsp {
     this.learn()
     const part = this.bank.parts[this.band.part]
     const rate = this.patched[this.iClk] && this.clkPeriod > 0 ? this.fs / (this.clkPeriod * 4) : (part.bpm * (1 + this.p[this.P.tempo] / 100)) / 60
+    this.rateNow = rate
     this.band.step(this.bank.parts, this.bank.feels, rate)
     if (!this.band.playing && this.status === 2) this.status = 0
     // the playing state is kept with the rack

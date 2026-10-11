@@ -44,6 +44,14 @@ export function coreBand(k: Kit, params: Record<string, number>): string {
 }
 
 export const COMBO_STARTERS: Record<string, Starter> = {
+  combo: {
+    howTo:
+      'COMBO’s own drummer and bass player on a blues shuffle in A (already taught). Turn GENRE and STYLE; press PART 1 for high intensity. Teach it your part: patch AUDIO IN to IN (or keys to V/OCT + GATE), select an empty part, press BAND, play, press BAND on the same downbeat. Press LOOPER while the band plays to loop yourself over the part.',
+    build(k) {
+      const c = k.add('combo', taught([[9, 2], [9, 2], [2, 2], [9, 2]], 96, 0, 1))
+      toOut(k, [c, 'l'], [c, 'r'], 0.6)
+    },
+  },
   combocore: {
     howTo:
       'COMBO CORE playing rock to Am, F, C, G (already taught), on KICK, SNARE, HATS and a bass voice. Turn GENRE and STYLE; press PART 1 for high intensity. To teach it your own part: press BAND (stopped), play your chords into IN (patch AUDIO IN) or keys into V/OCT + GATE, and press BAND on the same downbeat you started on.',

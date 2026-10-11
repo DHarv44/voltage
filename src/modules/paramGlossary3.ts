@@ -81,6 +81,12 @@ export const GAP_OVERRIDES: Record<string, string> = {
   'stage:level': 'Output level.',
   // COMBO
   ...comboTexts('combocore'),
+  ...comboTexts('combo'),
+  'combo:drums': 'The drummer’s level.',
+  'combo:bassl': 'The bass player’s level.',
+  'combo:loopl': 'The loops’ level (the middle is as loud as you played them).',
+  'combo:level': 'The whole mix: your playing, the band and the loops.',
+  'combo:stretch': 'When the tempo isn’t the one a loop was made at: STRETCH keeps its pitch (grains), TAPE speeds it up or slows it down with the pitch, like a tape machine.',
   // GRAND
   'grand:model': 'GRAND: long strings, a big soundboard, a long ring. UPRIGHT: shorter, stiffer strings in a boxier case. HONKY: the saloon upright with its unisons tuned wide.',
   'grand:bright': 'How hard the hammer felt is: from dark and woolly to bright and ringing (playing harder brightens it too).',
