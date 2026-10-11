@@ -99,6 +99,15 @@ export const GAP_OVERRIDES: Record<string, string> = {
   'lightpen:scale': 'The scale of the grid’s eight rows.',
   'lightpen:oct': 'Moves the grid’s rows up or down an octave.',
   'lightpen:seq': 'Starts and stops the grid (the keys and V/OCT + GATE play either way).',
+  // DUSTBOX
+  'dustbox:fx': 'The punch-in effect: VINYL (a worn record), CRUSH (bits and rate), FILTER (left of centre low-pass, right high-pass), STUTTER (the last 1/8 or 1/16 repeated in time), TAPE STOP, DUB (an echo that rings on).',
+  'dustbox:amount': 'How much of the effect (for FILTER: where it sweeps; STUTTER: 1/8 below half, 1/16 above).',
+  'dustbox:latch': 'HOLD: the effect is in while FX is held. LATCH: each press of FX switches it in or out.',
+  'dustbox:grit': 'The 12-bit converter: more of it lowers the rate and the bits, the grain the old samplers had.',
+  'dustbox:comp': 'The bus compressor: squashes the hits and pulls the room and tails up, the pumping lo-fi sound.',
+  'dustbox:pitch': 'Every pad up or down in semitones (played faster or slower, like a sampler).',
+  'dustbox:tempo': 'The tempo STUTTER and DUB follow, when nothing is patched to CLK.',
+  'dustbox:level': 'Output level.',
   // TRACKER
   'tracker:bpm': 'The tempo: ticks come BPM × 2 / 5 a second (125: fifty, the original’s video rate). An Fxx effect of 32 or more sets it too.',
   'tracker:speed': 'Ticks a row (6 is the classic): fewer is faster. Effects like slides and vibrato move once a tick. An Fxx effect under 32 sets it too.',

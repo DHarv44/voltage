@@ -25,6 +25,22 @@ export const SAMPLER_STARTERS: Record<string, Starter> = {
       toOut(k, [e, 'out'], undefined, 0.55)
     },
   },
+  dustbox: {
+    howTo:
+      'A boom-bap beat on DUSTBOX’s factory pads (a SEQ-8 picks the pad with PAD and plays it with TRIG). Hold FX for the effect (try STUTTER and TAPE STOP), turn GRIT and COMP. Press RESAMPLE to catch the beat with its effects onto pad 9, then play it from the pads.',
+    build(k) {
+      const clock = k.add('clock', { bpm: 88 })
+      // kick, hat, snare, hat, kick, kick, snare, hat (PAD: 0–2 V picks pads 1–4)
+      const seq = k.add('seq8', { s1: 0.1, s2: 1.3, s3: 0.7, s4: 1.3, s5: 0.1, s6: 0.1, s7: 0.7, s8: 1.3, g1: 1, g2: 1, g3: 1, g4: 1, g5: 1, g6: 1, g7: 1, g8: 1 })
+      k.wire([clock, 'x2'], [seq, 'clk'])
+      k.wire([clock, 'rst'], [seq, 'reset'])
+      const db = k.add('dustbox', { tempo: 88 })
+      k.wire([seq, 'cv'], [db, 'pcv'])
+      k.wire([seq, 'trig'], [db, 'trig'])
+      k.wire([clock, 'x4'], [db, 'clk'])
+      toOut(k, [db, 'l'], [db, 'r'], 0.55)
+    },
+  },
   tracker: {
     howTo:
       'TRACKER playing its factory song: a bass line on channel 1, the break’s own kick and snare cut out by the sample offset on channel 2, a bell tune with vibrato on 3, a choir pad on 4. Turn EDIT to REC, click a cell and play the keys to write notes; scroll on a cell’s note, sample or effect; switch the LED filter and the MODEL.',
