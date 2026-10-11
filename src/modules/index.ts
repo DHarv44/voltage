@@ -58,6 +58,7 @@ import { tumbler } from './specs/tumbler'
 import { sketchbook } from './specs/sketchbook'
 import { kin } from './specs/kin'
 import { pacific } from './specs/pacific'
+import { monarch } from './specs/monarch'
 import { undertone } from './specs/undertone'
 import { lockstep } from './specs/lockstep'
 import { lattice } from './specs/lattice'
@@ -115,6 +116,7 @@ export const SPEC_LIST: ModuleSpec[] = [
   lockstep,
   lattice,
   pacific,
+  monarch,
   polycv,
   pvco,
   pvcf,

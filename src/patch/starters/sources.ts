@@ -72,6 +72,20 @@ export const SOURCE_STARTERS: Record<string, Starter> = {
       toOut(k, [d, 'vca'], undefined, 0.5)
     },
   },
+  monarch: {
+    howTo:
+      'MONARCH playing a bass line from SEQ-8: two saws and a square an octave below, drifting a little against each other, through the ladder with a snappy filter contour. Turn CUTOFF, EMPHASIS and CONTOUR; push EXT · FEEDBACK up for the feedback grit; set RANGE 3 to LO, FILTER MOD ON and MOD AMOUNT up for a wobble. Play the keys for a lead (RANGEs to 8’ and 4’).',
+    build(k) {
+      const clock = k.add('clock', { bpm: 108 })
+      const seq = k.add('seq8', { s1: 0, s2: 0, s3: 0.25, s4: 0, s5: 0.5833, s6: 0.5, s7: 0.25, s8: 0.4167, g1: 1, g2: 1, g3: 1, g4: 0, g5: 1, g6: 1, g7: 1, g8: 1 })
+      k.wire([clock, 'x2'], [seq, 'clk'])
+      k.wire([clock, 'rst'], [seq, 'reset'])
+      const m = k.add('monarch')
+      k.wire([seq, 'cv'], [m, 'voct'])
+      k.wire([seq, 'gate'], [m, 'gate'])
+      toOut(k, [m, 'out'], undefined, 0.55)
+    },
+  },
   pacific: {
     howTo:
       'PACIFIC playing itself: the PULSER steps the five SEQUENTIAL VOLTAGES and strikes the ENVELOPE, which opens LOW-PASS GATE 1 and folds the TIMBRE; the vactrol’s slow, darkening close is the west-coast “bongo”. Turn TIMBRE, SYMMETRY and FM DEPTH; flip the WAVESHAPE; set GATE 1 FROM to PULSER for the bare strike; play the keys over it (PITCH FROM KEYS+SEQ transposes the phrase).',
