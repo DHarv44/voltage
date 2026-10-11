@@ -79,6 +79,15 @@ export const GAP_OVERRIDES: Record<string, string> = {
   'chordtrack:oct': 'Moves the chords and the root up or down by octaves.',
   'chordtrack:voicing': 'CLOSE: every note within an octave. DROP 2: the second note from the top drops an octave (a guitarist’s and arranger’s favourite). OPEN: spread wide.',
   'chordtrack:run': 'Starts and stops it (starting again begins at bar 1).',
+  // AUTOMATION
+  'automation:tempo': 'The speed in beats per minute, when nothing is patched to CLK.',
+  'automation:bars': 'How long the lanes are, in bars (up to 128): a whole song.',
+  'automation:loop': 'LOOP: go round again after the last bar. HOLD: stay at the end until RST (for a song played once).',
+  'automation:run': 'Starts and stops it (starting again begins at bar 1).',
+  'automation:rng0': 'Lane A’s output: 0–10 V (for levels, cutoffs, anything that only goes up) or ±5 V (around a knob’s setting).',
+  'automation:rng1': 'Lane B’s output: 0–10 V or ±5 V.',
+  'automation:rng2': 'Lane C’s output: 0–10 V or ±5 V.',
+  'automation:rng3': 'Lane D’s output: 0–10 V or ±5 V.',
   // RISER
   'riser:len': 'How long a rise takes when a GATE starts it (with RAMP patched, the ramp sets the pace instead).',
   'riser:noise': 'The white-noise sweep climbing through a tightening filter.',

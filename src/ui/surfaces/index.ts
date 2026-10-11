@@ -51,6 +51,7 @@ import { PianoRoll } from './PianoRoll'
 import { Arranger } from './Arranger'
 import { ArrangerXl } from './ArrangerXl'
 import { ChordTrack } from './ChordTrack'
+import { Automation } from './Automation'
 
 /** Played instrument surfaces, by the `name` a spec's surface control uses. */
 export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
@@ -111,4 +112,5 @@ export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
   arranger: Arranger,
   arrangerxl: ArrangerXl,
   chordtrack: ChordTrack,
+  automation: Automation,
 }

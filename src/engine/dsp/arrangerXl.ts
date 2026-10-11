@@ -110,7 +110,8 @@ export class ArrangerXlDsp extends Dsp {
     if (stepped) this.advance()
     this.sinceStep++
     const o = this.out
-    o[this.O.clko] = c.clkSample()
+    // a song played ONCE that has ended stops clocking the rack too
+    o[this.O.clko] = this.done ? 0 : c.clkSample()
     o[this.O.rsto] = c.rstSample()
     const on = this.section >= 0 && !this.done
     const cur = this.section < 0 ? 0 : Math.min(this.section, this.len() - 1)

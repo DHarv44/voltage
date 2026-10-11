@@ -582,6 +582,28 @@ button.rec:hover:not(:disabled) {
     background 0.15s,
     box-shadow 0.15s;
 }
+/* BOUNCE: a fixed width too (its progress mustn't move anything) */
+button.bounce-btn {
+  width: 92px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid #3a3c41;
+  background: linear-gradient(#2a2b2f, #1c1d20);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+button.bounce-btn:hover,
+button.bounce-btn.active {
+  border-color: #55585e;
+}
+button.bounce-btn.on {
+  border-color: var(--accent);
+  color: var(--accent);
+}
 button.rec {
   justify-content: center;
   width: 118px; /* fits STOP 00:00, so starting a recording moves nothing */

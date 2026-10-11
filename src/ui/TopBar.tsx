@@ -3,6 +3,7 @@ import { engine } from '../audio/engine'
 import { recorder, useRecorder } from '../audio/recorder'
 import { history, patchStore } from '../patch/store'
 import { AppMenu } from './AppMenu'
+import { BounceMenu } from './BounceMenu'
 import { ExploreMenu } from './ExploreMenu'
 import { PowerButton } from './PowerButton'
 import { RackTitle } from './racks/RackTitle'
@@ -46,6 +47,7 @@ export function TopBar() {
           <span className="rec-dot" />
           {rec.recording ? `STOP ${fmtTime(rec.seconds)}` : 'REC'}
         </button>
+        <BounceMenu />
         <span className="tb-sep" />
         <button className="history-btn" onClick={history.undo} disabled={!history.canUndo()} title={`Undo (${mod}+Z)`} aria-label="Undo">
           ↶

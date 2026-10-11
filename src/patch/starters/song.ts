@@ -88,6 +88,28 @@ export const SONG_STARTERS: Record<string, Starter> = {
       toOut(k, [plate, 'l'], [plate, 'r'], 0.55)
     },
   },
+  automation: {
+    howTo:
+      'AUTOMATION’s lane A rides a pad’s filter over 32 bars: opening over the first sixteen, holding, sweeping down for a breakdown, then up again. Click a lane to add a point (Shift for any 16th), drag points about, right-click to delete. Lane B is patched to the pad’s DETUNE: draw on it.',
+    build(k) {
+      const clock = k.add('clock', { bpm: 112 })
+      const au = k.add('automation')
+      k.wire([clock, 'x4'], [au, 'clk'])
+      k.wire([clock, 'rst'], [au, 'rst'])
+      const ct = k.add('chordtrack')
+      k.wire([clock, 'x4'], [ct, 'clk'])
+      k.wire([clock, 'rst'], [ct, 'rst'])
+      const pad = k.add('swarm', { detune: 0.3, mix: 0.5, cutoff: 200, cvamt: 0.6, att: 0.05, rel: 0.5, level: 0.5 })
+      k.wire([ct, 'notes'], [pad, 'voct'])
+      k.wire([ct, 'gate'], [pad, 'gate'])
+      k.wire([au, 'cv0'], [pad, 'cut'])
+      k.wire([au, 'cv1'], [pad, 'det'])
+      const bass = voice(k, [ct, 'root'], [clock, 'x2'], { filter: { type: 'vcf', params: { cutoff: 380, res: 0.3 }, out: 'lp4' }, env: { d: 0.18, s: 0.4, r: 0.06 } })
+      const plate = k.add('plate', { decay: 0.6, mix: 0.25 })
+      k.wire(mix(k, [[pad, 'l'], bass.out], [0.7, 0.7]), [plate, 'in'])
+      toOut(k, [plate, 'l'], [plate, 'r'], 0.55)
+    },
+  },
   riser: {
     howTo:
       'A groove whose last two bars of every eight are a build: ARRANGER’s part 2 holds RISER’s GATE, the noise and tone climb, ROLL speeds a snare up on the clock, and when the gate falls the drop lands with an IMPACT and a downlifter. Try BRIGHT, TONE and IMPACT; patch SWEEP to a filter’s CV to open it into the drop.',

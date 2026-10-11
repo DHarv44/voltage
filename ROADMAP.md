@@ -341,8 +341,13 @@ extend VOLTAGE.
   2/OPEN, per-voice retrigger gates, ROOT, KEY in; `add9` quality added to combo/chords.ts),
   RISER (riser.ts: TPT-SVF noise sweep, detuned rising saws, roll on CLK, SWEEP CV, impact +
   downlifter + HIT). The Voltage song rebuilt on all three (presets/voltageSong.ts +
-  voltageSongParts.ts). Next ideas, not built: CONDUCTOR (tempo map), song-long automation
-  lanes, SONG RECORDER (offline bounce to WAV), TAKE/COMP.
+  voltageSongParts.ts). ~~SONG RECORDER~~ (BOUNCE beside REC: audio/bounce.ts +
+  bounceWorker.ts, a Graph in a Web Worker rendering faster than real time, the song once
+  through via the arranger's END pulse + 4 s tail, recordings sent along, 24-bit WAV; ARRANGER XL
+  stops clocking when a ONCE song ends. Limitation: page-side knob movers (MOTION, MACRO, SCENES)
+  aren't in a bounce), ~~song-long automation~~ (AUTOMATION: 4 CV lanes × 32 points over up to
+  128 bars, drawn on its screen, counts 16ths from RST). Not built: CONDUCTOR (tempo map;
+  ARRANGER XL's per-section TEMPO covers most of it), TAKE/COMP.
   ~~per-module presets~~ (done: right-click → Presets; patch/modulePresets.ts in localStorage
   `voltage.modulePresets.v1`, cleaned against the spec on load; cloud saving can carry them).
   The gaps batch is done; next: cloud saving (sign-in still to discuss).

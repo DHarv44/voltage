@@ -136,6 +136,10 @@ Patch **MIDI·CV** (or use a module with a built-in keybed) and play:
 
 ### Recording
 **REC** in the top bar records the master output to a 24-bit WAV until you press it again.
+**BOUNCE** beside it renders the rack to a WAV without playing it, faster than real time, in the
+background: the whole song once through (with its reverb tail) when an ARRANGER or ARRANGER XL
+leads the rack, or 30 s to 5 minutes. Loops and samples go with it; knobs moved by MOTION, MACRO
+or SCENES don't (they're moved by the page, not the engine), but AUTOMATION's lanes do.
 
 ---
 
@@ -166,7 +170,7 @@ match), ☆ stars a module into Favourites, and the last few you added sit under
 | **Pedals** | Fuzz, wah, octave, chorus, tape echo, looper, valve amp, talk box |
 | **Sampling & Tape** | LOOP, SAMPLE, TURNTABLE (scratchable), CHOP (MPC-style), 4-TRACK |
 | **Controllers** | MIDI·CV, pads, touch plates, XY pad, audio in (mic/line), camera (motion), gamepad |
-| **Performance** | SCENES (rack snapshots), MACRO, ACCIDENT, **MOTION** (records a knob's movement and loops it in time: click a lane, turn any knob) |
+| **Performance** | SCENES (rack snapshots), MACRO, ACCIDENT, **MOTION** (records a knob's movement and loops it in time: click a lane, turn any knob), **AUTOMATION** (four CV lanes drawn across a whole song, up to 128 bars, point to point: filter sweeps, swells, fades; follows ARRANGER XL's clock) |
 | **Visuals** | VISION, VISION CORE, VISION VIEW, vector CRT, spectrogram, light show, scope; meters: **ANALYSER** (spectrum with peak hold, loudness in LUFS (momentary, short-term, integrated, against a target), peaks, correlation; passes the sound through) and **TUNER** (needle and strobe, A4 415–466 Hz, PITCH and GATE out) |
 | **Output** | OUT, MONITOR, TAP (everything you hear, as a cable: resample the whole mix into SAMPLE, LOOP or CHOP) |
 
