@@ -60,6 +60,7 @@ import { Jungle } from './Jungle'
 import { Deck } from './Deck'
 import { Zones } from './Zones'
 import { HalcyonKeys } from './HalcyonKeys'
+import { Notes } from './Notes'
 
 /** Played instrument surfaces, by the `name` a spec's surface control uses. */
 export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
@@ -129,4 +130,5 @@ export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
   deck: Deck,
   zones: Zones,
   halcyonkeys: HalcyonKeys,
+  notes: Notes,
 }

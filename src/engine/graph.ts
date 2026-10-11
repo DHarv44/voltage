@@ -46,6 +46,8 @@ export class Graph {
       from.outPatched[c.fromOut] = 1
     }
     this.mods = next
+    const all = [...next.values()]
+    for (const d of all) d.link?.(all)
     if (this.probe) this.setProbe(this.probe.id) // re-attach (or drop) after the rebuild
     this.order = topoOrder([...next.values()])
   }
@@ -178,6 +180,7 @@ function topoOrder(mods: Dsp[]): Dsp[] {
     if (state.has(d)) return
     state.set(d, 1)
     for (const s of d.srcMod) if (s && !state.has(s)) visit(s)
+    if (d.deps) for (const s of d.deps) if (!state.has(s)) visit(s)
     state.set(d, 2)
     out.push(d)
   }

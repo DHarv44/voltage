@@ -165,6 +165,11 @@ export const actions = {
     )
   },
 
+  /** A module's written text (NOTES); typing merges into one undo step. */
+  setText(id: string, text: string): void {
+    set({ ...state, modules: state.modules.map((m) => (m.id === id ? { ...m, text } : m)) }, `${id}:text`)
+  },
+
   /** Several params at once (XY morph), as one merged undo step per `key`. */
   setParams(updates: [string, string, number][], key: string): void {
     if (!updates.length) return

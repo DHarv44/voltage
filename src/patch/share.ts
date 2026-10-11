@@ -30,7 +30,7 @@ function compact(p: Patch) {
         const v = m.params[ps.id]
         if (v !== undefined && v !== ps.def) params[ps.id] = v // exact: it should arrive as sent
       }
-      return { id: m.id, type: m.type, row: m.row, hp: m.hp, seed: m.seed, params, width: m.width, morph: m.morph }
+      return { id: m.id, type: m.type, row: m.row, hp: m.hp, seed: m.seed, params, width: m.width, morph: m.morph, text: m.text }
     }),
     cables: p.cables,
   }

@@ -37,6 +37,11 @@ export abstract class Dsp {
   readonly chans: Int32Array
   /** Changed audio buffers awaiting persistence (LOOP slots, SAMPLE). */
   readonly bufferOut: { slot: number; rate: number; data: Float32Array }[] = []
+  /** Modules this one reads without a cable (a wireless RECEIVE's SENDs):
+   *  run before it, like an upstream cable. */
+  deps: Dsp[] | null = null
+  /** Called with every module after each patch rebuild (for cable-less links). */
+  link?(mods: Dsp[]): void
 
   private readonly target: Float64Array
   private readonly smooth: Uint8Array

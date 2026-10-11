@@ -60,6 +60,8 @@ import { kin } from './specs/kin'
 import { pacific } from './specs/pacific'
 import { monarch } from './specs/monarch'
 import { halcyon } from './specs/halcyon'
+import { midiout, recv, send } from './specs/wiring'
+import { compare, cvmath, gatedelay, merge, notes, ratchet, split, unison, xfade } from './specs/tools'
 import { undertone } from './specs/undertone'
 import { lockstep } from './specs/lockstep'
 import { lattice } from './specs/lattice'
@@ -259,6 +261,18 @@ export const SPEC_LIST: ModuleSpec[] = [
   mult,
   logic,
   atten,
+  cvmath,
+  compare,
+  gatedelay,
+  ratchet,
+  xfade,
+  send,
+  recv,
+  split,
+  merge,
+  unison,
+  midiout,
+  notes,
   scenes,
   macro,
   motion,

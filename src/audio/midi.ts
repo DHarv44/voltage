@@ -34,7 +34,13 @@ export async function initMidi(send: Send, status: (s: string) => void): Promise
 export function midiSend(bytes: number[], atMs: number[]): void {
   if (!access) return
   access.outputs.forEach((out) => {
-    for (let i = 0; i < bytes.length; i++) out.send([bytes[i]], atMs[i])
+    // whole messages: realtime bytes alone, notes / CCs / bends with their data
+    for (let i = 0; i < bytes.length; ) {
+      const s = bytes[i]
+      const n = s >= 0xf8 ? 1 : (s & 0xf0) === 0xc0 || (s & 0xf0) === 0xd0 ? 2 : s >= 0x80 ? 3 : 1
+      if (i + n <= bytes.length && s >= 0x80) out.send(bytes.slice(i, i + n), atMs[i])
+      i += n
+    }
   })
 }
 

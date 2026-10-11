@@ -16,6 +16,7 @@ import { RHYTHM_STARTERS } from './rhythm'
 import { SAMPLER_STARTERS } from './samplers'
 import { SONG_STARTERS } from './song'
 import { SOURCE_STARTERS } from './sources'
+import { TOOL_STARTERS } from './tools'
 import type { Starter } from './types'
 import { VISION_STARTERS } from './vision'
 import { VOICE_STARTERS } from './voices'
@@ -38,6 +39,7 @@ export const STARTERS: Record<string, Starter> = {
   ...COMBO_STARTERS,
   ...SONG_STARTERS,
   ...SAMPLER_STARTERS,
+  ...TOOL_STARTERS,
 }
 
 /** A module's rig as a patch fragment, laid out for a `rail`-HP case. */

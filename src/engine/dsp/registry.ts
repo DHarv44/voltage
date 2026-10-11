@@ -126,6 +126,8 @@ import { ZonesDsp } from './zones'
 import { PacificDsp } from './pacific'
 import { MonarchDsp } from './monarch'
 import { HalcyonDsp } from './halcyon'
+import { MidiOutDsp, RecvDsp, SendDsp } from './wiring'
+import { CompareDsp, CvMathDsp, GateDelayDsp, MergeDsp, NotesDsp, RatchetDsp, SplitDsp, UnisonDsp, XfadeDsp } from './tools'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -172,6 +174,18 @@ const CIRCUITS: Record<string, DspCtor> = {
   pacific: PacificDsp,
   monarch: MonarchDsp,
   halcyon: HalcyonDsp,
+  send: SendDsp,
+  recv: RecvDsp,
+  midiout: MidiOutDsp,
+  ratchet: RatchetDsp,
+  gatedelay: GateDelayDsp,
+  compare: CompareDsp,
+  cvmath: CvMathDsp,
+  xfade: XfadeDsp,
+  split: SplitDsp,
+  merge: MergeDsp,
+  unison: UnisonDsp,
+  notes: NotesDsp,
   slew: SlewDsp,
   quant: QuantizerDsp,
   atten: AttenDsp,

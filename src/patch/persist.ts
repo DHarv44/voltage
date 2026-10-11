@@ -53,6 +53,9 @@ function sanitizeMorph(raw: unknown[]): (MorphSnapshot | null)[] {
 
 const num = (v: unknown, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d)
 
+/** The longest NOTES text kept (characters). */
+export const MAX_TEXT = 4000
+
 /** Accepts anything (saved or imported JSON) and returns a valid patch or null. */
 export function sanitize(raw: unknown): Patch | null {
   if (!raw || typeof raw !== 'object') return null
@@ -71,6 +74,7 @@ export function sanitize(raw: unknown): Patch | null {
       ...(typeof m.width === 'number' && SPECS[m.type].sizes?.includes(m.width) ? { width: m.width } : {}),
       params: { ...defaultParams(SPECS[m.type]), ...(typeof m.params === 'object' ? m.params : {}) },
       ...(Array.isArray(m.morph) ? { morph: sanitizeMorph(m.morph) } : {}),
+      ...(typeof m.text === 'string' ? { text: m.text.slice(0, MAX_TEXT) } : {}),
     })
   }
   const byId = new Map(modules.map((m) => [m.id, m]))

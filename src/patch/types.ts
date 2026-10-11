@@ -16,6 +16,8 @@ export interface ModuleInst {
   /** XY pad morph corners (A top-left, B top-right, C bottom-left, D bottom-right):
    *  knob snapshots keyed "moduleId/param". */
   morph?: (MorphSnapshot | null)[]
+  /** Words written on the module (NOTES). */
+  text?: string
 }
 
 export type MorphSnapshot = Record<string, number>
