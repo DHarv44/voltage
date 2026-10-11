@@ -150,6 +150,18 @@ extend VOLTAGE.
   (scratch the platter; flywheel motor + brake, 33/45, pitch, transformer CUT, strobe dots, cartridge
   output follows stylus velocity, crackle/rumble WEAR; cut your own record or load a file; factory
   battle record is synthesised).
+- **Period samplers** (on a shared sampler core: engine/dsp/sampling: the era converters with
+  µ-law companding, a voice with variable-rate DAC playback and loops, synthesised factory sounds,
+  a multisample zone map): ERA (cable through a converter generation; RATE × and BITS ± off the
+  era), LIGHTPEN (8 voices of variable-rate playback, per-voice bits, 16×8 grid, REC/LOAD),
+  TRACKER (4 channels × 4 patterns × 64 rows, 12 effects, order list, LED filter, step entry
+  from the keys), DUSTBOX (16 pads, 6 punch-in effects hold/latch, GRIT, COMP, RESAMPLE, MIDI
+  36–51), JUNGLE (32 slices, 16 steps with rolls/reverse, REPITCH or CYCLIC stretch, CRUNCH,
+  random EDIT), DECK (4 tracks SLICE/HIT, 16 trigs each, scenes A/B of cutoff, pitch, level and
+  crush on a crossfader with CV, bar-synced pickup REC into any track, per-track outs), ZONES
+  (8 voices, nearest-root zones, velocity layers, per-zone round robin; AUTO drives CV/GATE/VEL
+  into a rack voice and records it as a grid of takes, kept with the rack; factory TINE PIANO,
+  11 notes × 2 layers × 2 takes).
 - **Utilities / I/O**: MIX, STEREO, MULT, ATTN, LOGIC, SCOPE, MIDI·CV (aftertouch, bend range), OUT, MONITOR,
   TAP (the speakers' mix as a cable, for resampling into SAMPLE / LOOP / CHOP).
 - **Mix bus**: CONSOLE (6 channels: tilt-EQ TONE, PAN, post-fader SEND, LEVEL, MUTE, and a per-channel
@@ -569,21 +581,18 @@ Have: MONO-1, STUDIO-3, GROOVE-1, SKETCHBOOK, KIN-8, UNDERTONE, LOCKSTEP, LATTIC
 - A "how this song works" tour per song (tutorial runner: ring each part, say what the era's
   trick is and which knob shows it off).
 
-## Pinned for later: samplers (industry review)
+## Samplers (industry review): done
 A sampler's sound is its hardware, so model the hardware: bits, rate, anti-alias filter (or none),
 variable-rate playback (aliasing that follows pitch), companding, per-voice analog filter, time-stretch
 artifacts, swing. Material: record from IN (any rack sound), load your own, or synthesised factory
 material (no downloaded samples). Our own names; no Fairlight / Akai / MPC / SP / Octatrack marks.
-1. **Sampler core**: shared playback with a converter model; CHOP moves onto it.
-2. **ERA**: run any cable through a period converter (8-bit variable-rate, 12-bit punchy, Amiga, 90s rack).
-3. **TRACKER**: Amiga-style tracker (Paula 8-bit ~28 kHz + LED filter; vertical rows, effect columns).
-4. **Lo-fi FX sampler** (SP-404 / EP-133 style): pads, punch-in effects, fader moves recorded,
-   resampling (vinyl sim, crushing compressor, bitcrush, filter).
-5. **Early-80s workstation** (Fairlight / Emulator style): pitched per-key sample with variable-rate
-   aliasing, grid sequencer, our own synthesised orchestra stab.
-6. **JUNGLE** (S950 style): cyclic time-stretch artifacts on breaks built from our drum models.
-7. **Performance sampler** (Octatrack style): 4–8 tracks, live slicing, scene crossfader, pickup looper.
-8. **Multisample instrument**: zones, velocity layers, round robin, filled from rack recordings.
+1. ~~Sampler core~~ (done). Later: move CHOP onto it.
+2. ~~ERA~~, 3. ~~TRACKER~~, 4. ~~lo-fi FX sampler~~ (DUSTBOX), 5. ~~early-80s workstation~~
+   (LIGHTPEN), 6. ~~JUNGLE~~, 7. ~~performance sampler~~ (DECK), 8. ~~multisample instrument~~
+   (ZONES): all done.
+- Later: DUSTBOX fader moves recorded; DECK's tracks pitched per step (parameter locks) and more
+  scenes; ZONES auto-looping of sustained takes and loading a folder of samples as zones; TRACKER
+  more effects (5, 6, 7, B and the other E commands); LIGHTPEN pattern chaining.
 
 ## Pinned for later: Teenage Engineering-inspired (our own names, look and sounds)
 - ~~Spinning-shape physics sequencer~~ (done: TUMBLER).
