@@ -72,6 +72,14 @@ export const SOURCE_STARTERS: Record<string, Starter> = {
       toOut(k, [d, 'vca'], undefined, 0.5)
     },
   },
+  pacific: {
+    howTo:
+      'PACIFIC playing itself: the PULSER steps the five SEQUENTIAL VOLTAGES and strikes the ENVELOPE, which opens LOW-PASS GATE 1 and folds the TIMBRE; the vactrol’s slow, darkening close is the west-coast “bongo”. Turn TIMBRE, SYMMETRY and FM DEPTH; flip the WAVESHAPE; set GATE 1 FROM to PULSER for the bare strike; play the keys over it (PITCH FROM KEYS+SEQ transposes the phrase).',
+    build(k) {
+      const w = k.add('pacific')
+      toOut(k, [w, 'out'], undefined, 0.55)
+    },
+  },
   undertone: {
     howTo: 'UNDERTONE clocking KIN-8 (its CLK into KIN-8 ADV). Light other RHYTHMS squares, try XOR, turn the SUB ÷ knobs.',
     build(k) {

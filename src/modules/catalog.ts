@@ -46,6 +46,7 @@ export const CATALOG: Record<string, Entry> = {
   kin: { tags: ['beat', 'sequence', 'plays itself'], aka: ['dfam', 'drummer from another mother', 'moog', 'semi-modular'] },
   undertone: { tags: ['drone', 'ambient', 'generative', 'sequence', 'plays itself'], aka: ['subharmonicon', 'moog', 'polyrhythm', 'subharmonics'] },
   lockstep: { tags: ['beat', 'bass', 'sequence', 'stereo', 'plays itself'], aka: ['elektron', 'digitone', 'digitakt', 'p-lock', 'parameter lock', 'fm', 'groovebox'] },
+  pacific: { tags: ['melody', 'sequence', 'plays itself', 'texture'], aka: ['music easel', 'easel', 'buchla', 'west coast', 'west-coast', 'complex oscillator', 'wavefolder', 'lpg', 'low pass gate', 'vactrol', 'bongo', 'semi-modular'] },
   lattice: { tags: ['generative', 'melody', 'beat', 'touch', 'plays itself'], aka: ['tenori-on', 'yamaha', 'grid', 'monome', 'light grid'] },
   pocket: { tags: ['beat', 'sequence', 'plays itself'], aka: ['pocket operator', 'po-12', 'teenage engineering', 'calculator'] },
   pocketbass: { tags: ['bass', 'sequence'], aka: ['pocket operator', 'tb-303', '303', 'acid'] },
