@@ -164,6 +164,8 @@ export const CATALOG: Record<string, Entry> = {
     tags: ['beat', 'bass', 'generative', 'plays itself', 'record'],
     aka: ['band', 'backing band', 'band in a box', 'trio', 'trio+', 'band creator', 'looper', 'jam', 'guitar', 'accompaniment', 'learn chords', 'practice'],
   },
+  combofs: { tags: ['utility', 'touch'], aka: ['footswitch', 'fs3x', 'pedal', 'stomp', 'band switch'] },
+  combolooper: { tags: ['record'], aka: ['looper', 'loop pedal', 'part looper', 'band looper'] },
   combocore: {
     tags: ['beat', 'bass', 'generative', 'plays itself'],
     aka: ['band', 'backing band', 'band in a box', 'trio', 'band creator', 'accompaniment', 'drums and bass', 'chord follower', 'guitar', 'learn chords'],

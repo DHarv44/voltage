@@ -78,6 +78,7 @@ import { progression } from './specs/progression'
 import { bandmate } from './specs/bandmate'
 import { combocore } from './specs/combo/core'
 import { combo } from './specs/combo/combo'
+import { combofs, combolooper } from './specs/combo/peripherals'
 import { audioin, camera, gamepad } from './specs/inputs'
 import { lightshow, vector, waterfall } from './specs/visualOut'
 import { accident, macro, scenes } from './specs/perform'
@@ -192,6 +193,8 @@ export const SPEC_LIST: ModuleSpec[] = [
   bandmate,
   combo,
   combocore,
+  combofs,
+  combolooper,
   bbd,
   tape,
   spring,

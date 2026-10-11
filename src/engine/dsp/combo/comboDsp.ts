@@ -31,6 +31,7 @@ export class ComboDsp extends ComboCoreDsp {
   private readonly loopIn = new Schmitt()
   private genre = -1
   private bassWas = false
+  private loopSeen = 0
 
   constructor(spec: ModuleSpec, fs: number, seed: number) {
     super(spec, fs, seed)
@@ -50,11 +51,6 @@ export class ComboDsp extends ComboCoreDsp {
       this.bufferOut.push({ slot: p, rate: this.fs, data: new Float32Array(0) })
       this.writeParam(this.pLt[p], 0)
     }
-  }
-
-  /** The part the looper works on: the one playing, else the one selected. */
-  private loopPart(): number {
-    return this.band.playing ? this.band.part : this.sel()
   }
 
   private pressLoop(): void {
@@ -102,11 +98,20 @@ export class ComboDsp extends ComboCoreDsp {
     const bass = this.bassVoice.step() * p[this.M.bassl]
     // the looper: its stomp on a gate too
     if (this.loopIn.rise(this.in[this.iLoop])) this.pressLoop()
+    // (a FOOTSWITCH's LOOPER stomp)
+    if (this.loopPresses !== this.loopSeen) {
+      this.loopSeen = this.loopPresses
+      this.pressLoop()
+    }
     const lp = this.loopPart()
     const part = this.bank.parts[lp]
     const phase = b.playing && part.beats > 0 ? Math.max(0, Math.min(0.999999, b.pos / part.beats)) : -1
     const x = this.in[this.iAudio]
     const loop = this.looper.step(lp, x, phase, this.rateNow * 60, p[this.M.stretch] >= 0.5) * p[this.M.loopl]
+    if (this.looper.closed >= 0) {
+      this.saveLoop(this.looper.closed)
+      this.looper.closed = -1
+    }
     const band = (drums + bass) * 2.5
     const mix = (x + band + loop) * p[this.M.level]
     this.out[this.oL] = mix

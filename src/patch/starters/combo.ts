@@ -52,6 +52,45 @@ export const COMBO_STARTERS: Record<string, Starter> = {
       toOut(k, [c, 'l'], [c, 'r'], 0.6)
     },
   },
+  combofs: {
+    howTo:
+      'A FOOTSWITCH on COMBO CORE’s LINK. Stomp PART to cue the other part (a second one is taught: it comes in after a fill), BAND to stop (and again to start), hold BAND two seconds (stopped) to forget a part. LOOPER works any linked LOOPER.',
+    build(k) {
+      const p = taught(AM_F_C_G, 104, 5, 0)
+      // a second part: a chorus on C, G, Am, F
+      Object.assign(p, {
+        n1: 16,
+        m1: 4,
+        t1: 104,
+        g1: 5,
+        s1: 5,
+        v1: 1,
+        c1_0: 0 * 256 + chordCode(0, 0) + 1,
+        c1_1: 4 * 256 + chordCode(7, 0) + 1,
+        c1_2: 8 * 256 + chordCode(9, 1) + 1,
+        c1_3: 12 * 256 + chordCode(5, 0) + 1,
+      })
+      const core = coreBand(k, p)
+      const fs = k.add('combofs')
+      k.wire([core, 'link'], [fs, 'link'])
+    },
+  },
+  combolooper: {
+    howTo:
+      'COMBO’s band with a LOOPER on its LINK, and an FM-4 line from a PIANO ROLL coming into it. Press LOOPER: it records one pass of the part, then plays it in time; press again to overdub, UNDO to take it back. Mute the PIANO ROLL and the loop plays on. Turn COMBO’s TEMPO: STRETCH keeps the loop’s pitch, TAPE doesn’t.',
+    build(k) {
+      const c = k.add('combo', taught(AM_F_C_G, 92, 5, 2))
+      const pr = k.add('pianoroll', { tempo: 92 })
+      const fm = k.add('fm4', { voice: 0, level: 0.6 })
+      k.wire([pr, 'pitch'], [fm, 'voct'])
+      k.wire([pr, 'gate'], [fm, 'gate'])
+      k.wire([c, 'clko'], [pr, 'clk'])
+      const lp = k.add('combolooper')
+      k.wire([c, 'link'], [lp, 'link'])
+      k.wire([fm, 'out'], [lp, 'in'])
+      toOut(k, mix(k, [[c, 'l'], [lp, 'mix']], [0.7, 0.7]))
+    },
+  },
   combocore: {
     howTo:
       'COMBO CORE playing rock to Am, F, C, G (already taught), on KICK, SNARE, HATS and a bass voice. Turn GENRE and STYLE; press PART 1 for high intensity. To teach it your own part: press BAND (stopped), play your chords into IN (patch AUDIO IN) or keys into V/OCT + GATE, and press BAND on the same downbeat you started on.',

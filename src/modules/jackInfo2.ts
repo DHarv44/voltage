@@ -83,6 +83,15 @@ MORE_JACKS['stage:in:voct'] = { signal: 'pitch', what: 'The notes (a poly cable 
 MORE_JACKS['stage:in:gate'] = { signal: 'gate', what: 'Each note’s gate: its rise is the hammer, its fall lands the damper. Empty: STAGE plays from your keys.' }
 // COMBO and COMBO CORE
 const COMBO_TYPES = ['combocore', 'combo']
+MORE_JACKS['combofs:in:link'] = { signal: 'cv', what: 'The LINK from a COMBO or COMBO CORE: the stomps work that band.' }
+MORE_JACKS['combofs:out:gband'] = { signal: 'gate', what: 'High while the BAND stomp is down.' }
+MORE_JACKS['combofs:out:gloop'] = { signal: 'gate', what: 'High while the LOOPER stomp is down.' }
+MORE_JACKS['combofs:out:gpart'] = { signal: 'gate', what: 'High while the PART stomp is down.' }
+MORE_JACKS['combolooper:in:in'] = { signal: 'audio', what: 'What to loop: your guitar (from AUDIO IN), a synth, the mix.' }
+MORE_JACKS['combolooper:in:link'] = { signal: 'cv', what: 'The LINK from a COMBO or COMBO CORE: a loop for each of its parts, in time with its band. Unpatched, a free looper.' }
+MORE_JACKS['combolooper:in:loop'] = { signal: 'gate', what: 'A footswitch for LOOPER: record, then overdub, then play.' }
+MORE_JACKS['combolooper:out:out'] = { signal: 'audio', what: 'The loops alone.' }
+MORE_JACKS['combolooper:out:mix'] = { signal: 'audio', what: 'What comes in (at DRY) with the loops.' }
 MORE_JACKS['combo:in:loop'] = { signal: 'gate', what: 'A footswitch for the LOOPER: record, then overdub, then play (it records one pass of the part playing).' }
 MORE_JACKS['combo:out:l'] = { signal: 'audio', what: 'The whole mix, left: your playing, the band and the loops.' }
 MORE_JACKS['combo:out:r'] = { signal: 'audio', what: 'The whole mix, right.' }

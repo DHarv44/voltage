@@ -1,17 +1,15 @@
 import { CL, COMBO_PARTS, LEARN_FAILS } from '../../../modules/specs/combo/params'
-import { chordQuality, chordRoot } from '../../../modules/specs/combo/chords'
 import type { ModuleSpec } from '../../../modules/types'
 import type { UiEvent } from '../../protocol'
 import { Dsp } from '../base'
 import { Schmitt } from '../cores'
-import { Band, GATE_SLOTS } from './band'
+import { Band } from './band'
 import { ChromaListener, frameSeconds } from './chroma'
+import { BandOutputs } from './coreOutputs'
 import { Learner } from './learner'
 import { PartBank, styleHints } from './parts'
 
 const HOLD_S = 2
-const PULSE_S = 0.005
-const out = (spec: ModuleSpec, id: string) => spec.outputs.findIndex((j) => j.id === id)
 
 /** COMBO CORE: teach it a part, and the band plays it (see band.ts, learner.ts).
  *  COMBO builds on it with its own sounds and looper (comboDsp.ts). */
@@ -42,17 +40,8 @@ export class ComboCoreDsp extends Dsp {
   private booted = false
   /** The band's tempo this sample (learned beats a second). */
   protected rateNow = 0
-  // outputs (COMBO has only some of them: −1 when absent)
-  private readonly oGates = ['kick', 'snare', 'hat', 'ohat', 'ride', 'tom', 'perc', 'crash'].map((id) => out(this.spec, id))
-  private readonly oAcc = out(this.spec, 'acc')
-  private readonly oBass = out(this.spec, 'bass')
-  private readonly oBgate = out(this.spec, 'bgate')
-  private readonly oChord = out(this.spec, 'chord')
-  private readonly oRoot = out(this.spec, 'root')
-  private readonly oClk = out(this.spec, 'clko')
-  private readonly oRst = out(this.spec, 'rsto')
-  private readonly gateT = new Int32Array(10)
-  private readonly pulse: number
+  /** The band's gates and CV (whichever jacks this module has). */
+  private readonly cv: BandOutputs
   private readonly bandIn = new Schmitt()
   private readonly nextIn = new Schmitt()
   private readonly rstIn = new Schmitt()
@@ -79,10 +68,37 @@ export class ComboCoreDsp extends Dsp {
     this.band = new Band(fs)
     this.listener = new ChromaListener(fs)
     this.learner = new Learner(fs, frameSeconds(fs))
-    this.pulse = Math.round(PULSE_S * fs)
+    this.cv = new BandOutputs(spec, fs)
   }
 
   private write = (i: number, v: number): void => this.writeParam(i, v)
+
+  // ---- for the LINK peripherals (FOOTSWITCH, LOOPER) ----
+
+  /** LOOPER presses from a FOOTSWITCH: loopers watch this count. */
+  loopPresses = 0
+
+  /** A FOOTSWITCH stomp: BAND, LOOPER (counted for the loopers), PART (the next part). */
+  footswitch(name: string, down: boolean): void {
+    if (name === 'band') {
+      if (down) this.bandDown()
+      else this.bandUp()
+    } else if (!down) return
+    else if (name === 'loop') this.loopPresses++
+    else if (name === 'part') this.pressPart(this.band.playing ? this.nextLearned() : (this.sel() + 1) % COMBO_PARTS)
+  }
+
+  /** The band's tempo now (bpm), and how long a part is (learned beats; 0 not learned). */
+  get bpmNow(): number {
+    return this.rateNow * 60
+  }
+  partBeats(p: number): number {
+    return this.bank.parts[p].beats
+  }
+  /** The part a looper works on: the one playing, else the one selected. */
+  loopPart(): number {
+    return this.band.playing ? this.band.part : this.sel()
+  }
 
   onUi(ev: UiEvent): void {
     if (ev.kind !== 'button') return
@@ -229,10 +245,11 @@ export class ComboCoreDsp extends Dsp {
       this.wasPlaying = this.band.playing
       this.writeParam(this.P.run, this.band.playing ? 1 : 0)
     }
-    this.outputs(rate)
+    this.cv.write(this.band, this.out, this.polyOut, this.chans)
+    this.screen(rate)
   }
 
-  private nextLearned(): number {
+  protected nextLearned(): number {
     for (let k = 1; k <= COMBO_PARTS; k++) {
       const i = (this.band.part + k) % COMBO_PARTS
       if (this.bank.learned(i)) return i
@@ -260,37 +277,6 @@ export class ComboCoreDsp extends Dsp {
       const li = this.listener
       if (li.ready) L.addFrame(li.chroma, li.bass, li.flux, li.energy)
     }
-  }
-
-  private outputs(rate: number): void {
-    const o = this.out
-    const b = this.band
-    for (let k = 0; k < 8; k++) {
-      if (b.hit[GATE_SLOTS[k]] > 0) this.gateT[k] = this.pulse
-      if (this.oGates[k] >= 0) o[this.oGates[k]] = this.gateT[k] > 0 ? 10 : 0
-      if (this.gateT[k] > 0) this.gateT[k]--
-    }
-    let acc = false
-    for (let k = 0; k < 8; k++) if (b.hit[GATE_SLOTS[k]] >= 0.9) acc = true
-    if (acc) this.gateT[8] = this.pulse
-    if (this.oAcc >= 0) o[this.oAcc] = this.gateT[8] > 0 ? 10 : 0
-    if (this.gateT[8] > 0) this.gateT[8]--
-    if (b.tick16 || b.partStart) this.gateT[9] = this.pulse
-    if (this.oBass >= 0) o[this.oBass] = (b.bassPitch - 60) / 12
-    if (this.oBgate >= 0) o[this.oBgate] = b.bassGate ? 10 : 0
-    if (this.oClk >= 0) o[this.oClk] = b.tick16 || this.gateT[9] > 0 ? 10 : 0
-    if (this.oRst >= 0) o[this.oRst] = b.partStart ? 10 : 0
-    if (this.gateT[9] > 0) this.gateT[9]--
-    if (this.oChord >= 0) {
-      const c = b.chord
-      const tones = c >= 0 ? chordQuality(c).tones : null
-      const root = c >= 0 ? 48 + chordRoot(c) : 48
-      const n = tones ? tones.length : 1
-      for (let k = 0; k < n; k++) this.pout(this.oChord, k, tones ? (root + tones[k] - 60) / 12 : 0)
-      this.chans[this.oChord] = n
-      if (this.oRoot >= 0) o[this.oRoot] = (root - 60) / 12
-    }
-    this.screen(rate)
   }
 
   private screen(rate: number): void {

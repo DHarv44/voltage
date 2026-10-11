@@ -276,9 +276,12 @@ extend VOLTAGE.
   double), SIMPLE BASS (active / roots / one root a bar), part intensity, cue-at-part-end with
   fills, count-in, endings, per-part genre/style, loops per part with overdub + undo. Loop tempo
   following is a toggle: STRETCH (granular, pitch kept) or TAPE (varispeed).
-  ~~Batch 1: style library + band engine~~ (specs/combo, engine/dsp/combo/band.ts). Next: the
-  learner (chroma + onsets from audio, notes from cables; tempo / meter / bars / chord per beat;
-  feel), COMBO CORE, COMBO's kit + bass + looper, the peripherals, the faces.
+  All done (2026-10-10/11): ~~style library + band engine~~ (specs/combo, engine/dsp/combo/band.ts),
+  ~~learner~~ (chroma.ts peak-picked chroma + bass chroma + flux; analyse.ts bar/meter/tempo
+  search, bar-first chords with overtone-aware templates), ~~COMBO CORE~~ (coreDsp.ts, parts in
+  params, comboscreen), ~~COMBO~~ (kit.ts, bassVoice.ts, partLooper.ts with WSOLA STRETCH / TAPE),
+  ~~FOOTSWITCH and LOOPER~~ (peripherals.ts). Later, if wanted: guitar FX per genre, a song
+  sequence inside COMBO (ARRANGER covers it), tempo following live playing.
 - **UI / UX redesign** (branch `ui-redesign`, 2026-10-09): three zones (Add | Play | Understand),
   plain words in the chrome, a visual system. Phase 1 (done on the branch): a start screen that is
   also the audio-unlock click (first visit: hear something / learn / start empty; a shared rack's

@@ -107,22 +107,42 @@ export class PartLooper {
     return this.len[p] ? this.bufs[p]!.subarray(0, this.len[p]) : null
   }
 
+  /** A loop that closed by itself on the last step (one pass done, or the
+   *  band moved to another part): save it. −1 none. */
+  closed = -1
+  private lastPart = -1
+
   /** One sample on part p. `phase` 0..1 through the part (−1: no band),
    *  `bpm` the band's tempo now, `stretch` STRETCH (else TAPE). */
   step(p: number, x: number, phase: number, bpm: number, stretch: boolean): number {
+    // the band moved on mid-recording: that part's loop closes where it got to
+    if (p !== this.lastPart) {
+      const q = this.lastPart
+      if (q >= 0 && (this.state[q] === L_REC || this.state[q] === L_DUB)) {
+        this.state[q] = L_PLAY
+        this.closed = q
+      }
+      this.lastPart = p
+    }
     const s = this.state[p]
     const buf = this.bufs[p]
     if (s === L_NONE || !buf) return 0
     // a loop made with the band plays with the band, and rests when it stops
     if (phase < 0 && this.bpm[p] > 0) {
-      if (s === L_REC || s === L_DUB) this.state[p] = L_PLAY
+      if (s === L_REC || s === L_DUB) {
+        this.state[p] = L_PLAY
+        this.closed = p
+      }
       return 0
     }
     const banded = phase >= 0 && this.bpm[p] > 0
     if (s === L_REC) {
       if (banded) {
         buf[Math.min(this.len[p] - 1, Math.floor(phase * this.len[p]))] = x
-        if (++this.done[p] >= this.len[p]) this.state[p] = L_PLAY
+        if (++this.done[p] >= this.len[p]) {
+          this.state[p] = L_PLAY
+          this.closed = p
+        }
       } else {
         if (this.done[p] < buf.length) buf[this.done[p]++] = x
         else this.press(p, 0, 0)

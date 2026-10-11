@@ -97,6 +97,7 @@ import { ProgressionDsp } from './progression'
 import { BandmateDsp } from './bandmate'
 import { ComboCoreDsp } from './combo/coreDsp'
 import { ComboDsp } from './combo/comboDsp'
+import { ComboFsDsp, ComboLooperDsp } from './combo/peripherals'
 import { AudioInDsp, CameraDsp, GamepadDsp } from './inputs'
 import { LightShowDsp, VectorDsp, WaterfallDsp } from './visualOut'
 import { AccidentDsp, MacroDsp, ScenesDsp } from './perform'
@@ -257,6 +258,8 @@ const CIRCUITS: Record<string, DspCtor> = {
   bandmate: BandmateDsp,
   combocore: ComboCoreDsp,
   combo: ComboDsp,
+  combofs: ComboFsDsp,
+  combolooper: ComboLooperDsp,
   audioin: AudioInDsp,
   camera: CameraDsp,
   gamepad: GamepadDsp,

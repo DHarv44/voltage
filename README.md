@@ -160,7 +160,7 @@ match), ☆ stars a module into Favourites, and the last few you added sit under
 | **CV Tools** | Quantizer, slew, S&H, T&H (track & hold), CHANCE (coin-toss gates), SWITCH (sequential switch, both ways), attenuverters, mult, logic, chord generator |
 | **Drums** | Analog kick, snare, clap, hats, toms, perc |
 | **Sequencers** | Clock (its screen shows the tempo, the four beats of the bar and the bar count: a metronome you can see), dividers, SEQ-8, TR-16, Euclid, Turing machine, arpeggiator, **PIANO ROLL** (draw notes and chords over four bars, with a velocity lane and a sustain-pedal lane; poly pitch, gate and velocity out, and PEDAL for a piano's SUS), **ARRANGER** (a song as sections: bars, a pattern letter for LOCKSTEP / LATTICE and four parts brought in and out by gates); three metronomes: METRONOME (accented click, subdivisions, tap tempo, follows CLK), **MAELZEL** (a simulated clockwork pendulum: winds down, ticks unevenly off level, and two on a shared plank fall into step), **COACH** (practice: tempo ramps to a target, gap-click silent bars, polyrhythm click; clocks a drum machine along) |
-| **Brains** | GHOST (answers your phrases), PROGRESSION (chord progressions), BANDMATE (a drummer) |
+| **Brains** | GHOST (answers your phrases), PROGRESSION (chord progressions), BANDMATE (a drummer), **COMBO** and **COMBO CORE** (a band that learns your part: see below) |
 | **Simulations** | BOUNCE, TUMBLER, ORBIT, LIFE, FLOCK, CHAOS, ECOSYSTEM: physics and biology as sequencers |
 | **Effects** | BBD, tape echo, spring, plate, phaser, ensemble, pitch-correction, echo chamber, **RESONATOR** (makes anything ring: a struck or bowed object, sympathetic strings tuned to chords, plucked strings; up to four voices, stereo), VOCODER (16 bands: make a synth talk, or a beat sing); for ambient: **GRAINS** (granular clouds from the last 4 s, FREEZE a moment), **SHIMMER** (a reverb whose tail climbs in octaves), **SHIFT** (two-voice harmoniser with a feedback spiral) |
 | **Pedals** | Fuzz, wah, octave, chorus, tape echo, looper, valve amp, talk box |
@@ -173,6 +173,32 @@ match), ☆ stars a module into Favourites, and the last few you added sit under
 ---
 
 ## Highlights
+
+### COMBO: a band that learns your part
+
+Teach it a part by playing it, and its drummer and bass player play along.
+
+- **Teach:** select a PART, press **BAND**, play (a guitar or voice through AUDIO IN into **IN**, or
+  keys / the PIANO ROLL into **V/OCT + GATE**), and press **BAND** again on the same downbeat you
+  started on. It works out the tempo, meter (4/4, 3/4 or 12/8), how many bars, the chord on every
+  beat and whether you swung it, and the band comes straight in. Up to five parts (48 bars each).
+- **Play:** 12 genres × 12 styles (blues, R&B, rock, alternative, metal, pop, electronic pop,
+  hip-hop, country, folk, Latin, jazz; nine in 4/4, three in 3/4). The dots on the screen suggest
+  styles: green ones match the meter and feel you played, amber ones the meter. **ALT TIME** tries
+  double or half time; **BASS** plays the style's line, just roots, or one root a bar; each part
+  keeps its own genre and style. Press another PART while playing to cue it (it comes in at the
+  end of this one, after a fill); press the playing part for high intensity. BAND stops with an
+  ending; hold it two seconds to forget a part. COUNT-IN clicks four sticks first.
+- **COMBO** has its own synthesised kit and bass player (each genre's: a room kit for rock, a jazz
+  kit with brushes, a drum machine for electronic pop and hip-hop; finger, pick, upright, synth
+  or 808 bass) and a **looper**: LOOPER records exactly one pass of the part playing, then
+  overdubs; UNDO, CLEAR; one loop per part, kept with the rack. **LOOP TEMPO** chooses what a loop
+  does when the tempo moves: **STRETCH** keeps its pitch, **TAPE** varispeeds it.
+- **COMBO CORE** is the brain alone: drum triggers, bass V/OCT and gate, the chords (poly) and
+  root, a 16th clock and part resets, for any modules you like; PART CV and NEXT so ARRANGER can
+  run the song; CLK in to follow a clock.
+- On **LINK**: a **FOOTSWITCH** (BAND, LOOPER and PART stomps) and **LOOPER** modules (a loop per
+  part on their own input, in time with the band; add several).
 
 ### VISION: living scenes you patch
 A glass tank with a creature in it, running on the same clock as the audio. CV steers it (TRIG,
