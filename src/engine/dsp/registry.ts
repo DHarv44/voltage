@@ -122,6 +122,7 @@ import { TrackerDsp } from './tracker'
 import { DustboxDsp } from './dustbox'
 import { JungleDsp } from './jungle'
 import { DeckDsp } from './deck'
+import { ZonesDsp } from './zones'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
 
@@ -164,6 +165,7 @@ const CIRCUITS: Record<string, DspCtor> = {
   dustbox: DustboxDsp,
   jungle: JungleDsp,
   deck: DeckDsp,
+  zones: ZonesDsp,
   slew: SlewDsp,
   quant: QuantizerDsp,
   atten: AttenDsp,

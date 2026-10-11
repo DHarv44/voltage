@@ -40,6 +40,23 @@ export const SAMPLER_STARTERS: Record<string, Starter> = {
       toOut(k, mix(k, [[j, 'out'], sub.out], [0.8, 0.75]), undefined, 0.55)
     },
   },
+  zones: {
+    howTo:
+      'ZONES’ factory TINE PIANO (eleven notes × two velocity layers × two round robins) playing PIANO ROLL’s four bars at their own velocities: soft notes mellow, hard ones bark. Play the keys or the keyboard on its screen (lower is harder). Then press AUTO: it plays the synth below note by note through CV, GATE and VEL and records each one back through IN; when it’s done, SOURCE turns to OWN and the piano roll plays your synth as a multisample.',
+    build(k) {
+      const pr = k.add('pianoroll')
+      const z = k.add('zones')
+      k.wire([pr, 'pitch'], [z, 'voct'])
+      k.wire([pr, 'gate'], [z, 'gate'])
+      k.wire([pr, 'vel'], [z, 'vel'])
+      // the rack voice AUTO samples: velocity opens its filter
+      const synth = voice(k, [z, 'cvo'], [z, 'gto'], { osc: { type: 'vco', out: 'saw' }, filter: { type: 'vcf', params: { cutoff: 450, res: 0.25, cv: 0.3 }, out: 'lp4' }, env: { a: 0.01, d: 0.9, s: 0.45, r: 0.5 }, filterCv: [z, 'vlo'] })
+      k.wire(synth.out, [z, 'in'])
+      const plate = k.add('plate', { decay: 0.5, mix: 0.2 })
+      k.wire(mix(k, [[z, 'l'], [z, 'r'], synth.out], [0.6, 0.6, 0.45]), [plate, 'in'])
+      toOut(k, [plate, 'l'], [plate, 'r'], 0.55)
+    },
+  },
   deck: {
     howTo:
       'DECK playing the break, a choir and orchestra hits, with a bass line beside it. Drag the CROSSFADER right for scene B (the break filtered and crushed, the hits an octave down: a breakdown), back left for the drop. Press REC: the next bar of the bass becomes track 4’s own loop, sliced and playing at once. Click trigs to change them; drag the A and B sliders to make your own scenes.',
