@@ -92,6 +92,26 @@ export const jellyScene: SceneFactory = (aspect, seed) => {
   let reach = 1
   const rig = new CameraRig(camera, bg)
   const hit = new THREE.Vector3()
+  // each jelly's last place and smoothed velocity: a bell swims top-first, so
+  // it leans the way it's going (but sinking, it stays upright: no flipping)
+  const was = Array.from({ length: JELLIES }, () => new THREE.Vector3(Number.NaN, 0, 0))
+  const vel = Array.from({ length: JELLIES }, () => new THREE.Vector3())
+  const lean = (j: number, at: THREE.Vector3, dt: number, baseTilt: number, basePitch: number) => {
+    const w = was[j]
+    const v = vel[j]
+    if (!Number.isNaN(w.x) && dt > 0) {
+      const k = 1 - Math.exp(-dt / 0.35)
+      v.x += ((at.x - w.x) / dt - v.x) * k
+      v.y += ((at.y - w.y) / dt - v.y) * k
+      v.z += ((at.z - w.z) / dt - v.z) * k
+    }
+    w.copy(at)
+    const speed = Math.hypot(v.x, v.y, v.z)
+    const follow = Math.min(1, Math.max(0, (speed - 0.015) / 0.08)) // still: its own lean; swimming: along its path
+    const up = Math.max(v.y, speed * 0.35) // never pointing down
+    pose.tilt = baseTilt + (Math.max(-1.1, Math.min(1.1, Math.atan2(v.x, up))) - baseTilt) * follow
+    pose.pitch = basePitch + (Math.max(-0.9, Math.min(0.9, Math.atan2(v.z, up))) - basePitch) * follow
+  }
 
   /** A spot in the tank (0..1 across, up, deep) → world, inside the glass. */
   const place = (x: number, y: number, d: number, out: THREE.Vector3) => {
@@ -126,8 +146,7 @@ export const jellyScene: SceneFactory = (aspect, seed) => {
       reach = (CAM_Z - lead.z) / CAM_Z
       const glow = Math.min(1.5, s.glow)
       pose.pos.copy(lead)
-      pose.pitch = pitch
-      pose.tilt = s.tilt
+      lean(0, lead, dt, s.tilt, pitch)
       pose.yaw = Math.sin(t * 0.15 + phase) * 0.4
       pose.R = 0.15 * (0.55 + 0.9 * s.grow)
       pose.action = s.action
@@ -155,8 +174,7 @@ export const jellyScene: SceneFactory = (aspect, seed) => {
         place(cx, cy, cd, pose.pos)
         const back = Math.round(m.delay / (ECHO / echo.length))
         pose.action = echo[(echoAt - back + echo.length * 4) % echo.length]
-        pose.pitch = Math.cos(t * m.fz * 6.28 + m.ph * 0.6) * 0.35
-        pose.tilt = -Math.cos(t * m.fx * 6.28 + m.ph) * 0.3
+        lean(j, pose.pos, dt, -Math.cos(t * m.fx * 6.28 + m.ph) * 0.3, Math.cos(t * m.fz * 6.28 + m.ph * 0.6) * 0.35)
         pose.yaw = Math.sin(t * 0.13 + m.ph) * 0.4
         pose.R = 0.15 * m.size * (0.55 + 0.9 * s.grow)
         pose.glow = glow * (0.45 + 0.55 * cd) * 0.85
