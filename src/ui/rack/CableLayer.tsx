@@ -1,4 +1,5 @@
-import { memo } from 'react'
+import { memo, useSyncExternalStore } from 'react'
+import { jackHover } from './jackHover'
 import { SPECS } from '../../modules'
 import type { ModuleInst, Patch } from '../../patch/types'
 import { jackPos, type Placement, type Pt } from '../geometry'
@@ -14,13 +15,19 @@ interface Props {
   height: number
 }
 
-/** Patch cables hang under gravity: sag grows with length. */
+/** Patch cables hang under gravity: sag grows with length. Rest the pointer
+ *  on a patched jack (or its plug) and its cables light up end to end, as in
+ *  the lessons, while the rest dim: which wire goes where, at a glance. */
 export function CableLayer({ patch, place, drag, opacity, width, height }: Props) {
+  const hover = useSyncExternalStore(jackHover.subscribe, jackHover.get)
   const byId = new Map(patch.modules.map((m) => [m.id, m]))
   const pos = (mod: string, jack: string, dir: 'in' | 'out') => {
     const m = byId.get(mod)
     return m ? jackPos(m, jack, dir, place(m)) : null
   }
+  const lit = (c: Patch['cables'][number]) =>
+    !!hover && !drag && (hover.dir === 'out' ? c.from.mod === hover.mod && c.from.jack === hover.jack : c.to.mod === hover.mod && c.to.jack === hover.jack)
+  const anyLit = patch.cables.some(lit)
 
   let dragStart: Pt | null = null
   if (drag) dragStart = pos(drag.anchor.mod, drag.anchor.jack, drag.anchorDir)
@@ -33,9 +40,26 @@ export function CableLayer({ patch, place, drag, opacity, width, height }: Props
           const b = pos(c.to.mod, c.to.jack, 'in')
           const src = byId.get(c.from.mod)
           const poly = !!src && !!SPECS[src.type]?.outputs.find((j) => j.id === c.from.jack)?.poly
-          return a && b ? <Cable key={c.id} ax={a.x} ay={a.y} bx={b.x} by={b.y} color={c.color} poly={poly} /> : null
+          if (!a || !b) return null
+          return (
+            <g key={c.id} opacity={anyLit && !lit(c) ? 0.3 : 1}>
+              <Cable ax={a.x} ay={a.y} bx={b.x} by={b.y} color={c.color} poly={poly} />
+            </g>
+          )
         })}
       </g>
+      {anyLit &&
+        patch.cables.filter(lit).map((c) => {
+          const a = pos(c.from.mod, c.from.jack, 'out')
+          const b = pos(c.to.mod, c.to.jack, 'in')
+          return a && b ? (
+            <g key={`lit-${c.id}`} className="cable-lit">
+              <path d={cablePath(a, b)} className="cable-lit-path" />
+              <circle cx={a.x} cy={a.y} r={14} className="cable-lit-end" />
+              <circle cx={b.x} cy={b.y} r={14} className="cable-lit-end" />
+            </g>
+          ) : null
+        })}
       {drag && dragStart && <Cable ax={dragStart.x} ay={dragStart.y} bx={drag.x} by={drag.y} color={drag.color} />}
     </svg>
   )

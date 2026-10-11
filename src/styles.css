@@ -1026,6 +1026,22 @@ button.power.on {
   filter: drop-shadow(0 0 3px #ffd25a);
   animation: tut-march 0.8s linear infinite;
 }
+/* a hovered jack's cables, lit end to end (the lessons' look) */
+.cable-lit-path {
+  fill: none;
+  stroke: #ffd25a;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 2 12;
+  filter: drop-shadow(0 0 4px #ffd25a);
+  animation: tut-march 0.8s linear infinite;
+}
+.cable-lit-end {
+  fill: none;
+  stroke: #ffd25a;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 3px #ffd25a);
+}
 @keyframes tut-march {
   to {
     stroke-dashoffset: -14;
