@@ -38,7 +38,7 @@ export function pickInstrument(r: VoiceRequest): Pick {
       score = 1
       why = `the synth voice (nothing plays ${r.timbre})`
     } else continue
-    if (r.c.cutoffMoves && !ins.cutoffCv) score -= 3
+    if (r.c.cutoffMoves && !ins.cutoffCv && ins.fallback) score -= 3
     if (score > bestScore) {
       bestScore = score
       best = { type, why }

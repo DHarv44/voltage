@@ -26,9 +26,11 @@ export function planLanes(run: Run, maxLanes: number): LanePlan {
     const pats = layers.length <= maxLanes ? layers : [...layers.slice(0, maxLanes - 1), mergeLayers(layers.slice(maxLanes - 1))]
     return { pats, byName: null, rest: pats.length - 1, names: pats.map((_, i) => `layer ${i + 1}`) }
   }
-  // count each non-drum sound over the piece (or 32 cycles), then group by timbre
+  // count each non-drum sound over the piece (or 32 cycles), with the filter
+  // and dirt it typically asks for, then group what one instrument can play:
+  // the same timbre with a filter within half an octave and the same dirt
   const cycles = Math.min(64, root.cycles || 32)
-  const counts = new Map<string, number>()
+  const stats = new Map<string, SoundStat>()
   for (let c = 0; c < cycles; c++) {
     let haps
     try {
@@ -41,17 +43,24 @@ export function planLanes(run: Run, maxLanes: number): LanePlan {
       const s = soundKey(h.v.s)
       if (s && drumOf(s) >= 0) continue
       if (h.v.note === undefined && h.v.n === undefined && h.v.freq === undefined) continue
-      counts.set(s, (counts.get(s) ?? 0) + 1)
+      const st = stats.get(s) ?? stats.set(s, { count: 0, lpf: [], hpf: [], dirt: [] }).get(s)!
+      st.count++
+      if (typeof h.v.lpf === 'number') st.lpf.push(h.v.lpf)
+      if (typeof h.v.hpf === 'number') st.hpf.push(h.v.hpf)
+      if (typeof h.v.shape === 'number') st.dirt.push(h.v.shape)
+      else if (typeof h.v.distort === 'number') st.dirt.push(h.v.distort / 4)
     }
   }
-  const groups = new Map<string, { sounds: string[]; count: number }>()
-  for (const [s, n] of [...counts.entries()].sort((a, b) => b[1] - a[1])) {
-    const t = timbreOfSound(s)
-    const g = groups.get(t) ?? groups.set(t, { sounds: [], count: 0 }).get(t)!
-    g.sounds.push(s)
-    g.count += n
+  const groups: { sounds: string[]; count: number; sig: Signature }[] = []
+  for (const [s, st] of [...stats.entries()].sort((a, b) => b[1].count - a[1].count)) {
+    const sig = signatureOf(s, st)
+    const g = groups.find((x) => compatible(x.sig, sig))
+    if (g) {
+      g.sounds.push(s)
+      g.count += st.count
+    } else groups.push({ sounds: [s], count: st.count, sig })
   }
-  const ranked = [...groups.values()].sort((a, b) => b.count - a.count)
+  const ranked = groups.sort((a, b) => b.count - a.count)
   const label = (g: { sounds: string[] }) => g.sounds.map((s) => s || 'triangle').join(' + ')
   const byName = new Map<string, number>()
   const names: string[] = []
@@ -66,6 +75,33 @@ export function planLanes(run: Run, maxLanes: number): LanePlan {
     names.push(ranked.slice(own).map(label).join(' + '))
   } else rest = Math.max(0, own - 1)
   return { pats: [root], byName, rest, names }
+}
+
+interface SoundStat {
+  count: number
+  lpf: number[]
+  hpf: number[]
+  dirt: number[]
+}
+
+/** What one instrument would have to be set to for a sound. */
+interface Signature {
+  timbre: string
+  lpf: number
+  hpf: number
+  dirty: boolean
+}
+
+const median = (xs: number[], none: number) => (xs.length ? [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)] : none)
+
+function signatureOf(sound: string, st: SoundStat): Signature {
+  return { timbre: timbreOfSound(sound), lpf: median(st.lpf, 20000), hpf: Math.max(50, median(st.hpf, 0)), dirty: median(st.dirt, 0) > 0.05 }
+}
+
+const within = (a: number, b: number, octaves: number) => Math.abs(Math.log2(a / b)) <= octaves
+
+function compatible(a: Signature, b: Signature): boolean {
+  return a.timbre === b.timbre && a.dirty === b.dirty && within(a.lpf, b.lpf, 0.6) && within(a.hpf, b.hpf, 0.6)
 }
 
 function mergeLayers(ps: Pattern[]): Pattern {

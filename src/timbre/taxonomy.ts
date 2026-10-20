@@ -74,6 +74,7 @@ const WORDS: [RegExp, Timbre][] = [
   [/synth_?bass|fm_?bass|sub_?bass|acid/, 'synthbass'],
   [/bass/, 'bass'],
   [/choir|voice|vox|aah|ooh|vocal|hum/, 'choir'],
+  [/synth_?string/, 'pad'],
   [/string|violin|viola|cello|contrabass|fiddle|orchestra/, 'strings'],
   [/brass|horn|trumpet|trombone|tuba/, 'brass'],
   [/sax/, 'sax'],

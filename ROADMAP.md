@@ -723,6 +723,20 @@ knob (1–16, default 8: how many the piece splits into, the rest share the last
 when it changes, so PART numbers always mean the same on the panel and in the engine), set from
 "Up to N instruments" in Explore ▸ From Strudel. Engine lanes 16. Fixture FIXTURE_NAMED checks the
 grouping and the cap.
+Same day, user: the synth-pop remake "sounds like poopoo now… previously it sounded pretty good".
+A/B against c0bf3e4 (worktree + the scratchpad probeHL / probeHLold scripts) found: grouping by
+timbre alone had put the distorted pulse bass, the phased intro pulse and the clean stutter square
+on ONE part (moving-filter poly chain + FOLD + PHASER over all of it); `sine` chords went to SWARM
+(family match, first in the table); HALCYON / SWARM were given a MOD cutoff CV their inputs aren't
+log2(Hz/20)-scaled for (cutoff 30 + CV = muffled brass); FOLD was 1.75 folds where it had been
+0.75; two static lpf values 5000 / 6000 counted as "moving". Fixes: parts group by what one
+instrument *as set* can play — same timbre AND lpf / hpf within 0.6 octave AND the same dirt
+(lanes.ts Signature / compatible); HALCYON plays sine / triangle / noise and brass ahead of FM-4;
+no cutoffCv on the poly synths (a moving filter goes to the P-chain, which is exact); FOLD = 0.25 +
+distortion; a filter "moves" only when its values are ≥ 1.5× apart; default PARTS 12. The piece now
+plans the same twelve parts as before the timbre layer (plus z_sawtooth + gm_lead_2_sawtooth
+sharing one, and supersaw on SWARM). Lesson: any change to lane planning or the picker gets A/B'd
+on the user's pieces before shipping.
 - Later: `chord()`/`voicing()`, `.jux` as real stereo, `.pan` patterned → PANNER CV, sample banks by
   name onto our drums' tunings (tr808 vs linn), `.speed` on samples, `samples()` custom names as
   lanes, `.segment` signals as LFOs, `.every` with named functions, per-lane `.gain` patterns to VEL

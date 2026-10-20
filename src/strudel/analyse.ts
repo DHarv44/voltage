@@ -101,7 +101,8 @@ export function analyseLanes(run: Run, maxLanes: number): Analysis {
     const patterned = new Set<string>()
     for (const [k, xs] of a.vals) {
       p[k] = median(xs)
-      if ((k === 'lpf' || k === 'hpf') && new Set(xs.map((x) => x.toFixed(3))).size > 1) patterned.add(k)
+      // a filter that moves: values at least 1.5× apart (5000 vs 6000 is one setting, near enough)
+      if ((k === 'lpf' || k === 'hpf') && Math.max(...xs) >= Math.min(...xs) * 1.5) patterned.add(k)
     }
     const vowel = [...a.vowels.entries()].sort((x, y) => y[1] - x[1])[0]?.[0]
     return { name: plan.names[i] ?? `lane ${i + 1}`, sound: main, doubled, notes: a.notes, maxPoly: a.maxPoly, p, patterned, vowel }

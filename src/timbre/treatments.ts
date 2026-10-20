@@ -19,7 +19,7 @@ export const TREATMENTS: Record<string, Treatment> = {
     in: ['in'],
     out: ['out'],
     wants: (c) => (c.distortion ?? 0) > 0.05,
-    set: (c) => ({ fold: clamp(0.5 + (c.distortion ?? 0) * 2.5, 0.5, 10) }),
+    set: (c) => ({ fold: clamp(0.25 + (c.distortion ?? 0), 0.5, 10) }),
     why: () => 'distortion → FOLD',
   },
   era: {

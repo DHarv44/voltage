@@ -60,22 +60,22 @@ export const INSTRUMENTS: Record<string, Instrument> = {
     voices: 8,
     voct: 'voct',
     gate: 'gate',
-    cutoffCv: 'cut',
     out: ['l', 'r'],
-    set: (r) => ({ cutoff: r.c.cutoffMoves ? 60 : (r.c.cutoff ?? 6000), cvamt: r.c.cutoffMoves ? 1 : 0.5, att: Math.max(0.001, r.c.attack ?? 0.005), rel: Math.max(0.01, r.c.release ?? 0.4), level: 0.7 }),
+    set: (r) => ({ cutoff: r.c.cutoff ?? 6000, att: Math.max(0.001, r.c.attack ?? 0.005), rel: Math.max(0.01, r.c.release ?? 0.4), level: 0.7 }),
   },
+  // no cutoffCv on the poly synths: their CV inputs aren't log2(Hz / 20) scaled, so a moving
+  // filter goes to the patched poly chain (the picker sends it there) and these take the median
   halcyon: {
-    plays: ['pad', 'strings', 'lead', 'square', 'saw', 'synthbass', 'brass', 'drone', 'guitar', 'pluck'],
+    plays: ['pad', 'strings', 'brass', 'lead', 'square', 'saw', 'sine', 'triangle', 'noise', 'synthbass', 'drone', 'guitar', 'pluck'],
     voices: 6,
     voct: 'voct',
     gate: 'gate',
-    cutoffCv: 'cutoff',
     out: ['l', 'r'],
     fallback: true,
     set: (r) => {
       const padLike = r.timbre === 'pad' || r.timbre === 'strings' || r.timbre === 'drone'
       return {
-        cutoff: r.c.cutoffMoves ? 30 : (r.c.cutoff ?? (padLike ? 1800 : 3000)),
+        cutoff: r.c.cutoff ?? (padLike ? 1800 : 3000),
         a: Math.max(0.001, padLike ? Math.max(r.c.attack ?? 0, 0.2) : (r.c.attack ?? 0.003)),
         d: r.c.decay ?? 0.25,
         s: r.c.sustain ?? 0.7,

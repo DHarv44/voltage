@@ -43,7 +43,7 @@ export function StrudelImport({ onDone }: { onDone: () => void }) {
         <label className="strudel-parts">
           Up to
           <input type="number" min={1} max={SP_PARTS} value={parts} onChange={(e) => setParts(Math.max(1, Math.min(SP_PARTS, Math.round(Number(e.target.value) || 1))))} onKeyDown={(e) => e.stopPropagation()} />
-          instruments (sounds one instrument can play share one; the rest share the last)
+          instruments (sounds one instrument could play as set share one; the rest share the last)
         </label>
         <button className="preset-item" onClick={go} disabled={!text.trim()}>
           <span className="preset-name">Build a rack for it</span>

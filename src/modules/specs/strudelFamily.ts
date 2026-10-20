@@ -8,7 +8,7 @@ export const SCL = { cycle: 0, error: 1, parts: 2 } as const
 /** Parts a PART can pick (the engine's lane count). */
 export const SP_PARTS = 16
 /** How many parts CORE splits a piece into unless told otherwise. */
-export const SP_DEFAULT_PARTS = 8
+export const SP_DEFAULT_PARTS = 12
 
 const transport = [
   { id: 'cpm', label: 'CYCLES / MIN', min: 10, max: 120, def: 30, unit: 'bpm' as const },
