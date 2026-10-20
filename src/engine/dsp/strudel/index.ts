@@ -4,12 +4,13 @@ import type { ModuleSpec } from '../../../modules/types'
 import { Dsp, MAX_VOICES } from '../base'
 import { StrudelEngine } from './engine'
 
-/** The transport knobs STRUDEL and STRUDEL CORE share. */
+/** The transport knobs STRUDEL and STRUDEL CORE share (`parts` is CORE's; STRUDEL has its six). */
 export interface StrudelTransport {
   cpm: number
   run: number
   gate: number
   oct: number
+  parts?: number
 }
 
 /** What a LINK peripheral needs from whichever it's patched to. */
@@ -20,6 +21,7 @@ export interface StrudelHost {
 /** Advance a host's engine from its knobs and jacks (one place for both panels). */
 export function runHost(d: Dsp, engine: StrudelEngine, P: StrudelTransport, iClk: number, iRst: number): void {
   const p = d.p
+  engine.setParts(P.parts === undefined ? ST_LANES : p[P.parts])
   engine.tick(p[P.run] >= 0.5, p[P.cpm], p[P.gate], Math.round(p[P.oct]), d.patched[iClk] === 1, d.in[iClk], d.in[iRst])
 }
 

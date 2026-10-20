@@ -39,6 +39,17 @@ stack(
   )._pianoroll()
 `
 
+/** A piece by sound names (an arrange, so no layers): `square` and `pulse`
+ *  must share one part, `sawtooth` and `gm_lead_2_sawtooth` another. */
+export const FIXTURE_NAMED = `setcpm(120/4)
+const a = note("c3 eb3 g3 bb3").s("square")
+const b = note("c4 eb4").s("pulse").gain(0.5)
+const c = note("c2*4").s("sawtooth").lpf(600)
+const d = note("g4 f4 eb4 d4").s("gm_lead_2_sawtooth")
+const e = note("<[c4,eb4,g4]>").s("gm_pad_2_warm")
+arrange([4, stack(a, c)], [4, stack(a, b, c, d, e)], [2, stack(c, e)])
+`
+
 /** A piece in layers: a bass with a moving filter, supersaw and square
  *  chords, an electric piano, a vowelled and crushed lead with a delay,
  *  drums with a decay. */

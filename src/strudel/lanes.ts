@@ -1,10 +1,13 @@
+import { timbreOfSound } from './adapt'
 import { drumOf } from './music'
 import { hasOnset, type Pattern } from './pattern'
 import type { Run } from './run'
 
-/** How a piece is split across STRUDEL's lanes: by the root stack's layers
- *  when it has them, else by sound name (an `arrange` of sections has no
- *  layers of its own, but its sounds are the parts). */
+/** How a piece is split into parts: by the root stack's layers when it has
+ *  them, else by timbre (an `arrange` of sections has no layers of its own,
+ *  but its sounds are the parts, and sounds one instrument can play —
+ *  `square` and `pulse`, `sawtooth` and `gm_lead_2_sawtooth` — share one).
+ *  Past `maxLanes`, the least-played share the last. */
 export interface LanePlan {
   pats: Pattern[]
   /** Sound name → lane, when splitting by sound (unknown sounds go to `rest`). */
@@ -23,7 +26,7 @@ export function planLanes(run: Run, maxLanes: number): LanePlan {
     const pats = layers.length <= maxLanes ? layers : [...layers.slice(0, maxLanes - 1), mergeLayers(layers.slice(maxLanes - 1))]
     return { pats, byName: null, rest: pats.length - 1, names: pats.map((_, i) => `layer ${i + 1}`) }
   }
-  // by sound: count each non-drum sound over the piece (or 32 cycles)
+  // count each non-drum sound over the piece (or 32 cycles), then group by timbre
   const cycles = Math.min(64, root.cycles || 32)
   const counts = new Map<string, number>()
   for (let c = 0; c < cycles; c++) {
@@ -41,18 +44,26 @@ export function planLanes(run: Run, maxLanes: number): LanePlan {
       counts.set(s, (counts.get(s) ?? 0) + 1)
     }
   }
-  const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([s]) => s)
+  const groups = new Map<string, { sounds: string[]; count: number }>()
+  for (const [s, n] of [...counts.entries()].sort((a, b) => b[1] - a[1])) {
+    const t = timbreOfSound(s)
+    const g = groups.get(t) ?? groups.set(t, { sounds: [], count: 0 }).get(t)!
+    g.sounds.push(s)
+    g.count += n
+  }
+  const ranked = [...groups.values()].sort((a, b) => b.count - a.count)
+  const label = (g: { sounds: string[] }) => g.sounds.map((s) => s || 'triangle').join(' + ')
   const byName = new Map<string, number>()
   const names: string[] = []
   const own = ranked.length <= maxLanes ? ranked.length : maxLanes - 1
-  ranked.slice(0, own).forEach((s, i) => {
-    byName.set(s, i)
-    names.push(s || 'triangle')
+  ranked.slice(0, own).forEach((g, i) => {
+    for (const s of g.sounds) byName.set(s, i)
+    names.push(label(g))
   })
   let rest = own
   if (ranked.length > maxLanes) {
-    for (const s of ranked.slice(own)) byName.set(s, own)
-    names.push(ranked.slice(own).map((s) => s || 'triangle').join(' + '))
+    for (const g of ranked.slice(own)) for (const s of g.sounds) byName.set(s, own)
+    names.push(ranked.slice(own).map(label).join(' + '))
   } else rest = Math.max(0, own - 1)
   return { pats: [root], byName, rest, names }
 }

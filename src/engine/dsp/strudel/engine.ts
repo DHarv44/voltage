@@ -6,7 +6,7 @@ import { Schmitt } from '../cores'
 import { CycleEvents } from './events'
 
 /** Parts a piece can be split into (STRUDEL's panel shows the first six; PARTs reach them all). */
-export const MAX_LANES = 12
+export const MAX_LANES = 16
 const RETRIG_S = 0.002
 const PULSE_S = 0.005
 const CLK_PER_CYCLE = 16
@@ -32,6 +32,8 @@ export class StrudelEngine {
   clk = 0
   bar = 0
   private readonly events = new CycleEvents()
+  private code = ''
+  private parts = MAX_LANES
   private cursor = 0
   private wasRun = false
   private readonly ends = new Float64Array(MAX_LANES * MAX_VOICES).fill(-1)
@@ -50,12 +52,21 @@ export class StrudelEngine {
 
   constructor(private readonly fs: number) {}
 
+  /** Split the piece into this many parts (the rest share the last); re-plans when it changes. */
+  setParts(n: number): void {
+    const parts = Math.max(1, Math.min(MAX_LANES, Math.round(n)))
+    if (parts === this.parts) return
+    this.parts = parts
+    if (this.code) this.setCode(this.code)
+  }
+
   /** Run new code. Returns the tempo it set (cycles a minute), or null. */
   setCode(code: string): number | null {
+    this.code = code
     const r = runStrudel(code)
     this.error = !!r.error
     if (r.error) return null
-    this.plan = planLanes(r, MAX_LANES)
+    this.plan = planLanes(r, this.parts)
     if (this.cycle >= 0) {
       this.events.fill(this.plan, this.cycle)
       const frac = this.pos - this.cycle

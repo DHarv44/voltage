@@ -1,5 +1,5 @@
 import { ST_LANES, laneOut } from '../modules/specs/strudel'
-import { SP_PARTS } from '../modules/specs/strudelFamily'
+import { SP_DEFAULT_PARTS, SP_PARTS, slotOut, slotParam } from '../modules/specs/strudelFamily'
 import type { Jack, Kit } from '../patch/starters/kit'
 import { mixAll, placeDrums, placeTreatments, placeVoice, type PartJacks } from '../timbre/build'
 import type { Hit } from '../timbre/request'
@@ -32,23 +32,31 @@ export function decodeStrudelInput(input: string): string {
 /** A Strudel gain (relative, 1 = full) as a mixer level. */
 const level = (gain: number) => Math.max(0.12, Math.min(0.95, 0.8 * Math.pow(Math.max(0, gain), 0.7)))
 
+export interface ImportOptions {
+  /** The STRUDEL module's own lanes and drum jacks instead of CORE + peripherals. */
+  allInOne?: boolean
+  /** How many parts to split the piece into (the rest share the last), up to SP_PARTS. */
+  maxParts?: number
+}
+
 /** Build the rack for a piece of Strudel code into `k`. Modular (the
- *  default): STRUDEL CORE with the code, a STRUDEL PART per part and a
- *  STRUDEL DRUMS on its LINK; all-in-one: the STRUDEL module's own lanes and
- *  drum jacks (its first six parts). Then, from what each part asks for
- *  (src/timbre: the sound's timbre and its controls), drum modules, an
- *  instrument per part with its effects, a console with a plate on its
- *  send, OUT. */
-export function buildStrudelRack(k: Kit, code: string, allInOne = false): StrudelReport {
+ *  default): STRUDEL CORE with the code, STRUDEL PARTS ×4 panels (or single
+ *  PARTs for a part or two) and a STRUDEL DRUMS on its LINK; all-in-one: the
+ *  STRUDEL module's own lanes and drum jacks (its first six parts). Then,
+ *  from what each part asks for (src/timbre: the sound's timbre and its
+ *  controls), drum modules, an instrument per part with its effects, a
+ *  console with a plate on its send, OUT. */
+export function buildStrudelRack(k: Kit, code: string, o: ImportOptions = {}): StrudelReport {
   const run = runStrudel(code)
   if (run.error) return { lines: [], warnings: run.warnings, error: run.error }
-  const maxParts = allInOne ? ST_LANES : SP_PARTS
+  const allInOne = !!o.allInOne
+  const maxParts = allInOne ? ST_LANES : Math.max(1, Math.min(SP_PARTS, Math.round(o.maxParts ?? SP_DEFAULT_PARTS)))
   const a = analyseLanes(run, maxParts)
   const lines: string[] = []
-  if (a.plan.byName) lines.push(`Parts by sound: ${a.plan.names.join(' · ')}`)
+  if (a.plan.byName) lines.push(`Parts: ${a.plan.names.join(' · ')}`)
   const cpm = Math.max(10, Math.min(120, run.cps * 60))
   const bpm = run.cps * 240
-  const host = k.add(allInOne ? 'strudel' : 'strudelcore', { cpm })
+  const host = k.add(allInOne ? 'strudel' : 'strudelcore', allInOne ? { cpm } : { cpm, parts: maxParts })
   k.setText(host, code)
   // the drums, on STRUDEL DRUMS (or the STRUDEL's own triggers)
   let drumMod = host
@@ -60,20 +68,35 @@ export function buildStrudelRack(k: Kit, code: string, allInOne = false): Strude
   const channels: { src: Jack; level: number; pan: number; room: number; name: string }[] = []
   const drums = placeDrums(k, hits, (h: Hit) => [drumMod, h], level, lines)
   if (drums) channels.push({ src: drums, level: 0.85, pan: 0, room: a.drumRoom, name: 'drums' })
-  // a part's jacks: a PART of its own, or the STRUDEL's lane
-  const partJacks = (l: number): PartJacks => {
-    if (allInOne) return { v: [host, laneOut(l, 'v')], g: [host, laneOut(l, 'g')], vel: [host, laneOut(l, 'vel')], mod: [host, laneOut(l, 'mod')] }
-    const part = k.add('strudelpart', { lane: l + 1 })
-    k.wire([host, 'link'], [part, 'link'])
-    return { v: [part, 'v'], g: [part, 'g'], vel: [part, 'vel'], mod: [part, 'mod'] }
-  }
-  a.lanes.forEach((info, l) => {
-    if (l >= maxParts || !info.notes) return
+  // the parts with notes, and where each one's jacks are: the STRUDEL's own
+  // lane, or a slot on a PARTS ×4 (single PARTs when only one or two are left)
+  const played = a.lanes.map((info, l) => l).filter((l) => l < maxParts && a.lanes[l].notes > 0)
+  const jacks = new Map<number, PartJacks>()
+  if (allInOne) for (const l of played) jacks.set(l, { v: [host, laneOut(l, 'v')], g: [host, laneOut(l, 'g')], vel: [host, laneOut(l, 'vel')], mod: [host, laneOut(l, 'mod')] })
+  else
+    for (let i = 0; i < played.length; i += 4) {
+      const chunk = played.slice(i, i + 4)
+      if (chunk.length <= 2) {
+        for (const l of chunk) {
+          const part = k.add('strudelpart', { lane: l + 1 })
+          k.wire([host, 'link'], [part, 'link'])
+          jacks.set(l, { v: [part, 'v'], g: [part, 'g'], vel: [part, 'vel'], mod: [part, 'mod'] })
+        }
+        continue
+      }
+      const params: Record<string, number> = {}
+      chunk.forEach((l, s) => (params[slotParam(s)] = l + 1))
+      const parts = k.add('strudelparts', params)
+      k.wire([host, 'link'], [parts, 'link'])
+      chunk.forEach((l, s) => jacks.set(l, { v: [parts, slotOut(s, 'v')], g: [parts, slotOut(s, 'g')], vel: [parts, slotOut(s, 'vel')], mod: [parts, slotOut(s, 'mod')] }))
+    }
+  for (const l of played) {
+    const info = a.lanes[l]
     const r = requestOf(info, l)
-    let src = placeVoice(k, r, partJacks(l), lines)
+    let src = placeVoice(k, r, jacks.get(l)!, lines)
     src = placeTreatments(k, src, r.c, bpm, r.name, lines)
     channels.push({ src, level: level(r.c.gain ?? 1), pan: r.c.pan ?? 0, room: r.c.reverb ?? 0, name: r.name })
-  })
+  }
   // the desk: a plate on the send, channels' room as their send
   const chans = channels.slice(0, 6)
   if (channels.length > 6) {

@@ -3,6 +3,7 @@ import { engine } from '../audio/engine'
 import { rackName } from '../patch/rackName'
 import { Kit } from '../patch/starters/kit'
 import { actions, patchStore } from '../patch/store'
+import { SP_DEFAULT_PARTS, SP_PARTS } from '../modules/specs/strudelFamily'
 import { buildStrudelRack, decodeStrudelInput, type StrudelReport } from '../strudel/importer'
 import { toast } from './Toast'
 
@@ -12,12 +13,13 @@ import { toast } from './Toast'
  *  console with a plate, OUT. */
 export function StrudelImport({ onDone }: { onDone: () => void }) {
   const [text, setText] = useState('')
+  const [parts, setParts] = useState(SP_DEFAULT_PARTS)
   const [report, setReport] = useState<StrudelReport | null>(null)
 
   const go = () => {
     const code = decodeStrudelInput(text)
     const k = new Kit(patchStore.get().rail ?? 104)
-    const r = buildStrudelRack(k, code)
+    const r = buildStrudelRack(k, code, { maxParts: parts })
     setReport(r)
     if (r.error) return
     actions.load(k.build())
@@ -38,6 +40,11 @@ export function StrudelImport({ onDone }: { onDone: () => void }) {
         onKeyDown={(e) => e.stopPropagation()}
       />
       <div className="strudel-actions">
+        <label className="strudel-parts">
+          Up to
+          <input type="number" min={1} max={SP_PARTS} value={parts} onChange={(e) => setParts(Math.max(1, Math.min(SP_PARTS, Math.round(Number(e.target.value) || 1))))} onKeyDown={(e) => e.stopPropagation()} />
+          instruments (sounds one instrument can play share one; the rest share the last)
+        </label>
         <button className="preset-item" onClick={go} disabled={!text.trim()}>
           <span className="preset-name">Build a rack for it</span>
           <span className="preset-desc">Replaces your rack (Ctrl+Z brings it back)</span>

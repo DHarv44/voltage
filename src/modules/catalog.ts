@@ -49,6 +49,7 @@ export const CATALOG: Record<string, Entry> = {
   strudel: { tags: ['sequence', 'poly', 'beat', 'plays itself', 'generative'], aka: ['strudel', 'tidal', 'tidalcycles', 'live coding', 'livecoding', 'algorave', 'mini-notation', 'pattern language', 'code'] },
   strudelcore: { tags: ['sequence', 'plays itself', 'generative'], aka: ['strudel', 'tidal', 'live coding', 'core', 'brain', 'link'] },
   strudelpart: { tags: ['sequence', 'poly', 'utility'], aka: ['strudel', 'part', 'lane', 'voice', 'link'] },
+  strudelparts: { tags: ['sequence', 'poly', 'utility'], aka: ['strudel', 'parts', 'four parts', 'breakout', 'link'] },
   strudeldrums: { tags: ['sequence', 'beat', 'utility'], aka: ['strudel', 'drums', 'triggers', 'link'] },
   drummap: { tags: ['beat', 'sequence', 'generative', 'plays itself'], aka: ['grids', 'topographic', 'drum map', 'pattern map', 'drum sequencer', 'xy drums'] },
   staircase: { tags: ['sequence', 'melody', 'plays itself'], aka: ['metropolix', 'metropolis', 'stage sequencer', 'pulse count', 'ratchet', 'slide', 'acid'] },

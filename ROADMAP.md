@@ -714,6 +714,15 @@ delay) build to the expected modules. Fixes that fell out: supersaw → SWARM (w
 STAGE (was FM-4), strings → TAPE KEYS, drum `.decay` → the drum's DECAY, `bass` no longer a kick
 alias, vowel → FORMANT, crush / coarse → ERA, phaser → PHASER. Adding a module = one declaration; a
 MIDI FILE importer would use the same picker through `timbreOfProgram`.
+2026-10-20 parts that scale (user: "what happens when we have 10 or 15 parts?"; "do all 3"): (1)
+parts group by timbre, not sound name (lanes.ts: `square` + `pulse` share a part, `sawtooth` +
+`gm_lead_2_sawtooth` another; a 12-sound piece is usually 5–7 parts); (2) STRUDEL PARTS ×4 (16 HP,
+four slots A–D with knobs, poly V/OCT · GATE · VEL and MOD each, a screen naming each slot's sounds;
+the importer uses one per four parts, single PARTs for one or two left over); (3) CORE has a PARTS
+knob (1–16, default 8: how many the piece splits into, the rest share the last; the engine re-plans
+when it changes, so PART numbers always mean the same on the panel and in the engine), set from
+"Up to N instruments" in Explore ▸ From Strudel. Engine lanes 16. Fixture FIXTURE_NAMED checks the
+grouping and the cap.
 - Later: `chord()`/`voicing()`, `.jux` as real stereo, `.pan` patterned → PANNER CV, sample banks by
   name onto our drums' tunings (tr808 vs linn), `.speed` on samples, `samples()` custom names as
   lanes, `.segment` signals as LFOs, `.every` with named functions, per-lane `.gain` patterns to VEL

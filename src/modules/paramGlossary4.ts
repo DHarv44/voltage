@@ -10,7 +10,9 @@ export const GLOSSARY_4: Record<string, string> = {
   'strudelcore:run': 'Starts and stops it (starting again begins at cycle 0).',
   'strudelcore:gate': 'How much of each note’s length its gate stays high.',
   'strudelcore:oct': 'Every part up or down an octave.',
-  'strudelpart:lane': 'Which part of the linked piece this plays (its sound is named on the screen): the busiest sound is part 1.',
+  'strudelcore:parts': 'How many parts the piece is split into (sounds one instrument can play share a part; past this many, the quietest share the last). PARTs pick from these.',
+  'strudelpart:lane': 'Which part of the linked piece this plays (its sounds are named on the screen): the busiest is part 1.',
+  ...Object.fromEntries(['a', 'b', 'c', 'd'].map((s) => [`strudelparts:p${s}`, `Which part of the linked piece slot ${s.toUpperCase()} plays (named on the screen).`])),
   // sequencers, space, tuning
   'drummap:x': 'Across the map: from straight grooves (left) to broken, syncopated ones (right).',
   'drummap:y': 'Down the map: from plain (top) through breakbeats to busy (bottom). Between grooves it blends them.',

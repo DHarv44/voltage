@@ -108,6 +108,15 @@ export const JACKS_3: Record<string, J> = {
   'strudelpart:out:g': { signal: 'gate', what: 'Their gates (poly).' },
   'strudelpart:out:vel': { signal: 'cv', what: 'Their gain as velocity, 0–10 V (poly).' },
   'strudelpart:out:mod': { signal: 'cv', what: 'The part’s lpf / hpf as a CV: log2(Hz / 20) volts, so a filter at 20 Hz with CV AMT 1 follows it exactly.' },
+  'strudelparts:in:link': { signal: 'cv', what: 'The LINK from a STRUDEL or STRUDEL CORE.' },
+  ...Object.fromEntries(
+    ['a', 'b', 'c', 'd'].flatMap((s) => [
+      [`strudelparts:out:v${s}`, { signal: 'pitch' as const, what: `Slot ${s.toUpperCase()}’s notes, a voice each (poly).` }],
+      [`strudelparts:out:g${s}`, { signal: 'gate' as const, what: `Slot ${s.toUpperCase()}’s gates (poly).` }],
+      [`strudelparts:out:vel${s}`, { signal: 'cv' as const, what: `Slot ${s.toUpperCase()}’s gain as velocity, 0–10 V (poly).` }],
+      [`strudelparts:out:mod${s}`, { signal: 'cv' as const, what: `Slot ${s.toUpperCase()}’s lpf / hpf as a CV, log2(Hz / 20) volts.` }],
+    ]),
+  ),
   'strudeldrums:in:link': { signal: 'cv', what: 'The LINK from a STRUDEL or STRUDEL CORE.' },
   ...Object.fromEntries(['bd', 'sd', 'ch', 'oh', 'cp', 'rim', 'tom', 'cym'].map((d) => [`strudeldrums:out:${d}`, { signal: 'trigger' as const, what: `${d} hits in the linked piece.` }])),
   'tuning:in:voct':{ signal: 'pitch', what: 'Notes to retune (poly too): from a keyboard, a sequencer, a quantizer.' },

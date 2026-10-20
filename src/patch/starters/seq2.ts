@@ -11,24 +11,40 @@ stack(
   n("<0 2 4 7 4 2>*8").scale("c4:minor").s("triangle").sometimes(ply(2)).room(0.4).gain(0.5)
 )`
 
+/** A fuller piece for STRUDEL PARTS ×4: four pitched parts over the beat. */
+const STRUDEL_DEMO_4 = `setcpm(118/4)
+stack(
+  s("bd*4, [~ sd]*2, hh*8, [~ ~ ~ oh]").bank("tr909"),
+  note("<c2 c2 ab1 bb1>*8").s("sawtooth").decay(0.15).sustain(0.1).lpf("<300 700>*4").gain(0.8),
+  note("<[c4,eb4,g4] [ab3,c4,eb4] [bb3,d4,f4] [bb3,d4,f4]>").s("supersaw").attack(0.2).release(0.6).gain(0.35).room(0.3),
+  n("<7 5 4 2 0 2 4 5>*4").scale("c5:minor").s("gm_epiano1").gain(0.5).delay(0.25).delaytime(0.375),
+  n("<0 ~ 2 ~ 4 ~ 7 ~>*2").scale("c3:minor").s("square").hpf(200).gain(0.4)
+)`
+
 /** The new sequencers', SPACE's and TUNING's ready-to-play rigs. */
 export const SEQ2_STARTERS: Record<string, Starter> = {
   strudel: {
     howTo: 'STRUDEL running a short piece on its own jacks: 909-style drums, a saw bass whose lpf pattern rides its filter through MOD, a triangle lead that sometimes doubles up. Edit the code on the panel and it follows as you type. Paste your own from strudel.cc under Explore ▸ From Strudel and a rack is built for it.',
     build(k) {
-      buildStrudelRack(k, STRUDEL_DEMO, true)
+      buildStrudelRack(k, STRUDEL_DEMO, { allInOne: true })
     },
   },
   strudelcore: {
-    howTo: 'STRUDEL CORE running a short piece, its parts on STRUDEL PARTs and its drums on STRUDEL DRUMS over LINK: the modular form, with a part for every sound in the piece. Change a PART’s number to swap what it plays; add more PARTs for pieces with many sounds.',
+    howTo: 'STRUDEL CORE running a short piece, its parts on STRUDEL PARTs and its drums on STRUDEL DRUMS over LINK: the modular form. PARTS sets how many parts the piece is split into (sounds one instrument can play share a part); change a PART’s number to swap what it plays.',
     build(k) {
       buildStrudelRack(k, STRUDEL_DEMO)
     },
   },
   strudelpart: {
-    howTo: 'STRUDEL PARTs on a STRUDEL CORE’s LINK, one per part of the piece: each PART’s screen names the sound it plays. Turn a PART knob to another number and that part’s notes come out of it instead.',
+    howTo: 'STRUDEL PARTs on a STRUDEL CORE’s LINK, one per part of the piece: each PART’s screen names the sounds it plays. Turn a PART knob to another number and that part’s notes come out of it instead.',
     build(k) {
       buildStrudelRack(k, STRUDEL_DEMO)
+    },
+  },
+  strudelparts: {
+    howTo: 'STRUDEL PARTS ×4 on a STRUDEL CORE’s LINK: four parts of a fuller piece on one panel (a saw bass, supersaw chords, an electric piano with a delay, a square counter-line), each on its own instrument. The screen names each slot’s sounds; the knobs pick which part each slot plays.',
+    build(k) {
+      buildStrudelRack(k, STRUDEL_DEMO_4)
     },
   },
   strudeldrums: {

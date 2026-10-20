@@ -144,7 +144,7 @@ import { ClipsDsp } from './clips'
 import { SpaceDsp } from './space'
 import { TuningDsp } from './tuning'
 import { StrudelDsp } from './strudel'
-import { StrudelCoreDsp, StrudelDrumsDsp, StrudelPartDsp } from './strudel/family'
+import { StrudelCoreDsp, StrudelDrumsDsp, StrudelPartDsp, StrudelPartsDsp } from './strudel/family'
 import { CompareDsp, CvMathDsp, GateDelayDsp, MergeDsp, NotesDsp, RatchetDsp, SplitDsp, UnisonDsp, XfadeDsp } from './tools'
 
 type DspCtor = new (spec: ModuleSpec, fs: number, seed: number) => Dsp
@@ -227,6 +227,7 @@ const CIRCUITS: Record<string, DspCtor> = {
   strudel: StrudelDsp,
   strudelcore: StrudelCoreDsp,
   strudelpart: StrudelPartDsp,
+  strudelparts: StrudelPartsDsp,
   strudeldrums: StrudelDrumsDsp,
   slew: SlewDsp,
   quant: QuantizerDsp,
