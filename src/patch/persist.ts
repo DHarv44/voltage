@@ -53,8 +53,8 @@ function sanitizeMorph(raw: unknown[]): (MorphSnapshot | null)[] {
 
 const num = (v: unknown, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d)
 
-/** The longest NOTES text kept (characters). */
-export const MAX_TEXT = 4000
+/** The longest text a module keeps (characters): a whole Strudel piece, not just a note. */
+export const MAX_TEXT = 200000
 
 /** Accepts anything (saved or imported JSON) and returns a valid patch or null. */
 export function sanitize(raw: unknown): Patch | null {
