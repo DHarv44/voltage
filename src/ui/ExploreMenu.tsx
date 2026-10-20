@@ -6,10 +6,11 @@ import { buildSong, SONGS, type Song } from '../patch/songs'
 import { actions } from '../patch/store'
 import type { Patch } from '../patch/types'
 import { BrowsePanel } from './cloud/BrowsePanel'
+import { StrudelImport } from './StrudelImport'
 import { toast } from './Toast'
 import { usePopover } from './usePopover'
 
-type Tab = 'songs' | 'racks' | 'gallery'
+type Tab = 'songs' | 'racks' | 'gallery' | 'strudel'
 
 /** Explore: things to load and pull apart. Whole songs in the style of an
  *  era, example racks, and the gallery of racks people have shared. Loading
@@ -44,7 +45,11 @@ export function ExploreMenu() {
             <button className={tab === 'gallery' ? 'on' : ''} onClick={() => setTab('gallery')}>
               Gallery
             </button>
+            <button className={tab === 'strudel' ? 'on' : ''} onClick={() => setTab('strudel')} title="Paste code from strudel.cc and get a rack that plays it">
+              From Strudel
+            </button>
           </div>
+          {tab === 'strudel' && <StrudelImport onDone={() => pop.setOpen(false)} />}
           {tab === 'songs' && (
             <div className="cloud-list">
               <div className="preset-group">The sound of an era · our own notes</div>

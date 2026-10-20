@@ -1,9 +1,24 @@
 import { melody, mix, toOut, voice, type Kit } from './kit'
 import { heldChords } from './instruments2'
+import { buildStrudelRack } from '../../strudel/importer'
 import type { Starter } from './types'
+
+/** A short Strudel piece for STRUDEL's rig: a beat, a bass, a lead with a filter pattern. */
+const STRUDEL_DEMO = `setcpm(124/4)
+stack(
+  s("bd*4, [~ cp]*2, hh*8").bank("tr909"),
+  note("<c2 c2 eb2 f2>*4").s("sawtooth").decay(0.2).sustain(0.2).lpf("<400 900>*4"),
+  n("<0 2 4 7 4 2>*8").scale("c4:minor").s("triangle").sometimes(ply(2)).room(0.4).gain(0.5)
+)`
 
 /** The new sequencers', SPACE's and TUNING's ready-to-play rigs. */
 export const SEQ2_STARTERS: Record<string, Starter> = {
+  strudel: {
+    howTo: 'STRUDEL running a short piece: 909-style drums, a saw bass whose lpf pattern rides its filter through MOD, a triangle lead that sometimes doubles up. Edit the code on the panel and it follows as you type. Paste your own from strudel.cc under Explore ▸ From Strudel and a rack is built for it.',
+    build(k) {
+      buildStrudelRack(k, STRUDEL_DEMO)
+    },
+  },
   drummap: {
     howTo: 'DRUM MAP playing kick, snare and hats. Drag the dot across its map: from a plain backbeat through four-on-the-floor, boom bap, breakbeat, 2-step, jungle, Latin and footwork, blending on the way. Turn each FILL for busier or sparser parts; add CHAOS; patch an LFO to X CV and let it wander.',
     build(k) {

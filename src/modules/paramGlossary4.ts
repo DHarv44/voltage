@@ -1,6 +1,11 @@
 /** Knob and switch texts for the 2026-10-12 modules: the new effects, the
  *  utilities, HALCYON (merged into paramGlossary3's GAP_OVERRIDES). */
 export const GLOSSARY_4: Record<string, string> = {
+  // STRUDEL
+  'strudel:cpm': 'Cycles a minute (a cycle is usually a bar: 30 is 120 BPM in 4/4). Code that calls setcpm or setcps sets it.',
+  'strudel:run': 'Starts and stops it (starting again begins at cycle 0).',
+  'strudel:gate': 'How much of each note’s length its gate stays high.',
+  'strudel:oct': 'Every lane up or down an octave.',
   // sequencers, space, tuning
   'drummap:x': 'Across the map: from straight grooves (left) to broken, syncopated ones (right).',
   'drummap:y': 'Down the map: from plain (top) through breakbeats to busy (bottom). Between grooves it blends them.',

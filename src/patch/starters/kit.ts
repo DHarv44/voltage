@@ -45,6 +45,11 @@ export class Kit {
     this.b.setMorph(id, slot, { [`${mod}/${param}`]: 1 })
   }
 
+  /** Words or code on a module (NOTES, STRUDEL). */
+  setText(id: string, text: string): void {
+    this.b.setText(id, text)
+  }
+
   build(): Patch {
     return this.b.build(1)
   }

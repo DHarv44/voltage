@@ -66,6 +66,7 @@ import { DrumMap } from './DrumMap'
 import { MidiRoll } from './MidiRoll'
 import { Clips } from './Clips'
 import { Space } from './Space'
+import { Strudel } from './Strudel'
 
 /** Played instrument surfaces, by the `name` a spec's surface control uses. */
 export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
@@ -141,4 +142,5 @@ export const SURFACES: Record<string, ComponentType<SurfaceProps>> = {
   midiroll: MidiRoll,
   clips: Clips,
   space: Space,
+  strudel: Strudel,
 }

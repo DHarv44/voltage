@@ -35,6 +35,8 @@ export interface PatchModuleMsg {
   seed: number
   /** In spec param order. */
   params: number[]
+  /** Words on the module (NOTES), or code it runs (STRUDEL). */
+  text?: string
 }
 
 export interface PatchCableMsg {

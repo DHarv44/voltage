@@ -46,6 +46,7 @@ export const CATALOG: Record<string, Entry> = {
   kin: { tags: ['beat', 'sequence', 'plays itself'], aka: ['dfam', 'drummer from another mother', 'moog', 'semi-modular'] },
   undertone: { tags: ['drone', 'ambient', 'generative', 'sequence', 'plays itself'], aka: ['subharmonicon', 'moog', 'polyrhythm', 'subharmonics'] },
   lockstep: { tags: ['beat', 'bass', 'sequence', 'stereo', 'plays itself'], aka: ['elektron', 'digitone', 'digitakt', 'p-lock', 'parameter lock', 'fm', 'groovebox'] },
+  strudel: { tags: ['sequence', 'poly', 'beat', 'plays itself', 'generative'], aka: ['strudel', 'tidal', 'tidalcycles', 'live coding', 'livecoding', 'algorave', 'mini-notation', 'pattern language', 'code'] },
   drummap: { tags: ['beat', 'sequence', 'generative', 'plays itself'], aka: ['grids', 'topographic', 'drum map', 'pattern map', 'drum sequencer', 'xy drums'] },
   staircase: { tags: ['sequence', 'melody', 'plays itself'], aka: ['metropolix', 'metropolis', 'stage sequencer', 'pulse count', 'ratchet', 'slide', 'acid'] },
   fortune: { tags: ['generative', 'modulation', 'sequence'], aka: ['marbles', 'random', 'deja vu', 'coin toss', 'bernoulli', 'random notes', 'chance'] },

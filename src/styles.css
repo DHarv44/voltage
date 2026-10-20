@@ -2160,6 +2160,32 @@ button.power.on {
   font-size: 14px;
   margin-bottom: 8px;
 }
+.strudel-import textarea {
+  width: 100%;
+  min-height: 160px;
+  box-sizing: border-box;
+  margin: 6px 0;
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: 1px solid #3a3c41;
+  background: #0e1012;
+  color: #d9e6c8;
+  font: 12px/1.4 Consolas, 'Cascadia Mono', 'Courier New', monospace;
+  resize: vertical;
+  white-space: pre;
+}
+.strudel-report {
+  margin: 6px 2px 2px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.strudel-error {
+  color: #ff8a7a;
+}
+.strudel-warn {
+  color: #e0b26a;
+}
 .dialog-body {
   color: var(--muted);
   line-height: 1.45;

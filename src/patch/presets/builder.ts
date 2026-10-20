@@ -37,6 +37,12 @@ export class RackBuilder {
     m.morph = morph
   }
 
+  /** Words or code on a module (NOTES, STRUDEL). */
+  setText(id: string, text: string): void {
+    const m = this.modules.find((x) => x.id === id)
+    if (m) m.text = text
+  }
+
   build(minRows = 2): Patch {
     return { rows: Math.max(minRows, this.rows), modules: this.modules, cables: this.cables }
   }

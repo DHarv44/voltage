@@ -42,6 +42,10 @@ export abstract class Dsp {
   deps: Dsp[] | null = null
   /** Called with every module after each patch rebuild (for cable-less links). */
   link?(mods: Dsp[]): void
+  /** The module's text (code, words) when it changes; never from tick(). */
+  setText?(text: string): void
+  /** The text last handed to setText (the graph skips repeats). */
+  textWas: string | null = null
 
   private readonly target: Float64Array
   private readonly smooth: Uint8Array

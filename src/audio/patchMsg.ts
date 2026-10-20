@@ -18,6 +18,7 @@ export function buildPatchMsg(p: Patch): ToEngine {
       type: m.type,
       seed: m.seed,
       params: SPECS[m.type].params.map((ps) => m.params[ps.id] ?? ps.def),
+      ...(m.text !== undefined ? { text: m.text } : {}),
     })),
     cables: p.cables.map((c) => ({
       from: c.from.mod,

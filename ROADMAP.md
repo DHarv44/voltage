@@ -663,6 +663,25 @@ Discussed with the user after the systems; built in one go ("wrap up utilities a
   measured HRTFs; DRUM MAP more nodes and swing; global tuning for the keys; jackInfo2.ts (362 lines)
   to split.
 
+### Strudel import (2026-10-19): done
+User asked for a tool that takes a strudel.cc export and builds the rack. Strudel has no export file:
+the piece is its code, so "reading" it means running it. Our own interpreter (src/strudel/: pattern.ts
+query engine with Tidal's haps, mini.ts mini-notation, library.ts ~60 functions and the controls,
+js.ts a JS-subset evaluator with `const`, chains, arrows and `register`, run.ts, analyse.ts,
+importer.ts), no Strudel code bundled (user: reading a format needs no licence, like a PDF reader).
+Randomness is Strudel's time-seeded kind, so it stays random but replays identically. STRUDEL module
+(60 HP): the code lives in ModuleInst.text (PatchModuleMsg.text → Dsp.setText), lanes = the root
+stack's layers (poly V/OCT, GATE, VEL, MOD = log2(lpf|hpf / 20) V), drums by sound name, CLK in or
+cycles/min, a cycle queried once into typed arrays. Explore ▸ From Strudel: code or share link
+(base64 hash) → buildStrudelRack: drums, a voice per lane by sound kind (sine/tri/square/saw mono
+voice, HALCYON for poly or pads, GRAND, FM-4, DRAWBAR, BREATH, CHOIR), hpf/lpf constant or patterned
+through MOD, delay → PING-PONG, shape → FOLD, CONSOLE with gain/pan and room on its plate send.
+The user's first piece (130 BPM, 51 cycles, three arranged layers) imports to 17 modules.
+- Later: `chord()`/`voicing()`, `.jux` as real stereo, `.pan` patterned → PANNER CV, sample banks by
+  name onto our drums' tunings (tr808 vs linn), `.speed` on samples, `samples()` custom names as
+  lanes, `.segment` signals as LFOs, `.every` with named functions, per-lane `.gain` patterns to VEL
+  (done) and to level CV, a report of unsupported calls on the panel, importing `.strudel` files.
+
 ### New modules
 - **Low-pass gate**: vactrol LPG with the real vactrol attack/decay response.
 - **Physical models**: Karplus-Strong string, modal resonator (struck/bowed), formant filter, 16-band vocoder.

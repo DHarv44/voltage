@@ -30,6 +30,11 @@ export class Graph {
       if (fresh) d = createDsp(m.type, this.fs, m.seed) ?? undefined
       if (!d) continue
       m.params.forEach((v, i) => d!.setParam(i, v, fresh))
+      const text = m.text ?? ''
+      if (d.setText && text !== d.textWas) {
+        d.textWas = text
+        d.setText(text)
+      }
       d.srcMod.fill(null)
       d.patched.fill(0)
       d.outPatched.fill(0)
