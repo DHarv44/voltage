@@ -49,6 +49,8 @@ export interface PatchCableMsg {
 export type ToEngine =
   | { type: 'patch'; modules: PatchModuleMsg[]; cables: PatchCableMsg[] }
   | { type: 'param'; id: string; index: number; value: number }
+  /** A module's text changed (code typed into STRUDEL). */
+  | { type: 'text'; id: string; text: string }
   | { type: 'midi'; ev: MidiEvent }
   | { type: 'ui'; id: string; ev: UiEvent }
   | { type: 'record'; on: boolean }

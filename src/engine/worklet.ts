@@ -28,6 +28,9 @@ class VoltageRackProcessor extends AudioWorkletProcessor {
       case 'param':
         this.graph.setParam(m.id, m.index, m.value)
         break
+      case 'text':
+        this.graph.setText(m.id, m.text)
+        break
       case 'midi':
         this.graph.midi(m.ev)
         break

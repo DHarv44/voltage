@@ -178,7 +178,9 @@ class AudioEngine {
       const prev = new Map(this.lastPatch.modules.map((m) => [m.id, m]))
       for (const m of p.modules) {
         const old = prev.get(m.id)
-        if (!old || old.params === m.params) continue
+        if (!old) continue
+        if (old.text !== m.text) this.send({ type: 'text', id: m.id, text: m.text ?? '' })
+        if (old.params === m.params) continue
         SPECS[m.type].params.forEach((ps, index) => {
           const v = m.params[ps.id]
           if (v !== old.params[ps.id]) this.send({ type: 'param', id: m.id, index, value: v })

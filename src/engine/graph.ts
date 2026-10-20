@@ -65,6 +65,14 @@ export class Graph {
     this.mods.get(id)?.setParam(index, value)
   }
 
+  /** A module's text (code) changed without the rack's wiring changing. */
+  setText(id: string, text: string): void {
+    const d = this.mods.get(id)
+    if (!d?.setText || text === d.textWas) return
+    d.textWas = text
+    d.setText(text)
+  }
+
   midi(ev: MidiEvent): void {
     for (const d of this.mods.values()) d.onMidi?.(ev)
   }
