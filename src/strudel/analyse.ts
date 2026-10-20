@@ -17,17 +17,19 @@ export interface LaneInfo {
   p: Record<string, number>
   /** Controls whose value changes from note to note. */
   patterned: Set<string>
+  /** The vowel it mostly asks for, when it does. */
+  vowel?: string
 }
 
 export interface Analysis {
   plan: LanePlan
   lanes: LaneInfo[]
-  drums: { count: number; gain: number }[]
+  drums: { count: number; gain: number; decay?: number }[]
   drumRoom: number
   warnings: string[]
 }
 
-const PARAMS = ['gain', 'pan', 'room', 'delay', 'delaytime', 'delayfb', 'lpf', 'hpf', 'lpq', 'attack', 'decay', 'sustain', 'release', 'shape', 'distort', 'crush', 'coarse']
+const PARAMS = ['gain', 'pan', 'room', 'delay', 'delaytime', 'delayfb', 'lpf', 'hpf', 'lpq', 'attack', 'decay', 'sustain', 'release', 'shape', 'distort', 'crush', 'coarse', 'phaser', 'phaserdepth']
 
 const median = (xs: number[]) => {
   const s = [...xs].sort((a, b) => a - b)
@@ -38,13 +40,14 @@ const median = (xs: number[]) => {
 export function analyseLanes(run: Run, maxLanes: number): Analysis {
   const plan = planLanes(run, maxLanes)
   const cycles = Math.min(64, run.pattern.cycles || 32)
-  const drums = DRUM_OUTS.map(() => ({ count: 0, gains: [] as number[] }))
+  const drums = DRUM_OUTS.map(() => ({ count: 0, gains: [] as number[], decays: [] as number[] }))
   const drumRooms: number[] = []
   const warnings: string[] = []
   const laneCount = plan.byName ? plan.names.length : plan.pats.length
   const acc = Array.from({ length: laneCount }, () => ({
     sounds: new Map<string, number>(),
     vals: new Map<string, number[]>(),
+    vowels: new Map<string, number>(),
     notes: 0,
     maxPoly: 0,
     together: new Map<string, Set<string>>(),
@@ -55,6 +58,7 @@ export function analyseLanes(run: Run, maxLanes: number): Analysis {
     a.notes++
     a.sounds.set(s, (a.sounds.get(s) ?? 0) + 1)
     for (const k of PARAMS) if (typeof h.v[k] === 'number') (a.vals.get(k) ?? a.vals.set(k, []).get(k)!).push(h.v[k] as number)
+    if (typeof h.v.vowel === 'string') a.vowels.set(h.v.vowel, (a.vowels.get(h.v.vowel) ?? 0) + 1)
     const key = `${l}:${c}:${h.b.toFixed(4)}`
     const set = at.get(key) ?? at.set(key, new Set()).get(key)!
     set.add(Number(h.v.note ?? h.v.n ?? h.v.freq))
@@ -76,6 +80,7 @@ export function analyseLanes(run: Run, maxLanes: number): Analysis {
         if (d >= 0) {
           drums[d].count++
           if (h.v.gain !== undefined) drums[d].gains.push(Number(h.v.gain))
+          if (h.v.decay !== undefined) drums[d].decays.push(Number(h.v.decay))
           if (h.v.room !== undefined) drumRooms.push(Number(h.v.room))
           continue
         }
@@ -98,12 +103,13 @@ export function analyseLanes(run: Run, maxLanes: number): Analysis {
       p[k] = median(xs)
       if ((k === 'lpf' || k === 'hpf') && new Set(xs.map((x) => x.toFixed(3))).size > 1) patterned.add(k)
     }
-    return { name: plan.names[i] ?? `lane ${i + 1}`, sound: main, doubled, notes: a.notes, maxPoly: a.maxPoly, p, patterned }
+    const vowel = [...a.vowels.entries()].sort((x, y) => y[1] - x[1])[0]?.[0]
+    return { name: plan.names[i] ?? `lane ${i + 1}`, sound: main, doubled, notes: a.notes, maxPoly: a.maxPoly, p, patterned, vowel }
   })
   return {
     plan,
     lanes,
-    drums: drums.map((d) => ({ count: d.count, gain: d.gains.length ? median(d.gains) : 1 })),
+    drums: drums.map((d) => ({ count: d.count, gain: d.gains.length ? median(d.gains) : 1, decay: d.decays.length ? median(d.decays) : undefined })),
     drumRoom: drumRooms.length ? median(drumRooms) : 0,
     warnings,
   }

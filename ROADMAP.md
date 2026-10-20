@@ -696,6 +696,24 @@ the host over LINK (`srcMod[iLink] instanceof StrudelCoreDsp | StrudelDsp`, deps
 buildStrudelRack builds CORE + a PART per part + DRUMS by default (allInOne = true for the STRUDEL
 rig). Under the 300-line ceiling: library.ts → globals.ts (signals, Val/Fn, weighted), mini.ts →
 miniBuild.ts (tree → pattern).
+2026-10-20 timbre layer (branch timbre-picker; user: "what's the best practice to map modules and
+Strudel, assuming we keep adding modules, Strudel keeps changing, and Strudel may not live in the app
+forever?"): the importer no longer knows our module types. src/timbre/ is the pivot, in our words:
+taxonomy.ts (GM's sixteen families + synth; ~40 timbres; `timbreOfName` for words, `timbreOfProgram`
+for MIDI program numbers), request.ts (neutral Controls in Hz / s / 0–1, VoiceRequest, the HITS drum
+vocabulary), instruments.ts (each instrument module declares what it plays, its jacks, a `set` for a
+request; DRUM_VOICES likewise with decay mapping), treatments.ts (each effect says what it treats),
+pick.ts (mono synth waves → a patched VCO voice, chords with a moving filter → the P-chain, else the
+best declaration: timbre > family > fallback HALCYON, minus a lot when a needed filter CV is missing),
+build.ts (placeVoice / placeDrums / placeTreatments). Strudel's side is one adapter (strudel/adapt.ts:
+sound name → timbre, Strudel control names → Controls). validateTimbre: every declared jack exists,
+every instrument-shaped module (V/OCT + gate/trig in Instruments / Polyphonic, every Drums module)
+declares itself or is listed with a reason, promised picks hold. validateStrudel: two fixture pieces
+(the user's arranged piece; a layered one with supersaw / epiano / square chords / vowel / crush /
+delay) build to the expected modules. Fixes that fell out: supersaw → SWARM (was HALCYON), epiano →
+STAGE (was FM-4), strings → TAPE KEYS, drum `.decay` → the drum's DECAY, `bass` no longer a kick
+alias, vowel → FORMANT, crush / coarse → ERA, phaser → PHASER. Adding a module = one declaration; a
+MIDI FILE importer would use the same picker through `timbreOfProgram`.
 - Later: `chord()`/`voicing()`, `.jux` as real stereo, `.pan` patterned → PANNER CV, sample banks by
   name onto our drums' tunings (tr808 vs linn), `.speed` on samples, `samples()` custom names as
   lanes, `.segment` signals as LFOs, `.every` with named functions, per-lane `.gain` patterns to VEL
