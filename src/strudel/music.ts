@@ -40,15 +40,55 @@ export const SCALES: Record<string, number[]> = {
   pelog: [0, 1, 3, 7, 8],
 }
 
-/** Scale degree n of "root:name" (e.g. "d4:minor") as a MIDI note; negative degrees go down. */
+/** Scale degree n of "root:name" (e.g. "d4:minor", "C:major:pentatonic") as a MIDI note; negative degrees go down. */
 export function scaleNote(n: number, scale: string): number {
-  const [rootS, nameS] = scale.includes(':') ? scale.split(':') : ['c3', scale]
+  const parts = scale.trim().split(/[:\s]+/)
+  const hasRoot = parts.length > 1 && Number.isFinite(noteToMidi(parts[0]))
+  const rootS = hasRoot ? parts[0] : 'c3'
+  const nameS = (hasRoot ? parts.slice(1) : parts).join('')
   const root = noteToMidi(rootS)
   const steps = SCALES[nameS.toLowerCase().replace(/[\s_-]/g, '')] ?? SCALES.major
   const len = steps.length
   const i = Math.round(n)
   const oct = Math.floor(i / len)
   return (Number.isFinite(root) ? root : 48) + oct * 12 + steps[((i % len) + len) % len]
+}
+
+/** Chord qualities as semitones above the root. */
+const QUALITIES: [RegExp, number[]][] = [
+  [/^(maj7|\^7|M7)$/, [0, 4, 7, 11]],
+  [/^(m7|-7|min7)$/, [0, 3, 7, 10]],
+  [/^(7)$/, [0, 4, 7, 10]],
+  [/^(m9|-9)$/, [0, 3, 7, 10, 14]],
+  [/^(9)$/, [0, 4, 7, 10, 14]],
+  [/^(maj9|\^9)$/, [0, 4, 7, 11, 14]],
+  [/^(dim7|o7)$/, [0, 3, 6, 9]],
+  [/^(dim|o)$/, [0, 3, 6]],
+  [/^(m7b5|ø|h7)$/, [0, 3, 6, 10]],
+  [/^(aug|\+)$/, [0, 4, 8]],
+  [/^(sus4|sus)$/, [0, 5, 7]],
+  [/^(sus2)$/, [0, 2, 7]],
+  [/^(7sus4)$/, [0, 5, 7, 10]],
+  [/^(6)$/, [0, 4, 7, 9]],
+  [/^(m6|-6)$/, [0, 3, 7, 9]],
+  [/^(add9)$/, [0, 4, 7, 14]],
+  [/^(m|-|min)$/, [0, 3, 7]],
+  [/^(5)$/, [0, 7]],
+  [/^(M|maj|)$/, [0, 4, 7]],
+]
+
+/** A chord symbol ("Am7", "Bb^7", "F#m") as MIDI notes, voiced close to `anchor`. */
+export function chordNotes(symbol: string, octave = 4, anchor = 60): number[] {
+  const m = /^([A-Ga-g])([#b]?)(.*)$/.exec(symbol.trim())
+  if (!m) return []
+  const root = noteToMidi(`${m[1]}${m[2]}${octave}`)
+  const q = QUALITIES.find(([re]) => re.test(m[3]))?.[1] ?? [0, 4, 7]
+  const notes = q.map((s) => root + s)
+  // bring the chord near the anchor: shift whole octaves until its middle sits within a fifth
+  const mid = () => notes.reduce((s, n) => s + n, 0) / notes.length
+  while (mid() > anchor + 7) for (let i = 0; i < notes.length; i++) notes[i] -= 12
+  while (mid() < anchor - 7) for (let i = 0; i < notes.length; i++) notes[i] += 12
+  return notes
 }
 
 /** The drum sound names, by the trigger output they fire (0 kick … 7 cymbal). */

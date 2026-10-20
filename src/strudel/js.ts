@@ -75,7 +75,7 @@ export type Node =
   | { k: 'arrow'; params: string[]; body: Node }
   | { k: 'cond'; c: Node; a: Node; b: Node }
 
-export type Stmt = { k: 'const'; name: string; e: Node } | { k: 'expr'; e: Node } | { k: 'dollar'; e: Node }
+export type Stmt = { k: 'const'; name: string; e: Node } | { k: 'expr'; e: Node } | { k: 'dollar'; e: Node } | { k: 'muted'; e: Node }
 
 export class Parser {
   private i = 0
@@ -120,10 +120,11 @@ export class Parser {
       this.expectP('=')
       return { k: 'const', name: name.v, e: this.expr() }
     }
-    // `$: pattern` or `name: pattern`: another top-level pattern to play
-    if ((this.isId('$') || this.peek().t === 'id') && this.isP(':', 1) && !this.isP('(', 1)) {
+    // `$: pattern` or `name: pattern`: another top-level pattern to play; `_$:` one that's muted
+    if (this.peek().t === 'id' && this.isP(':', 1)) {
+      const name = (this.peek() as { v: string }).v
       this.i += 2
-      return { k: 'dollar', e: this.expr() }
+      return { k: name.startsWith('_') ? 'muted' : 'dollar', e: this.expr() }
     }
     return { k: 'expr', e: this.expr() }
   }

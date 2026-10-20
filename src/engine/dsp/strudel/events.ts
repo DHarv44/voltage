@@ -1,5 +1,6 @@
+import { soundKey, type LanePlan } from '../../../strudel/lanes'
 import { drumOf } from '../../../strudel/music'
-import { hasOnset, type Pattern } from '../../../strudel/pattern'
+import { hasOnset } from '../../../strudel/pattern'
 
 const CAP = 4096
 
@@ -18,14 +19,15 @@ export class CycleEvents {
   dropped = 0
   private readonly order: number[] = []
 
-  /** Query every lane over cycle c (lanes are queried at that cycle). */
-  fill(lanes: Pattern[], c: number): void {
+  /** Query the plan's patterns over cycle c; a sound-keyed plan puts each event on its sound's lane. */
+  fill(plan: LanePlan, c: number): void {
     this.n = 0
     this.dropped = 0
-    for (let l = 0; l < lanes.length; l++) {
+    const pats = plan.pats
+    for (let pi = 0; pi < pats.length; pi++) {
       let haps
       try {
-        haps = lanes[l].query(c, c + 1)
+        haps = pats[pi].query(c, c + 1)
       } catch {
         continue
       }
@@ -37,10 +39,11 @@ export class CycleEvents {
         let note = NaN
         if (drum < 0) {
           if (v.note !== undefined) note = Number(v.note)
+          else if (v.freq !== undefined) note = 69 + 12 * Math.log2(Number(v.freq) / 440)
           else if (v.n !== undefined) note = 48 + Number(v.n)
-          else if (s && !isNaN(Number(s))) note = Number(s)
           if (!Number.isFinite(note)) continue
         }
+        const l = plan.byName ? (plan.byName.get(soundKey(s)) ?? plan.rest) : pi
         const t = h.b - c
         // the same note at the same moment on one lane (a layered sound): one event
         let dup = -1

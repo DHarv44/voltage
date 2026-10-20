@@ -677,6 +677,13 @@ cycles/min, a cycle queried once into typed arrays. Explore ▸ From Strudel: co
 voice, HALCYON for poly or pads, GRAND, FM-4, DRAWBAR, BREATH, CHOIR), hpf/lpf constant or patterned
 through MOD, delay → PING-PONG, shape → FOLD, CONSOLE with gain/pan and room on its plate send.
 The user's first piece (130 BPM, 51 cycles, three arranged layers) imports to 17 modules.
+2026-10-20 coverage pass from the Strudel reference (user: "can't you learn strudel??"): `{}`
+polymeter with `%`, `_`, `..`, every documented control and alias with the `a:b` compound forms
+(controls.ts), when / inside / outside / zoom / compress / fastGap / iterBack / chunkBack / echo /
+echoWith / arp / pick / squeeze / ribbon / shuffle / scramble / randcat / wchoose / scaleTranspose /
+chord + voicing / euclidLegato / inv, object literals and `_$:` muted lines; lanes by sound name when
+the root is an arrange (lanes.ts); console levels normalised to the loudest part. The user's second
+piece (a 214-cycle synth-pop remake, 12 sounds, 5 drum names) imports to 22 modules at ~35 % CPU.
 - Later: `chord()`/`voicing()`, `.jux` as real stereo, `.pan` patterned → PANNER CV, sample banks by
   name onto our drums' tunings (tr808 vs linn), `.speed` on samples, `samples()` custom names as
   lanes, `.segment` signals as LFOs, `.every` with named functions, per-lane `.gain` patterns to VEL

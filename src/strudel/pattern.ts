@@ -98,6 +98,19 @@ export class Pattern {
     })
   }
 
+  /** The part [s, e) of each cycle, stretched to fill the cycle (zoom). */
+  zoomPart(s: number, e: number): Pattern {
+    const w = e - s
+    if (w <= 0) return silence
+    return Pattern.perCycle((c, qb, qe) => {
+      const inner = (t: number) => c + s + (t - c) * w
+      const outer = (t: number) => c + (t - c - s) / w
+      return this.query(inner(qb), inner(qe))
+        .map((h) => ({ ...h, b: outer(h.b), e: outer(h.e), pb: Math.max(qb, outer(h.pb)), pe: Math.min(qe, outer(h.pe)) }))
+        .filter((h) => h.pe - h.pb > EPS)
+    })
+  }
+
   /** Structure from `bool` (its true events), values from this pattern at those times. */
   struct(bool: Pattern): Pattern {
     return new Pattern((b, e) => {

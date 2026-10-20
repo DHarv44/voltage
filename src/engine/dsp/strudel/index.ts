@@ -1,5 +1,5 @@
+import { planLanes, type LanePlan } from '../../../strudel/lanes'
 import { DRUM_OUTS } from '../../../strudel/music'
-import { silence, stack, type Pattern } from '../../../strudel/pattern'
 import { runStrudel } from '../../../strudel/run'
 import { laneOut, ST_LANES, STL } from '../../../modules/specs/strudel'
 import { Dsp, MAX_VOICES } from '../base'
@@ -25,7 +25,7 @@ export class StrudelDsp extends Dsp {
   private readonly oClk = this.oi('clko')
   private readonly oBar = this.oi('baro')
   private readonly P = { cpm: this.pi('cpm'), run: this.pi('run'), gate: this.pi('gate'), oct: this.pi('oct') }
-  private lanes: Pattern[] = []
+  private plan: LanePlan | null = null
   private readonly events = new CycleEvents()
   private cursor = 0
   private cycle = -1
@@ -52,12 +52,10 @@ export class StrudelDsp extends Dsp {
     const r = runStrudel(code)
     this.error = !!r.error
     if (r.error) return
-    const layers = r.pattern.layers ?? [r.pattern]
-    this.lanes = layers.length <= ST_LANES ? layers : [...layers.slice(0, ST_LANES - 1), stack(layers.slice(ST_LANES - 1))]
-    while (this.lanes.length < ST_LANES) this.lanes.push(silence)
+    this.plan = planLanes(r, ST_LANES)
     // the code's tempo onto the knob (so the panel agrees); a cycle is a bar
     if (r.cpsSet) this.writeParam(this.P.cpm, Math.max(10, Math.min(120, r.cps * 60)))
-    if (this.cycle >= 0) this.events.fill(this.lanes, this.cycle)
+    if (this.cycle >= 0) this.events.fill(this.plan, this.cycle)
     this.cursor = this.events.n
     for (let i = 0; i < this.events.n; i++) if (this.events.t[i] > this.pos - this.cycle) {
       this.cursor = i
@@ -126,11 +124,12 @@ export class StrudelDsp extends Dsp {
     const c = Math.floor(this.pos)
     if (run && c !== this.cycle) {
       this.cycle = c
-      this.events.fill(this.lanes, c)
+      if (this.plan) this.events.fill(this.plan, c)
+      else this.events.n = 0
       this.cursor = 0
       this.barPulse = Math.round(PULSE_S * this.fs)
     }
-    if (run && this.lanes.length) {
+    if (run && this.plan) {
       const frac = this.pos - this.cycle
       const ev = this.events
       while (this.cursor < ev.n && ev.t[this.cursor] <= frac) this.fire(this.cursor++)

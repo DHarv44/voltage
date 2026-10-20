@@ -1,5 +1,5 @@
 import { parse, type Node, type Stmt } from './js'
-import { CONTROLS, control, globals, METHODS, toPattern, type Fn, type Val } from './library'
+import { CONTROLS, control, globals, METHODS, toPattern, voiceChords, type Fn, type Val } from './library'
 import { Pattern, silence, stack } from './pattern'
 
 /** What running a piece of Strudel code gives: the pattern to play, its
@@ -54,6 +54,7 @@ export function runStrudel(code: string): Run {
   }
 
   const method = (pat: Pattern, name: string, args: Val[]): Val => {
+    if (name === 'voicing') return voiceChords(pat)
     if (CONTROLS[name]) return control(name, pat, args[0])
     if (METHODS[name]) return METHODS[name](pat, args, apply)
     const c = custom.get(name)
@@ -81,8 +82,11 @@ export function runStrudel(code: string): Run {
       }
       case 'arr':
         return n.items.map((i) => evalNode(i, scope))
-      case 'obj':
-        return null
+      case 'obj': {
+        const o: { [k: string]: Val } = {}
+        n.keys.forEach((key, i) => (o[key] = evalNode(n.vals[i], scope)))
+        return o
+      }
       case 'neg':
         return -Number(evalNode(n.a, scope))
       case 'not':
@@ -141,6 +145,7 @@ export function runStrudel(code: string): Run {
           const obj = evalNode(n.fn.obj, scope)
           const args = n.args.map((a) => evalNode(a, scope))
           if (obj instanceof Pattern || typeof obj === 'string' || typeof obj === 'number') return method(toPattern(obj), n.fn.name, args)
+          if (Array.isArray(obj)) return method(toPattern(obj), n.fn.name, args)
           if (obj === null || obj === undefined) return null
           warn(`.${n.fn.name}() on something that isn’t a pattern: skipped`)
           return obj
@@ -164,6 +169,7 @@ export function runStrudel(code: string): Run {
   let last: Val = null
   try {
     for (const s of stmts) {
+      if (s.k === 'muted') continue
       if (s.k === 'const') env.set(s.name, evalNode(s.e, new Map()))
       else {
         const v = evalNode(s.e, new Map())

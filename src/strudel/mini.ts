@@ -13,12 +13,15 @@ type Node =
   | { k: 'stack'; items: Node[] }
   | { k: 'choice'; items: Node[] }
   | { k: 'alt'; items: Node[] }
+  | { k: 'poly'; layers: Node[]; steps: Node | null }
   | { k: 'fast'; node: Node; by: Node }
   | { k: 'slow'; node: Node; by: Node }
   | { k: 'degrade'; node: Node; p: number }
   | { k: 'euclid'; node: Node; args: Node[] }
 
 const WORD = /[A-Za-z0-9#._'^-]/
+/** A word character that isn't the start of `..` (a range). */
+const wordAt = (r: Reader): boolean => WORD.test(r.peek()) && !r.s.startsWith('..', r.i) && !(r.peek() === '.' && footDot(r))
 
 class Reader {
   i = 0
@@ -98,6 +101,24 @@ function parseSeq(r: Reader, close: string): Node {
       // a bare `!`: the previous step again
       r.next()
       if (steps.length) steps.push(steps[steps.length - 1])
+      continue
+    }
+    if (c === '_' && /\s|$/.test(r.s[r.i + 1] ?? '')) {
+      // `_`: the previous step lasts one step longer
+      r.next()
+      if (steps.length) steps[steps.length - 1] = { ...steps[steps.length - 1], w: steps[steps.length - 1].w + 1 }
+      continue
+    }
+    if (r.s.startsWith('..', r.i)) {
+      // `a .. b`: every whole number between
+      r.i += 2
+      const to = parseStep(r)
+      const from = steps.pop()
+      const lo = from && from.node.k === 'atom' ? Number(from.node.v) : NaN
+      const hi = to.node.k === 'atom' ? Number(to.node.v) : NaN
+      if (!Number.isFinite(lo) || !Number.isFinite(hi)) r.fail('.. needs numbers either side')
+      const dir = hi >= lo ? 1 : -1
+      for (let v = lo; dir > 0 ? v <= hi : v >= hi; v += dir) steps.push({ node: { k: 'atom', v: String(v) }, w: 1 })
       continue
     }
     const step = parseStep(r)
@@ -180,14 +201,26 @@ function parseAtom(r: Reader): Node {
     r.next()
     return toAlt(n)
   }
+  if (c === '{') {
+    r.next()
+    const n = parseSeq(r, '}')
+    r.next()
+    const layers = n.k === 'stack' ? n.items : [n]
+    let steps: Node | null = null
+    if (r.peek() === '%') {
+      r.next()
+      steps = parseAtom(r)
+    }
+    return { k: 'poly', layers, steps }
+  }
   if (c === '~') {
     r.next()
     return { k: 'rest' }
   }
   let s = ''
-  while (r.peek() !== '' && WORD.test(r.peek()) && !(r.peek() === '.' && footDot(r))) s += r.next()
+  while (r.peek() !== '' && wordAt(r)) s += r.next()
   if (!s) r.fail(`unexpected "${c}"`)
-  if (s === '-') return { k: 'rest' }
+  if (s === '-' || s === '~') return { k: 'rest' }
   return { k: 'atom', v: s }
 }
 
@@ -197,6 +230,9 @@ function toAlt(n: Node): Node {
   if (n.k === 'stack') return { k: 'stack', items: n.items.map(toAlt) }
   return { k: 'alt', items: [n] }
 }
+
+/** How many steps a sequence has (weights count; anything else is one). */
+const weightOf = (n: Node): number => (n.k === 'seq' ? n.steps.reduce((s, x) => s + x.w, 0) : 1)
 
 /** The number a step's `*` / `/` argument stands for (patterned when it varies). */
 function numberOf(n: Node): Pattern {
@@ -215,6 +251,13 @@ function build(n: Node, atom: (s: string) => Value): Pattern {
       return stack(n.items.map((i) => build(i, atom)))
     case 'alt':
       return slowcat(n.items.map((i) => build(i, atom)))
+    case 'poly': {
+      // steps per cycle: given, else the first layer's; each layer runs at that step rate and wraps
+      const base = weightOf(n.layers[0])
+      const layers = n.layers.map((l) => [weightOf(l), build(l, atom)] as [number, Pattern])
+      const at = (s: number) => stack(layers.map(([w, p]) => p.slow(w / Math.max(1e-6, s))))
+      return n.steps ? patterned(numberOf(n.steps), at) : at(base)
+    }
     case 'choice': {
       const pats = n.items.map((i) => build(i, atom))
       return Pattern.perCycle((c, b, e) => pats[Math.floor(timeToRand(c + 0.0001) * pats.length)].query(b, e))

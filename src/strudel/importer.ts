@@ -28,22 +28,23 @@ export function decodeStrudelInput(input: string): string {
 }
 
 /** What a sound name asks for. */
-type Kind = 'piano' | 'epiano' | 'organ' | 'wind' | 'choir' | 'pad' | 'bass' | 'lead' | 'sine' | 'triangle' | 'square'
+type Kind = 'piano' | 'epiano' | 'organ' | 'wind' | 'choir' | 'pad' | 'supersaw' | 'bass' | 'lead' | 'sine' | 'triangle' | 'square'
 function kindOf(sound: string): Kind {
   const s = sound.toLowerCase()
+  if (s === '' || s === 'triangle' || s === 'tri') return 'triangle'
   if (/epiano|rhodes|wurl|clav/.test(s)) return 'epiano'
   if (/piano|harpsi/.test(s)) return 'piano'
   if (/organ/.test(s)) return 'organ'
-  if (/flute|clarinet|recorder|oboe|whistle|ocarina|pan_flute|bassoon/.test(s)) return 'wind'
+  if (/flute|clarinet|recorder|oboe|whistle|ocarina|pan_flute|bassoon|sax/.test(s)) return 'wind'
   if (/choir|voice|vox|aah|ooh|vocal/.test(s)) return 'choir'
-  if (/string|pad|ensemble|warm|halo|sweep|brass/.test(s)) return 'pad'
+  if (/supersaw/.test(s)) return 'supersaw'
+  if (/string|pad|ensemble|warm|halo|sweep|brass|horn/.test(s)) return 'pad'
   if (/bass/.test(s)) return 'bass'
   if (s === 'sine' || s === 'sin') return 'sine'
-  if (s === 'triangle' || s === 'tri') return 'triangle'
-  if (s === 'square') return 'square'
+  if (s === 'square' || s === 'pulse' || s === 'z_square') return 'square'
   return 'lead'
 }
-const KIND_NAMES: Record<Kind, string> = { piano: 'GRAND', epiano: 'STAGE', organ: 'DRAWBAR', wind: 'BREATH', choir: 'CHOIR', pad: 'HALCYON pad', bass: 'saw bass', lead: 'saw lead', sine: 'sine voice', triangle: 'triangle voice', square: 'square voice' }
+const KIND_NAMES: Record<Kind, string> = { piano: 'GRAND', epiano: 'STAGE', organ: 'DRAWBAR', wind: 'BREATH', choir: 'CHOIR', pad: 'HALCYON pad', supersaw: 'HALCYON supersaw', bass: 'saw bass', lead: 'saw lead', sine: 'sine voice', triangle: 'triangle voice', square: 'square voice' }
 
 const level = (gain: number) => Math.max(0.12, Math.min(0.95, 0.8 * Math.pow(Math.max(0, gain), 0.7)))
 
@@ -63,8 +64,8 @@ function laneVoice(k: Kit, st: string, l: number, info: LaneInfo, report: string
   const env = { a: info.p.attack ?? 0.003, d: info.p.decay ?? 0.25, s: info.p.sustain ?? 0.7, r: info.p.release ?? 0.1 }
   const poly = info.maxPoly > 1
   const stereo = (id: string) => mix(k, [[id, 'l'], [id, 'r']], [0.7, 0.7])
-  const note = (what: string) => report.push(`Lane ${l + 1} (${info.sound || 'notes'}): ${what}`)
-  if (poly || ['piano', 'epiano', 'organ', 'choir', 'pad'].includes(kind)) {
+  const note = (what: string) => report.push(`Lane ${l + 1} (${info.name}): ${what}`)
+  if (poly || ['piano', 'epiano', 'organ', 'choir', 'pad', 'supersaw'].includes(kind)) {
     if (kind === 'piano') {
       const id = k.add('grand', { level: 0.8 })
       k.wire(v, [id, 'voct'])
@@ -101,14 +102,15 @@ function laneVoice(k: Kit, st: string, l: number, info: LaneInfo, report: string
       d: env.d,
       s: env.s,
       r: env.r,
-      chorus: kind === 'pad' ? 2 : 0,
+      chorus: kind === 'pad' || kind === 'supersaw' ? 2 : 0,
       pulse: kind === 'square' ? 1 : 0,
       saw: kind === 'square' ? 0 : 1,
       sub: kind === 'bass' ? 0.5 : 0,
+      hpf: info.p.hpf !== undefined && info.p.hpf >= 150 ? (info.p.hpf > 500 ? 3 : 2) : 1,
     })
     k.wire(v, [id, 'voct'])
     k.wire(g, [id, 'gate'])
-    note(`HALCYON (${poly ? `${info.maxPoly} voices` : kind})`)
+    note(`HALCYON (${poly ? `${info.maxPoly} voices, ` : ''}${KIND_NAMES[kind].replace('HALCYON ', '')})`)
     return stereo(id)
   }
   if (kind === 'wind') {
@@ -123,7 +125,8 @@ function laneVoice(k: Kit, st: string, l: number, info: LaneInfo, report: string
   let filter: { type: string; params: Record<string, number>; out: string }
   let filterCv: Jack | undefined
   let how: string
-  if (info.p.hpf !== undefined) {
+  // a high-pass worth a filter of its own (below 150 Hz it's a rumble cut: the low-pass matters more)
+  if (info.p.hpf !== undefined && (info.p.hpf >= 150 || info.patterned.has('hpf'))) {
     filter = { type: 'svf', params: { cutoff: info.patterned.has('hpf') ? 20 : info.p.hpf, res: 0.1, cv: info.patterned.has('hpf') ? 1 : 0 }, out: 'hp' }
     if (info.patterned.has('hpf')) filterCv = [st, laneOut(l, 'mod')]
     how = info.patterned.has('hpf') ? 'hpf pattern → MOD → SVF high-pass' : `high-pass at ${Math.round(info.p.hpf)} Hz`
@@ -147,8 +150,9 @@ function laneVoice(k: Kit, st: string, l: number, info: LaneInfo, report: string
 export function buildStrudelRack(k: Kit, code: string): StrudelReport {
   const run = runStrudel(code)
   if (run.error) return { lines: [], warnings: run.warnings, error: run.error }
-  const a = analyseLanes(run)
+  const a = analyseLanes(run, ST_LANES)
   const lines: string[] = []
+  if (a.plan.byName) lines.push(`Parts by sound: ${a.plan.names.join(' · ')}`)
   const st = k.add('strudel', { cpm: Math.max(10, Math.min(120, run.cps * 60)) })
   k.setText(st, code)
   const channels: { src: Jack; level: number; pan: number; room: number; name: string }[] = []
@@ -190,8 +194,9 @@ export function buildStrudelRack(k: Kit, code: string): StrudelReport {
   a.lanes.forEach((info, l) => {
     if (l >= ST_LANES || !info.notes) return
     let src = laneVoice(k, st, l, info, lines)
-    if (info.p.shape) {
-      const f = k.add('fold', { fold: Math.min(1, info.p.shape * 1.5) })
+    const dirt = info.p.shape ?? (info.p.distort !== undefined ? info.p.distort / 4 : 0)
+    if (dirt > 0.05) {
+      const f = k.add('fold', { fold: Math.min(1, dirt * 1.5) })
       k.wire(src, [f, 'in'])
       src = [f, 'out']
     }
@@ -209,7 +214,6 @@ export function buildStrudelRack(k: Kit, code: string): StrudelReport {
     }
     channels.push({ src, level: level(info.p.gain ?? 1), pan: (info.p.pan ?? 0.5) * 2 - 1, room: info.p.room ?? 0, name: `lane ${l + 1}` })
   })
-  if (a.lanes.length > ST_LANES) lines.push(`${a.lanes.length} layers: the last ${a.lanes.length - ST_LANES + 1} share lane ${ST_LANES}`)
   // the desk: a plate on the send, channels' room as their send
   const chans = channels.slice(0, 6)
   if (channels.length > 6) {
@@ -217,9 +221,12 @@ export function buildStrudelRack(k: Kit, code: string): StrudelReport {
     chans[5] = { ...channels[5], src: extra, level: 0.8, name: 'lanes 6+' }
     lines.push('More than six parts: the rest share console channel 6')
   }
+  // Strudel gains are relative: bring the loudest part up to a healthy level, the rest with it
+  const loudest = Math.max(0.05, ...chans.map((c) => c.level))
+  const norm = Math.min(3, 0.85 / loudest)
   const conParams: Record<string, number> = { ret: 0.5 }
   chans.forEach((c, i) => {
-    conParams[`lvl${i + 1}`] = c.level
+    conParams[`lvl${i + 1}`] = Math.min(1, c.level * norm)
     conParams[`pan${i + 1}`] = c.pan
     conParams[`snd${i + 1}`] = Math.min(1, c.room * 2)
   })
