@@ -38,6 +38,25 @@ export interface VoiceRequest {
   timbre: Timbre
   poly: number
   c: Controls
+  /** A raw synth wave (not a sampled instrument): a short plucky envelope unless told otherwise. */
+  synth?: boolean
+}
+
+export type Envelope = { a: number; d: number; s: number; r: number }
+
+/** The envelope a request asks for. Unset values take Strudel's own
+ *  defaults for a synth (attack 0.001 · decay 0.05 · sustain 0.6 · release
+ *  0.01: short and plucky), or a sampled instrument's (holds while the note
+ *  lasts, then stops). Attacks and releases are kept just long enough not to click. */
+export function envelope(r: VoiceRequest): Envelope {
+  const c = r.c
+  const synth = !!r.synth
+  return {
+    a: Math.max(0.002, c.attack ?? 0.001),
+    d: c.decay ?? (synth ? 0.05 : 0.01),
+    s: c.sustain ?? (synth ? 0.6 : 1),
+    r: Math.max(0.02, c.release ?? 0.01),
+  }
 }
 
 /** The drum hits anything can ask for, by name. */
@@ -49,4 +68,6 @@ export interface DrumRequest {
   gain: number
   /** Seconds, when the music says. */
   decay?: number
+  /** The drum machine it should sound like (a name or alias from timbre/banks.ts), when the music says. */
+  bank?: string
 }

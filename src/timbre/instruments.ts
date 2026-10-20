@@ -1,5 +1,4 @@
-import type { Hit } from './request'
-import type { VoiceRequest } from './request'
+import { envelope, type Hit, type VoiceRequest } from './request'
 import type { Timbre } from './taxonomy'
 
 /** What an instrument module can play and how it's patched: the one place a
@@ -43,7 +42,7 @@ export const INSTRUMENTS: Record<string, Instrument> = {
     gate: 'gate',
     vel: 'vel',
     out: ['out'],
-    set: (r) => ({ voice: FM_VOICE[r.timbre] ?? 8, level: 0.75, att: pct(r.c.attack, 1, 0), rel: pct(r.c.release, 2, 0.5) }),
+    set: (r) => ({ voice: FM_VOICE[r.timbre] ?? 8, level: 0.75, att: pct(r.c.attack, 1, 0), rel: pct(r.c.release, 2, r.synth ? 0.05 : 0.5) }),
   },
   organ: { plays: ['organ'], voices: 8, voct: 'voct', gate: 'gate', out: ['out'] },
   wind: {
@@ -61,7 +60,11 @@ export const INSTRUMENTS: Record<string, Instrument> = {
     voct: 'voct',
     gate: 'gate',
     out: ['l', 'r'],
-    set: (r) => ({ cutoff: r.c.cutoff ?? 6000, att: Math.max(0.001, r.c.attack ?? 0.005), rel: Math.max(0.01, r.c.release ?? 0.4), level: 0.7 }),
+    // Strudel's supersaw: 5 voices, detune 0.18, spread 0.6; its attack / release only (no decay stage)
+    set: (r) => {
+      const e = envelope(r)
+      return { cutoff: r.c.cutoff ?? 6000, detune: 0.3, spread: 0.6, att: e.a, rel: e.r, level: 0.7 }
+    },
   },
   // no cutoffCv on the poly synths: their CV inputs aren't log2(Hz / 20) scaled, so a moving
   // filter goes to the patched poly chain (the picker sends it there) and these take the median
@@ -74,12 +77,13 @@ export const INSTRUMENTS: Record<string, Instrument> = {
     fallback: true,
     set: (r) => {
       const padLike = r.timbre === 'pad' || r.timbre === 'strings' || r.timbre === 'drone'
+      const e = envelope(r)
       return {
         cutoff: r.c.cutoff ?? (padLike ? 1800 : 3000),
-        a: Math.max(0.001, padLike ? Math.max(r.c.attack ?? 0, 0.2) : (r.c.attack ?? 0.003)),
-        d: r.c.decay ?? 0.25,
-        s: r.c.sustain ?? 0.7,
-        r: r.c.release ?? 0.1,
+        a: padLike ? Math.max(e.a, 0.2) : e.a,
+        d: e.d,
+        s: e.s,
+        r: padLike ? Math.max(e.r, 0.1) : e.r,
         chorus: padLike ? 2 : 0,
         pulse: r.timbre === 'square' ? 1 : 0,
         saw: r.timbre === 'square' ? 0 : 1,

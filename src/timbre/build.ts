@@ -1,7 +1,8 @@
 import { mix, voice, type Jack, type Kit } from '../patch/starters/kit'
+import { bankPreset } from './banksLookup'
 import { DRUM_VOICES, INSTRUMENTS } from './instruments'
 import { pickInstrument } from './pick'
-import type { Controls, DrumRequest, Hit, VoiceRequest } from './request'
+import { envelope, type Controls, type DrumRequest, type Hit, type VoiceRequest } from './request'
 import { TREATMENTS } from './treatments'
 
 /** Where a part's control signals come from. */
@@ -20,7 +21,7 @@ const toMono = (k: Kit, out: Jack[]): Jack => (out.length === 1 ? out[0] : mix(k
 function monoChain(k: Kit, r: VoiceRequest, j: PartJacks, say: (s: string) => void): Jack {
   const c = r.c
   const wave = r.timbre === 'sine' ? 'sin' : r.timbre === 'triangle' ? 'tri' : r.timbre === 'square' ? 'sqr' : 'saw'
-  const env = { a: c.attack ?? 0.003, d: c.decay ?? 0.25, s: c.sustain ?? 0.7, r: c.release ?? 0.1 }
+  const env = envelope(r)
   let filter: { type: string; params: Record<string, number>; out: string }
   let filterCv: Jack | undefined
   let how: string
@@ -47,7 +48,7 @@ function polyChain(k: Kit, r: VoiceRequest, j: PartJacks, say: (s: string) => vo
   const c = r.c
   const osc = k.add('pvco')
   const flt = k.add('pvcf', { cutoff: c.cutoffMoves ? 20 : (c.cutoff ?? 3000), res: c.resonance ?? 0.2, cv: 1 })
-  const env = k.add('padsr', { a: c.attack ?? 0.003, d: c.decay ?? 0.25, s: c.sustain ?? 0.7, r: c.release ?? 0.1 })
+  const env = k.add('padsr', envelope(r))
   const vca = k.add('pvca', { gain: 0, cv: 1 })
   const sum = k.add('polymix')
   k.wire(j.v, [osc, 'voct'])
@@ -89,9 +90,18 @@ export function placeDrums(k: Kit, hits: DrumRequest[], trig: (h: Hit) => Jack, 
   const outs: Jack[] = []
   const levels: number[] = []
   const used: string[] = []
+  const banks = new Set<string>()
   for (const [type, hs] of byModule) {
     const d = DRUM_VOICES[type]
+    // the module's defaults, then the drum machine's fitted setting per hit, then a decay the music states
     const params: Record<string, number> = { ...d.set }
+    for (const h of hs) {
+      const preset = h.bank ? bankPreset(h.bank) : null
+      if (preset?.[h.hit]) {
+        Object.assign(params, preset[h.hit])
+        banks.add(h.bank!)
+      }
+    }
     for (const h of hs) if (h.decay !== undefined && d.decay) Object.assign(params, d.decay(h.hit, h.decay))
     const id = k.add(type, params)
     for (const h of hs) {
@@ -102,7 +112,7 @@ export function placeDrums(k: Kit, hits: DrumRequest[], trig: (h: Hit) => Jack, 
     levels.push(level(Math.max(...hs.map((h) => h.gain))))
   }
   if (!outs.length) return null
-  report.push(`Drums: ${used.join(', ')} → ${[...byModule.keys()].map((t) => t.toUpperCase()).join(' / ')}`)
+  report.push(`Drums: ${used.join(', ')} → ${[...byModule.keys()].map((t) => t.toUpperCase()).join(' / ')}${banks.size ? ` set like ${[...banks].join(', ')}` : ''}`)
   return mixAll(k, outs, levels)
 }
 

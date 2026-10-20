@@ -1,4 +1,5 @@
 import type { ModuleSpec } from '../modules/types'
+import { BANK_ALIASES, BANKS } from './banks'
 import { DRUM_VOICES, INSTRUMENTS } from './instruments'
 import { pickInstrument } from './pick'
 import { HITS } from './request'
@@ -63,6 +64,18 @@ export function validateTimbre(specs: ModuleSpec[]): string[] {
   const covered = new Set<string>()
   for (const d of Object.values(DRUM_VOICES)) for (const h of Object.keys(d.hits)) covered.add(h)
   for (const h of HITS) if (!covered.has(h)) out.push(`timbre: no drum module makes "${h}"`)
+  // the fitted drum machines: every alias names a bank, every setting a real param of the hit's module
+  for (const [alias, bank] of Object.entries(BANK_ALIASES)) if (!BANKS[bank]) out.push(`timbre: bank alias "${alias}" → unknown bank "${bank}"`)
+  for (const [bank, preset] of Object.entries(BANKS))
+    for (const [hit, params] of Object.entries(preset)) {
+      const entry = Object.entries(DRUM_VOICES).find(([, d]) => d.hits[hit as (typeof HITS)[number]])
+      if (!entry) {
+        out.push(`timbre: bank ${bank} sets unknown hit "${hit}"`)
+        continue
+      }
+      const spec = byType.get(entry[0])
+      for (const p of Object.keys(params ?? {})) if (!spec?.params.some((ps) => ps.id === p)) out.push(`timbre: bank ${bank} ${hit} sets ${entry[0]} param "${p}" that doesn't exist`)
+    }
   for (const s of specs) {
     const has = (dir: 'inputs' | 'outputs', id: string) => s[dir].some((j) => j.id === id)
     const instrument = (s.category === 'Instruments' || s.category === 'Polyphonic') && has('inputs', 'voct') && (has('inputs', 'gate') || has('inputs', 'trig'))

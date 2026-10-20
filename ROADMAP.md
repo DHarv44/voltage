@@ -737,6 +737,27 @@ distortion; a filter "moves" only when its values are ≥ 1.5× apart; default P
 plans the same twelve parts as before the timbre layer (plus z_sawtooth + gm_lead_2_sawtooth
 sharing one, and supersaw on SWARM). Lesson: any change to lane planning or the picker gets A/B'd
 on the user's pieces before shipping.
+2026-10-20 "go through all of Strudel's sounds and banks one by one" (user: "go for it" on steps 1–2):
+inventory from Strudel's loader (repo now codeberg.org/uzu/strudel; website/src/repl/prebake.mjs):
+~10 synths (default envelope A 0.001 D 0.05 S 0.6 R 0.01; supersaw unison 5 / detune 0.18 / spread
+0.6; pulse pw 0.5), 73 drum-machine banks (ritchse/tidal-drum-machines via strudel.b-cdn.net, 66
+aliases), ~125 gm_* soundfont instruments, 1000+ wt_ AKWF wavetables, Salamander piano, VCSL (CC0),
+a Dirt-Samples subset. (1) Envelope baseline: `envelope(r)` in timbre/request.ts gives Strudel's
+synth defaults when the sound is one of its synths (adapt.ts isSynth: raw waves, z_*, wt_*), and
+hold-then-stop for sampled instruments; every instrument's set() and both chains use it. (2) Drum
+banks: tools/fitBanks.ts (node, outside the app's tsconfig; bundle with rolldown) downloads up to six
+variants per hit per bank (cache in the scratchpad, never in the repo), measures them
+(src/dev/drumFeatures.ts: decay to −30 dB, autocorrelation f0 after the first dip, early / whole
+centroid, noise share; src/dev/wav.ts decoder) and picks the nearest point of a measured grid of
+KICK / SNARE / HATS / CLAP / TOM settings → GENERATED src/timbre/banks.ts (70 banks, 66 aliases, one
+line per bank). The importer passes `.bank()` through analyse → DrumRequest.bank → placeDrums
+(bankPreset resolves names and aliases); validateTimbre checks every alias and every preset param.
+Known soft spots: snares all fit snappy 0.2 (our noise share reads high against the samples — weight
+or feature to revisit after listening); banks with no bd/sd (TR727, Simmons) are partly or wholly
+absent; rim / cymbal hits aren't fitted (PERC has no decay axis worth searching).
+- Later (sounds): wt_ wavetables → nearest VCO wave + cutoff from one cycle's spectrum (or a
+  WAVETABLE VCO: AKWF, check its licence); GM programs → baseline envelope / cutoff per program by
+  the same fitter generalised (attack, decay, brightness); VCSL / Dirt subset names.
 - Later: `chord()`/`voicing()`, `.jux` as real stereo, `.pan` patterned → PANNER CV, sample banks by
   name onto our drums' tunings (tr808 vs linn), `.speed` on samples, `samples()` custom names as
   lanes, `.segment` signals as LFOs, `.every` with named functions, per-lane `.gain` patterns to VEL

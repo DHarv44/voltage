@@ -24,7 +24,7 @@ export interface LaneInfo {
 export interface Analysis {
   plan: LanePlan
   lanes: LaneInfo[]
-  drums: { count: number; gain: number; decay?: number }[]
+  drums: { count: number; gain: number; decay?: number; bank?: string }[]
   drumRoom: number
   warnings: string[]
 }
@@ -40,7 +40,7 @@ const median = (xs: number[]) => {
 export function analyseLanes(run: Run, maxLanes: number): Analysis {
   const plan = planLanes(run, maxLanes)
   const cycles = Math.min(64, run.pattern.cycles || 32)
-  const drums = DRUM_OUTS.map(() => ({ count: 0, gains: [] as number[], decays: [] as number[] }))
+  const drums = DRUM_OUTS.map(() => ({ count: 0, gains: [] as number[], decays: [] as number[], banks: new Map<string, number>() }))
   const drumRooms: number[] = []
   const warnings: string[] = []
   const laneCount = plan.byName ? plan.names.length : plan.pats.length
@@ -81,6 +81,7 @@ export function analyseLanes(run: Run, maxLanes: number): Analysis {
           drums[d].count++
           if (h.v.gain !== undefined) drums[d].gains.push(Number(h.v.gain))
           if (h.v.decay !== undefined) drums[d].decays.push(Number(h.v.decay))
+          if (typeof h.v.bank === 'string') drums[d].banks.set(h.v.bank, (drums[d].banks.get(h.v.bank) ?? 0) + 1)
           if (h.v.room !== undefined) drumRooms.push(Number(h.v.room))
           continue
         }
@@ -110,7 +111,12 @@ export function analyseLanes(run: Run, maxLanes: number): Analysis {
   return {
     plan,
     lanes,
-    drums: drums.map((d) => ({ count: d.count, gain: d.gains.length ? median(d.gains) : 1, decay: d.decays.length ? median(d.decays) : undefined })),
+    drums: drums.map((d) => ({
+      count: d.count,
+      gain: d.gains.length ? median(d.gains) : 1,
+      decay: d.decays.length ? median(d.decays) : undefined,
+      bank: [...d.banks.entries()].sort((x, y) => y[1] - x[1])[0]?.[0],
+    })),
     drumRoom: drumRooms.length ? median(drumRooms) : 0,
     warnings,
   }

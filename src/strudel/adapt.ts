@@ -52,15 +52,21 @@ export function controlsOf(info: LaneInfo): Controls {
   return c
 }
 
-export function requestOf(info: LaneInfo, index: number): VoiceRequest {
-  return { name: `Part ${index + 1} (${info.name})`, timbre: timbreOfSound(info.sound), poly: info.maxPoly, c: controlsOf(info) }
+/** Strudel's own synths (everything else it plays is a sample). */
+const isSynth = (sound: string): boolean => {
+  const s = sound.toLowerCase()
+  return s === '' || s in ALIAS || s.startsWith('z_') || s.startsWith('wt_') || s === 'sbd' || s === 'bytebeat' || s === 'user'
 }
 
-/** The drums a piece plays (hit index order), with their typical gain and decay. */
-export function drumRequests(drums: { count: number; gain: number; decay?: number }[]): DrumRequest[] {
+export function requestOf(info: LaneInfo, index: number): VoiceRequest {
+  return { name: `Part ${index + 1} (${info.name})`, timbre: timbreOfSound(info.sound), poly: info.maxPoly, c: controlsOf(info), synth: isSynth(info.sound) }
+}
+
+/** The drums a piece plays (hit index order), with their typical gain, decay and drum machine. */
+export function drumRequests(drums: { count: number; gain: number; decay?: number; bank?: string }[]): DrumRequest[] {
   const out: DrumRequest[] = []
   drums.forEach((d, i) => {
-    if (d.count) out.push({ hit: HITS[i] as Hit, gain: d.gain, decay: d.decay })
+    if (d.count) out.push({ hit: HITS[i] as Hit, gain: d.gain, decay: d.decay, bank: d.bank })
   })
   return out
 }
