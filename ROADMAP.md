@@ -684,6 +684,18 @@ echoWith / arp / pick / squeeze / ribbon / shuffle / scramble / randcat / wchoos
 chord + voicing / euclidLegato / inv, object literals and `_$:` muted lines; lanes by sound name when
 the root is an arrange (lanes.ts); console levels normalised to the loudest part. The user's second
 piece (a 214-cycle synth-pop remake, 12 sounds, 5 drum names) imports to 22 modules at ~35 % CPU.
+Pasting it into the panel first failed with "expected =": persist's MAX_TEXT (4000) truncated the
+8 KB code; now 200000. Engine code edits reach the worklet through a 'text' message (the params
+path only sent a patch on topology change).
+2026-10-20 family (user: "follow the model of VISION: all in one, core, peripheral"): the engine
+is one class (engine/dsp/strudel/engine.ts StrudelEngine, 12 lanes × 8 voices, drums, transport,
+CLK in/out) shared by STRUDEL (its first six lanes and the drums on its jacks, plus LINK out) and
+STRUDEL CORE (30 HP: code screen, transport, CLK/RST in, CLK/CYCLE/LINK out). STRUDEL PART (8 HP,
+PART 1–12, screen names the sound from the linked host's text) and STRUDEL DRUMS (8 triggers) read
+the host over LINK (`srcMod[iLink] instanceof StrudelCoreDsp | StrudelDsp`, deps = [host]).
+buildStrudelRack builds CORE + a PART per part + DRUMS by default (allInOne = true for the STRUDEL
+rig). Under the 300-line ceiling: library.ts → globals.ts (signals, Val/Fn, weighted), mini.ts →
+miniBuild.ts (tree → pattern).
 - Later: `chord()`/`voicing()`, `.jux` as real stereo, `.pan` patterned → PANNER CV, sample banks by
   name onto our drums' tunings (tr808 vs linn), `.speed` on samples, `samples()` custom names as
   lanes, `.segment` signals as LFOs, `.every` with named functions, per-lane `.gain` patterns to VEL

@@ -7,8 +7,9 @@ import { buildStrudelRack, decodeStrudelInput, type StrudelReport } from '../str
 import { toast } from './Toast'
 
 /** Explore ▸ From Strudel: paste code from strudel.cc (or a share link) and
- *  get a rack that plays it: STRUDEL running the code, our drums and voices
- *  on its lanes, a console with a plate, OUT. */
+ *  get a rack that plays it: STRUDEL CORE running the code, a STRUDEL PART
+ *  per part and STRUDEL DRUMS on its LINK, our drums and voices on those, a
+ *  console with a plate, OUT. */
 export function StrudelImport({ onDone }: { onDone: () => void }) {
   const [text, setText] = useState('')
   const [report, setReport] = useState<StrudelReport | null>(null)

@@ -1,4 +1,7 @@
-import { euclid, fastcat, Pattern, pure, silence, slowcat, stack, timecat, timeToRand, type Hap, type Value } from './pattern'
+import { build, patterned } from './miniBuild'
+import type { Pattern, Value } from './pattern'
+
+export { patterned }
 
 /** The mini-notation inside Strudel's strings: steps in a sequence, `[ ]`
  *  subdivides, `< >` alternates each cycle, `,` layers, `|` picks at random,
@@ -6,7 +9,7 @@ import { euclid, fastcat, Pattern, pure, silence, slowcat, stack, timecat, timeT
  *  pattern), `@` weights, `!` repeats, `?` drops at random, `:` a sample
  *  index, `(k,n,r)` Euclid, `.` groups feet. */
 
-type Node =
+export type Node =
   | { k: 'atom'; v: string }
   | { k: 'rest' }
   | { k: 'seq'; steps: { node: Node; w: number }[] }
@@ -229,69 +232,6 @@ function toAlt(n: Node): Node {
   if (n.k === 'seq') return { k: 'alt', items: n.steps.flatMap((s) => Array.from({ length: Math.max(1, Math.round(s.w)) }, () => s.node)) }
   if (n.k === 'stack') return { k: 'stack', items: n.items.map(toAlt) }
   return { k: 'alt', items: [n] }
-}
-
-/** How many steps a sequence has (weights count; anything else is one). */
-const weightOf = (n: Node): number => (n.k === 'seq' ? n.steps.reduce((s, x) => s + x.w, 0) : 1)
-
-/** The number a step's `*` / `/` argument stands for (patterned when it varies). */
-function numberOf(n: Node): Pattern {
-  return build(n, (s) => ({ value: parseFloat(s) }))
-}
-
-function build(n: Node, atom: (s: string) => Value): Pattern {
-  switch (n.k) {
-    case 'atom':
-      return pure(atom(n.v))
-    case 'rest':
-      return silence
-    case 'seq':
-      return n.steps.length === 1 && n.steps[0].w === 1 ? build(n.steps[0].node, atom) : timecat(n.steps.map((s) => [s.w, build(s.node, atom)]))
-    case 'stack':
-      return stack(n.items.map((i) => build(i, atom)))
-    case 'alt':
-      return slowcat(n.items.map((i) => build(i, atom)))
-    case 'poly': {
-      // steps per cycle: given, else the first layer's; each layer runs at that step rate and wraps
-      const base = weightOf(n.layers[0])
-      const layers = n.layers.map((l) => [weightOf(l), build(l, atom)] as [number, Pattern])
-      const at = (s: number) => stack(layers.map(([w, p]) => p.slow(w / Math.max(1e-6, s))))
-      return n.steps ? patterned(numberOf(n.steps), at) : at(base)
-    }
-    case 'choice': {
-      const pats = n.items.map((i) => build(i, atom))
-      return Pattern.perCycle((c, b, e) => pats[Math.floor(timeToRand(c + 0.0001) * pats.length)].query(b, e))
-    }
-    case 'fast':
-      return patterned(numberOf(n.by), (k) => build(n.node, atom).fast(k))
-    case 'slow':
-      return patterned(numberOf(n.by), (k) => build(n.node, atom).slow(k))
-    case 'degrade': {
-      const p = n.p
-      return build(n.node, atom).filterHaps((h) => timeToRand(h.b + 0.0001) >= p)
-    }
-    case 'euclid': {
-      const inner = build(n.node, atom)
-      const [k, steps, rot] = n.args.map(numberOf)
-      return patterned(k, (kk) =>
-        patterned(steps, (nn) =>
-          patterned(rot ?? pure({ value: 0 }), (rr) => {
-            const hits = euclid(kk, nn, rr)
-            return inner.struct(fastcat(hits.map((h) => pure({ value: h ? 1 : 0 }))))
-          }),
-        ),
-      )
-    }
-  }
-}
-
-/** Apply f for each value the argument pattern takes (Tidal's default join). */
-export function patterned(arg: Pattern, f: (x: number) => Pattern): Pattern {
-  return new Pattern((b, e) => {
-    const out: Hap[] = []
-    for (const a of arg.query(b, e)) for (const h of f(Number(a.v.value)).query(a.pb, a.pe)) out.push(h)
-    return out
-  })
 }
 
 /** Parse a mini-notation string into a pattern of raw values ({ value }). */

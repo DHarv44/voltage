@@ -1,14 +1,13 @@
-import { argPattern, CONTROLS, control } from './controls'
-import { mini, numeric, patterned } from './mini'
+import { CONTROLS, control } from './controls'
+import { num, signals, weighted, type Fn, type Val } from './globals'
+import { mini, patterned } from './mini'
 import { chordNotes, scaleNote } from './music'
-import { arrange, euclid, fastcat, Pattern, pure, signal, silence, slowcat, stack, timecat, timeToRand, type Hap, type Value } from './pattern'
+import { arrange, euclid, fastcat, Pattern, pure, silence, slowcat, stack, timecat, timeToRand, type Hap, type Value } from './pattern'
 
-/** What the evaluator can hold: numbers, strings, arrays, objects, functions, patterns. */
-export type Val = number | string | boolean | Val[] | { [k: string]: Val } | Pattern | Fn | null | undefined
-export type Fn = (...args: Val[]) => Val
 type Apply = (f: Val, p: Pattern) => Pattern
 
 export { CONTROLS, control }
+export type { Fn, Val }
 
 /** Anything a function is given, as a pattern: a string is mini-notation,
  *  a number or name is constant, an array a sequence. */
@@ -22,7 +21,6 @@ export function toPattern(x: Val): Pattern {
 
 /** A step of a boolean pattern that plays: x, t, true, or any nonzero number. */
 const isHit = (x: number | string | undefined): boolean => x === 'x' || x === 't' || x === 'true' || (typeof x === 'number' && x !== 0)
-const num = (x: Val, d = 0): number => (typeof x === 'number' ? x : typeof x === 'string' ? (Number(x) || d) : d)
 const bools = (x: Val) => toPattern(x).withValue((v) => ({ value: isHit(v.value) ? 1 : 0 }))
 const rnd = (h: Hap) => timeToRand(h.b + 0.0001)
 
@@ -275,11 +273,10 @@ export function voiceChords(p: Pattern, anchor = 60): Pattern {
   )
 }
 
-/** Top-level names: pattern makers and signals. */
+/** Top-level names: pattern makers, the signals, the controls, and the transforms as bare functions. */
 export function globals(): Record<string, Val> {
-  const sig = (f: (t: number) => number) => signal(f)
-  const frac = (t: number) => ((t % 1) + 1) % 1
   const g: Record<string, Val> = {
+    ...signals(),
     silence,
     stack: (...xs: Val[]) => stack(xs.map(toPattern)),
     cat: (...xs: Val[]) => slowcat(xs.map(toPattern)),
@@ -295,35 +292,8 @@ export function globals(): Record<string, Val> {
     mini: (x: Val) => toPattern(x),
     m: (x: Val) => toPattern(x),
     run: (n: Val) => fastcat(Array.from({ length: Math.max(1, Math.round(num(n, 1))) }, (_, i) => pure({ value: i }))),
-    sine: sig((t) => (Math.sin(2 * Math.PI * t) + 1) / 2),
-    sine2: sig((t) => Math.sin(2 * Math.PI * t)),
-    cosine: sig((t) => (Math.cos(2 * Math.PI * t) + 1) / 2),
-    cosine2: sig((t) => Math.cos(2 * Math.PI * t)),
-    saw: sig(frac),
-    saw2: sig((t) => frac(t) * 2 - 1),
-    isaw: sig((t) => 1 - frac(t)),
-    isaw2: sig((t) => 1 - frac(t) * 2),
-    tri: sig((t) => 1 - Math.abs(frac(t) - 0.5) * 2),
-    tri2: sig((t) => 1 - Math.abs(frac(t) - 0.5) * 4),
-    square: sig((t) => (frac(t) < 0.5 ? 0 : 1)),
-    square2: sig((t) => (frac(t) < 0.5 ? -1 : 1)),
-    time: sig((t) => t),
-    rand: sig((t) => timeToRand(t)),
-    rand2: sig((t) => timeToRand(t) * 2 - 1),
-    brand: sig((t) => (timeToRand(t) < 0.5 ? 0 : 1)),
-    brandBy: (p: Val) => sig((t) => (timeToRand(t) < num(p, 0.5) ? 1 : 0)),
-    perlin: sig((t) => {
-      const a = timeToRand(Math.floor(t))
-      const b = timeToRand(Math.floor(t) + 1)
-      const f = t - Math.floor(t)
-      return a + (b - a) * f * f * (3 - 2 * f)
-    }),
-    irand: (n: Val) => sig((t) => Math.floor(timeToRand(t) * num(n, 8))),
-    signal: (f: Val) => sig((t) => (typeof f === 'function' ? num(f(t)) : 0)),
-    choose: (...xs: Val[]) => sig((t) => timeToRand(t)).withValue((v) => ({ value: numeric(String(xs[Math.floor(Number(v.value) * xs.length)] ?? '')) })),
     chooseCycles: (...xs: Val[]) => Pattern.perCycle((c, b, e) => toPattern(xs[Math.floor(timeToRand(c + 0.0001) * xs.length)]).query(b, e)),
     randcat: (...xs: Val[]) => Pattern.perCycle((c, b, e) => toPattern(xs[Math.floor(timeToRand(c + 0.0001) * xs.length)]).query(b, e)),
-    wchoose: (...pairs: Val[]) => sig((t) => timeToRand(t)).withValue((v) => ({ value: numeric(String(weighted(pairs, Number(v.value)))) })),
     wchooseCycles: (...pairs: Val[]) => Pattern.perCycle((c, b, e) => toPattern(weighted(pairs, timeToRand(c + 0.0001))).query(b, e)),
     wrandcat: (...pairs: Val[]) => Pattern.perCycle((c, b, e) => toPattern(weighted(pairs, timeToRand(c + 0.0001))).query(b, e)),
     chord: (x: Val) => toPattern(x).withValue((v) => ({ chord: String(v.value) })),
@@ -334,14 +304,3 @@ export function globals(): Record<string, Val> {
   return g
 }
 
-/** A weighted pick: pairs of [value, weight]. */
-function weighted(pairs: Val[], r: number): Val {
-  let total = 0
-  for (const p of pairs) total += Array.isArray(p) ? num(p[1], 1) : 1
-  let acc = 0
-  for (const p of pairs) {
-    acc += Array.isArray(p) ? num(p[1], 1) : 1
-    if (r * total < acc) return Array.isArray(p) ? p[0] : p
-  }
-  return Array.isArray(pairs[0]) ? pairs[0][0] : pairs[0]
-}

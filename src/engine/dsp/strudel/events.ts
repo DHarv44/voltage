@@ -43,7 +43,7 @@ export class CycleEvents {
           else if (v.n !== undefined) note = 48 + Number(v.n)
           if (!Number.isFinite(note)) continue
         }
-        const l = plan.byName ? (plan.byName.get(soundKey(s)) ?? plan.rest) : pi
+        const l = drum >= 0 ? 0 : plan.byName ? (plan.byName.get(soundKey(s)) ?? plan.rest) : pi
         const t = h.b - c
         // the same note at the same moment on one lane (a layered sound): one event
         let dup = -1

@@ -14,7 +14,25 @@ stack(
 /** The new sequencers', SPACE's and TUNING's ready-to-play rigs. */
 export const SEQ2_STARTERS: Record<string, Starter> = {
   strudel: {
-    howTo: 'STRUDEL running a short piece: 909-style drums, a saw bass whose lpf pattern rides its filter through MOD, a triangle lead that sometimes doubles up. Edit the code on the panel and it follows as you type. Paste your own from strudel.cc under Explore ▸ From Strudel and a rack is built for it.',
+    howTo: 'STRUDEL running a short piece on its own jacks: 909-style drums, a saw bass whose lpf pattern rides its filter through MOD, a triangle lead that sometimes doubles up. Edit the code on the panel and it follows as you type. Paste your own from strudel.cc under Explore ▸ From Strudel and a rack is built for it.',
+    build(k) {
+      buildStrudelRack(k, STRUDEL_DEMO, true)
+    },
+  },
+  strudelcore: {
+    howTo: 'STRUDEL CORE running a short piece, its parts on STRUDEL PARTs and its drums on STRUDEL DRUMS over LINK: the modular form, with a part for every sound in the piece. Change a PART’s number to swap what it plays; add more PARTs for pieces with many sounds.',
+    build(k) {
+      buildStrudelRack(k, STRUDEL_DEMO)
+    },
+  },
+  strudelpart: {
+    howTo: 'STRUDEL PARTs on a STRUDEL CORE’s LINK, one per part of the piece: each PART’s screen names the sound it plays. Turn a PART knob to another number and that part’s notes come out of it instead.',
+    build(k) {
+      buildStrudelRack(k, STRUDEL_DEMO)
+    },
+  },
+  strudeldrums: {
+    howTo: 'STRUDEL DRUMS on a STRUDEL CORE’s LINK: the piece’s bd, cp and hh as triggers into KICK, CLAP and HATS. Patch its other triggers to any drum you like.',
     build(k) {
       buildStrudelRack(k, STRUDEL_DEMO)
     },

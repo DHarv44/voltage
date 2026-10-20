@@ -14,8 +14,9 @@ const lanes = Array.from({ length: ST_LANES }, (_, l) => l)
  *  the panel (type in it: it runs as you change it). Each layer of the
  *  piece's top-level stack is a LANE with poly V/OCT, GATE and VEL, and a
  *  MOD CV carrying its lpf/hpf; drum sounds (bd, sd, hh, oh, cp, rim, toms,
- *  cymbals) fire their own triggers whichever lane they're in. Explore ▸
- *  From Strudel builds the voices and effects to go with it. */
+ *  cymbals) fire their own triggers whichever lane they're in. LINK feeds
+ *  STRUDEL PARTs (parts beyond the sixth too) and STRUDEL DRUMS. Explore ▸
+ *  From Strudel builds the voices and effects to go with a piece. */
 export const strudel: ModuleSpec = simpleSpec({
   type: 'strudel',
   title: 'STRUDEL',
@@ -44,10 +45,11 @@ export const strudel: ModuleSpec = simpleSpec({
     ...DRUM_OUTS.map((d) => ({ id: d, label: d.toUpperCase() })),
     { id: 'clko', label: 'CLK' },
     { id: 'baro', label: 'CYCLE' },
+    { id: 'link', label: 'LINK' },
   ],
   leds: STL.drum0 + DRUM_OUTS.length,
   rows: [
-    ['k:cpm', 's:run', 'ks:gate', 'ks:oct', 'l:0', ...lanes.map((l) => `l:${STL.lane0 + l}`)],
+    ['k:cpm', 's:run', 'ks:gate', 'ks:oct', 'l:0', ...lanes.map((l) => `l:${STL.lane0 + l}`), 'o:link'],
     [...lanes.flatMap((l) => [`o:${laneOut(l, 'v')}`, `o:${laneOut(l, 'g')}`, `o:${laneOut(l, 'vel')}`])],
     ['i:clk', 'i:rst', ...lanes.map((l) => `o:${laneOut(l, 'mod')}`), ...DRUM_OUTS.map((d) => `o:${d}`), 'o:clko', 'o:baro'],
   ],

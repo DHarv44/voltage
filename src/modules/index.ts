@@ -71,6 +71,7 @@ import { clips } from './specs/clips'
 import { space } from './specs/space'
 import { tuning } from './specs/tuning'
 import { strudel } from './specs/strudel'
+import { strudelcore, strudeldrums, strudelpart } from './specs/strudelFamily'
 import { undertone } from './specs/undertone'
 import { lockstep } from './specs/lockstep'
 import { lattice } from './specs/lattice'
@@ -233,6 +234,9 @@ export const SPEC_LIST: ModuleSpec[] = [
   clips,
   midifile,
   strudel,
+  strudelcore,
+  strudelpart,
+  strudeldrums,
   pianoroll,
   arranger,
   arrangerxl,
