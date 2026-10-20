@@ -2,8 +2,9 @@ import { mix, voice, type Jack, type Kit } from '../patch/starters/kit'
 import { bankPreset } from './banksLookup'
 import { DRUM_VOICES, INSTRUMENTS } from './instruments'
 import { pickInstrument } from './pick'
-import { envelope, type Controls, type DrumRequest, type Hit, type VoiceRequest } from './request'
+import { cutoffOf, envelope, type Controls, type DrumRequest, type Hit, type VoiceRequest } from './request'
 import { TREATMENTS } from './treatments'
+import { WAVETABLES } from './wavetables'
 
 /** Where a part's control signals come from. */
 export interface PartJacks {
@@ -22,9 +23,13 @@ function monoChain(k: Kit, r: VoiceRequest, j: PartJacks, say: (s: string) => vo
   const c = r.c
   const wave = r.timbre === 'sine' ? 'sin' : r.timbre === 'triangle' ? 'tri' : r.timbre === 'square' ? 'sqr' : 'saw'
   const env = envelope(r)
+  // a wavetable: the oscillator and wave fitted to it, its brightness as a key-tracking low-pass
+  const wt = r.wavetable ? WAVETABLES[r.wavetable] : undefined
+  const osc = wt?.osc === 'wave' ? { type: 'wave', params: { wave: wt.wave ?? 2 }, out: 'out' } : { type: 'vco', out: wt?.out ?? wave }
   let filter: { type: string; params: Record<string, number>; out: string }
   let filterCv: Jack | undefined
   let how: string
+  let track = false
   // a high-pass worth a filter of its own (below 150 Hz it's a rumble cut: the low-pass matters more)
   if (c.hpf !== undefined && (c.hpf >= 150 || c.hpfMoves)) {
     filter = { type: 'svf', params: { cutoff: c.hpfMoves ? 20 : c.hpf, res: 0.1, cv: c.hpfMoves ? 1 : 0 }, out: 'hp' }
@@ -34,12 +39,18 @@ function monoChain(k: Kit, r: VoiceRequest, j: PartJacks, say: (s: string) => vo
     filter = { type: 'vcf', params: { cutoff: c.cutoffMoves ? 20 : c.cutoff, res: c.resonance ?? 0.2, cv: c.cutoffMoves ? 1 : 0.3 }, out: 'lp4' }
     if (c.cutoffMoves) filterCv = j.mod
     how = c.cutoffMoves ? 'lpf pattern → MOD → ladder' : `ladder at ${Math.round(c.cutoff)} Hz`
+  } else if (wt) {
+    // C4 is 0 V: the cutoff sits at the wave's centroid over middle C and follows the keyboard
+    filter = { type: 'vcf', params: { cutoff: Math.max(300, Math.min(12000, wt.bright * 262 * 1.5)), res: 0.1, cv: 0.2 }, out: 'lp2' }
+    track = true
+    how = `low-pass at the wave's brightness (${wt.bright.toFixed(1)} harmonics), tracking the keys`
   } else {
-    filter = { type: 'vcf', params: { cutoff: r.timbre === 'synthbass' || r.timbre === 'bass' ? 900 : r.timbre === 'lead' ? 3500 : 6000, res: 0.25 }, out: 'lp4' }
+    filter = { type: 'vcf', params: { cutoff: cutoffOf(r, r.timbre === 'synthbass' || r.timbre === 'bass' ? 900 : r.timbre === 'lead' ? 3500 : 6000), res: 0.25 }, out: 'lp4' }
     how = 'ladder opened by the envelope'
   }
-  const vc = voice(k, j.v, j.g, { osc: { type: 'vco', out: wave }, filter, filterCv, env })
-  say(`${wave} VCO voice, ${how}`)
+  const vc = voice(k, j.v, j.g, { osc, filter, filterCv, env })
+  if (track) k.wire(j.v, [vc.filter, 'voct'])
+  say(`${wt ? `${r.wavetable} → ${osc.type === 'wave' ? `WAVE ${osc.params?.wave}` : `${osc.out} VCO`}` : `${wave} VCO voice`}, ${how}`)
   return vc.out
 }
 
@@ -47,7 +58,7 @@ function monoChain(k: Kit, r: VoiceRequest, j: PartJacks, say: (s: string) => vo
 function polyChain(k: Kit, r: VoiceRequest, j: PartJacks, say: (s: string) => void): Jack {
   const c = r.c
   const osc = k.add('pvco')
-  const flt = k.add('pvcf', { cutoff: c.cutoffMoves ? 20 : (c.cutoff ?? 3000), res: c.resonance ?? 0.2, cv: 1 })
+  const flt = k.add('pvcf', { cutoff: c.cutoffMoves ? 20 : cutoffOf(r, 3000), res: c.resonance ?? 0.2, cv: 1 })
   const env = k.add('padsr', envelope(r))
   const vca = k.add('pvca', { gain: 0, cv: 1 })
   const sum = k.add('polymix')

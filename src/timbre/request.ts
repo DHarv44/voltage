@@ -1,3 +1,4 @@
+import { baseline } from './baselines'
 import type { Timbre } from './taxonomy'
 
 /** What is known about how a sound should be treated, in neutral units:
@@ -40,23 +41,32 @@ export interface VoiceRequest {
   c: Controls
   /** A raw synth wave (not a sampled instrument): a short plucky envelope unless told otherwise. */
   synth?: boolean
+  /** The wavetable asked for (timbre `wavetable`): a name in timbre/wavetables.ts, when we fitted it. */
+  wavetable?: string
 }
 
 export type Envelope = { a: number; d: number; s: number; r: number }
 
 /** The envelope a request asks for. Unset values take Strudel's own
  *  defaults for a synth (attack 0.001 · decay 0.05 · sustain 0.6 · release
- *  0.01: short and plucky), or a sampled instrument's (holds while the note
- *  lasts, then stops). Attacks and releases are kept just long enough not to click. */
+ *  0.01: short and plucky), or a sampled instrument's: its kind's baseline
+ *  (plucked things ring and stop, bowed things swell), else hold then stop.
+ *  Attacks and releases are kept just long enough not to click. */
 export function envelope(r: VoiceRequest): Envelope {
   const c = r.c
   const synth = !!r.synth
+  const b = synth ? {} : baseline(r.timbre)
   return {
-    a: Math.max(0.002, c.attack ?? 0.001),
-    d: c.decay ?? (synth ? 0.05 : 0.01),
-    s: c.sustain ?? (synth ? 0.6 : 1),
-    r: Math.max(0.02, c.release ?? 0.01),
+    a: Math.max(0.002, c.attack ?? b.a ?? 0.001),
+    d: c.decay ?? b.d ?? (synth ? 0.05 : 0.01),
+    s: c.sustain ?? b.s ?? (synth ? 0.6 : 1),
+    r: Math.max(0.02, c.release ?? b.r ?? 0.01),
   }
+}
+
+/** The low-pass a request wants: what the music says, else its kind's baseline, else `def`. */
+export function cutoffOf(r: VoiceRequest, def: number): number {
+  return r.c.cutoff ?? (r.synth ? undefined : baseline(r.timbre).cutoff) ?? def
 }
 
 /** The drum hits anything can ask for, by name. */

@@ -46,6 +46,7 @@ export const TIMBRES = {
   triangle: 'synth',
   supersaw: 'synth',
   noise: 'synth',
+  wavetable: 'synth',
 } as const satisfies Record<string, Family>
 export type Timbre = keyof typeof TIMBRES
 

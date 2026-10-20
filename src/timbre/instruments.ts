@@ -1,4 +1,4 @@
-import { envelope, type Hit, type VoiceRequest } from './request'
+import { cutoffOf, envelope, type Hit, type VoiceRequest } from './request'
 import type { Timbre } from './taxonomy'
 
 /** What an instrument module can play and how it's patched: the one place a
@@ -69,7 +69,7 @@ export const INSTRUMENTS: Record<string, Instrument> = {
   // no cutoffCv on the poly synths: their CV inputs aren't log2(Hz / 20) scaled, so a moving
   // filter goes to the patched poly chain (the picker sends it there) and these take the median
   halcyon: {
-    plays: ['pad', 'strings', 'brass', 'lead', 'square', 'saw', 'sine', 'triangle', 'noise', 'synthbass', 'drone', 'guitar', 'pluck'],
+    plays: ['pad', 'strings', 'brass', 'lead', 'square', 'saw', 'sine', 'triangle', 'noise', 'wavetable', 'synthbass', 'drone', 'guitar', 'pluck'],
     voices: 6,
     voct: 'voct',
     gate: 'gate',
@@ -79,7 +79,7 @@ export const INSTRUMENTS: Record<string, Instrument> = {
       const padLike = r.timbre === 'pad' || r.timbre === 'strings' || r.timbre === 'drone'
       const e = envelope(r)
       return {
-        cutoff: r.c.cutoff ?? (padLike ? 1800 : 3000),
+        cutoff: cutoffOf(r, padLike ? 1800 : 3000),
         a: padLike ? Math.max(e.a, 0.2) : e.a,
         d: e.d,
         s: e.s,

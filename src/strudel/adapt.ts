@@ -10,6 +10,7 @@ const ALIAS: Record<string, Timbre> = { '': 'triangle', sawtooth: 'saw', saw: 's
 
 export function timbreOfSound(sound: string): Timbre {
   const s = sound.toLowerCase().replace(/^z_/, '')
+  if (s.startsWith('wt_')) return 'wavetable'
   return ALIAS[s] ?? timbreOfName(s.replace(/^gm_/, ''))
 }
 
@@ -59,7 +60,8 @@ const isSynth = (sound: string): boolean => {
 }
 
 export function requestOf(info: LaneInfo, index: number): VoiceRequest {
-  return { name: `Part ${index + 1} (${info.name})`, timbre: timbreOfSound(info.sound), poly: info.maxPoly, c: controlsOf(info), synth: isSynth(info.sound) }
+  const timbre = timbreOfSound(info.sound)
+  return { name: `Part ${index + 1} (${info.name})`, timbre, poly: info.maxPoly, c: controlsOf(info), synth: isSynth(info.sound), wavetable: timbre === 'wavetable' ? info.sound.toLowerCase() : undefined }
 }
 
 /** The drums a piece plays (hit index order), with their typical gain, decay and drum machine. */

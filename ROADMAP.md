@@ -755,9 +755,17 @@ line per bank). The importer passes `.bank()` through analyse → DrumRequest.ba
 Known soft spots: snares all fit snappy 0.2 (our noise share reads high against the samples — weight
 or feature to revisit after listening); banks with no bd/sd (TR727, Simmons) are partly or wholly
 absent; rim / cymbal hits aren't fitted (PERC has no decay axis worth searching).
-- Later (sounds): wt_ wavetables → nearest VCO wave + cutoff from one cycle's spectrum (or a
-  WAVETABLE VCO: AKWF, check its licence); GM programs → baseline envelope / cutoff per program by
-  the same fitter generalised (attack, decay, brightness); VCSL / Dirt subset names.
+Same day, "continue": (3) wavetables — Strudel's default wt_ set is small (uzu-wavetables: 7 keys,
+Serum-style 2048-sample frames; the "1000 AKWF" are opt-in). tools/fitWavetables.ts takes one cycle
+(the first frame), its harmonic series by DFT, and picks the nearest of VCO's four waves and WAVE's
+eight tables by log-spectrum distance; the centroid in harmonics sets a key-tracking ladder (VCF's
+V/OCT in) → GENERATED src/timbre/wavetables.ts; timbre `wavetable`, VoiceRequest.wavetable, the mono
+chain mounts the fitted oscillator (poly wavetables go to HALCYON like any synth). (4) GM baselines
+by hand, not by fitting (timbre/baselines.ts): per timbre the envelope a player expects when the
+music says nothing — plucked things ring and stop, bowed and blown things swell and hold, pads slow,
+brass quick — and a stand-in low-pass; `envelope()` / `cutoffOf()` read it for sampled sounds only.
+Sample-fitting the ~125 GM programs (webaudiofont base64 OGG → ffmpeg → features) stays a later item;
+the hand table is most of the audible value.
 - Later: `chord()`/`voicing()`, `.jux` as real stereo, `.pan` patterned → PANNER CV, sample banks by
   name onto our drums' tunings (tr808 vs linn), `.speed` on samples, `samples()` custom names as
   lanes, `.segment` signals as LFOs, `.every` with named functions, per-lane `.gain` patterns to VEL

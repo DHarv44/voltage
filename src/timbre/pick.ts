@@ -9,7 +9,7 @@ export interface Pick {
   why: string
 }
 
-const RAW: Timbre[] = ['saw', 'square', 'sine', 'triangle', 'lead', 'synthbass', 'bass', 'noise']
+const RAW: Timbre[] = ['saw', 'square', 'sine', 'triangle', 'lead', 'synthbass', 'bass', 'noise', 'wavetable']
 
 /** The best instrument for a request. Mono synth waves get a patched voice
  *  (you can see and re-patch it); chords with a moving filter get the poly
