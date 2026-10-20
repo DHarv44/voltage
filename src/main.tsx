@@ -17,12 +17,14 @@ import { validateSongs } from './patch/songs'
 import { lintPanels } from './ui/panel/lint'
 import { tutorial } from './tutorial/runner'
 import { validateCourses } from './tutorial/validate'
+import { validateTimbre } from './timbre/validate'
+import { validateStrudel } from './strudel/validate'
 import { bootShared } from './ui/share/sharedState'
 import { bootCloud } from './cloud/open'
 import './styles.css'
 
 if (import.meta.env.DEV) {
-  const errors = [...validateSpecs(), ...validatePresets(), ...validateStarters(), ...validateCatalog(SPEC_LIST), ...validateSongs(), ...validateCourses(), ...validateCombo()]
+  const errors = [...validateSpecs(), ...validatePresets(), ...validateStarters(), ...validateCatalog(SPEC_LIST), ...validateSongs(), ...validateCourses(), ...validateCombo(), ...validateTimbre(SPEC_LIST), ...validateStrudel()]
   if (errors.length) console.error('Module spec / preset / ready-to-play rig / catalog / lesson errors:\n' + errors.join('\n'))
   const layout = lintPanels()
   if (layout.length) console.warn('Panel layout problems (overlaps, alignment, screws):\n' + layout.join('\n'))

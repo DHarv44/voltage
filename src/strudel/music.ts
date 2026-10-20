@@ -1,4 +1,5 @@
 /** Note names, scales and the drum vocabulary Strudel code uses. */
+import { HITS } from '../timbre/request'
 
 const PC: Record<string, number> = { c: 0, d: 2, e: 4, f: 5, g: 7, a: 9, b: 11 }
 
@@ -91,12 +92,11 @@ export function chordNotes(symbol: string, octave = 4, anchor = 60): number[] {
   return notes
 }
 
-/** The drum sound names, by the trigger output they fire (0 kick … 7 cymbal). */
-export const DRUM_OUTS = ['bd', 'sd', 'ch', 'oh', 'cp', 'rim', 'tom', 'cym'] as const
+/** The drum sound names, by the trigger output they fire (0 kick … 7 cymbal): our hit vocabulary. */
+export const DRUM_OUTS = HITS
 const DRUM_NAMES: Record<string, number> = {
   bd: 0,
   kick: 0,
-  bass: 0,
   sd: 1,
   sn: 1,
   snare: 1,
