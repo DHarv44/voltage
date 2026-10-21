@@ -21,11 +21,12 @@ interface Hit {
 const hitOf = (x: Float32Array): Hit => ({ m: measure(x, FS), f0: pitchOf(x) })
 
 /** How far two hits are apart: octaves of pitch and brightness, log decay and attack, noise share. */
-function distance(a: Hit, b: Hit, w: { f0: number; decay: number; bright: number; noise: number; body: number }): number {
+function distance(a: Hit, b: Hit, w: { f0: number; decay: number; bright: number; noise: number; body: number; flat?: number }): number {
   const oct = (p: number, q: number) => Math.abs(Math.log2(Math.max(50, p) / Math.max(50, q)))
   const pitch = a.f0 > 0 && b.f0 > 0 ? Math.abs(Math.log2(a.f0 / b.f0)) : a.f0 > 0 || b.f0 > 0 ? 1 : 0
   const attack = Math.abs(Math.log2((a.m.attack + 0.005) / (b.m.attack + 0.005))) / 1.5
-  return w.f0 * pitch + w.decay * Math.abs(Math.log((a.m.decay + 0.02) / (b.m.decay + 0.02))) + w.bright * oct(a.m.bright, b.m.bright) + w.noise * Math.abs(a.m.noise - b.m.noise) * 3 + w.body * oct(a.m.body, b.m.body) + 0.3 * attack
+  const flat = Math.abs(Math.log10((a.m.flat + 0.01) / (b.m.flat + 0.01))) / 0.5
+  return w.f0 * pitch + w.decay * Math.abs(Math.log((a.m.decay + 0.02) / (b.m.decay + 0.02))) + w.bright * oct(a.m.bright, b.m.bright) + w.noise * Math.abs(a.m.noise - b.m.noise) * 3 + w.body * oct(a.m.body, b.m.body) + 0.3 * attack + (w.flat ?? 0) * flat
 }
 
 const MANIFEST = 'https://strudel.b-cdn.net/tidal-drum-machines.json'
@@ -45,7 +46,7 @@ interface Fit {
   out: string
   /** Grid axes: param → values. */
   axes: Record<string, number[]>
-  weights: { f0: number; decay: number; bright: number; noise: number; body: number }
+  weights: { f0: number; decay: number; bright: number; noise: number; body: number; flat?: number }
   /** Fixed params while measuring. */
   base?: Params
 }
@@ -54,8 +55,8 @@ interface Fit {
 const FITS: Record<string, Fit> = {
   bd: { module: 'kick', sample: 'bd', trig: 'trig', out: 'out', axes: { tune: [35, 42, 50, 60, 72, 88, 110], decay: [0.08, 0.14, 0.22, 0.35, 0.5, 0.8, 1.2], punch: [0.15, 0.5, 0.9] }, weights: { f0: 1.5, decay: 1, bright: 0.5, noise: 0.3, body: 0.5 } },
   sd: { module: 'snare', sample: 'sd', trig: 'trig', out: 'out', axes: { tune: [130, 160, 190, 230, 280, 350], decay: [0.07, 0.11, 0.16, 0.23, 0.33, 0.5], tone: [0.2, 0.5, 0.8], snappy: [0.2, 0.5, 0.85] }, weights: { f0: 0.6, decay: 1, bright: 0.8, noise: 1, body: 0.8 } },
-  ch: { module: 'hats', sample: 'hh', trig: 'ch', out: 'ch', axes: { chd: [0.015, 0.025, 0.04, 0.06, 0.09, 0.14, 0.22], tone: [4500, 6000, 7500, 9500, 12000], tune: [0.7, 1, 1.45] }, weights: { f0: 0, decay: 1, bright: 1, noise: 0.3, body: 0.8 } },
-  oh: { module: 'hats', sample: 'oh', trig: 'oh', out: 'oh', axes: { ohd: [0.12, 0.2, 0.3, 0.45, 0.7, 1, 1.6], tone: [4500, 6000, 7500, 9500, 12000], tune: [0.7, 1, 1.45] }, weights: { f0: 0, decay: 1, bright: 1, noise: 0.3, body: 0.8 } },
+  ch: { module: 'hats', sample: 'hh', trig: 'ch', out: 'ch', axes: { chd: [0.015, 0.025, 0.04, 0.06, 0.09, 0.14, 0.22], tone: [4500, 6000, 7500, 9500, 12000], tune: [0.7, 1, 1.45], noise: [0, 0.3, 0.6, 0.9] }, weights: { f0: 0, decay: 1, bright: 1, noise: 0.3, body: 0.8, flat: 1 } },
+  oh: { module: 'hats', sample: 'oh', trig: 'oh', out: 'oh', axes: { ohd: [0.12, 0.2, 0.3, 0.45, 0.7, 1, 1.6], tone: [4500, 6000, 7500, 9500, 12000], tune: [0.7, 1, 1.45], noise: [0, 0.3, 0.6, 0.9] }, weights: { f0: 0, decay: 1, bright: 1, noise: 0.3, body: 0.8, flat: 1 } },
   cp: { module: 'clap', sample: 'cp', trig: 'trig', out: 'out', axes: { tone: [700, 900, 1100, 1400, 1800, 2400], decay: [0.1, 0.17, 0.26, 0.4, 0.65], spread: [0.005, 0.009, 0.015] }, weights: { f0: 0, decay: 1, bright: 1, noise: 0.5, body: 0.8 } },
   tom: { module: 'tom', sample: 'lt', trig: 'trig', out: 'out', axes: { tune: [60, 75, 95, 120, 150, 190, 240], decay: [0.15, 0.25, 0.4, 0.6, 0.9], sweep: [0.1, 0.3, 0.6] }, weights: { f0: 1.5, decay: 1, bright: 0.5, noise: 0.3, body: 0.5 } },
 }

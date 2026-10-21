@@ -6,6 +6,7 @@ export const GLOSSARY_4: Record<string, string> = {
   'strudel:run': 'Starts and stops it (starting again begins at cycle 0).',
   'strudel:gate': 'How much of each note’s length its gate stays high.',
   'strudel:oct': 'Every lane up or down an octave.',
+  'hats:noise': 'White noise in with the six metal tones. Six tones alone ring like a bell; a real or sampled hat is mostly wash: around a third is right for most machines, more for a Linn or DMX, none for a pure 808.',
   'strudelcore:cpm': 'Cycles a minute (a cycle is usually a bar: 30 is 120 BPM in 4/4). Code that calls setcpm or setcps sets it.',
   'strudelcore:run': 'Starts and stops it (starting again begins at cycle 0).',
   'strudelcore:gate': 'How much of each note’s length its gate stays high.',

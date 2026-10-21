@@ -15,6 +15,8 @@ export interface Measure {
   noise: number
   /** Spectral centroid over the whole render, Hz. */
   body: number
+  /** Spectral flatness over 2–16 kHz of the loudest 100 ms, 0 (a few tones: a bell) to 1 (noise). */
+  flat: number
   /** Onsets heard (a hit count for drum lines). */
   hits: number
   /** RMS per 50 ms, dBFS, for the envelope drawing. */
@@ -125,21 +127,37 @@ export function measure(x: Float32Array, rate: number): Measure {
     for (let i = s; i < s + w100; i++) e += x[i] * x[i]
     if (e > loud) (loud = e), (loudAt = s)
   }
-  const early = centroid(spectrum(x, loudAt, 4096), 4096, rate)
+  const earlyMag = spectrum(x, loudAt, 4096)
+  const early = centroid(earlyMag, 4096, rate)
   const whole = centroid(spectrum(x, 0, 32768), 32768, rate)
+  // flatness: geometric over arithmetic mean of power in the band
+  let logSum = 0
+  let pSum = 0
+  let bins = 0
+  for (let i = 1; i < earlyMag.length; i++) {
+    const f = (i * rate) / 4096
+    if (f < 2000 || f > 16000) continue
+    const p = earlyMag[i] * earlyMag[i] + 1e-12
+    logSum += Math.log(p)
+    pSum += p
+    bins++
+  }
+  const flat = bins ? Math.exp(logSum / bins) / (pSum / bins) : 0
   // onsets: the 50 ms envelope rising 12 dB above the previous window
   let hits = 0
   for (let i = 1; i < env.length; i++) if (env[i] > env[i - 1] + 12 && env[i] > rms - 10) hits++
-  return { peak: db(peak), rms, attack: first < 0 ? 0 : (at - first) / rate, decay: (dec - at) / rate, bright: early.centroid, noise: early.above2k, body: whole.centroid, hits, env }
+  return { peak: db(peak), rms, attack: first < 0 ? 0 : (at - first) / rate, decay: (dec - at) / rate, bright: early.centroid, noise: early.above2k, body: whole.centroid, flat, hits, env }
 }
 
 /** How two measures differ, 0 = the same; each term is roughly "one noticeable step". */
-export function differ(a: Measure, b: Measure): { total: number; level: number; attack: number; decay: number; bright: number; noise: number } {
+export function differ(a: Measure, b: Measure): { total: number; level: number; attack: number; decay: number; bright: number; noise: number; flat: number } {
   const oct = (p: number, q: number) => Math.abs(Math.log2(Math.max(50, p) / Math.max(50, q)))
   const level = Math.abs(a.rms - b.rms) / 6
   const attack = Math.abs(Math.log2((a.attack + 0.005) / (b.attack + 0.005))) / 1.5
   const decay = Math.abs(Math.log2((a.decay + 0.02) / (b.decay + 0.02))) / 1
   const bright = oct(a.bright, b.bright) / 1
   const noise = (Math.abs(a.noise - b.noise) * 3) / 1
-  return { total: level + attack + decay + bright + noise, level, attack, decay, bright, noise }
+  // flatness is log-ish: a bell (0.02) against a wash (0.3) is a big step
+  const flat = Math.abs(Math.log10((a.flat + 0.01) / (b.flat + 0.01))) / 0.5
+  return { total: level + attack + decay + bright + noise + flat, level, attack, decay, bright, noise, flat }
 }

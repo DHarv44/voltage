@@ -1,4 +1,4 @@
-import { soundKey, type LanePlan } from '../../../strudel/lanes'
+import { laneKey, type LanePlan } from '../../../strudel/lanes'
 import { drumOf, isNoise } from '../../../strudel/music'
 import { hasOnset } from '../../../strudel/pattern'
 
@@ -44,7 +44,7 @@ export class CycleEvents {
           else if (isNoise(s)) note = 60
           if (!Number.isFinite(note)) continue
         }
-        const l = drum >= 0 ? 0 : plan.byName ? (plan.byName.get(soundKey(s)) ?? plan.rest) : pi
+        const l = drum >= 0 ? 0 : plan.byName ? (plan.byName.get(laneKey(v)) ?? plan.rest) : pi
         const t = h.b - c
         // the same note at the same moment on one lane (a layered sound): one event
         let dup = -1

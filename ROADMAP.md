@@ -791,6 +791,16 @@ soundfonts load once their deps come from esm.sh with `?bundle` (sfumato imports
 name, which plain ESM shims lack); with them the GM rows read Σ 1.4–3.4: epiano / synth bass /
 strings / lead within 1 dB and a few ms, brass and sax the furthest (ours brighter, BREATH's attack
 slower). Strudel's GM names are `gm_piano`, `gm_pad_warm` (no program numbers in the name).
+User, listening: "the high hats sound more like a bell… maybe not the high hats, whatever the 16th
+notes are in that song". Two things: (1) HATS was six squares through a bandpass — six tones ring
+like a bell; a NOISE knob (def 0.35) mixes white noise into the metal, the bench measures spectral
+flatness (bell 0.02 … wash 0.3) on both sides and the fitter searches a noise axis (808 fits at 0,
+Linn / DMX at 0.3). (2) The 16ths in that piece are `pulse` with hpf 1000 + phaser, and the bass is
+also `pulse` with lpf 600 + distort: one name, two sounds, one part — so the 16ths went through the
+bass's FOLD on a HALCYON. Parts are now keyed by sound name plus the treatments it carries (a
+low-pass under 8 kHz, a high-pass at or over 150 Hz, dirt: presence only, so a patterned filter
+stays one part), labelled "pulse (hpf)" / "pulse (lpf dirt)" when a name splits. The 16ths are now a
+square VCO → high-pass 1000 → PHASER of their own.
 - Later: `chord()`/`voicing()`, `.jux` as real stereo, `.pan` patterned → PANNER CV, sample banks by
   name onto our drums' tunings (tr808 vs linn), `.speed` on samples, `samples()` custom names as
   lanes, `.segment` signals as LFOs, `.every` with named functions, per-lane `.gain` patterns to VEL

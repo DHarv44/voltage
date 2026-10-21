@@ -151,7 +151,7 @@ export class HatVoices {
   oh = 0
   constructor(
     private readonly fs: number,
-    rng: Rng,
+    private readonly rng: Rng,
   ) {
     this.phase = Float64Array.from(METAL, () => rng.next())
   }
@@ -162,8 +162,10 @@ export class HatVoices {
   triggerOpen(level: number): void {
     this.ohEnv = level
   }
-  /** tune = metal pitch multiplier, chDecay/ohDecay s, tone Hz (upper bandpass) */
-  step(tune: number, chDecay: number, ohDecay: number, tone: number): void {
+  /** tune = metal pitch multiplier, chDecay/ohDecay s, tone Hz (upper bandpass),
+   *  noise 0..1 = white noise in with the six squares (six tones alone ring
+   *  like a bell; a sampled or real hat is mostly wash) */
+  step(tune: number, chDecay: number, ohDecay: number, tone: number, noise = 0.35): void {
     const fs = this.fs
     let metal = 0
     for (let i = 0; i < METAL.length; i++) {
@@ -172,7 +174,7 @@ export class HatVoices {
       this.phase[i] = ph
       metal += ph < 0.5 ? 1 : -1
     }
-    metal /= METAL.length
+    metal = (metal / METAL.length) * (1 - noise) + (this.rng.next() * 2 - 1) * noise
     this.bpLow.process(metal, tone * 0.48, 1.2, fs)
     this.bpHigh.process(metal, tone, 1.2, fs)
     const x = this.bpLow.bp * 0.6 + this.bpHigh.bp

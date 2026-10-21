@@ -79,6 +79,7 @@ export class HatsDsp extends Dsp {
   private pTone = this.pi('tone')
   private pChd = this.pi('chd')
   private pOhd = this.pi('ohd')
+  private pNoise = this.pi('noise')
   private readonly trigCh = new Schmitt()
   private readonly trigOh = new Schmitt()
   private readonly voices = new HatVoices(this.fs, this.rng)
@@ -96,7 +97,7 @@ export class HatsDsp extends Dsp {
       this.led[1] = 1
     } else this.led[1] *= LED_DECAY
     const v = this.voices
-    v.step(p[this.pTune], p[this.pChd], p[this.pOhd], p[this.pTone])
+    v.step(p[this.pTune], p[this.pChd], p[this.pOhd], p[this.pTone], p[this.pNoise])
     this.out[0] = 5 * v.ch
     this.out[1] = 5 * v.oh
     this.out[2] = 5 * (v.ch + v.oh)

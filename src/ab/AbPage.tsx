@@ -53,7 +53,7 @@ export function AbPage() {
     setBusy('')
   }
 
-  const fmt = (m: Measure) => `${m.rms.toFixed(0)} dB · a ${(m.attack * 1000).toFixed(0)} ms · d ${m.decay.toFixed(2)} s · ${(m.bright / 1000).toFixed(1)} kHz · n ${m.noise.toFixed(2)} · ${m.hits} hits`
+  const fmt = (m: Measure) => `${m.rms.toFixed(0)} dB · a ${(m.attack * 1000).toFixed(0)} ms · d ${m.decay.toFixed(2)} s · ${(m.bright / 1000).toFixed(1)} kHz · n ${m.noise.toFixed(2)} · f ${m.flat.toFixed(2)} · ${m.hits} hits`
   const cell = (v: number) => ({ background: v > 1 ? `rgba(220,60,40,${Math.min(0.8, v / 3)})` : v > 0.5 ? 'rgba(220,160,40,0.35)' : 'transparent', padding: '2px 6px', textAlign: 'right' as const })
   const groups = [...new Set(SNIPPETS.map((s) => s.group))]
   const selected = rows.find((r) => r.snippet.id === sel)
@@ -83,6 +83,7 @@ export function AbPage() {
             <th>Δ decay</th>
             <th>Δ bright</th>
             <th>Δ noise</th>
+            <th>Δ flat</th>
             <th>Σ</th>
           </tr>
         </thead>
@@ -117,12 +118,13 @@ export function AbPage() {
                     <td style={cell(d.decay)}>{d.decay.toFixed(1)}</td>
                     <td style={cell(d.bright)}>{d.bright.toFixed(1)}</td>
                     <td style={cell(d.noise)}>{d.noise.toFixed(1)}</td>
+                    <td style={cell(d.flat)}>{d.flat.toFixed(1)}</td>
                     <td style={cell(d.total / 2)}>
                       <b>{d.total.toFixed(1)}</b>
                     </td>
                   </>
                 ) : (
-                  <td colSpan={6} />
+                  <td colSpan={7} />
                 )}
               </tr>
             )

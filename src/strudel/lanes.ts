@@ -19,6 +19,31 @@ export interface LanePlan {
 
 export const soundKey = (s: unknown): string => (s === undefined ? '' : String(s).split(':')[0])
 
+/** What a part is keyed by: the sound name plus which treatments it carries
+ *  (a low-pass, a high-pass, dirt), so one name used two ways — a `pulse`
+ *  bass with lpf and distort, and a `pulse` 16th line with hpf — is two
+ *  parts. Only presence counts, so a patterned filter stays one part. */
+export function laneKey(v: Record<string, unknown>): string {
+  const s = soundKey(v.s)
+  let sig = ''
+  // a wide-open low-pass or a rumble-cut high-pass isn't a treatment
+  if (typeof v.lpf === 'number' && v.lpf < 8000) sig += 'l'
+  if (typeof v.hpf === 'number' && v.hpf >= 150) sig += 'h'
+  if ((typeof v.shape === 'number' && v.shape > 0.05) || (typeof v.distort === 'number' && v.distort > 0.2)) sig += 'd'
+  return sig ? `${s}|${sig}` : s
+}
+
+/** A key's name for the report: the sound, with its treatments when the same sound has others. */
+export function laneLabel(key: string, keys: Iterable<string>): string {
+  const [s, sig] = key.split('|')
+  const name = s || 'triangle'
+  let twins = 0
+  for (const k of keys) if (k.split('|')[0] === s) twins++
+  if (twins < 2 || !sig) return name
+  const words = [sig.includes('l') && 'lpf', sig.includes('h') && 'hpf', sig.includes('d') && 'dirt'].filter(Boolean)
+  return `${name} (${words.join(' ')})`
+}
+
 export function planLanes(run: Run, maxLanes: number): LanePlan {
   const root = run.pattern
   const layers = root.layers
@@ -43,7 +68,8 @@ export function planLanes(run: Run, maxLanes: number): LanePlan {
       const s = soundKey(h.v.s)
       if (s && drumOf(s) >= 0) continue
       if (h.v.note === undefined && h.v.n === undefined && h.v.freq === undefined && !isNoise(s)) continue
-      const st = stats.get(s) ?? stats.set(s, { count: 0, lpf: [], hpf: [], dirt: [] }).get(s)!
+      const key = laneKey(h.v)
+      const st = stats.get(key) ?? stats.set(key, { count: 0, lpf: [], hpf: [], dirt: [] }).get(key)!
       st.count++
       if (typeof h.v.lpf === 'number') st.lpf.push(h.v.lpf)
       if (typeof h.v.hpf === 'number') st.hpf.push(h.v.hpf)
@@ -61,7 +87,7 @@ export function planLanes(run: Run, maxLanes: number): LanePlan {
     } else groups.push({ sounds: [s], count: st.count, sig })
   }
   const ranked = groups.sort((a, b) => b.count - a.count)
-  const label = (g: { sounds: string[] }) => g.sounds.map((s) => s || 'triangle').join(' + ')
+  const label = (g: { sounds: string[] }) => g.sounds.map((s) => laneLabel(s, stats.keys())).join(' + ')
   const byName = new Map<string, number>()
   const names: string[] = []
   const own = ranked.length <= maxLanes ? ranked.length : maxLanes - 1
@@ -94,8 +120,8 @@ interface Signature {
 
 const median = (xs: number[], none: number) => (xs.length ? [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)] : none)
 
-function signatureOf(sound: string, st: SoundStat): Signature {
-  return { timbre: timbreOfSound(sound), lpf: median(st.lpf, 20000), hpf: Math.max(50, median(st.hpf, 0)), dirty: median(st.dirt, 0) > 0.05 }
+function signatureOf(key: string, st: SoundStat): Signature {
+  return { timbre: timbreOfSound(key.split('|')[0]), lpf: median(st.lpf, 20000), hpf: Math.max(50, median(st.hpf, 0)), dirty: median(st.dirt, 0) > 0.05 }
 }
 
 const within = (a: number, b: number, octaves: number) => Math.abs(Math.log2(a / b)) <= octaves
