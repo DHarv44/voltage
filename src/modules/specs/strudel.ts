@@ -28,7 +28,7 @@ export const strudel: ModuleSpec = simpleSpec({
   params: [
     { id: 'cpm', label: 'CYCLES / MIN', min: 10, max: 120, def: 30, unit: 'bpm' },
     opts('run', 'PLAY', ['STOP', 'PLAY'], 1),
-    { id: 'gate', label: 'GATE', min: 0.1, max: 1, def: 0.8, unit: '%' },
+    { id: 'gate', label: 'GATE', min: 0.1, max: 1, def: 1, unit: '%' },
     { id: 'oct', label: 'OCTAVE', min: -2, max: 2, def: 0, stepped: true },
   ],
   inputs: [

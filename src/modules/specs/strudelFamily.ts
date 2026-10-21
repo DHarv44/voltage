@@ -13,7 +13,7 @@ export const SP_DEFAULT_PARTS = 12
 const transport = [
   { id: 'cpm', label: 'CYCLES / MIN', min: 10, max: 120, def: 30, unit: 'bpm' as const },
   opts('run', 'PLAY', ['STOP', 'PLAY'], 1),
-  { id: 'gate', label: 'GATE', min: 0.1, max: 1, def: 0.8, unit: '%' as const },
+  { id: 'gate', label: 'GATE', min: 0.1, max: 1, def: 1, unit: '%' as const },
   { id: 'oct', label: 'OCTAVE', min: -2, max: 2, def: 0, stepped: true },
   { id: 'parts', label: 'PARTS', min: 1, max: SP_PARTS, def: SP_DEFAULT_PARTS, stepped: true },
 ]

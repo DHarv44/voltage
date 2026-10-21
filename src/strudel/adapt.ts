@@ -61,7 +61,7 @@ const isSynth = (sound: string): boolean => {
 
 export function requestOf(info: LaneInfo, index: number): VoiceRequest {
   const timbre = timbreOfSound(info.sound)
-  return { name: `Part ${index + 1} (${info.name})`, timbre, poly: info.maxPoly, c: controlsOf(info), synth: isSynth(info.sound), wavetable: timbre === 'wavetable' ? info.sound.toLowerCase() : undefined }
+  return { name: `Part ${index + 1} (${info.name})`, sound: info.sound.toLowerCase(), timbre, poly: info.maxPoly, c: controlsOf(info), synth: isSynth(info.sound), wavetable: timbre === 'wavetable' ? info.sound.toLowerCase() : undefined }
 }
 
 /** The drums a piece plays (hit index order), with their typical gain, decay and drum machine. */

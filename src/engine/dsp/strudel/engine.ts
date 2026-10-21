@@ -100,7 +100,9 @@ export class StrudelEngine {
     let v = -1
     let oldest = Infinity
     for (let k = 0; k < MAX_VOICES; k++) {
-      if (this.ends[base + k] < this.pos) return k
+      // a voice whose note ends exactly now takes the next one (a line stays on
+      // voice 1, so a mono instrument on the poly cable hears every note)
+      if (this.ends[base + k] <= this.pos) return k
       if (this.starts[base + k] < oldest) {
         oldest = this.starts[base + k]
         v = k

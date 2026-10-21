@@ -25,7 +25,9 @@ function monoChain(k: Kit, r: VoiceRequest, j: PartJacks, say: (s: string) => vo
   const env = envelope(r)
   // a wavetable: the oscillator and wave fitted to it, its brightness as a key-tracking low-pass
   const wt = r.wavetable ? WAVETABLES[r.wavetable] : undefined
-  const osc = wt?.osc === 'wave' ? { type: 'wave', params: { wave: wt.wave ?? 2 }, out: 'out' } : { type: 'vco', out: wt?.out ?? wave }
+  // noise has no pitch: NOISE's white, pink or red (brown)
+  const noise = r.timbre === 'noise' ? (r.sound === 'pink' ? 'pink' : r.sound === 'brown' ? 'red' : 'white') : null
+  const osc = noise ? { type: 'noise', out: noise } : wt?.osc === 'wave' ? { type: 'wave', params: { wave: wt.wave ?? 2 }, out: 'out' } : { type: 'vco', out: wt?.out ?? wave }
   let filter: { type: string; params: Record<string, number>; out: string }
   let filterCv: Jack | undefined
   let how: string
@@ -45,12 +47,13 @@ function monoChain(k: Kit, r: VoiceRequest, j: PartJacks, say: (s: string) => vo
     track = true
     how = `low-pass at the wave's brightness (${wt.bright.toFixed(1)} harmonics), tracking the keys`
   } else {
-    filter = { type: 'vcf', params: { cutoff: cutoffOf(r, r.timbre === 'synthbass' || r.timbre === 'bass' ? 900 : r.timbre === 'lead' ? 3500 : 6000), res: 0.25 }, out: 'lp4' }
+    filter = { type: 'vcf', params: { cutoff: cutoffOf(r, r.timbre === 'synthbass' || r.timbre === 'bass' ? 900 : r.timbre === 'lead' ? 3500 : noise ? 14000 : 6000), res: noise ? 0 : 0.25 }, out: 'lp4' }
     how = 'ladder opened by the envelope'
   }
-  const vc = voice(k, j.v, j.g, { osc, filter, filterCv, env })
+  // a linear VCA: Strudel's gain envelope is linear, so sustain 0.6 means 0.6
+  const vc = voice(k, noise ? null : j.v, j.g, { osc, filter, filterCv, env, vca: { resp: 0 } })
   if (track) k.wire(j.v, [vc.filter, 'voct'])
-  say(`${wt ? `${r.wavetable} → ${osc.type === 'wave' ? `WAVE ${osc.params?.wave}` : `${osc.out} VCO`}` : `${wave} VCO voice`}, ${how}`)
+  say(`${noise ? `${noise} NOISE` : wt ? `${r.wavetable} → ${osc.type === 'wave' ? `WAVE ${osc.params?.wave}` : `${osc.out} VCO`}` : `${wave} VCO voice`}, ${how}`)
   return vc.out
 }
 
@@ -127,22 +130,25 @@ export function placeDrums(k: Kit, hits: DrumRequest[], trig: (h: Hit) => Jack, 
   return mixAll(k, outs, levels)
 }
 
-/** Mix any number of jacks down to one (MIX takes four). */
+/** Mix any number of jacks down to one (MIX takes four), at unity master. */
 export function mixAll(k: Kit, ins: Jack[], levels: number[]): Jack {
-  if (ins.length === 1 && levels[0] >= 0.69 && levels[0] <= 0.71) return ins[0]
-  if (ins.length <= 4) return mix(k, ins, levels)
-  const first = mix(k, ins.slice(0, 4), levels.slice(0, 4))
-  return mixAll(k, [first, ...ins.slice(4)], [0.9, ...levels.slice(4)])
+  if (ins.length === 1 && levels[0] >= 0.99) return ins[0]
+  if (ins.length <= 4) return mix(k, ins, levels, 1)
+  const first = mix(k, ins.slice(0, 4), levels.slice(0, 4), 1)
+  return mixAll(k, [first, ...ins.slice(4)], [1, ...levels.slice(4)])
 }
 
-/** The effects a sound's controls ask for, in order, each fed by the last. */
-export function placeTreatments(k: Kit, src: Jack, c: Controls, bpm: number, name: string, report: string[]): Jack {
+/** The effects a sound's controls ask for, in order, each fed by the last;
+ *  `gain` is how much louder the part should then be mixed. */
+export function placeTreatments(k: Kit, src: Jack, c: Controls, bpm: number, name: string, report: string[]): { src: Jack; gain: number } {
+  let gain = 1
   for (const [type, t] of Object.entries(TREATMENTS)) {
     if (!t.wants(c)) continue
     const id = k.add(type, t.set(c, { bpm }))
     k.wire(src, [id, t.in[0]])
     src = [id, t.out[0]]
+    gain *= t.gain?.(c) ?? 1
     report.push(`${name}: ${t.why(c)}`)
   }
-  return src
+  return { src, gain }
 }

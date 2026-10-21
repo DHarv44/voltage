@@ -66,8 +66,10 @@ export function buildStrudelRack(k: Kit, code: string, o: ImportOptions = {}): S
     k.wire([host, 'link'], [drumMod, 'link'])
   }
   const channels: { src: Jack; level: number; pan: number; room: number; name: string }[] = []
-  const drums = placeDrums(k, hits, (h: Hit) => [drumMod, h], level, lines)
-  if (drums) channels.push({ src: drums, level: 0.85, pan: 0, room: a.drumRoom, name: 'drums' })
+  // Strudel's drum samples sit ~10 dB over its synths (which play at 0.3): drums at unity, parts under
+  const drums = placeDrums(k, hits, (h: Hit) => [drumMod, h], (gain) => Math.min(1, Math.pow(Math.max(0, gain), 0.7)), lines)
+  if (drums) channels.push({ src: drums, level: 1, pan: 0, room: a.drumRoom, name: 'drums' })
+  const underDrums = drums ? 0.5 : 1
   // the parts with notes, and where each one's jacks are: the STRUDEL's own
   // lane, or a slot on a PARTS ×4 (single PARTs when only one or two are left)
   const played = a.lanes.map((info, l) => l).filter((l) => l < maxParts && a.lanes[l].notes > 0)
@@ -93,25 +95,27 @@ export function buildStrudelRack(k: Kit, code: string, o: ImportOptions = {}): S
   for (const l of played) {
     const info = a.lanes[l]
     const r = requestOf(info, l)
-    let src = placeVoice(k, r, jacks.get(l)!, lines)
-    src = placeTreatments(k, src, r.c, bpm, r.name, lines)
-    channels.push({ src, level: level(r.c.gain ?? 1), pan: r.c.pan ?? 0, room: r.c.reverb ?? 0, name: r.name })
+    const voiced = placeVoice(k, r, jacks.get(l)!, lines)
+    const { src, gain } = placeTreatments(k, voiced, r.c, bpm, r.name, lines)
+    // the A/B bench puts Strudel's drums level with its synths; ours peak ~10 dB under a 5 V
+    // part, so parts sit 6 dB down when there are drums (halfway: balance against audibility)
+    channels.push({ src, level: level(r.c.gain ?? 1) * gain * underDrums, pan: r.c.pan ?? 0, room: r.c.reverb ?? 0, name: r.name })
   }
   // the desk: a plate on the send, channels' room as their send
   const chans = channels.slice(0, 6)
   if (channels.length > 6) {
     const extra = mixAll(k, channels.slice(5).map((c) => c.src), channels.slice(5).map((c) => c.level))
-    chans[5] = { ...channels[5], src: extra, level: 0.8, name: 'parts 6+' }
+    chans[5] = { ...channels[5], src: extra, level: 0.8 * underDrums, name: 'parts 6+' }
     lines.push('More than six parts: the rest share console channel 6')
   }
-  // Strudel gains are relative: bring the loudest part up to a healthy level, the rest with it
+  // Strudel gains are relative: with no drums to sit under, bring the loudest part up to a healthy level
   const loudest = Math.max(0.05, ...chans.map((c) => c.level))
-  const norm = Math.min(3, 0.85 / loudest)
-  const conParams: Record<string, number> = { ret: 0.5 }
+  const norm = drums ? 1 : Math.min(3, 0.85 / loudest)
+  const conParams: Record<string, number> = { ret: 0.5, master: 1 }
   chans.forEach((c, i) => {
     conParams[`lvl${i + 1}`] = Math.min(1, c.level * norm)
     conParams[`pan${i + 1}`] = c.pan
-    conParams[`snd${i + 1}`] = Math.min(1, c.room * 2)
+    conParams[`snd${i + 1}`] = Math.min(1, c.room)
   })
   for (let i = chans.length; i < 6; i++) conParams[`lvl${i + 1}`] = 0
   const con = k.add('console', conParams)
@@ -120,7 +124,8 @@ export function buildStrudelRack(k: Kit, code: string, o: ImportOptions = {}): S
   k.wire([con, 'send'], [plate, 'in'])
   k.wire([plate, 'l'], [con, 'retL'])
   k.wire([plate, 'r'], [con, 'retR'])
-  const out = k.add('output', { vol: 0.6 })
+  // OUT scales by vol² / 8: full up puts a 5 V part at −4 dBFS, about where Strudel sits
+  const out = k.add('output', { vol: 1 })
   k.wire([con, 'l'], [out, 'l'])
   k.wire([con, 'r'], [out, 'r'])
   lines.push(`${(run.cps * 60).toFixed(1)} cycles a minute${run.pattern.cycles ? `, ${run.pattern.cycles} cycles long` : ''}`)

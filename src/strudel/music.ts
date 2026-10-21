@@ -133,6 +133,9 @@ const DRUM_NAMES: Record<string, number> = {
   misc: 7,
 }
 
+/** Strudel's noise sources: no note of their own, so they fire at middle C. */
+export const isNoise = (sound: string): boolean => /^(white|pink|brown|crackle)$/.test(sound.toLowerCase())
+
 /** Which drum output a sound name is (−1: not a drum). Bank prefixes and sample indices are ignored. */
 export function drumOf(sound: string): number {
   const base = sound.split(':')[0].toLowerCase().replace(/^.*[/_](?=[a-z]+$)/, '')

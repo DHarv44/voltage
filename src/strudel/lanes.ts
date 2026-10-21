@@ -1,5 +1,5 @@
 import { timbreOfSound } from './adapt'
-import { drumOf } from './music'
+import { drumOf, isNoise } from './music'
 import { hasOnset, type Pattern } from './pattern'
 import type { Run } from './run'
 
@@ -42,7 +42,7 @@ export function planLanes(run: Run, maxLanes: number): LanePlan {
       if (!hasOnset(h)) continue
       const s = soundKey(h.v.s)
       if (s && drumOf(s) >= 0) continue
-      if (h.v.note === undefined && h.v.n === undefined && h.v.freq === undefined) continue
+      if (h.v.note === undefined && h.v.n === undefined && h.v.freq === undefined && !isNoise(s)) continue
       const st = stats.get(s) ?? stats.set(s, { count: 0, lpf: [], hpf: [], dirt: [] }).get(s)!
       st.count++
       if (typeof h.v.lpf === 'number') st.lpf.push(h.v.lpf)

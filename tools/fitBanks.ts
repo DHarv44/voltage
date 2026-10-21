@@ -7,16 +7,33 @@
  *    node node_modules/rolldown/bin/cli.mjs tools/fitBanks.ts --platform node --format esm --file tools/fitBanks.mjs
  *    CACHE=<somewhere> node tools/fitBanks.mjs */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { measure, type Measure } from '../src/ab/measure'
 import { bench } from '../src/dev/harness'
-import { distance, featuresOf, FS, medianFeatures, type DrumFeatures } from '../src/dev/drumFeatures'
+import { FS, pitchOf } from '../src/dev/drumFeatures'
 import { decodeWav, resample } from '../src/dev/wav'
+
+/** A hit as the A/B bench measures it (the same function on both sides), plus its pitch. */
+interface Hit {
+  m: Measure
+  f0: number
+}
+
+const hitOf = (x: Float32Array): Hit => ({ m: measure(x, FS), f0: pitchOf(x) })
+
+/** How far two hits are apart: octaves of pitch and brightness, log decay and attack, noise share. */
+function distance(a: Hit, b: Hit, w: { f0: number; decay: number; bright: number; noise: number; body: number }): number {
+  const oct = (p: number, q: number) => Math.abs(Math.log2(Math.max(50, p) / Math.max(50, q)))
+  const pitch = a.f0 > 0 && b.f0 > 0 ? Math.abs(Math.log2(a.f0 / b.f0)) : a.f0 > 0 || b.f0 > 0 ? 1 : 0
+  const attack = Math.abs(Math.log2((a.m.attack + 0.005) / (b.m.attack + 0.005))) / 1.5
+  return w.f0 * pitch + w.decay * Math.abs(Math.log((a.m.decay + 0.02) / (b.m.decay + 0.02))) + w.bright * oct(a.m.bright, b.m.bright) + w.noise * Math.abs(a.m.noise - b.m.noise) * 3 + w.body * oct(a.m.body, b.m.body) + 0.3 * attack
+}
 
 const MANIFEST = 'https://strudel.b-cdn.net/tidal-drum-machines.json'
 const ALIASES = 'https://strudel.b-cdn.net/tidal-drum-machines-alias.json'
 const CACHE = process.env.CACHE ?? './.banks-cache'
 const OUT = process.env.OUT ?? 'src/timbre/banks.ts'
-/** Variants of a hit measured per bank (the median of them is fitted). */
-const VARIANTS = 6
+/** Variants of a hit per bank: Strudel plays the first unless the code says `bd:3`, so the first is fitted. */
+const VARIANTS = 1
 
 type Params = Record<string, number>
 interface Fit {
@@ -44,11 +61,11 @@ const FITS: Record<string, Fit> = {
 }
 
 /** Render one hit of a module with these params and measure it. */
-function measure(fit: Fit, params: Params): DrumFeatures {
+function render(fit: Fit, params: Params): Hit {
   const b = bench([['d', fit.module, { ...fit.base, ...params }]])
   b.patch('d', fit.trig)
   const { out } = b.run(2, [['d', fit.out]], (n) => b.set('d', fit.trig, n < 96 ? 10 : 0))
-  return featuresOf(out[0])
+  return hitOf(out[0])
 }
 
 function* grid(axes: Record<string, number[]>): Generator<Params> {
@@ -80,11 +97,11 @@ async function main(): Promise<void> {
   const aliases = (await (await fetch(ALIASES)).json()) as Record<string, string>
   const base = manifest._base as string
   // our grids, measured once
-  const points: Record<string, { params: Params; f: DrumFeatures }[]> = {}
+  const points: Record<string, { params: Params; f: Hit }[]> = {}
   for (const [hit, fit] of Object.entries(FITS)) {
     const t0 = Date.now()
     points[hit] = []
-    for (const params of grid(fit.axes)) points[hit].push({ params, f: measure(fit, params) })
+    for (const params of grid(fit.axes)) points[hit].push({ params, f: render(fit, params) })
     console.log(`${hit}: ${points[hit].length} settings measured in ${((Date.now() - t0) / 1000).toFixed(1)} s`)
   }
   const banks: Record<string, Record<string, Params>> = {}
@@ -96,8 +113,7 @@ async function main(): Promise<void> {
     for (const [hit, fit] of Object.entries(FITS)) {
       const entry = manifest[`${bank}_${fit.sample}`]
       const files = (Array.isArray(entry) ? entry : entry ? [entry] : []).slice(0, VARIANTS)
-      // the middle of the bank's variants of the hit (an 808's first kick file is its shortest)
-      const measured: DrumFeatures[] = []
+      const measured: Hit[] = []
       for (const [i, file] of files.entries()) {
         const cached = `${CACHE}/${bank}_${fit.sample}${i ? `-${i}` : ''}.wav`
         let buf: ArrayBuffer | null
@@ -109,14 +125,14 @@ async function main(): Promise<void> {
         const wav = buf && decodeWav(buf)
         if (!wav) continue
         const x = resample(wav, FS)
-        if (x.length >= FS * 0.02) measured.push(featuresOf(x))
+        if (x.length >= FS * 0.02) measured.push(hitOf(x))
       }
       if (!measured.length) {
         if (files.length) notes.push(`${hit} unreadable`)
         continue
       }
-      const f = medianFeatures(measured)
-      if (hit === 'bd' || hit === 'sd') notes.push(`${hit} ${f.f0.toFixed(0)}Hz ${f.decay.toFixed(2)}s`)
+      const f = measured[0]
+      if (hit === 'bd' || hit === 'sd') notes.push(`${hit} ${f.f0.toFixed(0)}Hz ${f.m.decay.toFixed(2)}s`)
       let best = points[hit][0]
       let bd = Infinity
       for (const p of points[hit]) {

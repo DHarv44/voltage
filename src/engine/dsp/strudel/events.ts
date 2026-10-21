@@ -1,5 +1,5 @@
 import { soundKey, type LanePlan } from '../../../strudel/lanes'
-import { drumOf } from '../../../strudel/music'
+import { drumOf, isNoise } from '../../../strudel/music'
 import { hasOnset } from '../../../strudel/pattern'
 
 const CAP = 4096
@@ -41,6 +41,7 @@ export class CycleEvents {
           if (v.note !== undefined) note = Number(v.note)
           else if (v.freq !== undefined) note = 69 + 12 * Math.log2(Number(v.freq) / 440)
           else if (v.n !== undefined) note = 48 + Number(v.n)
+          else if (isNoise(s)) note = 60
           if (!Number.isFinite(note)) continue
         }
         const l = drum >= 0 ? 0 : plan.byName ? (plan.byName.get(soundKey(s)) ?? plan.rest) : pi

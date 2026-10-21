@@ -91,10 +91,15 @@ function centroid(mag: Float32Array, n: number): { centroid: number; above2k: nu
   return { centroid: den > 0 ? num / den : 0, above2k: den > 0 ? hi / den : 0 }
 }
 
+/** A hit's fundamental over its first 60 ms (0 when there's no clear pitch). */
+export function pitchOf(x: Float32Array): number {
+  return pitchAt(x, onsetOf(x), Math.round(0.06 * FS))
+}
+
 /** Fundamental by autocorrelation over 30–500 Hz: the strongest lag after
  *  the correlation first dips (short lags are always correlated on a low
  *  tone); 0 when there's no dip or the peak is weak. */
-function pitchOf(x: Float32Array, from: number, len: number): number {
+function pitchAt(x: Float32Array, from: number, len: number): number {
   const hi = Math.ceil(FS / 30)
   let e0 = 0
   for (let i = 0; i < len; i++) e0 += (x[from + i] ?? 0) ** 2
@@ -126,7 +131,7 @@ export function featuresOf(raw: Float32Array): DrumFeatures {
   const whole = spectrum(x, on, 16384)
   const e = centroid(early, 2048)
   const w = centroid(whole, 16384)
-  return { decay: decayOf(x, on), f0: pitchOf(x, on, Math.round(0.06 * FS)), bright: e.centroid, noise: e.above2k, body: w.centroid }
+  return { decay: decayOf(x, on), f0: pitchAt(x, on, Math.round(0.06 * FS)), bright: e.centroid, noise: e.above2k, body: w.centroid }
 }
 
 /** The middle of several measurements, feature by feature (a bank's variants of one hit). */

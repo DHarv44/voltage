@@ -74,6 +74,7 @@ export class SnareVoice {
   private noiseEnv = 0
   private hpX = 0
   private hpY = 0
+  private lpY = 0
   constructor(
     private readonly fs: number,
     private readonly rng: Rng,
@@ -89,12 +90,14 @@ export class SnareVoice {
     const b1 = this.body1.step((TAU * tune) / fs, decayCoef(0.16, fs))
     const b2 = this.body2.step((TAU * tune * 1.62) / fs, decayCoef(0.1, fs))
     const body = b1 * (1 - 0.5 * tone) + b2 * (0.3 + 0.7 * tone)
-    // Snare wires: highpassed white noise with its own envelope.
+    // Snare wires: white noise between 1.8 and 6 kHz (real wires don't hiss
+    // to the top of the band) with its own envelope.
     const w = this.rng.next() * 2 - 1
     const R = 1 - (TAU * 1800) / fs
     this.hpY = w - this.hpX + R * this.hpY
     this.hpX = w
-    const wires = this.hpY * this.noiseEnv
+    this.lpY += (this.hpY - this.lpY) * ((TAU * 6000) / fs)
+    const wires = this.lpY * this.noiseEnv
     this.noiseEnv *= decayCoef(decay, fs)
     return fastTanh(body * 0.9 + wires * snappy * 1.1)
   }

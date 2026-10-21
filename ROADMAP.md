@@ -766,6 +766,29 @@ music says nothing — plucked things ring and stop, bowed and blown things swel
 brass quick — and a stand-in low-pass; `envelope()` / `cutoffOf()` read it for sampled sounds only.
 Sample-fitting the ~125 GM programs (webaudiofont base64 OGG → ffmpeg → features) stays a later item;
 the hand table is most of the audible value.
+2026-10-20 the A/B bench (user: "I have strudel open in one tab and voltage in another… how do we get
+those 2 commands to sound the same?" → "make a plan and begin"): `?ab` (dev only, src/ab/, not in the
+production bundle) loads Strudel's own player at runtime (@strudel/web 1.3.0 from unpkg; drum
+machines, wavetables, piano from strudel.b-cdn.net; soundfonts from @strudel/soundfonts with its
+bare imports rewritten to a blob that re-exports the loaded bundle, deps via esm.sh), renders each
+snippet offline through superdough into an OfflineAudioContext (what their renderPatternAudio does,
+minus the download) and through our Graph (with a 1 s pre-roll stopped, since OUT eases in), measures
+both the same way (src/ab/measure.ts: RMS, attack, decay to −30 dB, early centroid, noise share, hit
+count) and shows Δ per snippet with spectrograms and Play buttons. 42 snippets in src/ab/snippets.ts.
+What it found and fixed in one afternoon: our parts were 9–12 dB under (OUT at 0.6 is vol²/8 =
+×0.045 → imports set OUT 1, console master 1, drum MIX at unity); GATE default 0.8 cut every note by
+20 % (now 1); the first 330 ms of every render swelled (OUT's ease; pre-roll in the bench); noise
+sounds (`white`…) never fired (no note → now middle C); a line hopped voices at note boundaries so a
+mono chain missed notes (a voice ending exactly at an onset is reused); the snare's wires hissed to
+20 kHz (now low-passed at 6 kHz, and the bank fitter measures with the bench's own function, first
+variant only, so `.bank("tr909")` means what Strudel plays by default); distort / vowel parts get a
+mix boost; delay feedback default 0.5; room send = room. After: synths within 1–2 dB and 5 ms of
+Strudel, wavetables within 0.5 dB, 808 kick Σ 0.5. Still open: our drums peak ~10 dB under a 5 V
+part where Strudel's samples sit level with its synths (parts are mixed at 0.3 under drums for the
+balance; absolute level is lower, OUT is already at 1); two snippets with `lpq` / patterned lpf fail
+inside Strudel's offline render ("different audio context"); soundfonts loading in the bench was
+still failing at the last run (esm.sh swap untested); consecutive same-note retriggers read as a
+2 ms dip where Strudel overlaps voices.
 - Later: `chord()`/`voicing()`, `.jux` as real stereo, `.pan` patterned → PANNER CV, sample banks by
   name onto our drums' tunings (tr808 vs linn), `.speed` on samples, `samples()` custom names as
   lanes, `.segment` signals as LFOs, `.every` with named functions, per-lane `.gain` patterns to VEL

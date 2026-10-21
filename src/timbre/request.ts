@@ -36,6 +36,8 @@ export interface Controls {
 export interface VoiceRequest {
   /** For the report. */
   name: string
+  /** The sound as the music named it (lower case), for the few cases a name decides more than its timbre. */
+  sound?: string
   timbre: Timbre
   poly: number
   c: Controls

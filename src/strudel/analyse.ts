@@ -1,5 +1,5 @@
 import { planLanes, soundKey, type LanePlan } from './lanes'
-import { DRUM_OUTS, drumOf } from './music'
+import { DRUM_OUTS, drumOf, isNoise } from './music'
 import { hasOnset, type Hap } from './pattern'
 import type { Run } from './run'
 
@@ -85,7 +85,7 @@ export function analyseLanes(run: Run, maxLanes: number): Analysis {
           if (h.v.room !== undefined) drumRooms.push(Number(h.v.room))
           continue
         }
-        if (h.v.note === undefined && h.v.n === undefined && h.v.freq === undefined) continue
+        if (h.v.note === undefined && h.v.n === undefined && h.v.freq === undefined && !isNoise(s)) continue
         takeIn(plan.byName ? (plan.byName.get(s) ?? plan.rest) : pi, h, c, at)
       }
     })

@@ -108,6 +108,8 @@ export interface VoiceOpts {
   env?: { a?: number; d?: number; s?: number; r?: number }
   /** Skip the oscillator: filter this audio instead. */
   audio?: Jack
+  /** VCA params beyond gain 0 / CV 1 (resp 0 for a linear response). */
+  vca?: Record<string, number>
 }
 
 /** A classic voice: oscillator → filter → VCA, one envelope opening both.
@@ -123,7 +125,7 @@ export function voice(k: Kit, pitch: Jack | null, gate: Jack, o: VoiceOpts = {})
   }
   const f = o.filter ?? { type: 'vcf', params: { cutoff: 600, res: 0.4 }, out: 'lp4' }
   const filter = k.add(f.type, { cv: 0.45, ...f.params })
-  const vca = k.add('vca', { gain: 0, cv: 1 })
+  const vca = k.add('vca', { gain: 0, cv: 1, ...o.vca })
   const env = k.add('adsr', { a: 0.005, d: 0.25, s: 0.35, r: 0.25, ...o.env })
   k.wire(src, [filter, 'in'])
   k.wire([filter, f.out], [vca, 'in'])
@@ -142,8 +144,8 @@ export function tune(k: Kit, o: { bpm?: number; octave?: number } = {}) {
 }
 
 /** Mix up to four sources (levels per input). */
-export function mix(k: Kit, ins: Jack[], levels: number[] = []): Jack {
-  const p: Record<string, number> = { master: 0.8 }
+export function mix(k: Kit, ins: Jack[], levels: number[] = [], master = 0.8): Jack {
+  const p: Record<string, number> = { master }
   for (let i = 0; i < 4; i++) p[`l${i + 1}`] = i < ins.length ? (levels[i] ?? 0.7) : 0
   const m = k.add('mixer', p)
   ins.forEach((j, i) => k.wire(j, [m, `in${i + 1}`]))

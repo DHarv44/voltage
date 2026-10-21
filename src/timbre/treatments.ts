@@ -10,6 +10,8 @@ export interface Treatment {
   set: (c: Controls, ctx: { bpm: number }) => Record<string, number>
   /** For the report. */
   why: (c: Controls) => string
+  /** How much louder the part should be mixed for it (Strudel's distortion adds level; a formant takes it away). */
+  gain?: (c: Controls) => number
 }
 
 const clamp = (x: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, x))
@@ -21,6 +23,7 @@ export const TREATMENTS: Record<string, Treatment> = {
     wants: (c) => (c.distortion ?? 0) > 0.05,
     set: (c) => ({ fold: clamp(0.25 + (c.distortion ?? 0), 0.5, 10) }),
     why: () => 'distortion → FOLD',
+    gain: (c) => 1 + Math.min(3, (c.distortion ?? 0) * 3),
   },
   era: {
     in: ['in'],
@@ -35,6 +38,7 @@ export const TREATMENTS: Record<string, Treatment> = {
     wants: (c) => c.vowel !== undefined,
     set: (c) => ({ vowel: clamp(c.vowel ?? 0, 0, 4), mix: 1 }),
     why: () => 'vowel → FORMANT',
+    gain: () => 2.2,
   },
   phaser: {
     in: ['in'],
@@ -54,7 +58,8 @@ export const TREATMENTS: Record<string, Treatment> = {
       PP_BEATS.forEach((b, i) => {
         if (Math.abs(b - beats) < best) (best = Math.abs(b - beats)), (div = i)
       })
-      return { div, bpm: clamp(bpm, 40, 240), fb: c.delayFeedback ?? 0.4, mix: Math.min(0.6, c.delay ?? 0.3) }
+      // Strudel's delayfeedback defaults to 0.5
+      return { div, bpm: clamp(bpm, 40, 240), fb: c.delayFeedback ?? 0.5, mix: Math.min(0.6, c.delay ?? 0.3) }
     },
     why: () => 'delay → PING-PONG',
   },

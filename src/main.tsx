@@ -33,9 +33,14 @@ if (import.meta.env.DEV) {
   Object.assign(window, { __voltage: { patchStore, actions, history, engine, telemetry } })
 }
 
+// Dev only: ?ab is the sound A/B bench (Strudel's own engine against ours), not the rack.
+const abBench = import.meta.env.DEV && new URLSearchParams(location.search).has('ab')
+if (abBench) {
+  void import('./ab/AbPage').then(({ AbPage }) => createRoot(document.getElementById('root')!).render(<AbPage />))
+}
 // A shared link (#p=…) opens in a scratch rack; if this page isn't one, it
 // reloads as one and nothing else here needs to start.
-if (!bootShared() && !bootCloud()) {
+else if (!bootShared() && !bootCloud()) {
   initQwerty((ev) => engine.midi(ev))
   tutorial.boot() // opens a lesson if the URL names one (lessons run in a scratch rack)
   disableRackAutoscroll()
