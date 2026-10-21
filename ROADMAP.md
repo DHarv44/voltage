@@ -786,9 +786,11 @@ mix boost; delay feedback default 0.5; room send = room. After: synths within 1�
 Strudel, wavetables within 0.5 dB, 808 kick Σ 0.5. Still open: our drums peak ~10 dB under a 5 V
 part where Strudel's samples sit level with its synths (parts are mixed at 0.3 under drums for the
 balance; absolute level is lower, OUT is already at 1); two snippets with `lpq` / patterned lpf fail
-inside Strudel's offline render ("different audio context"); soundfonts loading in the bench was
-still failing at the last run (esm.sh swap untested); consecutive same-note retriggers read as a
-2 ms dip where Strudel overlaps voices.
+inside Strudel's offline render ("different audio context"); consecutive same-note retriggers read as a 2 ms dip where Strudel overlaps voices. The
+soundfonts load once their deps come from esm.sh with `?bundle` (sfumato imports soundfont2 by
+name, which plain ESM shims lack); with them the GM rows read Σ 1.4–3.4: epiano / synth bass /
+strings / lead within 1 dB and a few ms, brass and sax the furthest (ours brighter, BREATH's attack
+slower). Strudel's GM names are `gm_piano`, `gm_pad_warm` (no program numbers in the name).
 - Later: `chord()`/`voicing()`, `.jux` as real stereo, `.pan` patterned → PANNER CV, sample banks by
   name onto our drums' tunings (tr808 vs linn), `.speed` on samples, `samples()` custom names as
   lanes, `.segment` signals as LFOs, `.every` with named functions, per-lane `.gain` patterns to VEL
